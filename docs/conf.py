@@ -1,6 +1,6 @@
 """Sphinx config."""
 
-project = "reference_package"
+project = "bfb_delivery"
 author = "Kaleb Coberly"
 email = "kaleb.coberly@gmail.com"
 copyright = "TODO: Set up copy left or whatever."

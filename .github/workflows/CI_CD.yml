@@ -246,7 +246,7 @@ jobs:
 
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/reference_package
+      url: https://test.pypi.org/p/bfb_delivery
 
     permissions:
       id-token: write

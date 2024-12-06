@@ -11,9 +11,9 @@ I borrowed and modified the structure and tools from the idiomatic usage of IHME
 ## Structure
 
 ```bash
-    src/reference_package/api       Public and internal API.
-    src/reference_package/cli       Command-line-interface.
-    src/reference_package/lib       Implementation.
+    src/bfb_delivery/api       Public and internal API.
+    src/bfb_delivery/cli       Command-line-interface.
+    src/bfb_delivery/lib       Implementation.
     tests/e2e                       End-to-end tests.
     test/integration                Integration tests.
     tests/unit                      Unit tests.
@@ -27,9 +27,9 @@ I borrowed and modified the structure and tools from the idiomatic usage of IHME
 
 ## Library functions
 
-`reference_package` is a library from which you can import functions. Import the public example function like this: `from reference_package import wait_a_second`. Or, import the internal version like a power user like this: `from reference_package.api.internal import wait_a_second`.
+`bfb_delivery` is a library from which you can import functions. Import the public example function like this: `from bfb_delivery import wait_a_second`. Or, import the internal version like a power user like this: `from bfb_delivery.api.internal import wait_a_second`.
 
-Unless you're developing, avoid importing directly from library, like `from reference_package.lib.example import wait_a_second`.
+Unless you're developing, avoid importing directly from library, like `from bfb_delivery.lib.example import wait_a_second`.
 
 ## CLI
 

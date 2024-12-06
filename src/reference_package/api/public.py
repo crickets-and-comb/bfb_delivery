@@ -6,7 +6,7 @@ separate from a more complex internal API with more options for power users.
 
 from typeguard import typechecked
 
-from reference_package.api.internal import example
+from bfb_delivery.api.internal import example
 
 
 @typechecked

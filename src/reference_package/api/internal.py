@@ -7,7 +7,7 @@ power users and developers who may want to use an existing DB session or somethi
 
 from typeguard import typechecked
 
-from reference_package.lib import example
+from bfb_delivery.lib import example
 
 
 @typechecked

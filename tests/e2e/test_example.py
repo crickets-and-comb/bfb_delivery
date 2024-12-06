@@ -4,7 +4,7 @@ import time
 
 import pytest
 
-from reference_package import wait_a_second
+from bfb_delivery import wait_a_second
 
 
 @pytest.mark.parametrize("secs", [1, 2, 3])
