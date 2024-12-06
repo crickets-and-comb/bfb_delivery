@@ -14,10 +14,11 @@ defaults:
     shell: bash -el {0}
 
 env:
+  CONDA_VERSION: latest
+  PUBLISH_PACKAGE: false
   DIST_DIR: dist
   PYTHON_BUILD_VERSION: 3.12
   PYTHON_PACKAGE_DIST_NAME: python-package-distributions
-  CONDA_VERSION: latest
 
 jobs:
   verify-user:
@@ -165,6 +166,13 @@ jobs:
       id-token: write
 
     steps:
+      - name: Exit if PUBLISH_PACKAGE false
+        run: |
+          if [[ "${{ !env.PUBLISH_PACKAGE }}" ]]; then
+            echo "PUBLISH_PACKAGE is false. Exiting."
+            exit 0
+          fi
+
       - name: Download Package
         uses: actions/download-artifact@v4
         with:
@@ -187,6 +195,13 @@ jobs:
       id-token: write
 
     steps:
+    - name: Exit if PUBLISH_PACKAGE false
+      run: |
+        if [[ "${{ !env.PUBLISH_PACKAGE }}" ]]; then
+          echo "PUBLISH_PACKAGE is false. Exiting."
+          exit 0
+        fi
+
     - name: Set up python
       uses: actions/setup-python@v5
       with:
@@ -252,6 +267,13 @@ jobs:
       id-token: write
 
     steps:
+    - name: Exit if PUBLISH_PACKAGE false
+      run: |
+        if [[ "${{ !env.PUBLISH_PACKAGE }}" ]]; then
+          echo "PUBLISH_PACKAGE is false. Exiting."
+          exit 0
+        fi
+
     - name: Download all the dists
       uses: actions/download-artifact@v4
       with:
@@ -269,6 +291,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Exit if PUBLISH_PACKAGE false
+      run: |
+        if [[ "${{ !env.PUBLISH_PACKAGE }}" ]]; then
+          echo "PUBLISH_PACKAGE is false. Exiting."
+          exit 0
+        fi
+
     - name: Checkout Repository
       uses: actions/checkout@v4
 
@@ -307,6 +336,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Exit if PUBLISH_PACKAGE false
+      run: |
+        if [[ "${{ !env.PUBLISH_PACKAGE }}" ]]; then
+          echo "PUBLISH_PACKAGE is false. Exiting."
+          exit 0
+        fi
+
     - name: Checkout Repository
       uses: actions/checkout@v4
 
