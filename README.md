@@ -1,19 +1,30 @@
-# Basic package template
+# Bellingham Food Bank delivery planning toolkit
 
 ## Summary
 
-Just a basic package template.
+This doesn't do anything yet. It is made from the `reference_package` template repo: https://github.com/crickets-and-comb/reference_package
 
-## Credit
+The plan is to use it to automate some of the tasks food bank staff use to plan the delivery routes.
 
-I borrowed and modified the structure and tools from the idiomatic usage of IHME's Central Computation GBD team when I worked with them in 2023-2024.
+They currently use Circuit (https://getcircuit.com), but there are some tedious tasks to prepare the data for Circuit and then to process the data after using Circuit. They currently upload all the stops they need to Circuit to produce a single huge route, then they manually chunk up the route by driver according to how many boxes a driver can carry and what is a sensible set of stops, and finally they upload those smaller routes to Circuit again to optimize them. They spend several hours each week on the manual pieces of this, the chunking alone taking about four hours.
+
+## Dev plan
+
+Without replacing Circuit, there are some processes that can be further automated:
+- Chunking by driver: This may be the most challenging piece, I'm not confident I can solve this well enough to justify using my solution. So, I will save it for after I've cleared some of the low-hanging fruit. My first plan of attack is to try using k-nearest neighbors.
+- Splitting the chunked-by-driver list into a single workbook with separate sheets/CSVs by driver for upload and rerouting. Easy-peasy.
+- Combining the output by driver into a single workbook. Easy-peasy.
+- Formatting those sheets into the final sheets used for records and printing for drivers. They currently have a spreadsheet macro do most of this, but there are some pieces they still need to do manually. These solutions could probably be implemented in the spreadsheet, and that may be the best solution if they want to keep the macro. But, it might be simpler to replace the macro with formatting at the end of the ETL above.
+- Uploading and exporting can be done via the Circuit API, which would enable the above steps to be wrapped into a single ETL pipeline.
+
+The plan of attack is to start with the low-hanging fruit of data formatting before moving onto the bigger problem of chunking. Integrating with the Circuit API may come before or after the chunking solution, depending on how complicated each proves.
 
 ## Structure
 
 ```bash
-    src/reference_package/api       Public and internal API.
-    src/reference_package/cli       Command-line-interface.
-    src/reference_package/lib       Implementation.
+    src/bfb_delivery/api            Public and internal API.
+    src/bfb_delivery/cli            Command-line-interface.
+    src/bfb_delivery/lib            Implementation.
     tests/e2e                       End-to-end tests.
     test/integration                Integration tests.
     tests/unit                      Unit tests.
@@ -27,9 +38,9 @@ I borrowed and modified the structure and tools from the idiomatic usage of IHME
 
 ## Library functions
 
-`reference_package` is a library from which you can import functions. Import the public example function like this: `from reference_package import wait_a_second`. Or, import the internal version like a power user like this: `from reference_package.api.internal import wait_a_second`.
+`bfb_delivery` is a library from which you can import functions. Import the public example function like this: `from bfb_delivery import wait_a_second`. Or, import the internal version like a power user like this: `from bfb_delivery.api.internal import wait_a_second`.
 
-Unless you're developing, avoid importing directly from library, like `from reference_package.lib.example import wait_a_second`.
+Unless you're developing, avoid importing directly from library, like `from bfb_delivery.lib.example import wait_a_second`.
 
 ## CLI
 

@@ -2,7 +2,7 @@
 
 from importlib.metadata import version
 
-from reference_package.api.public import wait_a_second
+from bfb_delivery.api.public import wait_a_second
 
 try:
     __version__: str = version(__name__)

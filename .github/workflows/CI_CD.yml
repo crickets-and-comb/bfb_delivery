@@ -14,29 +14,30 @@ defaults:
     shell: bash -el {0}
 
 env:
+  CONDA_VERSION: latest
+  PUBLISH_PACKAGE: false
   DIST_DIR: dist
   PYTHON_BUILD_VERSION: 3.12
   PYTHON_PACKAGE_DIST_NAME: python-package-distributions
-  CONDA_VERSION: latest
 
 jobs:
   verify-user:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Check PR Author
-      if: github.event_name == 'pull_request'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        AUTHOR=$(jq -r '.pull_request.user.login' "$GITHUB_EVENT_PATH")
-        echo "PR opened by: $AUTHOR"
-        TRUSTED_USERS=("KalebCoberly")
-        if [[ ! " ${TRUSTED_USERS[@]} " =~ " ${AUTHOR} " ]]; then
-          echo "Unauthorized user: $AUTHOR"
-          exit 1
-        fi
+      - name: Check PR Author
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          AUTHOR=$(jq -r '.pull_request.user.login' "$GITHUB_EVENT_PATH")
+          echo "PR opened by: $AUTHOR"
+          TRUSTED_USERS=("KalebCoberly")
+          if [[ ! " ${TRUSTED_USERS[@]} " =~ " ${AUTHOR} " ]]; then
+            echo "Unauthorized user: $AUTHOR"
+            exit 1
+          fi
 
   CI:
     name: Build envs and run QC, tests, and builds.
@@ -165,6 +166,13 @@ jobs:
       id-token: write
 
     steps:
+      - name: Exit if PUBLISH_PACKAGE false
+        run: |
+          if [[ "${{ !env.PUBLISH_PACKAGE }}" ]]; then
+            echo "PUBLISH_PACKAGE is false. Exiting."
+            exit 0
+          fi
+
       - name: Download Package
         uses: actions/download-artifact@v4
         with:
@@ -187,56 +195,63 @@ jobs:
       id-token: write
 
     steps:
-    - name: Set up python
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ env.PYTHON_BUILD_VERSION }}
-    
-    - name: Download all the dists
-      uses: actions/download-artifact@v4
-      with:
-        name: ${{ env.PYTHON_PACKAGE_DIST_NAME }}
-        path: ${{ env.DIST_DIR }}/
+      - name: Exit if PUBLISH_PACKAGE false
+        run: |
+          if [[ "${{ !env.PUBLISH_PACKAGE }}" ]]; then
+            echo "PUBLISH_PACKAGE is false. Exiting."
+            exit 0
+          fi
 
-    - name: Sign the dists with Sigstore
-      uses: sigstore/gh-action-sigstore-python@v3.0.0
-      with:
-        inputs: >-
-          ./${{ env.DIST_DIR }}/*.tar.gz
-          ./${{ env.DIST_DIR }}/*.whl
+      - name: Set up python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_BUILD_VERSION }}
 
-    - name: Get version from dist
-      id: extract_version
-      run: |
-        pip install pkginfo
-        tarball=$(ls ${{ env.DIST_DIR }}/*.tar.gz | head -n 1)
-        wheel=$(ls ${{ env.DIST_DIR }}/*.whl | head -n 1)
-        if [ -f "$tarball" ]; then
-          version=$(python -c "import pkginfo; info = pkginfo.get_metadata('$tarball'); print(info.version)")
-        elif [ -f "$wheel" ]; then
-          version=$(python -c "import pkginfo; info = pkginfo.get_metadata('$wheel'); print(info.version)")
-        else
-          echo "No distribution files found."
-          exit 1
-        fi
-        echo "VERSION=$version" >> $GITHUB_ENV
+      - name: Download all the dists
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.PYTHON_PACKAGE_DIST_NAME }}
+          path: ${{ env.DIST_DIR }}/
 
-    - name: Create GitHub Release
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-      run: >-
-        gh release create
-        'v${{ env.VERSION }}'
-        --repo '${{ github.repository }}'
-        --notes ""
+      - name: Sign the dists with Sigstore
+        uses: sigstore/gh-action-sigstore-python@v3.0.0
+        with:
+          inputs: >-
+            ./${{ env.DIST_DIR }}/*.tar.gz
+            ./${{ env.DIST_DIR }}/*.whl
 
-    - name: Upload artifact signatures to GitHub Release
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-      run: >-
-        gh release upload
-        '${{ github.ref_name }}' ${{ env.DIST_DIR }}/**
-        --repo '${{ github.repository }}'
+      - name: Get version from dist
+        id: extract_version
+        run: |
+          pip install pkginfo
+          tarball=$(ls ${{ env.DIST_DIR }}/*.tar.gz | head -n 1)
+          wheel=$(ls ${{ env.DIST_DIR }}/*.whl | head -n 1)
+          if [ -f "$tarball" ]; then
+            version=$(python -c "import pkginfo; info = pkginfo.get_metadata('$tarball'); print(info.version)")
+          elif [ -f "$wheel" ]; then
+            version=$(python -c "import pkginfo; info = pkginfo.get_metadata('$wheel'); print(info.version)")
+          else
+            echo "No distribution files found."
+            exit 1
+          fi
+          echo "VERSION=$version" >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create
+          'v${{ env.VERSION }}'
+          --repo '${{ github.repository }}'
+          --notes ""
+
+      - name: Upload artifact signatures to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          gh release upload
+          '${{ github.ref_name }}' ${{ env.DIST_DIR }}/**
+          --repo '${{ github.repository }}'
 
   publish-to-testpypi:
     name: Publish to TestPyPI
@@ -246,22 +261,29 @@ jobs:
 
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/reference_package
+      url: https://test.pypi.org/p/bfb_delivery
 
     permissions:
       id-token: write
 
     steps:
-    - name: Download all the dists
-      uses: actions/download-artifact@v4
-      with:
-        name: ${{ env.PYTHON_PACKAGE_DIST_NAME }}
-        path: ${{ env.DIST_DIR }}/
+      - name: Exit if PUBLISH_PACKAGE false
+        run: |
+          if [[ "${{ !env.PUBLISH_PACKAGE }}" ]]; then
+            echo "PUBLISH_PACKAGE is false. Exiting."
+            exit 0
+          fi
 
-    - name: Publish to TestPyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        repository-url: https://test.pypi.org/legacy/
+      - name: Download all the dists
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.PYTHON_PACKAGE_DIST_NAME }}
+          path: ${{ env.DIST_DIR }}/
+
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
 
   test_published_package_prod:
     name: Test Published Package on PyPi
@@ -269,37 +291,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      - name: Exit if PUBLISH_PACKAGE false
+        run: |
+          if [[ "${{ !env.PUBLISH_PACKAGE }}" ]]; then
+            echo "PUBLISH_PACKAGE is false. Exiting."
+            exit 0
+          fi
 
-    - name: Setup Conda
-      uses: conda-incubator/setup-miniconda@v3
-      with:
-        auto-activate-base: false
-        miniconda-version: ${{ env.CONDA_VERSION }}
-        python-version: ${{ env.PYTHON_BUILD_VERSION }}
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Build Environment
-      run: |
-        ENV_NAME=test_publish_to_pypi
-        echo "ENV_NAME=${ENV_NAME}" >> $GITHUB_ENV
-        conda create -n ${ENV_NAME} python=${{ env.PYTHON_BUILD_VERSION }} -y
+      - name: Setup Conda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-activate-base: false
+          miniconda-version: ${{ env.CONDA_VERSION }}
+          python-version: ${{ env.PYTHON_BUILD_VERSION }}
 
-    - name: Install Package
-      run: |
-        PACKAGE_NAME=$(python -c "import configparser; cfg = configparser.ConfigParser(); cfg.read('setup.cfg'); print(cfg['metadata']['name'])")
-        echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
-        PACKAGE_NAME_HYPHEN=$(echo ${PACKAGE_NAME} | tr '_' '-')
-        PACKAGE_VERSION=$(python -c "import configparser; cfg = configparser.ConfigParser(); cfg.read('setup.cfg'); print(cfg['metadata']['version'])")
-        conda run -n ${{ env.ENV_NAME }} pip install ${PACKAGE_NAME_HYPHEN}==${PACKAGE_VERSION}
+      - name: Build Environment
+        run: |
+          ENV_NAME=test_publish_to_pypi
+          echo "ENV_NAME=${ENV_NAME}" >> $GITHUB_ENV
+          conda create -n ${ENV_NAME} python=${{ env.PYTHON_BUILD_VERSION }} -y
 
-    - name: Run Tests
-      run: |
-        # Quick test to make sure the package is importable before installing anything else.
-        conda activate ${{ env.ENV_NAME }}
-        python -c "import ${{ env.PACKAGE_NAME }}"
-        pip install pytest
-        pytest tests/
+      - name: Install Package
+        run: |
+          PACKAGE_NAME=$(python -c "import configparser; cfg = configparser.ConfigParser(); cfg.read('setup.cfg'); print(cfg['metadata']['name'])")
+          echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
+          PACKAGE_NAME_HYPHEN=$(echo ${PACKAGE_NAME} | tr '_' '-')
+          PACKAGE_VERSION=$(python -c "import configparser; cfg = configparser.ConfigParser(); cfg.read('setup.cfg'); print(cfg['metadata']['version'])")
+          conda run -n ${{ env.ENV_NAME }} pip install ${PACKAGE_NAME_HYPHEN}==${PACKAGE_VERSION}
+
+      - name: Run Tests
+        run: |
+          # Quick test to make sure the package is importable before installing anything else.
+          conda activate ${{ env.ENV_NAME }}
+          python -c "import ${{ env.PACKAGE_NAME }}"
+          pip install pytest
+          pytest tests/
 
   test_published_package_test:
     name: Test Published Package on TestPyPi
@@ -307,34 +336,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      - name: Exit if PUBLISH_PACKAGE false
+        run: |
+          if [[ "${{ !env.PUBLISH_PACKAGE }}" ]]; then
+            echo "PUBLISH_PACKAGE is false. Exiting."
+            exit 0
+          fi
 
-    - name: Setup Conda
-      uses: conda-incubator/setup-miniconda@v3
-      with:
-        auto-activate-base: false
-        miniconda-version: ${{ env.CONDA_VERSION }}
-        python-version: ${{ env.PYTHON_BUILD_VERSION }}
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Build Environment
-      run: |
-        ENV_NAME=test_publish_to_testpypi
-        echo "ENV_NAME=${ENV_NAME}" >> $GITHUB_ENV
-        conda create -n ${ENV_NAME} python=${{ env.PYTHON_BUILD_VERSION }} -y
+      - name: Setup Conda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-activate-base: false
+          miniconda-version: ${{ env.CONDA_VERSION }}
+          python-version: ${{ env.PYTHON_BUILD_VERSION }}
 
-    - name: Install Package
-      run: |
-        PACKAGE_NAME=$(python -c "import configparser; cfg = configparser.ConfigParser(); cfg.read('setup.cfg'); print(cfg['metadata']['name'])")
-        echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
-        PACKAGE_NAME_HYPHEN=$(echo ${PACKAGE_NAME} | tr '_' '-')
-        PACKAGE_VERSION=$(python -c "import configparser; cfg = configparser.ConfigParser(); cfg.read('setup.cfg'); print(cfg['metadata']['version'])")
-        conda run -n ${{ env.ENV_NAME }} pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ ${PACKAGE_NAME_HYPHEN}==${PACKAGE_VERSION}
+      - name: Build Environment
+        run: |
+          ENV_NAME=test_publish_to_testpypi
+          echo "ENV_NAME=${ENV_NAME}" >> $GITHUB_ENV
+          conda create -n ${ENV_NAME} python=${{ env.PYTHON_BUILD_VERSION }} -y
 
-    - name: Run Tests
-      run: |
-        # Quick test to make sure the package is importable before installing anything else.
-        conda activate ${{ env.ENV_NAME }}
-        python -c "import ${{ env.PACKAGE_NAME }}"
-        pip install pytest
-        pytest tests/
+      - name: Install Package
+        run: |
+          PACKAGE_NAME=$(python -c "import configparser; cfg = configparser.ConfigParser(); cfg.read('setup.cfg'); print(cfg['metadata']['name'])")
+          echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
+          PACKAGE_NAME_HYPHEN=$(echo ${PACKAGE_NAME} | tr '_' '-')
+          PACKAGE_VERSION=$(python -c "import configparser; cfg = configparser.ConfigParser(); cfg.read('setup.cfg'); print(cfg['metadata']['version'])")
+          conda run -n ${{ env.ENV_NAME }} pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ ${PACKAGE_NAME_HYPHEN}==${PACKAGE_VERSION}
+
+      - name: Run Tests
+        run: |
+          # Quick test to make sure the package is importable before installing anything else.
+          conda activate ${{ env.ENV_NAME }}
+          python -c "import ${{ env.PACKAGE_NAME }}"
+          pip install pytest
+          pytest tests/
