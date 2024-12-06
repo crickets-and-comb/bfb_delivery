@@ -2,8 +2,6 @@ name: Makefile CI-CD
 
 on:
   pull_request:
-    branches:
-      - main
   push:
     branches:
       - main
