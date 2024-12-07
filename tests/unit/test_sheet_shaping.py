@@ -1,3 +1,5 @@
+"""Unit tests for sheet_shaping.py."""
+
 from pathlib import Path
 
 import pandas as pd
@@ -6,14 +8,19 @@ import pytest
 from bfb_delivery.lib.formatting.sheet_shaping import split_chunked_route
 
 
-# TODO: Can you upload multiple CSVs to Circuit instead of a single Excel file with multiple sheets?
+# TODO: Can upload multiple CSVs to Circuit instead of Excel file with multiple sheets?
 class TestSplitChunkedRoute:
     """Test that split_chunked_route splits a spreadsheet route into sheets by driver."""
 
     @pytest.fixture(scope="class")
+    def class_tmp_dir(self, tmp_path_factory: pytest.TempPathFactory) -> Path:
+        """Get a temporary directory for the class."""
+        return tmp_path_factory.mktemp("tmp")
+
+    @pytest.fixture(scope="class")
     def mock_chunked_sheet_raw(self) -> pd.DataFrame:
         """A mock chunked route sheet."""
-        # TODO: Use a fuller mock sheet with all the columns and data types to ensure that the function works as expected.
+        # TODO: Use a fuller mock sheet with all the columns.
         return pd.DataFrame(
             {
                 "driver": ["A", "A", "B", "B", "C", "C"],
@@ -30,10 +37,10 @@ class TestSplitChunkedRoute:
 
     @pytest.fixture(scope="class")
     def mock_chunked_sheet_raw_path(
-        self, tmp_path: Path, mock_chunked_sheet_raw: pd.DataFrame
+        self, class_tmp_dir: Path, mock_chunked_sheet_raw: pd.DataFrame
     ) -> Path:
         """Save mock chunked route sheet and get path."""
-        fp: Path = tmp_path / "mock_chunked_sheet_raw.xlsx"
+        fp: Path = class_tmp_dir / "mock_chunked_sheet_raw.xlsx"
         # TODO: Use specific sheet name.
         mock_chunked_sheet_raw.to_excel(fp, index=False)
 
@@ -41,11 +48,11 @@ class TestSplitChunkedRoute:
 
     @pytest.fixture(scope="class")
     def mock_chunked_workbook_split_path(
-        self, tmp_path: Path, mock_chunked_sheet_raw: pd.DataFrame
+        self, class_tmp_dir: Path, mock_chunked_sheet_raw: pd.DataFrame
     ) -> Path:
         """A mocked chunked route workbook, split into sheets by driver."""
         # For each driver, create a sheet with the driver's data.
-        chunked_workbook_split_path: Path = tmp_path / "mock_chunked_workbook_split.xlsx"
+        chunked_workbook_split_path: Path = class_tmp_dir / "mock_chunked_workbook_split.xlsx"
         with pd.ExcelWriter(chunked_workbook_split_path) as writer:
             for driver, data in mock_chunked_sheet_raw.groupby("driver"):
                 data.to_excel(writer, sheet_name=str(driver), index=False)
@@ -81,7 +88,7 @@ class TestSplitChunkedRoute:
     def test_driver_count(
         self, mock_chunked_sheet_raw: pd.DataFrame, chunked_workbook_split: pd.ExcelFile
     ) -> None:
-        """The number of sheets in the split workbook is equal to the number of drivers in the mock sheet."""
+        """Sheet count in the split workbook is the number of drivers in the mock sheet."""
         # TODO: Make columns constants.
         driver_count = mock_chunked_sheet_raw["driver"].nunique()
         assert len(chunked_workbook_split.sheet_names) == driver_count
