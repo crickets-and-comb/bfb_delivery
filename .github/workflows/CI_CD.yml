@@ -13,7 +13,7 @@ defaults:
 
 env:
   CONDA_VERSION: latest
-  PUBLISH_PACKAGE: False
+  PUBLISH_PACKAGE: false
   DIST_DIR: dist
   PYTHON_BUILD_VERSION: 3.12
   PYTHON_PACKAGE_DIST_NAME: python-package-distributions
@@ -165,14 +165,14 @@ jobs:
 
     steps:
       - name: Download Package
-        if: ${{ env.PUBLISH_PACKAGE }}
+        if: ${{ env.PUBLISH_PACKAGE == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.PYTHON_PACKAGE_DIST_NAME }}
           path: ${{ env.DIST_DIR }}/
 
       - name: Publish to PyPi
-        if: ${{ env.PUBLISH_PACKAGE }}
+        if: ${{ env.PUBLISH_PACKAGE == 'true' }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: ${{ env.DIST_DIR }}/
@@ -189,20 +189,20 @@ jobs:
 
     steps:
       - name: Set up python
-        if: ${{ env.PUBLISH_PACKAGE }}
+        if: ${{ env.PUBLISH_PACKAGE == 'true' }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_BUILD_VERSION }}
 
       - name: Download all the dists
-        if: ${{ env.PUBLISH_PACKAGE }}
+        if: ${{ env.PUBLISH_PACKAGE == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.PYTHON_PACKAGE_DIST_NAME }}
           path: ${{ env.DIST_DIR }}/
 
       - name: Sign the dists with Sigstore
-        if: ${{ env.PUBLISH_PACKAGE }}
+        if: ${{ env.PUBLISH_PACKAGE == 'true' }}
         uses: sigstore/gh-action-sigstore-python@v3.0.0
         with:
           inputs: >-
@@ -210,7 +210,7 @@ jobs:
             ./${{ env.DIST_DIR }}/*.whl
 
       - name: Get version from dist
-        if: ${{ env.PUBLISH_PACKAGE }}
+        if: ${{ env.PUBLISH_PACKAGE == 'true' }}
         id: extract_version
         run: |
           pip install pkginfo
@@ -227,7 +227,7 @@ jobs:
           echo "VERSION=$version" >> $GITHUB_ENV
 
       - name: Create GitHub Release
-        if: ${{ env.PUBLISH_PACKAGE }}
+        if: ${{ env.PUBLISH_PACKAGE == 'true' }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: >-
@@ -237,7 +237,7 @@ jobs:
           --notes ""
 
       - name: Upload artifact signatures to GitHub Release
-        if: ${{ env.PUBLISH_PACKAGE }}
+        if: ${{ env.PUBLISH_PACKAGE == 'true' }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: >-
@@ -260,14 +260,14 @@ jobs:
 
     steps:
       - name: Download all the dists
-        if: ${{ env.PUBLISH_PACKAGE }}
+        if: ${{ env.PUBLISH_PACKAGE == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.PYTHON_PACKAGE_DIST_NAME }}
           path: ${{ env.DIST_DIR }}/
 
       - name: Publish to TestPyPI
-        if: ${{ env.PUBLISH_PACKAGE }}
+        if: ${{ env.PUBLISH_PACKAGE == 'true' }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
@@ -279,11 +279,11 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        if: ${{ env.PUBLISH_PACKAGE }}
+        if: ${{ env.PUBLISH_PACKAGE == 'true' }}
         uses: actions/checkout@v4
 
       - name: Setup Conda
-        if: ${{ env.PUBLISH_PACKAGE }}
+        if: ${{ env.PUBLISH_PACKAGE == 'true' }}
         uses: conda-incubator/setup-miniconda@v3
         with:
           auto-activate-base: false
@@ -291,14 +291,14 @@ jobs:
           python-version: ${{ env.PYTHON_BUILD_VERSION }}
 
       - name: Build Environment
-        if: ${{ env.PUBLISH_PACKAGE }}
+        if: ${{ env.PUBLISH_PACKAGE == 'true' }}
         run: |
           ENV_NAME=test_publish_to_pypi
           echo "ENV_NAME=${ENV_NAME}" >> $GITHUB_ENV
           conda create -n ${ENV_NAME} python=${{ env.PYTHON_BUILD_VERSION }} -y
 
       - name: Install Package
-        if: ${{ env.PUBLISH_PACKAGE }}
+        if: ${{ env.PUBLISH_PACKAGE == 'true' }}
         run: |
           PACKAGE_NAME=$(python -c "import configparser; cfg = configparser.ConfigParser(); cfg.read('setup.cfg'); print(cfg['metadata']['name'])")
           echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
@@ -307,7 +307,7 @@ jobs:
           conda run -n ${{ env.ENV_NAME }} pip install ${PACKAGE_NAME_HYPHEN}==${PACKAGE_VERSION}
 
       - name: Run Tests
-        if: ${{ env.PUBLISH_PACKAGE }}
+        if: ${{ env.PUBLISH_PACKAGE == 'true' }}
         run: |
           # Quick test to make sure the package is importable before installing anything else.
           conda activate ${{ env.ENV_NAME }}
@@ -322,11 +322,11 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        if: ${{ env.PUBLISH_PACKAGE }}
+        if: ${{ env.PUBLISH_PACKAGE == 'true' }}
         uses: actions/checkout@v4
 
       - name: Setup Conda
-        if: ${{ env.PUBLISH_PACKAGE }}
+        if: ${{ env.PUBLISH_PACKAGE == 'true' }}
         uses: conda-incubator/setup-miniconda@v3
         with:
           auto-activate-base: false
@@ -334,14 +334,14 @@ jobs:
           python-version: ${{ env.PYTHON_BUILD_VERSION }}
 
       - name: Build Environment
-        if: ${{ env.PUBLISH_PACKAGE }}
+        if: ${{ env.PUBLISH_PACKAGE == 'true' }}
         run: |
           ENV_NAME=test_publish_to_testpypi
           echo "ENV_NAME=${ENV_NAME}" >> $GITHUB_ENV
           conda create -n ${ENV_NAME} python=${{ env.PYTHON_BUILD_VERSION }} -y
 
       - name: Install Package
-        if: ${{ env.PUBLISH_PACKAGE }}
+        if: ${{ env.PUBLISH_PACKAGE == 'true' }}
         run: |
           PACKAGE_NAME=$(python -c "import configparser; cfg = configparser.ConfigParser(); cfg.read('setup.cfg'); print(cfg['metadata']['name'])")
           echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
@@ -350,7 +350,7 @@ jobs:
           conda run -n ${{ env.ENV_NAME }} pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ ${PACKAGE_NAME_HYPHEN}==${PACKAGE_VERSION}
 
       - name: Run Tests
-        if: ${{ env.PUBLISH_PACKAGE }}
+        if: ${{ env.PUBLISH_PACKAGE == 'true' }}
         run: |
           # Quick test to make sure the package is importable before installing anything else.
           conda activate ${{ env.ENV_NAME }}
