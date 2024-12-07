@@ -1,4 +1,4 @@
-"""This is just an example."""
+"""split_chunked_route CLI. See :doc:`split_chunked_route` for more information."""
 
 from pathlib import Path
 

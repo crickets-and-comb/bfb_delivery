@@ -28,7 +28,7 @@ def split_chunked_route(
 
     Reads a route spreadsheet at `input_path`.
     Writes `n_books` Excel workbooks with each sheet containing the stops for a single driver.
-    Writes adjacent to the original workbook.
+    Writes adjacent to the original workbook unless `output_dir` specified.
 
     Args:
         input_path: Path to the chunked route sheet that this function reads in and splits up.
