@@ -6,12 +6,14 @@ from pathlib import Path
 import pandas as pd
 from typeguard import typechecked
 
+from bfb_delivery.lib.constants import Columns
 
-# TODO: Make column constants.
+
 # TODO: Find out what columns we need to keep.
 # TODO: Use Pandera.
 # TODO: Get/make some realish data to test with.
 # TODO: Switch to or allow CSVs instead of Excel files.
+# TODO: Wrap in CLI.
 @typechecked
 def split_chunked_route(
     sheet_path: Path | str,
@@ -47,7 +49,7 @@ def split_chunked_route(
 
     chunked_sheet: pd.DataFrame = pd.read_excel(sheet_path)
 
-    drivers = chunked_sheet["driver"].unique()
+    drivers = chunked_sheet[Columns.DRIVER].unique()
     driver_count = len(drivers)
     if driver_count < n_books:
         raise ValueError(
@@ -71,8 +73,8 @@ def split_chunked_route(
         split_workbook_paths.append(split_workbook_path)
 
         with pd.ExcelWriter(split_workbook_path) as writer:
-            driver_set_df = chunked_sheet[chunked_sheet["driver"].isin(driver_set)]
-            for driver, data in driver_set_df.groupby("driver"):
+            driver_set_df = chunked_sheet[chunked_sheet[Columns.DRIVER].isin(driver_set)]
+            for driver, data in driver_set_df.groupby(Columns.DRIVER):
                 data.to_excel(writer, sheet_name=str(driver), index=False)
 
     return split_workbook_paths

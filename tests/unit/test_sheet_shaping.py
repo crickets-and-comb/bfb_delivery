@@ -7,6 +7,7 @@ from typing import Final
 import pandas as pd
 import pytest
 
+from bfb_delivery.lib.constants import Columns
 from bfb_delivery.lib.formatting.sheet_shaping import split_chunked_route
 
 N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
@@ -28,7 +29,7 @@ class TestSplitChunkedRoute:
         # TODO: Use specific sheet name.
         raw_chunked_sheet = pd.DataFrame(
             {
-                "driver": ["A", "A", "B", "B", "C", "C", "D"],
+                Columns.DRIVER: ["A", "A", "B", "B", "C", "C", "D"],
                 "address": [
                     "123 Main",
                     "456 Elm",
@@ -92,7 +93,7 @@ class TestSplitChunkedRoute:
         """Test that each sheet contains only one driver's data."""
         output_paths = split_chunked_route(sheet_path=mock_chunked_sheet_raw, n_books=n_books)
         driver_sheets = _get_driver_sheets(output_paths=output_paths)
-        assert all(sheet["driver"].nunique() == 1 for sheet in driver_sheets)
+        assert all(sheet[Columns.DRIVER].nunique() == 1 for sheet in driver_sheets)
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_sheets_named_by_driver(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
@@ -102,7 +103,7 @@ class TestSplitChunkedRoute:
             workbook = pd.ExcelFile(output_path)
             for sheet_name in workbook.sheet_names:
                 driver_sheet = pd.read_excel(workbook, sheet_name=sheet_name)
-                assert sheet_name == driver_sheet["driver"].unique()[0]
+                assert sheet_name == driver_sheet[Columns.DRIVER].unique()[0]
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_unique_drivers_across_books(
@@ -146,7 +147,7 @@ class TestSplitChunkedRoute:
     def test_invalid_n_books_driver_count(self, mock_chunked_sheet_raw: Path) -> None:
         """Test that n_books greater than the number of drivers raises a ValueError."""
         raw_sheet = pd.read_excel(mock_chunked_sheet_raw)
-        driver_count = len(raw_sheet["driver"].unique())
+        driver_count = len(raw_sheet[Columns.DRIVER].unique())
         n_books = driver_count + 1
         with pytest.raises(
             ValueError,
