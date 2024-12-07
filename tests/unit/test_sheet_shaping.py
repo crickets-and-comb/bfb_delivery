@@ -93,14 +93,16 @@ class TestSplitChunkedRoute:
         assert set(chunked_workbook_split.sheet_names) == set(driver_names)
 
     @pytest.mark.parametrize("output_dir_type", [Path, str])
+    @pytest.mark.parametrize("output_dir", ["", "output"])
     def test_set_output_dir(
         self,
         output_dir_type: type[Path | str],
+        output_dir: Path | str,
         class_tmp_dir: Path,
         mock_chunked_sheet_raw_path: Path,
     ) -> None:
         """Test that the output directory can be set."""
-        output_dir = output_dir_type(class_tmp_dir / "output")
+        output_dir = output_dir_type(class_tmp_dir / output_dir)
         output_path = split_chunked_route(
             sheet_path=mock_chunked_sheet_raw_path, output_dir=output_dir
         )
