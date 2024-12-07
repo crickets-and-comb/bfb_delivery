@@ -50,46 +50,14 @@ class TestSplitChunkedRoute:
         return fp
 
     @pytest.fixture(scope="class")
-    def mock_chunked_workbook_split_path_single(
-        self, class_tmp_dir: Path, mock_chunked_sheet_raw: pd.DataFrame
-    ) -> Path:
-        """Path to a mocked chunked route workbook, split into sheets by driver."""
-        # For each driver, create a sheet with the driver's data.
-        split_workbook_path: Path = class_tmp_dir / "mock_chunked_workbook_split.xlsx"
-        with pd.ExcelWriter(split_workbook_path) as writer:
-            for driver, data in mock_chunked_sheet_raw.groupby("driver"):
-                data.to_excel(writer, sheet_name=str(driver), index=False)
-
-        return split_workbook_path
-
-    @pytest.fixture(scope="class")
-    def chunked_workbook_split_path_single(self, mock_chunked_sheet_raw_path: Path) -> Path:
-        """Get the path to the split chunked route workbook that we are testing."""
-        return split_chunked_route(sheet_path=mock_chunked_sheet_raw_path, n_books=1)[0]
-
-    @pytest.fixture(scope="class")
     def chunked_workbook_split_single(
-        self, chunked_workbook_split_path_single: Path
+        self, mock_chunked_sheet_raw_path: Path
     ) -> pd.ExcelFile:
         """Get the split chunked route workbook that we are testing."""
-        return pd.ExcelFile(chunked_workbook_split_path_single)
-
-    # TODO: Can remove in favor of multi-book contents test.
-    def test_by_oracle(
-        self,
-        mock_chunked_workbook_split_path_single: Path,
-        chunked_workbook_split_single: pd.ExcelFile,
-        chunked_workbook_split_path_single: Path,
-    ) -> None:
-        """Test that split_chunked_route matches oracle."""
-        for sheet_name in chunked_workbook_split_single.sheet_names:
-            test_chunked_sheet = pd.read_excel(
-                mock_chunked_workbook_split_path_single, sheet_name=sheet_name
-            )
-            result_chunked_sheet = pd.read_excel(
-                chunked_workbook_split_path_single, sheet_name=sheet_name
-            )
-            pd.testing.assert_frame_equal(test_chunked_sheet, result_chunked_sheet)
+        workbook_path = split_chunked_route(
+            sheet_path=mock_chunked_sheet_raw_path, n_books=1
+        )[0]
+        return pd.ExcelFile(workbook_path)
 
     def test_sheet_names(
         self,
