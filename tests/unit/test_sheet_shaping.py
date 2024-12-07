@@ -47,19 +47,21 @@ class TestSplitChunkedRoute:
 
     @pytest.mark.parametrize("output_dir_type", [Path, str])
     @pytest.mark.parametrize("output_dir", ["", "output"])
+    @pytest.mark.parametrize("n_books", [1, 4])
     def test_set_output_dir(
         self,
         output_dir_type: type[Path | str],
         output_dir: Path | str,
+        n_books: int,
         class_tmp_dir: Path,
         mock_chunked_sheet_raw: Path,
     ) -> None:
         """Test that the output directory can be set."""
         output_dir = output_dir_type(class_tmp_dir / output_dir)
-        output_path = split_chunked_route(
-            sheet_path=mock_chunked_sheet_raw, output_dir=output_dir, n_books=1
-        )[0]
-        assert str(output_path.parent) == str(output_dir)
+        output_paths = split_chunked_route(
+            sheet_path=mock_chunked_sheet_raw, output_dir=output_dir, n_books=n_books
+        )
+        assert all(str(output_path.parent) == str(output_dir) for output_path in output_paths)
 
     @pytest.mark.parametrize("output_filename", ["", "output_filename.xlsx"])
     def test_set_output_filename(
