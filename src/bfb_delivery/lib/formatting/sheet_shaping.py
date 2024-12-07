@@ -9,7 +9,6 @@ from typeguard import typechecked
 from bfb_delivery.lib.constants import Columns
 
 
-# TODO: Return absolute paths.
 # TODO: There's got to be a way to set the docstring as a constant.
 # TODO: Find out what columns we need to keep.
 # TODO: Use Pandera.
@@ -52,5 +51,7 @@ def split_chunked_route(
             driver_set_df = chunked_sheet[chunked_sheet[Columns.DRIVER].isin(driver_set)]
             for driver, data in driver_set_df.groupby(Columns.DRIVER):
                 data.to_excel(writer, sheet_name=str(driver), index=False)
+
+    split_workbook_paths = [path.resolve() for path in split_workbook_paths]
 
     return split_workbook_paths
