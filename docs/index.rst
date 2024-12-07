@@ -10,7 +10,7 @@ Contents
 .. toctree::
    :maxdepth: 3
 
-   reference_package
+   bfb_delivery
 
 
 Library
@@ -20,7 +20,7 @@ Avoid calling library functions directly and stick to the public API:
 
 .. code:: python
 
-    from reference_package import wait_a_second
+    from bfb_delivery import wait_a_second
 
     wait_a_second()
 
@@ -28,7 +28,7 @@ If you're a power user, you can use the internal API:
 
 .. code:: python
 
-    from reference_package.api.internal import wait_a_second
+    from bfb_delivery.api.internal import wait_a_second
 
     wait_a_second()
 
@@ -37,6 +37,6 @@ Nothing is stopping you from importing from lib directly, but you should avoid i
 
 .. code:: python
 
-    from reference_package.lib.example import wait_a_second
+    from bfb_delivery.lib.example import wait_a_second
 
     wait_a_second()

@@ -56,7 +56,7 @@ You'll want this package's site-package files to be the source files in this rep
 First build and activate the env before installing this package:
 
     $ make build-env
-    $ conda activate reference_package_py3.12
+    $ conda activate bfb_delivery_py3.12
 
 Then, install this package and its dev dependencies:
 
