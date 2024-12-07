@@ -7,8 +7,8 @@ from typing import Final
 import pandas as pd
 import pytest
 
+from bfb_delivery import split_chunked_route
 from bfb_delivery.lib.constants import Columns
-from bfb_delivery.lib.formatting.sheet_shaping import split_chunked_route
 
 N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
 

@@ -2,7 +2,7 @@
 
 from importlib.metadata import version
 
-from bfb_delivery.api.public import wait_a_second
+from bfb_delivery.api.public import split_chunked_route, wait_a_second
 
 try:
     __version__: str = version(__name__)
