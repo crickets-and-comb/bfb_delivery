@@ -2,11 +2,14 @@
 
 from datetime import datetime
 from pathlib import Path
+from typing import Final
 
 import pandas as pd
 import pytest
 
 from bfb_delivery.lib.formatting.sheet_shaping import split_chunked_route
+
+N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
 
 
 # TODO: Can upload multiple CSVs to Circuit instead of Excel file with multiple sheets?
@@ -73,20 +76,20 @@ class TestSplitChunkedRoute:
         )
         assert output_path.name == expected_filename
 
-    @pytest.mark.parametrize("n_books", [1, 2, 3])
+    @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_n_books_count(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
         """Test that the number of workbooks is equal to n_books."""
         output_paths = split_chunked_route(sheet_path=mock_chunked_sheet_raw, n_books=n_books)
         assert len(output_paths) == n_books
 
-    @pytest.mark.parametrize("n_books", [1, 2, 3])
+    @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_one_driver_per_sheet(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
         """Test that each sheet contains only one driver's data."""
         output_paths = split_chunked_route(sheet_path=mock_chunked_sheet_raw, n_books=n_books)
         driver_sheets = _get_driver_sheets(output_paths=output_paths)
         assert all(sheet["driver"].nunique() == 1 for sheet in driver_sheets)
 
-    @pytest.mark.parametrize("n_books", [1, 2, 3])
+    @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_sheets_named_by_driver(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
         """Test that each sheet is named after the driver."""
         output_paths = split_chunked_route(sheet_path=mock_chunked_sheet_raw, n_books=n_books)
@@ -96,7 +99,7 @@ class TestSplitChunkedRoute:
                 driver_sheet = pd.read_excel(workbook, sheet_name=sheet_name)
                 assert sheet_name == driver_sheet["driver"].unique()[0]
 
-    @pytest.mark.parametrize("n_books", [1, 2, 3])
+    @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_unique_drivers_across_books(
         self, n_books: int, mock_chunked_sheet_raw: Path
     ) -> None:
@@ -113,7 +116,7 @@ class TestSplitChunkedRoute:
             ]
             assert len(set(driver_set).intersection(set(driver_sets_sans_i))) == 0
 
-    @pytest.mark.parametrize("n_books", [1, 2, 3])
+    @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_complete_contents(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
         """Test that the input data is all covered in the split workbooks."""
         output_paths = split_chunked_route(sheet_path=mock_chunked_sheet_raw, n_books=n_books)
