@@ -3,13 +3,14 @@
 from pathlib import Path
 
 import pandas as pd
+from typeguard import typechecked
 
 
-# TODO: Use typeguard.
 # TODO: Default to date in file name.
 # TODO: Allow to set n sheets.
 # TODO: Make column constants.
 # TODO: Use Pandera.
+@typechecked
 def split_chunked_route(
     sheet_path: Path | str, output_dir: Path | str = "", output_filename: str = ""
 ) -> Path:
