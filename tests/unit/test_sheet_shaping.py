@@ -6,8 +6,10 @@ from typing import Final
 
 import pandas as pd
 import pytest
+from click.testing import CliRunner
 
 from bfb_delivery import split_chunked_route
+from bfb_delivery.cli import split_chunked_route as split_chunked_route_cli
 from bfb_delivery.lib.constants import Columns
 
 N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
@@ -157,6 +159,47 @@ class TestSplitChunkedRoute:
             ),
         ):
             _ = split_chunked_route(sheet_path=mock_chunked_sheet_raw, n_books=n_books)
+
+    @pytest.mark.parametrize(
+        "output_dir, output_filename, n_books",
+        [
+            ("", "", 4),
+            ("output", "output_filename.xlsx", 3),
+            ("output", "output_filename.xlsx", 1),
+        ],
+    )
+    def test_cli(
+        self,
+        output_dir: str,
+        output_filename: str,
+        n_books: int,
+        cli_runner: CliRunner,
+        mock_chunked_sheet_raw: Path,
+        class_tmp_dir: Path,
+    ) -> None:
+        """Test CLI works."""
+        output_dir = str(class_tmp_dir / output_dir) if output_dir else output_dir
+        arg_list = [
+            "--sheet_path",
+            str(mock_chunked_sheet_raw),
+            "--output_dir",
+            output_dir,
+            "--output_filename",
+            output_filename,
+            "--n_books",
+            str(n_books),
+        ]
+        cli_runner.invoke(split_chunked_route_cli.main, arg_list)
+        for i in range(n_books):
+            expected_filename = (
+                f"{output_filename.split('.')[0]}_{i + 1}.xlsx"
+                if output_filename
+                else f"split_workbook_{datetime.now().strftime('%Y%m%d')}_{i + 1}.xlsx"
+            )
+            expected_output_dir = (
+                Path(output_dir) if output_dir else mock_chunked_sheet_raw.parent
+            )
+            assert (Path(expected_output_dir) / expected_filename).exists()
 
 
 def _get_driver_sheets(output_paths: list[Path]) -> list[pd.DataFrame]:

@@ -48,7 +48,7 @@ def split_chunked_route(
         output_dir: Directory to save the output workbook.
             Empty string saves to the input `sheet_path` directory.
         output_filename: Name of the output workbook.
-            Empty string sets filename to "chunked_workbook_split.xlsx".
+            Empty string sets filename to "split_workbook_{date}_{i of n_books}.xlsx".
         n_books: Number of workbooks to split into.
 
     Returns:

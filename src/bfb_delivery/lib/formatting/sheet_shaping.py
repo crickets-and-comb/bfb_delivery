@@ -9,7 +9,8 @@ from typeguard import typechecked
 from bfb_delivery.lib.constants import Columns
 
 
-# TODO: Wrap in CLI.
+# TODO: Return absolute paths.
+# TODO: There's got to be a way to set the docstring as a constant.
 # TODO: Find out what columns we need to keep.
 # TODO: Use Pandera.
 # TODO: Get/make some realish data to test with.
