@@ -13,9 +13,8 @@ N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
 
 
 # TODO: Can upload multiple CSVs to Circuit instead of Excel file with multiple sheets?
-# TODO: Make all these single-book tests into multibook tests?
 class TestSplitChunkedRoute:
-    """Test that split_chunked_route splits a spreadsheet route into sheets by driver."""
+    """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
 
     @pytest.fixture(scope="class")
     def class_tmp_dir(self, tmp_path_factory: pytest.TempPathFactory) -> Path:
