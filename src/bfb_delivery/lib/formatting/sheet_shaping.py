@@ -35,7 +35,7 @@ def split_chunked_route(
     Returns:
         Paths to the split chunked route workbooks.
     """
-    chunked_workbook_split_paths: list[Path] = []
+    split_workbook_paths: list[Path] = []
 
     if n_books <= 0:
         raise ValueError("n_books must be greater than 0.")
@@ -52,7 +52,7 @@ def split_chunked_route(
 
     output_dir = Path(output_dir) if output_dir else Path(sheet_path).parent
     base_output_filename = (
-        f"chunked_workbook_split_{datetime.now().strftime('%Y%m%d')}.xlsx"
+        f"split_workbook_{datetime.now().strftime('%Y%m%d')}.xlsx"
         if output_filename == ""
         else output_filename
     )
@@ -62,11 +62,11 @@ def split_chunked_route(
     driver_sets = [drivers[i::n_books] for i in range(n_books)]
     for i, driver_set in enumerate(driver_sets):
         i_file_name = f"{base_output_filename.split('.')[0]}_{i + 1}.xlsx"
-        chunked_workbook_split_path: Path = output_dir / i_file_name
-        chunked_workbook_split_paths.append(chunked_workbook_split_path)
-        with pd.ExcelWriter(chunked_workbook_split_path) as writer:
+        split_workbook_path: Path = output_dir / i_file_name
+        split_workbook_paths.append(split_workbook_path)
+        with pd.ExcelWriter(split_workbook_path) as writer:
             driver_set_df = chunked_sheet[chunked_sheet["driver"].isin(driver_set)]
             for driver, data in driver_set_df.groupby("driver"):
                 data.to_excel(writer, sheet_name=str(driver), index=False)
 
-    return chunked_workbook_split_paths
+    return split_workbook_paths

@@ -64,19 +64,23 @@ class TestSplitChunkedRoute:
         assert all(str(output_path.parent) == str(output_dir) for output_path in output_paths)
 
     @pytest.mark.parametrize("output_filename", ["", "output_filename.xlsx"])
+    @pytest.mark.parametrize("n_books", [1, 4])
     def test_set_output_filename(
-        self, output_filename: str, mock_chunked_sheet_raw: Path
+        self, output_filename: str, mock_chunked_sheet_raw: Path, n_books: int
     ) -> None:
         """Test that the output filename can be set."""
-        output_path = split_chunked_route(
-            sheet_path=mock_chunked_sheet_raw, output_filename=output_filename, n_books=1
-        )[0]
-        expected_filename = (
-            f"{output_filename.split(".")[0]}_1.xlsx"
-            if output_filename
-            else f"chunked_workbook_split_{datetime.now().strftime('%Y%m%d')}_1.xlsx"
+        output_paths = split_chunked_route(
+            sheet_path=mock_chunked_sheet_raw,
+            output_filename=output_filename,
+            n_books=n_books,
         )
-        assert output_path.name == expected_filename
+        for i, output_path in enumerate(output_paths):
+            expected_filename = (
+                f"{output_filename.split(".")[0]}_{i + 1}.xlsx"
+                if output_filename
+                else f"split_workbook_{datetime.now().strftime('%Y%m%d')}_{i + 1}.xlsx"
+            )
+            assert output_path.name == expected_filename
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_n_books_count(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
