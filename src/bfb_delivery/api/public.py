@@ -9,19 +9,6 @@ from pathlib import Path
 from typeguard import typechecked
 
 from bfb_delivery.api import internal
-from bfb_delivery.api.internal import example
-
-
-@typechecked
-def wait_a_second(secs: int = 1) -> None:
-    """Just wait a second, or however many seconds you want.
-
-    Also prints a message with the number you passed.
-
-    Arguments:
-        secs: How many seconds to wait.
-    """
-    example.wait_a_second(secs=secs)
 
 
 @typechecked

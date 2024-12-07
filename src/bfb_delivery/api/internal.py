@@ -9,23 +9,7 @@ from pathlib import Path
 
 from typeguard import typechecked
 
-from bfb_delivery.lib import example
 from bfb_delivery.lib.formatting import sheet_shaping
-
-
-@typechecked
-def wait_a_second(
-    secs: int = 1, extra_string: str = "Fancy me, calling internal functions."
-) -> None:
-    """Just wait a second, or however many seconds you want.
-
-    Also prints a message with the number you passed, along with any extra message you want.
-
-    Arguments:
-        secs: How many seconds to wait.
-        extra_string: Extra message to add on tail of existing message.
-    """
-    example.wait_a_second(secs=secs, extra_string=extra_string)
 
 
 @typechecked
