@@ -84,10 +84,20 @@ class TestSplitChunkedRoute:
             )
             assert output_path.name == expected_filename
 
-    @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
-    def test_n_books_count(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
+    @pytest.mark.parametrize("n_books_passed", N_BOOKS_MATRIX + [None])
+    def test_n_books_count(
+        self, n_books_passed: int | None, mock_chunked_sheet_raw: Path
+    ) -> None:
         """Test that the number of workbooks is equal to n_books."""
-        output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
+        if n_books_passed is None:
+            output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw)
+            n_books = 4
+        else:
+            n_books = n_books_passed
+            output_paths = split_chunked_route(
+                input_path=mock_chunked_sheet_raw, n_books=n_books
+            )
+
         assert len(output_paths) == n_books
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
