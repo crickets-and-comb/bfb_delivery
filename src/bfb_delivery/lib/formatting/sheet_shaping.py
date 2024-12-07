@@ -6,9 +6,11 @@ import pandas as pd
 
 
 # TODO: Allow output_dir to be specified.
+# TODO: Allow output_file_name to be specified.
 # TODO: Add timestamp to file name.
 # TODO: Use Pandera.
-def split_chunked_route(sheet_path: Path | str) -> Path | str:
+# TODO: Make column constants.
+def split_chunked_route(sheet_path: Path | str) -> Path:
     """Split chunked route sheet into separate sheets by driver.
 
     Reads a spreadsheet with stops grouped by driver and splits it into separate sheets.

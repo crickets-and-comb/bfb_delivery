@@ -60,12 +60,12 @@ class TestSplitChunkedRoute:
         return chunked_workbook_split_path
 
     @pytest.fixture(scope="class")
-    def chunked_workbook_split_path(self, mock_chunked_sheet_raw_path: Path) -> Path | str:
+    def chunked_workbook_split_path(self, mock_chunked_sheet_raw_path: Path) -> Path:
         """Get the path to the split chunked route workbook that we are testing."""
         return split_chunked_route(sheet_path=mock_chunked_sheet_raw_path)
 
     @pytest.fixture(scope="class")
-    def chunked_workbook_split(self, chunked_workbook_split_path: Path | str) -> pd.ExcelFile:
+    def chunked_workbook_split(self, chunked_workbook_split_path: Path) -> pd.ExcelFile:
         """Get the split chunked route workbook that we are testing."""
         return pd.ExcelFile(chunked_workbook_split_path)
 
@@ -73,7 +73,7 @@ class TestSplitChunkedRoute:
         self,
         mock_chunked_workbook_split_path: Path,
         chunked_workbook_split: pd.ExcelFile,
-        chunked_workbook_split_path: Path | str,
+        chunked_workbook_split_path: Path,
     ) -> None:
         """Test that split_chunked_route matches oracle."""
         for sheet_name in chunked_workbook_split.sheet_names:
