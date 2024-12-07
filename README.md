@@ -58,6 +58,8 @@ First build and activate the env before installing this package:
     $ make build-env
     $ conda activate bfb_delivery_py3.12
 
+(Note, you will need Python activated, e.g. via conda base env, for `build-env` to work, since it uses Python to grab `PACKAGE_NAME` in the Makefile. You could alternatively just hardcode the name.)
+
 Then, install this package and its dev dependencies:
 
     $ make install INSTALL_EXTRAS=[dev]
