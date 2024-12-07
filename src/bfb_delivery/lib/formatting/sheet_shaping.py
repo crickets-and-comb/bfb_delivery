@@ -1,12 +1,12 @@
 """Functions for shaping and formatting spreadsheets."""
 
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
 from typeguard import typechecked
 
 
-# TODO: Default to date in file name.
 # TODO: Allow to set n sheets.
 # TODO: Make column constants.
 # TODO: Use Pandera.
@@ -34,7 +34,8 @@ def split_chunked_route(
 
     output_dir = Path(output_dir) if output_dir else Path(sheet_path).parent
     if output_filename == "":
-        output_filename = "chunked_workbook_split.xlsx"
+        # Add date to filename.
+        output_filename = f"chunked_workbook_split_{datetime.now().strftime('%Y%m%d')}.xlsx"
     output_dir.mkdir(parents=True, exist_ok=True)
     chunked_workbook_split_path: Path = output_dir / output_filename
 

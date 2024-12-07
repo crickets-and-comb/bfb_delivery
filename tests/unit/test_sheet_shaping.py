@@ -1,5 +1,6 @@
 """Unit tests for sheet_shaping.py."""
 
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -117,6 +118,8 @@ class TestSplitChunkedRoute:
             sheet_path=mock_chunked_sheet_raw_path, output_filename=output_filename
         )
         expected_filename = (
-            output_filename if output_filename else "chunked_workbook_split.xlsx"
+            output_filename
+            if output_filename
+            else f"chunked_workbook_split_{datetime.now().strftime('%Y%m%d')}.xlsx"
         )
         assert output_path.name == expected_filename
