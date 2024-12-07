@@ -5,11 +5,14 @@ from pathlib import Path
 import pandas as pd
 
 
-# TODO: Allow output_file_name to be specified.
-# TODO: Add timestamp to file name.
-# TODO: Use Pandera.
+# TODO: Use typeguard.
+# TODO: Default to date in file name.
+# TODO: Allow to set n sheets.
 # TODO: Make column constants.
-def split_chunked_route(sheet_path: Path | str, output_dir: Path | str = "") -> Path:
+# TODO: Use Pandera.
+def split_chunked_route(
+    sheet_path: Path | str, output_dir: Path | str = "", output_filename: str = ""
+) -> Path:
     """Split chunked route sheet into separate sheets by driver.
 
     Reads a spreadsheet with stops grouped by driver and splits it into separate sheets.
@@ -17,17 +20,23 @@ def split_chunked_route(sheet_path: Path | str, output_dir: Path | str = "") -> 
     Writes adjacent to the original workbook.
 
     Args:
-        sheet_path: Path to the chunked route sheet.
+        sheet_path: Path to the chunked route sheet that this function reads in and splits up.
         output_dir: Directory to save the output workbook.
             Empty string (default) saves to the input `sheet_path` directory.
+        output_filename: Name of the output workbook.
+            Empty string (default) sets filename to "chunked_workbook_split.xlsx".
 
     Returns:
         Path to the split chunked route workbook.
     """
     chunked_sheet: pd.DataFrame = pd.read_excel(sheet_path)
+
     output_dir = Path(output_dir) if output_dir else Path(sheet_path).parent
+    if output_filename == "":
+        output_filename = "chunked_workbook_split.xlsx"
     output_dir.mkdir(parents=True, exist_ok=True)
-    chunked_workbook_split_path: Path = output_dir / "chunked_workbook_split.xlsx"
+    chunked_workbook_split_path: Path = output_dir / output_filename
+
     with pd.ExcelWriter(chunked_workbook_split_path) as writer:
         for driver, data in chunked_sheet.groupby("driver"):
             data.to_excel(writer, sheet_name=str(driver), index=False)

@@ -107,3 +107,16 @@ class TestSplitChunkedRoute:
             sheet_path=mock_chunked_sheet_raw_path, output_dir=output_dir
         )
         assert str(output_path.parent) == str(output_dir)
+
+    @pytest.mark.parametrize("output_filename", ["", "output_filename"])
+    def test_set_output_filename(
+        self, output_filename: str, mock_chunked_sheet_raw_path: Path
+    ) -> None:
+        """Test that the output filename can be set."""
+        output_path = split_chunked_route(
+            sheet_path=mock_chunked_sheet_raw_path, output_filename=output_filename
+        )
+        expected_filename = (
+            output_filename if output_filename else "chunked_workbook_split.xlsx"
+        )
+        assert output_path.name == expected_filename
