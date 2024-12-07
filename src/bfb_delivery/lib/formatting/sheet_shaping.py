@@ -16,13 +16,13 @@ from bfb_delivery.lib.constants import Columns
 # TODO: Switch to or allow CSVs instead of Excel files.
 @typechecked
 def split_chunked_route(
-    sheet_path: Path | str, output_dir: Path | str, output_filename: str, n_books: int
+    input_path: Path | str, output_dir: Path | str, output_filename: str, n_books: int
 ) -> list[Path]:
     """See public docstring."""
     if n_books <= 0:
         raise ValueError("n_books must be greater than 0.")
 
-    chunked_sheet: pd.DataFrame = pd.read_excel(sheet_path)
+    chunked_sheet: pd.DataFrame = pd.read_excel(input_path)
 
     drivers = chunked_sheet[Columns.DRIVER].unique()
     driver_count = len(drivers)
@@ -32,7 +32,7 @@ def split_chunked_route(
             f"driver_count: {driver_count}, n_books: {n_books}."
         )
 
-    output_dir = Path(output_dir) if output_dir else Path(sheet_path).parent
+    output_dir = Path(output_dir) if output_dir else Path(input_path).parent
     base_output_filename = (
         f"split_workbook_{datetime.now().strftime('%Y%m%d')}.xlsx"
         if output_filename == ""

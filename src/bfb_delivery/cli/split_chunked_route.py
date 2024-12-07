@@ -11,7 +11,7 @@ from bfb_delivery.api import public
 # TODO: Can we set the defaults as constants to sync with public?
 @click.command()
 @click.option(
-    "--sheet_path",
+    "--input_path",
     type=str,
     required=True,
     help="Path to the chunked route sheet that this function reads in and splits up.",
@@ -23,7 +23,7 @@ from bfb_delivery.api import public
     default="",
     help=(
         "Directory to save the output workbook. Empty string (default) saves to "
-        "the input `sheet_path` directory."
+        "the input `input_path` directory."
     ),
 )
 @click.option(
@@ -44,7 +44,7 @@ from bfb_delivery.api import public
     help="Number of workbooks to split into. Default is 4.",
 )
 @typechecked
-def main(sheet_path: str, output_dir: str, output_filename: str, n_books: int) -> list[Path]:
+def main(input_path: str, output_dir: str, output_filename: str, n_books: int) -> list[Path]:
     """Split route sheet into n workbooks with sheets by driver.
 
     Sheets by driver allows splitting routes by driver on Circuit upload.
@@ -53,7 +53,7 @@ def main(sheet_path: str, output_dir: str, output_filename: str, n_books: int) -
     This process follows the "chunking" process in the route generation, where routes
     are split into smaller "chunks" by driver (i.e., each stop is labeled with a driver).
 
-    Reads a route spreadsheet at `sheet_path`.
+    Reads a route spreadsheet at `input_path`.
     Writes `n_books` Excel workbooks with each sheet containing the stops for a single driver.
     Writes adjacent to the original workbook.
 
@@ -61,7 +61,7 @@ def main(sheet_path: str, output_dir: str, output_filename: str, n_books: int) -
         Paths to the split chunked route workbooks.
     """
     paths = public.split_chunked_route(
-        sheet_path=sheet_path,
+        input_path=input_path,
         output_dir=output_dir,
         output_filename=output_filename,
         n_books=n_books,

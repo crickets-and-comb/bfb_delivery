@@ -13,7 +13,7 @@ from bfb_delivery.api import internal
 
 @typechecked
 def split_chunked_route(
-    sheet_path: Path | str,
+    input_path: Path | str,
     output_dir: Path | str = "",
     output_filename: str = "",
     n_books: int = 4,
@@ -26,14 +26,14 @@ def split_chunked_route(
     This process follows the "chunking" process in the route generation, where routes
     are split into smaller "chunks" by driver (i.e., each stop is labeled with a driver).
 
-    Reads a route spreadsheet at `sheet_path`.
+    Reads a route spreadsheet at `input_path`.
     Writes `n_books` Excel workbooks with each sheet containing the stops for a single driver.
     Writes adjacent to the original workbook.
 
     Args:
-        sheet_path: Path to the chunked route sheet that this function reads in and splits up.
+        input_path: Path to the chunked route sheet that this function reads in and splits up.
         output_dir: Directory to save the output workbook.
-            Empty string saves to the input `sheet_path` directory.
+            Empty string saves to the input `input_path` directory.
         output_filename: Name of the output workbook.
             Empty string sets filename to "split_workbook_{date}_{i of n_books}.xlsx".
         n_books: Number of workbooks to split into.
@@ -42,7 +42,7 @@ def split_chunked_route(
         Paths to the split chunked route workbooks.
     """
     return internal.split_chunked_route(
-        sheet_path=sheet_path,
+        input_path=input_path,
         output_dir=output_dir,
         output_filename=output_filename,
         n_books=n_books,

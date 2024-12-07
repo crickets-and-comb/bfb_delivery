@@ -61,7 +61,7 @@ class TestSplitChunkedRoute:
         """Test that the output directory can be set."""
         output_dir = output_dir_type(class_tmp_dir / output_dir)
         output_paths = split_chunked_route(
-            sheet_path=mock_chunked_sheet_raw, output_dir=output_dir, n_books=n_books
+            input_path=mock_chunked_sheet_raw, output_dir=output_dir, n_books=n_books
         )
         assert all(str(output_path.parent) == str(output_dir) for output_path in output_paths)
 
@@ -72,7 +72,7 @@ class TestSplitChunkedRoute:
     ) -> None:
         """Test that the output filename can be set."""
         output_paths = split_chunked_route(
-            sheet_path=mock_chunked_sheet_raw,
+            input_path=mock_chunked_sheet_raw,
             output_filename=output_filename,
             n_books=n_books,
         )
@@ -87,20 +87,20 @@ class TestSplitChunkedRoute:
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_n_books_count(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
         """Test that the number of workbooks is equal to n_books."""
-        output_paths = split_chunked_route(sheet_path=mock_chunked_sheet_raw, n_books=n_books)
+        output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
         assert len(output_paths) == n_books
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_one_driver_per_sheet(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
         """Test that each sheet contains only one driver's data."""
-        output_paths = split_chunked_route(sheet_path=mock_chunked_sheet_raw, n_books=n_books)
+        output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
         driver_sheets = _get_driver_sheets(output_paths=output_paths)
         assert all(sheet[Columns.DRIVER].nunique() == 1 for sheet in driver_sheets)
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_sheets_named_by_driver(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
         """Test that each sheet is named after the driver."""
-        output_paths = split_chunked_route(sheet_path=mock_chunked_sheet_raw, n_books=n_books)
+        output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
         for output_path in output_paths:
             workbook = pd.ExcelFile(output_path)
             for sheet_name in workbook.sheet_names:
@@ -112,7 +112,7 @@ class TestSplitChunkedRoute:
         self, n_books: int, mock_chunked_sheet_raw: Path
     ) -> None:
         """Test that the drivers don't overlap between the split workbooks."""
-        output_paths = split_chunked_route(sheet_path=mock_chunked_sheet_raw, n_books=n_books)
+        output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
 
         driver_sets = []
         for output_path in output_paths:
@@ -127,7 +127,7 @@ class TestSplitChunkedRoute:
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_complete_contents(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
         """Test that the input data is all covered in the split workbooks."""
-        output_paths = split_chunked_route(sheet_path=mock_chunked_sheet_raw, n_books=n_books)
+        output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
 
         full_data = pd.read_excel(mock_chunked_sheet_raw)
 
@@ -144,7 +144,7 @@ class TestSplitChunkedRoute:
     def test_invalid_n_books(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
         """Test that an invalid n_books raises a ValueError."""
         with pytest.raises(ValueError, match="n_books must be greater than 0."):
-            _ = split_chunked_route(sheet_path=mock_chunked_sheet_raw, n_books=n_books)
+            _ = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
 
     def test_invalid_n_books_driver_count(self, mock_chunked_sheet_raw: Path) -> None:
         """Test that n_books greater than the number of drivers raises a ValueError."""
@@ -158,7 +158,7 @@ class TestSplitChunkedRoute:
                 f"driver_count: ({driver_count}), n_books: {n_books}."
             ),
         ):
-            _ = split_chunked_route(sheet_path=mock_chunked_sheet_raw, n_books=n_books)
+            _ = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
 
     @pytest.mark.parametrize(
         "output_dir, output_filename, n_books",
@@ -180,7 +180,7 @@ class TestSplitChunkedRoute:
         """Test CLI works."""
         output_dir = str(class_tmp_dir / output_dir) if output_dir else output_dir
         arg_list = [
-            "--sheet_path",
+            "--input_path",
             str(mock_chunked_sheet_raw),
             "--output_dir",
             output_dir,

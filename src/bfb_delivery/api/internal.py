@@ -14,11 +14,11 @@ from bfb_delivery.lib.formatting import sheet_shaping
 
 @typechecked
 def split_chunked_route(
-    sheet_path: Path | str, output_dir: Path | str, output_filename: str, n_books: int
+    input_path: Path | str, output_dir: Path | str, output_filename: str, n_books: int
 ) -> list[Path]:
     """See public docstring."""
     return sheet_shaping.split_chunked_route(
-        sheet_path=sheet_path,
+        input_path=input_path,
         output_dir=output_dir,
         output_filename=output_filename,
         n_books=n_books,
