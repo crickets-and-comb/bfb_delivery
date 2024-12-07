@@ -50,7 +50,7 @@ install-lockfile: # Install this package in editable mode, and generate and/or u
 	fi
 
 full: # Run a "full" install, QC, test, and build. You'll need to have the environment already activated even though it rebuilds it.
-	$(MAKE) build-env install INSTALL_EXTRAS=[dev] full-qc full-test build-doc build-package
+	$(MAKE) build-env install INSTALL_EXTRAS=[dev] format full-qc full-test build-doc build-package
 
 full-qc: # Run all the QC.
 	$(MAKE) lint security typecheck

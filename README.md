@@ -78,7 +78,7 @@ Go check them out in `Makefile`.
 
 Before pushing commits, you'll usually want to rebuild the env and run all the QC and testing:
 
-    $ make clean format full
+    $ make clean full
 
 When making smaller commits, you might just want to run some of the smaller commands:
 
