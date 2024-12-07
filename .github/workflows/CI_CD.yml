@@ -13,7 +13,7 @@ defaults:
 
 env:
   CONDA_VERSION: latest
-  PUBLISH_PACKAGE: false
+  PUBLISH_PACKAGE: False
   DIST_DIR: dist
   PYTHON_BUILD_VERSION: 3.12
   PYTHON_PACKAGE_DIST_NAME: python-package-distributions
