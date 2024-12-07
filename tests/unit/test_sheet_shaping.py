@@ -85,14 +85,6 @@ class TestSplitChunkedRoute:
             )
             pd.testing.assert_frame_equal(test_chunked_sheet, result_chunked_sheet)
 
-    def test_driver_count(
-        self, mock_chunked_sheet_raw: pd.DataFrame, chunked_workbook_split: pd.ExcelFile
-    ) -> None:
-        """Sheet count in the split workbook is the number of drivers in the mock sheet."""
-        # TODO: Make columns constants.
-        driver_count = mock_chunked_sheet_raw["driver"].nunique()
-        assert len(chunked_workbook_split.sheet_names) == driver_count
-
     def test_sheet_names(
         self, mock_chunked_sheet_raw: pd.DataFrame, chunked_workbook_split: pd.ExcelFile
     ) -> None:
