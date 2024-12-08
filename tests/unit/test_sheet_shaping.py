@@ -15,6 +15,12 @@ from bfb_delivery.lib.constants import Columns
 N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
 
 
+@pytest.fixture(scope="module")
+def class_tmp_dir(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """Get a temporary directory for the class."""
+    return tmp_path_factory.mktemp("tmp")
+
+
 # TODO: Can upload multiple CSVs to Circuit instead of Excel file with multiple sheets?
 class TestSplitChunkedRoute:
     """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
