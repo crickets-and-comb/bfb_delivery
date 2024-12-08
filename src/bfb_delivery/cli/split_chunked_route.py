@@ -5,7 +5,7 @@ from pathlib import Path
 import click
 from typeguard import typechecked
 
-from bfb_delivery.api import public
+from bfb_delivery import split_chunked_route
 
 
 # TODO: Can we set the defaults as constants to sync with public?
@@ -60,7 +60,7 @@ def main(input_path: str, output_dir: str, output_filename: str, n_books: int) -
     Returns:
         Paths to the split chunked route workbooks.
     """
-    paths = public.split_chunked_route(
+    paths = split_chunked_route(
         input_path=input_path,
         output_dir=output_dir,
         output_filename=output_filename,
