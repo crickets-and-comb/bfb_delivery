@@ -77,8 +77,9 @@ class TestSplitChunkedRoute:
             n_books=n_books,
         )
         for i, output_path in enumerate(output_paths):
+            expected_filename = output_filename.split(".")[0]
             expected_filename = (
-                f"{output_filename.split(".")[0]}_{i + 1}.xlsx"
+                f"{expected_filename}_{i + 1}.xlsx"
                 if output_filename
                 else f"split_workbook_{datetime.now().strftime('%Y%m%d')}_{i + 1}.xlsx"
             )
