@@ -23,3 +23,13 @@ def split_chunked_route(
         output_filename=output_filename,
         n_books=n_books,
     )
+
+
+@typechecked
+def combine_route_tables(
+    input_paths: list[Path | str], output_dir: Path | str, output_filename: str
+) -> Path:
+    """See public docstring."""
+    return sheet_shaping.combine_route_tables(
+        input_paths=input_paths, output_dir=output_dir, output_filename=output_filename
+    )
