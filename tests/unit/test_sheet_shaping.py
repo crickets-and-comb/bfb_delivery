@@ -26,11 +26,6 @@ class TestSplitChunkedRoute:
     """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
 
     @pytest.fixture(scope="class")
-    def class_tmp_dir(self, tmp_path_factory: pytest.TempPathFactory) -> Path:
-        """Get a temporary directory for the class."""
-        return tmp_path_factory.mktemp("tmp")
-
-    @pytest.fixture(scope="class")
     def mock_chunked_sheet_raw(self, class_tmp_dir: Path) -> Path:
         """Save mock chunked route sheet and get path."""
         fp: Path = class_tmp_dir / "mock_chunked_sheet_raw.xlsx"
