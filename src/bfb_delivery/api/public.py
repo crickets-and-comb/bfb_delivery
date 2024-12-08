@@ -12,6 +12,31 @@ from bfb_delivery.api import internal
 
 
 @typechecked
+def combine_route_tables(
+    input_paths: list[Path | str], output_dir: Path | str = "", output_filename: str = ""
+) -> Path:
+    """Combines the driver route CSVs into a single workbook.
+
+    This is used after optimizing and exporting the routes to individual CSVs.
+
+    See :doc:`combine_route_tables` for more information.
+
+    Args:
+        input_paths: The paths to the driver route CSVs.
+        output_dir: The directory to write the output workbook to.
+            Empty string (default) saves to the first input path's parent directory.
+        output_filename: The name of the output workbook.
+            Empty string (default) will name the file "combined_routes_{date}.xlsx".
+
+    Returns:
+        The path to the output workbook.
+    """
+    return internal.combine_route_tables(
+        input_paths=input_paths, output_dir=output_dir, output_filename=output_filename
+    )
+
+
+@typechecked
 def split_chunked_route(
     input_path: Path | str,
     output_dir: Path | str = "",
@@ -29,6 +54,8 @@ def split_chunked_route(
     Reads a route spreadsheet at `input_path`.
     Writes `n_books` Excel workbooks with each sheet containing the stops for a single driver.
     Writes adjacent to the original workbook unless `output_dir` specified.
+
+    See :doc:`split_chunked_route` for more information.
 
     Args:
         input_path: Path to the chunked route sheet that this function reads in and splits up.
