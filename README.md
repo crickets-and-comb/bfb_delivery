@@ -2,11 +2,13 @@
 
 ## Summary
 
-This doesn't do anything yet. It is made from the `reference_package` template repo: https://github.com/crickets-and-comb/reference_package
+This doesn't do much yet. It is made from the `reference_package` template repo: https://github.com/crickets-and-comb/reference_package
 
-The plan is to use it to automate some of the tasks food bank staff use to plan the delivery routes.
+The plan is to use this package for some of the tasks food bank staff do manually to plan the delivery routes.
 
 They currently use Circuit (https://getcircuit.com), but there are some tedious tasks to prepare the data for Circuit and then to process the data after using Circuit. They currently upload all the stops they need to Circuit to produce a single huge route, then they manually chunk up the route by driver according to how many boxes a driver can carry and what is a sensible set of stops, and finally they upload those smaller routes to Circuit again to optimize them. They spend several hours each week on the manual pieces of this, the chunking alone taking about four hours.
+
+So far, the package just splits a spreadsheet of delivery stops labeled by driver into n workbooks (1 per staff member working on the route generation), one workbook sheet per driver. This allows staff to split the task of submitting unique driver routes to Circuit. The tool for this is called `split_chunked_route`. See below for usage.
 
 ## Dev plan
 
@@ -36,18 +38,41 @@ The plan of attack is to start with the low-hanging fruit of data formatting bef
 * [make](https://www.gnu.org/software/make/)
 
 
-## Library functions
+## Public API
 
-`bfb_delivery` is a library from which you can import functions. Import the public example function like this: `from bfb_delivery import wait_a_second`. Or, import the internal version like a power user like this: `from bfb_delivery.api.internal import wait_a_second`.
+`bfb_delivery` is a library from which you can import functions. Import the public `split_chunked_route` function like this:
 
-Unless you're developing, avoid importing directly from library, like `from bfb_delivery.lib.example import wait_a_second`.
+```python
+    from bfb_delivery import split_chunked_route
+    # These are okay too:
+    # from bfb_delivery.api import split_chunked_route
+    # from bfb_delivery.api.public import split_chunked_route
+```
+
+Or, if you're a power user and want any extra options that may exist, you may want to import the internal version like this:
+
+```python
+    from bfb_delivery.api.internal import split_chunked_route
+```
+
+Unless you're developing, avoid importing directly from library:
+
+```python
+    # Don't do this:
+    from bfb_delivery.lib.formatting.sheet_shaping import split_chunked_route
+```
 
 ## CLI
 
-Try the example CLI:
+Try the CLI with this package installed:
 
-    $ python -m example
-    $ python -m example --secs 2
+    $ split_chunked_route --input_path "some/path_to/raw_chunked_sheet.xlsx"
+
+See other options in the help menu:
+
+    $ split_chunked_route --help
+
+
 
 ## Dev installation
 
@@ -56,7 +81,9 @@ You'll want this package's site-package files to be the source files in this rep
 First build and activate the env before installing this package:
 
     $ make build-env
-    $ conda activate reference_package_py3.12
+    $ conda activate bfb_delivery_py3.12
+
+(Note, you will need Python activated, e.g. via conda base env, for `build-env` to work, since it uses Python to grab `PACKAGE_NAME` in the Makefile. You could alternatively just hardcode the name.)
 
 Then, install this package and its dev dependencies:
 
@@ -76,7 +103,7 @@ Go check them out in `Makefile`.
 
 Before pushing commits, you'll usually want to rebuild the env and run all the QC and testing:
 
-    $ make clean format full
+    $ make clean full
 
 When making smaller commits, you might just want to run some of the smaller commands:
 
