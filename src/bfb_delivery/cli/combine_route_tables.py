@@ -9,6 +9,7 @@ from bfb_delivery import combine_route_tables
 
 
 # TODO: Can we set the defaults as constants to sync with public?
+# TODO: They may want to just pass a text file of the paths instead of multiple args.
 @click.command()
 @click.option(
     "--input_paths", multiple=True, required=True, help="The paths to the driver route CSVs."
