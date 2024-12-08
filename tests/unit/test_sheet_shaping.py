@@ -21,32 +21,33 @@ def class_tmp_dir(tmp_path_factory: pytest.TempPathFactory) -> Path:
     return tmp_path_factory.mktemp("tmp")
 
 
+@pytest.fixture(scope="module")
+def mock_chunked_sheet_raw(class_tmp_dir: Path) -> Path:
+    """Save mock chunked route sheet and get path."""
+    fp: Path = class_tmp_dir / "mock_chunked_sheet_raw.xlsx"
+    # TODO: Use specific sheet name.
+    raw_chunked_sheet = pd.DataFrame(
+        {
+            Columns.DRIVER: ["A", "A", "B", "B", "C", "C", "D"],
+            "address": [
+                "123 Main",
+                "456 Elm",
+                "789 Oak",
+                "1011 Pine",
+                "1213 Maple",
+                "1415 Birch",
+                "1617 Cedar",
+            ],
+        }
+    )
+    raw_chunked_sheet.to_excel(fp, index=False)
+
+    return fp
+
+
 # TODO: Can upload multiple CSVs to Circuit instead of Excel file with multiple sheets?
 class TestSplitChunkedRoute:
     """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
-
-    @pytest.fixture(scope="class")
-    def mock_chunked_sheet_raw(self, class_tmp_dir: Path) -> Path:
-        """Save mock chunked route sheet and get path."""
-        fp: Path = class_tmp_dir / "mock_chunked_sheet_raw.xlsx"
-        # TODO: Use specific sheet name.
-        raw_chunked_sheet = pd.DataFrame(
-            {
-                Columns.DRIVER: ["A", "A", "B", "B", "C", "C", "D"],
-                "address": [
-                    "123 Main",
-                    "456 Elm",
-                    "789 Oak",
-                    "1011 Pine",
-                    "1213 Maple",
-                    "1415 Birch",
-                    "1617 Cedar",
-                ],
-            }
-        )
-        raw_chunked_sheet.to_excel(fp, index=False)
-
-        return fp
 
     @pytest.mark.parametrize("output_dir_type", [Path, str])
     @pytest.mark.parametrize("output_dir", ["", "output"])
