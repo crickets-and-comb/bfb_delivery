@@ -36,15 +36,9 @@ from bfb_delivery import combine_route_tables
 )
 @typechecked
 def main(input_paths: tuple[str, ...], output_dir: str, output_filename: str) -> Path:
-    """Combines the driver route CSVs into a single workbook.
-
-    This is used after optimizing and exporting the routes to individual CSVs.
-
-    Returns:
-        The path to the output workbook.
-    """
+    """See public docstring: :py:func:`bfb_delivery.api.public.combine_route_tables`."""
     path = combine_route_tables(
         input_paths=list(input_paths), output_dir=output_dir, output_filename=output_filename
     )
-    click.echo(f"Split workbook saved to: {path}")
+    click.echo(f"Combined workbook saved to: {path}")
     return path

@@ -45,21 +45,7 @@ from bfb_delivery import split_chunked_route
 )
 @typechecked
 def main(input_path: str, output_dir: str, output_filename: str, n_books: int) -> list[Path]:
-    """Split route sheet into n workbooks with sheets by driver.
-
-    Sheets by driver allows splitting routes by driver on Circuit upload.
-    Multiple workbooks allows team to split the uploads among members, so one person
-    doesn't have to upload all routes.
-    This process follows the "chunking" process in the route generation, where routes
-    are split into smaller "chunks" by driver (i.e., each stop is labeled with a driver).
-
-    Reads a route spreadsheet at `input_path`.
-    Writes `n_books` Excel workbooks with each sheet containing the stops for a single driver.
-    Writes adjacent to the original workbook.
-
-    Returns:
-        Paths to the split chunked route workbooks.
-    """
+    """See public docstring: :py:func:`bfb_delivery.api.public.split_chunked_route`."""
     paths = split_chunked_route(
         input_path=input_path,
         output_dir=output_dir,

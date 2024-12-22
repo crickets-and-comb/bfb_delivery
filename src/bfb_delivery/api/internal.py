@@ -16,7 +16,7 @@ from bfb_delivery.lib.formatting import sheet_shaping
 def combine_route_tables(
     input_paths: list[Path | str], output_dir: Path | str, output_filename: str
 ) -> Path:
-    """See public docstring."""
+    """See public docstring: :py:func:`bfb_delivery.api.public.combine_route_tables`."""
     return sheet_shaping.combine_route_tables(
         input_paths=input_paths, output_dir=output_dir, output_filename=output_filename
     )
@@ -26,7 +26,7 @@ def combine_route_tables(
 def split_chunked_route(
     input_path: Path | str, output_dir: Path | str, output_filename: str, n_books: int
 ) -> list[Path]:
-    """See public docstring."""
+    """See public docstring: :py:func:`bfb_delivery.api.public.split_chunked_route`."""
     return sheet_shaping.split_chunked_route(
         input_path=input_path,
         output_dir=output_dir,

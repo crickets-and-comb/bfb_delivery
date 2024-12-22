@@ -261,12 +261,7 @@
 <p>See also <a class="reference internal" href="combine_route_tables.html"><span class="doc">combine_route_tables</span></a> for the full documentation.</p>
 <section id="combine-route-tables">
 <h3>combine_route_tables<a class="headerlink" href="#combine-route-tables" title="Link to this heading">¶</a></h3>
-<p>Combines the driver route CSVs into a single workbook.</p>
-<p>This is used after optimizing and exporting the routes to individual CSVs.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><p>The path to the output workbook.</p>
-</dd>
-</dl>
+<p>See public docstring: <a class="reference internal" href="bfb_delivery.api.html#bfb_delivery.api.public.combine_route_tables" title="bfb_delivery.api.public.combine_route_tables"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.combine_route_tables()</span></code></a>.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>combine_route_tables<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </pre></div>
 </div>
@@ -296,19 +291,7 @@
 <p>See also <a class="reference internal" href="split_chunked_route.html"><span class="doc">split_chunked_route</span></a> for the full documentation.</p>
 <section id="split-chunked-route">
 <h3>split_chunked_route<a class="headerlink" href="#split-chunked-route" title="Link to this heading">¶</a></h3>
-<p>Split route sheet into n workbooks with sheets by driver.</p>
-<p>Sheets by driver allows splitting routes by driver on Circuit upload.
-Multiple workbooks allows team to split the uploads among members, so one person
-doesn’t have to upload all routes.
-This process follows the “chunking” process in the route generation, where routes
-are split into smaller “chunks” by driver (i.e., each stop is labeled with a driver).</p>
-<p>Reads a route spreadsheet at <cite>input_path</cite>.
-Writes <cite>n_books</cite> Excel workbooks with each sheet containing the stops for a single driver.
-Writes adjacent to the original workbook.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><p>Paths to the split chunked route workbooks.</p>
-</dd>
-</dl>
+<p>See public docstring: <a class="reference internal" href="bfb_delivery.api.html#bfb_delivery.api.public.split_chunked_route" title="bfb_delivery.api.public.split_chunked_route"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.split_chunked_route()</span></code></a>.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>split_chunked_route<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </pre></div>
 </div>
