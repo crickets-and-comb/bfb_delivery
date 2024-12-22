@@ -10,7 +10,7 @@ project = config.get("metadata", "name")
 version = config.get("metadata", "version")
 release = version  # Sphinx uses 'release' as the full version
 author = config.get("metadata", "author")
-email = config.get("metadata", "email")
+email = config.get("metadata", "maintainer_email")
 copyright = config.get("metadata", "copyright")
 
 extensions = [
