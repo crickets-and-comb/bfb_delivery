@@ -1,6 +1,6 @@
-# Contributing to reference_package
+# Contributing to bfb_delivery
 
-  Thank you for your interest in contributing to reference_package! I'm sure you have a good idea for how to improve this package or documentation etc., and I look forward to reviewing your proposal. That said, please comply with the following procedures and guidelines before opening a pull request (PR):
+  Thank you for your interest in contributing to bfb_delivery! I'm sure you have a good idea for how to improve this package or documentation etc., and I look forward to reviewing your proposal. That said, please comply with the following procedures and guidelines before opening a pull request (PR):
   - Read our [Code of Conduct](./CODE_OF_CONDUCT.md) to keep our community approachable and respectable.
   - Please open an issue first. Only open a PR if you've received explicit approval to do so from an admin in response to an issue. The reason is primarily that opening a PR will trigger a workflow run, which costs money, and the repo owner is not made of money. Also, this gives us a chance to work with you to refine your request, check if we aren't already working on a solution, etc.
   - Please each issue/PR limited to a focused scope. This is more important for PRs than for issues. We'd rather hear from you than not even if you're not yet able to clearly isolate an issue, but we don't want to review sprawling PRs. See rule number 1.
