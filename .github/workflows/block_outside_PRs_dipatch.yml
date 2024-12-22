@@ -1,0 +1,13 @@
+name: Dispatch Restrict External PRs
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  close-external-prs:
+    uses: crickets-and-comb/shared/.github/workflows/block_outside_PRs.yml@main
+    with:
+      ALLOWED_ORG: 'crickets-and-comb'
+    secrets:
+      ORG_READ_TOKEN: ${{ secrets.ORG_READ_TOKEN }}

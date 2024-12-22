@@ -1,0 +1,28 @@
+name: Dispatch Makefile Docs Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      PYTHON_BUILD_VERSION:
+        description: 'Python version to build with.'
+        type: string
+        default: "3.12"
+
+defaults:
+  run:
+    shell: bash -el {0}
+
+env:
+  CONDA_VERSION: latest
+  DOC_BUILD_DIR: docs/_build/
+
+jobs:
+  deploy-doc:
+    name: Build and Deploy Documentation
+    uses: crickets-and-comb/shared/.github/workflows/deploy_docs.yml@main
+    with:
+      PYTHON_BUILD_VERSION: ${{ inputs.PYTHON_BUILD_VERSION }}
+    permissions:
+      id-token: write
+      contents: write
+    secrets: inherit

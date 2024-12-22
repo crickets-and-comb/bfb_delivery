@@ -1,0 +1,14 @@
+name: Dispatch Makefile CI
+
+on:
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash -el {0}
+
+jobs:
+  GitHub-CI:
+    name: Launch QC and Tests from GitHub
+    uses: crickets-and-comb/shared/.github/workflows/CI.yml@main
+    secrets: inherit
