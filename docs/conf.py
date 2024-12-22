@@ -9,9 +9,10 @@ config.read(os.path.join(os.path.dirname(__file__), "..", "setup.cfg"))
 project = config.get("metadata", "name")
 version = config.get("metadata", "version")
 release = version  # Sphinx uses 'release' as the full version
-author = "Kaleb Coberly"
-email = "kaleb.coberly@gmail.com"
-copyright = "Copyright (c) 2024 Kaleb Coberly"
+author = config.get("metadata", "author")
+email = config.get("metadata", "email")
+copyright = config.get("metadata", "copyright")
+
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
