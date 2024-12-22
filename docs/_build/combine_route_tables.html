@@ -201,7 +201,8 @@
   <ul class="current">
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Combine Driver Route Tables into a Single Workbook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">API documentation</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of API documentation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.api.html">bfb_delivery.api package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.cli.html">bfb_delivery.cli package</a></li>
@@ -255,7 +256,9 @@
         <article role="main" id="furo-main-content">
           <section id="combine-driver-route-tables-into-a-single-workbook">
 <h1>Combine Driver Route Tables into a Single Workbook<a class="headerlink" href="#combine-driver-route-tables-into-a-single-workbook" title="Link to this heading">¶</a></h1>
-<p>After you have optimized each driver’s route in Circuit, you will need to combine the optimized routes back into a single workbook to share with your team. This combining task can be done by using the <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> tool. (API documentation at <a class="reference internal" href="bfb_delivery.api.html#bfb_delivery.api.public.combine_route_tables" title="bfb_delivery.api.public.combine_route_tables"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.combine_route_tables()</span></code></a>.)</p>
+<p>After you have optimized each driver’s route in Circuit, you will need to combine the optimized routes back into a single workbook to share with your team. This combining task can be done by using the <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> tool.</p>
+<p>Python API documentation at <a class="reference internal" href="bfb_delivery.api.html#bfb_delivery.api.public.combine_route_tables" title="bfb_delivery.api.public.combine_route_tables"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.combine_route_tables()</span></code></a>.</p>
+<p>CLI documentation at <a class="reference internal" href="CLI.html"><span class="doc">CLI</span></a>.</p>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
 <p>You pass the filepaths of the optimized route tables to <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code>, along with any other optional arguments, and it will create a single workbook file with all the optimized routes combined. The tool then returns the filepath to that file so you can continue to work with it as needed (formatting and printing).</p>

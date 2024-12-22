@@ -2,7 +2,11 @@
 Split Chunked Route Sheet into Multiple Files
 =============================================
 
-Once you have a large route sheet labeled by driver, you need to split it into multiple files and sheets to then upload each driver's route to Circuit for final optimization. This splitting task can be done by using the :code:`split_chunked_route` tool. (API documentation at :py:func:`bfb_delivery.api.public.split_chunked_route`.)
+Once you have a large route sheet labeled by driver, you need to split it into multiple files and sheets to then upload each driver's route to Circuit for final optimization. This splitting task can be done by using the :code:`split_chunked_route` tool.
+
+Python API documentation at :py:func:`bfb_delivery.api.public.split_chunked_route`.
+
+CLI documentation at :doc:`CLI </CLI>`.
 
 Usage
 -----

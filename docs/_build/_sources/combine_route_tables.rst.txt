@@ -2,7 +2,11 @@
 Combine Driver Route Tables into a Single Workbook
 ==================================================
 
-After you have optimized each driver's route in Circuit, you will need to combine the optimized routes back into a single workbook to share with your team. This combining task can be done by using the :code:`combine_route_tables` tool. (API documentation at :py:func:`bfb_delivery.api.public.combine_route_tables`.)
+After you have optimized each driver's route in Circuit, you will need to combine the optimized routes back into a single workbook to share with your team. This combining task can be done by using the :code:`combine_route_tables` tool.
+
+Python API documentation at :py:func:`bfb_delivery.api.public.combine_route_tables`.
+
+CLI documentation at :doc:`CLI </CLI>`.
 
 Usage
 -----

@@ -2,9 +2,9 @@
 BFB Delivery: A Cruft Cutter
 ============================
 
-Library and CLI for Bellingham Food Delivery. This doesn't do much yet.
+Library and CLI for Bellingham Food Bank Delivery. See also the GitHub repository: https://github.com/crickets-and-comb/bfb_delivery
 
-So far, you can:
+This doesn't do much yet. So far, you can:
 
     1. Split a driver-labeled route spreadsheet into individual driver spreadsheets. See :doc:`split_chunked_route` for more information.
     2. Combine driver route spreadsheets into a single workbook. See :doc:`combine_route_tables` for more information.
@@ -17,11 +17,13 @@ Contents
 
    combine_route_tables
    split_chunked_route
-   API documentation <modules>
+   CLI
+   modules
 
 Usage examples
 --------------
 
+Here are some examples of how to use this package. See further documentation for your use case.
 
 Library
 ^^^^^^^
@@ -58,8 +60,10 @@ Nothing is stopping you from importing from lib directly, but you should avoid i
 CLI
 ^^^
 
-You can use the command-line-interface if you have this package installed in your environment:
+You can use the command-line-interface if you have this package installed in your environment. For example:
 
 .. code:: bash
 
     split_chunked_route --input_path path/to/input.xlsx
+
+See :doc:`CLI </CLI>` for more information.

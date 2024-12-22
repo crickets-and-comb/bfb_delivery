@@ -201,7 +201,8 @@
   <ul>
 <li class="toctree-l1"><a class="reference internal" href="combine_route_tables.html">Combine Driver Route Tables into a Single Workbook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">API documentation</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of API documentation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.api.html">bfb_delivery.api package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.cli.html">bfb_delivery.cli package</a></li>
@@ -255,8 +256,8 @@
         <article role="main" id="furo-main-content">
           <section id="bfb-delivery-a-cruft-cutter">
 <h1>BFB Delivery: A Cruft Cutter<a class="headerlink" href="#bfb-delivery-a-cruft-cutter" title="Link to this heading">¶</a></h1>
-<p>Library and CLI for Bellingham Food Delivery. This doesn’t do much yet.</p>
-<p>So far, you can:</p>
+<p>Library and CLI for Bellingham Food Bank Delivery. See also the GitHub repository: <a class="reference external" href="https://github.com/crickets-and-comb/bfb_delivery">https://github.com/crickets-and-comb/bfb_delivery</a></p>
+<p>This doesn’t do much yet. So far, you can:</p>
 <blockquote>
 <div><ol class="arabic simple">
 <li><p>Split a driver-labeled route spreadsheet into individual driver spreadsheets. See <a class="reference internal" href="split_chunked_route.html"><span class="doc">Split Chunked Route Sheet into Multiple Files</span></a> for more information.</p></li>
@@ -281,7 +282,18 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">API documentation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="CLI.html#combine-route-tables">combine_route_tables</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CLI.html#combine-route-tables">combine_route_tables</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CLI.html#split-chunked-route">split_chunked_route</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CLI.html#split-chunked-route">split_chunked_route</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">bfb_delivery</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.html#subpackages">Subpackages</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.html#module-bfb_delivery">Module contents</a></li>
@@ -294,6 +306,7 @@
 </section>
 <section id="usage-examples">
 <h2>Usage examples<a class="headerlink" href="#usage-examples" title="Link to this heading">¶</a></h2>
+<p>Here are some examples of how to use this package. See further documentation for your use case.</p>
 <section id="library">
 <h3>Library<a class="headerlink" href="#library" title="Link to this heading">¶</a></h3>
 <p>Avoid calling library functions directly and stick to the public API:</p>
@@ -320,10 +333,11 @@
 </section>
 <section id="cli">
 <h3>CLI<a class="headerlink" href="#cli" title="Link to this heading">¶</a></h3>
-<p>You can use the command-line-interface if you have this package installed in your environment:</p>
+<p>You can use the command-line-interface if you have this package installed in your environment. For example:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>split_chunked_route<span class="w"> </span>--input_path<span class="w"> </span>path/to/input.xlsx
 </pre></div>
 </div>
+<p>See <a class="reference internal" href="CLI.html"><span class="doc">CLI</span></a> for more information.</p>
 </section>
 </section>
 </section>
