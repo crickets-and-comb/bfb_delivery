@@ -11,4 +11,5 @@ jobs:
   GitHub-CI:
     name: Launch QC and Tests from GitHub
     uses: crickets-and-comb/shared/.github/workflows/CI.yml@main
-    secrets: inherit
+    secrets:
+      CHECKOUT_SHARED: ${{ secrets.CHECKOUT_SHARED }}

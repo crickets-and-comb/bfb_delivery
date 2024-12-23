@@ -25,4 +25,5 @@ jobs:
     permissions:
       id-token: write
       contents: write
-    secrets: inherit
+    secrets:
+      CHECKOUT_SHARED: ${{ secrets.CHECKOUT_SHARED }}

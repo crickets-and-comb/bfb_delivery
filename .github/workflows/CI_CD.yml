@@ -62,7 +62,8 @@ jobs:
     name: QC and Tests
     needs: set-inputs
     uses: crickets-and-comb/shared/.github/workflows/CI.yml@main
-    secrets: inherit
+    secrets:
+      CHECKOUT_SHARED: ${{ secrets.CHECKOUT_SHARED }}
 
   build-dist:
     name: Build Dist
@@ -74,7 +75,8 @@ jobs:
       PYTHON_PACKAGE_DIST_NAME: python-package-distributions
       # Allows a test build locally without uploading.
       UPLOAD_DIST: ${{ needs.set-inputs.outputs.TEST_OR_PROD == 'test' || needs.set-inputs.outputs.TEST_OR_PROD == 'prod' }}
-    secrets: inherit
+    secrets:
+      CHECKOUT_SHARED: ${{ secrets.CHECKOUT_SHARED }}
 
 # TODO: Delete old releases when new release is created. (Just for TestPyPi obvs.)
   publish-to-testpypi:
@@ -161,7 +163,8 @@ jobs:
     uses: crickets-and-comb/shared/.github/workflows/test_install.yml@main
     with:
       TEST_OR_PROD: 'test'
-    secrets: inherit
+    secrets:
+      CHECKOUT_SHARED: ${{ secrets.CHECKOUT_SHARED }}
 
   test-install-prod:
     name: Test Prod Install
@@ -169,7 +172,8 @@ jobs:
     uses: crickets-and-comb/shared/.github/workflows/test_install.yml@main
     with:
       TEST_OR_PROD: 'prod'
-    secrets: inherit
+    secrets:
+      CHECKOUT_SHARED: ${{ secrets.CHECKOUT_SHARED }}
 
   deploy-docs:
     name: Deploy Docs
@@ -180,4 +184,5 @@ jobs:
     permissions:
       id-token: write
       contents: write
-    secrets: inherit
+    secrets:
+      CHECKOUT_SHARED: ${{ secrets.CHECKOUT_SHARED }}
