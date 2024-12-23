@@ -1,0 +1,50 @@
+name: Dispatch Makefile Test Install
+
+on:
+  schedule:
+    - cron: "0 1 * * 0" # Weekly on Sunday at 1:00 a.m.
+
+  workflow_dispatch:
+    inputs:
+      RELEASE_VERSION:
+        description: 'Which version to release? If empty, will use version checked out in repo.'
+        type: string
+        required: false
+      TEST_OR_PROD:
+        description: 'Which published version to test? PyPi (prod) or TestPyPi (test)?'
+        type: string
+        default: 'test'
+
+defaults:
+  run:
+    shell: bash -el {0}
+
+env:
+  CONDA_VERSION: latest
+
+jobs:
+  set-inputs:
+    name: Set Inputs
+    runs-on: ubuntu-latest
+    outputs:
+      TEST_OR_PROD: ${{ steps.set-test.outputs.TEST_OR_PROD }}
+
+    steps:
+      - name: Set Test or Prod
+        id: set-test
+        run: |
+          if [ "${{ github.event_name }}" == "schedule" ]; then
+            echo "TEST_OR_PROD=prod" >> $GITHUB_OUTPUT
+          else
+            echo "TEST_OR_PROD=${{ inputs.TEST_OR_PROD }}" >> $GITHUB_OUTPUT
+          fi
+
+  test-published-package:
+    name: Test Published Package on (Test)PyPi
+    needs: set-inputs
+    uses: crickets-and-comb/shared/.github/workflows/test_install.yml@main
+    with:
+      RELEASE_VERSION: ${{ inputs.RELEASE_VERSION }}
+      TEST_OR_PROD: ${{ needs.set-inputs.outputs.TEST_OR_PROD }}
+    secrets:
+      CHECKOUT_SHARED: ${{ secrets.CHECKOUT_SHARED }}

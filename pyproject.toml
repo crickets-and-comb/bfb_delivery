@@ -1,32 +1,3 @@
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
-
-[tool.pytest.ini_options]
-markers = [
-    "unit",
-    "integration",
-    "e2e",
-]
-
-junit_family = "xunit2"
-testpaths = [
-    "tests/unit",
-    "tests/integration",
-    "tests/e2e",
-]
-
-[tool.coverage.report]
-show_missing = true
-
-[tool.black]
-line_length = 94
-skip-magic-trailing-comma = true
-
-[tool.isort]
-line_length = 94
-profile = "black"
-multi_line_output = 3
-known_klub = ["bfb_delivery"]
-# Custom sections and ordering, https:://pypi.org/project/isort/
-sections = ["FUTURE", "STDLIB", "THIRDPARTY", "KLUB", "FIRSTPARTY", "LOCALFOLDER"]

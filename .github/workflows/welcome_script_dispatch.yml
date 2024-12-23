@@ -1,0 +1,9 @@
+name: Dispatch Welcome Script
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  welcome:
+    uses: crickets-and-comb/shared/.github/workflows/welcome_script.yml@main

@@ -13,7 +13,7 @@ from bfb_delivery.lib.constants import Columns
 def combine_route_tables(
     input_paths: list[Path | str], output_dir: Path | str, output_filename: str
 ) -> Path:
-    """See public docstring."""
+    """See public docstring: :py:func:`bfb_delivery.api.public.combine_route_tables`."""
     if len(input_paths) == 0:
         raise ValueError("input_paths must have at least one path.")
 
@@ -48,7 +48,7 @@ def combine_route_tables(
 def split_chunked_route(
     input_path: Path | str, output_dir: Path | str, output_filename: str, n_books: int
 ) -> list[Path]:
-    """See public docstring."""
+    """See public docstring: :py:func:`bfb_delivery.api.public.split_chunked_route`."""
     # TODO: convert input_path to path.
     if n_books <= 0:
         raise ValueError("n_books must be greater than 0.")
