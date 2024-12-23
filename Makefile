@@ -3,8 +3,5 @@ PACKAGE_NAME := $(shell python -c "import configparser; cfg = configparser.Confi
 REPO_ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 QC_DIRS := ${REPO_ROOT}src/ ${REPO_ROOT}tests/ ${REPO_ROOT}docs/
 
-IGNORE_SAFETY := n
-IGNORE_JAKE := n
-
 export
 include shared/Makefile
