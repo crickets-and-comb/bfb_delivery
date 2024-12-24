@@ -64,6 +64,7 @@ jobs:
     uses: crickets-and-comb/shared/.github/workflows/CI.yml@main
     secrets:
       CHECKOUT_SHARED: ${{ secrets.CHECKOUT_SHARED }}
+      SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
 
   build-dist:
     name: Build Dist
@@ -78,7 +79,6 @@ jobs:
     secrets:
       CHECKOUT_SHARED: ${{ secrets.CHECKOUT_SHARED }}
 
-# TODO: Delete old releases when new release is created. (Just for TestPyPi obvs.)
   publish-to-testpypi:
     name: Publish to TestPyPI
     needs: build-dist

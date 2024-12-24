@@ -1,3 +1,1 @@
-"""CLI init."""
-
-# TODO: Add CLI help docs to docs/cli.rst.
+"""CLI init. See :doc:`CLI` </CLI>."""
