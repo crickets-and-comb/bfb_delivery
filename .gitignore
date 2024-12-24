@@ -35,7 +35,7 @@ __pycache__/
 # *_test_report.xml
 
 # Docs
-# docs/_build/
+docs/_build/
 bfb_delivery*.rst
 docs/modules.rst
 docs/**/*.pickle
