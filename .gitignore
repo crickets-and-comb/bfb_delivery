@@ -36,8 +36,8 @@ __pycache__/
 
 # Docs
 # docs/_build/
-# bfb_delivery*.rst
-# docs/modules.rst
+bfb_delivery*.rst
+docs/modules.rst
 docs/**/*.pickle
 
 # Env
