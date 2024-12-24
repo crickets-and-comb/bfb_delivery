@@ -21,3 +21,16 @@ Contents
    split_chunked_route
    CLI
    modules
+
+Installation
+------------
+
+Run the following to install the package:
+
+.. code:: bash
+
+    pip install bfb_delivery
+
+See :doc:`getting_started` for more information.
+
+See also https://pypi.org/project/bfb-delivery/.

@@ -2,7 +2,7 @@
 
 ## Summary
 
-This doesn't do much yet. It is made from the `reference_package` template repo: https://github.com/crickets-and-comb/reference_package
+This doesn't do much yet. It is made from the `reference_package` template repo: https://github.com/crickets-and-comb/reference_package. See the docs: https://crickets-and-comb.github.io/bfb_delivery/.
 
 The plan is to use this package for some of the tasks food bank staff do manually to plan the delivery routes.
 
@@ -41,7 +41,7 @@ The plan of attack is to start with the low-hanging fruit of data formatting bef
 
 ## Installation
 
-We're not publishing the package to PyPi yet, but once we do, you should be able to `pip install bfb_delivery`. For now, use the dev install (see below).
+Run `pip install bfb_delivery`. See https://pypi.org/project/bfb-delivery/.
 
 ## Usage Examples
 
