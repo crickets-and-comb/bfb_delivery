@@ -7,8 +7,8 @@ If you're reading this, you are probably an end user who, at the current state o
 Setting up your machine
 -----------------------
 
-Installing the package
-^^^^^^^^^^^^^^^^^^^^^^^
+First-time setup: Installing the package
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``bfb_delivery`` is a Python package. To use it, you should install this package within a virtual environment (a "venv" or an "env"). Here's how.
 
