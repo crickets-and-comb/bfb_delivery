@@ -78,7 +78,6 @@ jobs:
     secrets:
       CHECKOUT_SHARED: ${{ secrets.CHECKOUT_SHARED }}
 
-# TODO: Delete old releases when new release is created. (Just for TestPyPi obvs.)
   publish-to-testpypi:
     name: Publish to TestPyPI
     needs: build-dist
