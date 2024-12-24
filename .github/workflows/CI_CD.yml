@@ -61,9 +61,10 @@ jobs:
   CI:
     name: QC and Tests
     needs: set-inputs
-    uses: crickets-and-comb/shared/.github/workflows/CI.yml@main
+    uses: crickets-and-comb/shared/.github/workflows/CI.yml@feature/KalebCoberly/next-round-of-stuff
     secrets:
       CHECKOUT_SHARED: ${{ secrets.CHECKOUT_SHARED }}
+      SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
 
   build-dist:
     name: Build Dist
