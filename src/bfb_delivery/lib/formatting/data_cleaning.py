@@ -70,12 +70,8 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
 
 
 def _format_stop_no_column(df: pd.DataFrame) -> None:
-    """Format the stop number column.
-
-    Cast as int.
-    """
-    _strip_whitespace_from_column(df=df, column=Columns.STOP_NO)
-    df[Columns.STOP_NO] = df[Columns.STOP_NO].astype(float).astype(int)
+    """Format the stop number column."""
+    _format_int_column(df=df, column=Columns.STOP_NO)
     # TODO: Validate:
     # > 0
     # unique
@@ -153,4 +149,8 @@ def _strip_whitespace_from_column(df: pd.DataFrame, column: str) -> None:
     return
 
 
-# TODO: Abstract some of these (handle basic int col, basic string col)
+def _format_int_column(df: pd.DataFrame, column: str) -> None:
+    """Basic formatting for an integer column."""
+    _strip_whitespace_from_column(df=df, column=column)
+    df[column] = df[column].astype(float).astype(int)
+    return
