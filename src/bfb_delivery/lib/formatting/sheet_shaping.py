@@ -49,9 +49,10 @@ def split_chunked_route(
     input_path: Path | str, output_dir: Path | str, output_filename: str, n_books: int
 ) -> list[Path]:
     """See public docstring: :py:func:`bfb_delivery.api.public.split_chunked_route`."""
-    # TODO: convert input_path to path.
     if n_books <= 0:
         raise ValueError("n_books must be greater than 0.")
+    # TODO: Make this accept input_path only as Path?
+    input_path = Path(input_path)
 
     chunked_sheet: pd.DataFrame = pd.read_excel(input_path)
 
