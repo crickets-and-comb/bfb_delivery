@@ -139,7 +139,8 @@ jobs:
       DIST_DIR: "dist"
       PYTHON_BUILD_VERSION: ${{ needs.set-inputs.outputs.PYTHON_BUILD_VERSION }}
       PYTHON_PACKAGE_DIST_NAME: python-package-distributions
-    secrets: inherit
+    secrets:
+      CHECKOUT_SHARED: ${{ secrets.CHECKOUT_SHARED }}
 
   wait-to-test-test:
     name: Wait for Test Publish to Propagate
