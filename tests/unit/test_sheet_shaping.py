@@ -11,7 +11,7 @@ from click.testing import CliRunner
 from bfb_delivery import combine_route_tables, split_chunked_route
 from bfb_delivery.cli import combine_route_tables as combine_route_tables_cli
 from bfb_delivery.cli import split_chunked_route as split_chunked_route_cli
-from bfb_delivery.lib.constants import Columns
+from bfb_delivery.lib.constants import COMBINED_ROUTES_COLUMNS, SPLIT_ROUTE_COLUMNS, Columns
 
 N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
 
@@ -26,20 +26,116 @@ def module_tmp_dir(tmp_path_factory: pytest.TempPathFactory) -> Path:
 def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
     """Save mock chunked route sheet and get path."""
     fp: Path = module_tmp_dir / "mock_chunked_sheet_raw.xlsx"
-    # TODO: Use specific sheet name.
+    # TODO: Use specific sheet name?
     raw_chunked_sheet = pd.DataFrame(
-        {
-            Columns.DRIVER: ["A", "A", "B", "B", "C", "C", "D"],
-            "address": [
-                "123 Main",
-                "456 Elm",
-                "789 Oak",
-                "1011 Pine",
-                "1213 Maple",
-                "1415 Birch",
-                "1617 Cedar",
-            ],
-        }
+        columns=SPLIT_ROUTE_COLUMNS + [Columns.DRIVER, Columns.BOX_COUNT, Columns.STOP_NO],
+        # TODO: Validate box count.
+        data=[
+            (
+                "Client One",
+                "123 Main St",
+                "555-555-1234",
+                "client1@email.com",
+                "Notes for Client One.",
+                "1",
+                "Basic",
+                "York",
+                "Driver One",
+                2,
+                1,
+            ),
+            (
+                "Client Two",
+                "456 Elm St",
+                "555-555-5678",
+                "client2@email.com",
+                "Notes for Client Two.",
+                "1",
+                "GF",
+                "Puget",
+                "Driver One",
+                None,
+                2,
+            ),
+            (
+                "Client Three",
+                "789 Oak St",
+                "555-555-9101",
+                "client3@email.com",
+                "Notes for Client Three.",
+                "1",
+                "Vegan",
+                "Puget",
+                "Driver Two",
+                2,
+                3,
+            ),
+            (
+                "Client Four",
+                "1011 Pine St",
+                "555-555-1121",
+                "client4@email.com",
+                "Notes for Client Four.",
+                "1",
+                "LA",
+                "Puget",
+                "Driver Two",
+                None,
+                4,
+            ),
+            (
+                "Client Five",
+                "1314 Cedar St",
+                "555-555-3141",
+                "client5@email.com",
+                "Notes for Client Five.",
+                "1",
+                "Basic",
+                "Samish",
+                "Driver Three",
+                2,
+                5,
+            ),
+            (
+                "Client Six",
+                "1516 Fir St",
+                "555-555-5161",
+                "client6@email.com",
+                "Notes for Client Six.",
+                "1",
+                "GF",
+                "Sehome",
+                "Driver Three",
+                None,
+                6,
+            ),
+            (
+                "Client Seven",
+                "1718 Spruce St",
+                "555-555-7181",
+                "client7@email.com",
+                "Notes for Client Seven.",
+                "1",
+                "Vegan",
+                "Samish",
+                "Driver Three",
+                None,
+                7,
+            ),
+            (
+                "Client Eight",
+                "1920 Maple St",
+                "555-555-9202",
+                "client8@email.com",
+                "Notes for Client Eight.",
+                "1",
+                "LA",
+                "South Hill",
+                "Driver Four",
+                1,
+                8,
+            ),
+        ],
     )
     raw_chunked_sheet.to_excel(fp, index=False)
 
@@ -55,12 +151,14 @@ class TestCombineRouteTables:
     ) -> list[Path]:
         """Mock the driver route tables returned by Circuit."""
         output_paths = []
+        output_cols = [Columns.STOP_NO] + SPLIT_ROUTE_COLUMNS
         chunked_df = pd.read_excel(mock_chunked_sheet_raw)
         for driver in chunked_df[Columns.DRIVER].unique():
             output_path = module_tmp_dir / f"{driver}.csv"
             output_paths.append(output_path)
             driver_df = chunked_df[chunked_df[Columns.DRIVER] == driver]
-            driver_df.to_csv(module_tmp_dir / output_path, index=False)
+            driver_df[Columns.STOP_NO] = [i + 1 for i in range(len(driver_df))]
+            driver_df[output_cols].to_csv(module_tmp_dir / output_path, index=False)
 
         return output_paths
 
@@ -96,38 +194,47 @@ class TestCombineRouteTables:
         )
         assert output_path.name == expected_filename
 
-    def test_one_driver_per_sheet(self, mock_route_tables: list[Path]) -> None:
-        """Test that each sheet contains only one driver's data."""
-        output_path = combine_route_tables(input_paths=mock_route_tables)
-        workbook = pd.ExcelFile(output_path)
-        driver_sheets = [
-            pd.read_excel(workbook, sheet_name=sheet) for sheet in workbook.sheet_names
-        ]
-        assert all(sheet[Columns.DRIVER].nunique() == 1 for sheet in driver_sheets)
-
-    def test_sheets_named_by_driver(self, mock_route_tables: list[Path]) -> None:
-        """Test that each sheet is named after the driver."""
+    # TODO: Test output columns.
+    def test_output_columns(self, mock_route_tables: list[Path]) -> None:
+        """Test that the output columns match the COMBINED_ROUTES_COLUMNS constant."""
         output_path = combine_route_tables(input_paths=mock_route_tables)
         workbook = pd.ExcelFile(output_path)
         for sheet_name in workbook.sheet_names:
             driver_sheet = pd.read_excel(workbook, sheet_name=sheet_name)
-            assert sheet_name == driver_sheet[Columns.DRIVER].unique()[0]
+            assert driver_sheet.columns.to_list() == COMBINED_ROUTES_COLUMNS
+
+    def test_unique_clients(self, mock_route_tables: list[Path]) -> None:
+        """Test that the clients don't overlap between the driver route tables.
+
+        By name, address, and phone.
+        """
+        output_path = combine_route_tables(input_paths=mock_route_tables)
+        driver_sheets = _get_driver_sheets(output_paths=[output_path])
+        combined_output_data = pd.concat(driver_sheets, ignore_index=True)
+        assert (
+            combined_output_data[[Columns.NAME, Columns.ADDRESS, Columns.PHONE]]
+            .duplicated()
+            .sum()
+            == 0  # noqa: W503
+        )
 
     def test_complete_contents(self, mock_route_tables: list[Path]) -> None:
         """Test that the input data is all covered in the combined workbook."""
         output_path = combine_route_tables(input_paths=mock_route_tables)
 
         full_input_data = pd.concat(
-            [pd.read_csv(path) for path in mock_route_tables], ignore_index=True
+            [pd.read_csv(path)[COMBINED_ROUTES_COLUMNS] for path in mock_route_tables],
+            ignore_index=True,
         )
         driver_sheets = _get_driver_sheets(output_paths=[output_path])
         combined_output_data = pd.concat(driver_sheets, ignore_index=True)
 
-        cols = full_input_data.columns.to_list()
-        full_input_data = full_input_data.sort_values(by=cols).reset_index(drop=True)
-        combined_output_data = combined_output_data.sort_values(by=cols).reset_index(
+        full_input_data = full_input_data.sort_values(by=COMBINED_ROUTES_COLUMNS).reset_index(
             drop=True
         )
+        combined_output_data = combined_output_data.sort_values(
+            by=COMBINED_ROUTES_COLUMNS
+        ).reset_index(drop=True)
 
         pd.testing.assert_frame_equal(full_input_data, combined_output_data)
 
@@ -219,21 +326,23 @@ class TestSplitChunkedRoute:
         assert len(output_paths) == n_books
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
-    def test_one_driver_per_sheet(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
-        """Test that each sheet contains only one driver's data."""
-        output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
-        driver_sheets = _get_driver_sheets(output_paths=output_paths)
-        assert all(sheet[Columns.DRIVER].nunique() == 1 for sheet in driver_sheets)
+    def test_clients_unique(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
+        """Test that the clients don't overlap between the split workbooks.
 
-    @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
-    def test_sheets_named_by_driver(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
-        """Test that each sheet is named after the driver."""
+        By name, address, phone, and email.
+        """
         output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
+
+        client_sets = []
         for output_path in output_paths:
-            workbook = pd.ExcelFile(output_path)
-            for sheet_name in workbook.sheet_names:
-                driver_sheet = pd.read_excel(workbook, sheet_name=sheet_name)
-                assert sheet_name == driver_sheet[Columns.DRIVER].unique()[0]
+            driver_sheets = _get_driver_sheets(output_paths=[output_path])
+            client_sets.append(
+                pd.concat(driver_sheets, ignore_index=True)[
+                    [Columns.NAME, Columns.ADDRESS, Columns.PHONE, Columns.EMAIL]
+                ]
+            )
+        clients_df = pd.concat(client_sets, ignore_index=True)
+        assert clients_df.duplicated().sum() == 0
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_unique_drivers_across_books(
@@ -331,6 +440,15 @@ class TestSplitChunkedRoute:
                 Path(output_dir) if output_dir else mock_chunked_sheet_raw.parent
             )
             assert (Path(expected_output_dir) / expected_filename).exists()
+
+    def test_output_columns(self, mock_chunked_sheet_raw: Path) -> None:
+        """Test that the output columns match the SPLIT_ROUTE_COLUMNS constant."""
+        output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw)
+        for output_path in output_paths:
+            workbook = pd.ExcelFile(output_path)
+            for sheet_name in workbook.sheet_names:
+                driver_sheet = pd.read_excel(workbook, sheet_name=sheet_name)
+                assert driver_sheet.columns.to_list() == SPLIT_ROUTE_COLUMNS
 
 
 def _get_driver_sheets(output_paths: list[Path]) -> list[pd.DataFrame]:
