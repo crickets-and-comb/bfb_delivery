@@ -7,9 +7,12 @@ import pandas as pd
 from typeguard import typechecked
 
 from bfb_delivery.lib.constants import COMBINED_ROUTES_COLUMNS, SPLIT_ROUTE_COLUMNS, Columns
+from bfb_delivery.lib.formatting.data_cleaning import (
+    format_and_validate_data,
+    format_column_names,
+)
 
 
-# TODO: Order by apartment number.
 # TODO: Get real input tables to verify this works.
 # (Should match structure of split_chunked_route outputs.)
 # TODO: Validate stop numbers?
@@ -33,8 +36,11 @@ def combine_route_tables(
 
     with pd.ExcelWriter(output_path) as writer:
         for path in paths:
-            df = pd.read_csv(path)
-            df[COMBINED_ROUTES_COLUMNS].to_excel(writer, sheet_name=path.stem, index=False)
+            route_df = pd.read_csv(path)
+            driver_name = path.stem
+            route_df[COMBINED_ROUTES_COLUMNS].to_excel(
+                writer, sheet_name=driver_name, index=False
+            )
 
     return output_path.resolve()
 
@@ -53,7 +59,8 @@ def split_chunked_route(
     input_path = Path(input_path)
 
     chunked_sheet: pd.DataFrame = pd.read_excel(input_path)
-    # TODO: Clean column names.
+    chunked_sheet.columns = format_column_names(columns=chunked_sheet.columns.to_list())
+    format_and_validate_data(df=chunked_sheet, columns=SPLIT_ROUTE_COLUMNS)
     # TODO: Validate columns? (Use Pandera?)
 
     drivers = chunked_sheet[Columns.DRIVER].unique()
@@ -81,9 +88,9 @@ def split_chunked_route(
 
         with pd.ExcelWriter(split_workbook_path) as writer:
             driver_set_df = chunked_sheet[chunked_sheet[Columns.DRIVER].isin(driver_set)]
-            for driver, data in driver_set_df.groupby(Columns.DRIVER):
+            for driver_name, data in driver_set_df.groupby(Columns.DRIVER):
                 data[SPLIT_ROUTE_COLUMNS].to_excel(
-                    writer, sheet_name=str(driver), index=False
+                    writer, sheet_name=str(driver_name), index=False
                 )
 
     split_workbook_paths = [path.resolve() for path in split_workbook_paths]
@@ -91,6 +98,7 @@ def split_chunked_route(
     return split_workbook_paths
 
 
+# TODO: Order by apartment number.
 @typechecked
 def format_combined_routes(
     input_path: Path | str, output_dir: Path | str = "", output_filename: str = ""
@@ -107,7 +115,25 @@ def format_combined_routes(
 
     with pd.ExcelWriter(output_path) as writer, pd.ExcelFile(input_path) as xls:
         for sheet_name in xls.sheet_names:
-            df = pd.read_excel(xls, sheet_name)
-            df[COMBINED_ROUTES_COLUMNS].to_excel(writer, sheet_name, index=False)
+            driver_name = str(sheet_name)
+            route_df = pd.read_excel(xls, driver_name)
+            route_df.columns = format_column_names(columns=route_df.columns.to_list())
+            format_and_validate_data(df=route_df, columns=COMBINED_ROUTES_COLUMNS)
+            # TODO: Use Pandera?
+            # TODO: Order by apartment number, and redo stop numbers.
+            # May need to postpone this.
+            # Or, for now, just do it if the apartments are already in contiguous stops.
+            # Or if discontinuous, just regroup and bump the following stops.
+            # TODO: Sort by stop number.
+            # TODO: Aggregate data.
+            # Box count by type.
+            # Total box count.
+            # Protein count.
+            # TODO: Add aggregate cells.
+            # TODO: Add header cells.
+            # TODO: Add date cell.
+            # TODO: Add driver name cell.
+            # TODO: Color code data.
+            route_df[COMBINED_ROUTES_COLUMNS].to_excel(writer, driver_name, index=False)
 
     return output_path.resolve()
