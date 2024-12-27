@@ -93,13 +93,16 @@ def _format_name_column(df: pd.DataFrame) -> None:
     # TODO: Vaidate:
     # no special characters
     # no numbers?
+    # beautifulsoup?
     return
 
 
 def _format_address_column(df: pd.DataFrame) -> None:
     """Format the address column."""
-    # TODO: Implement formatting.
-    pass
+    _strip_whitespace_from_column(df=df, column=Columns.ADDRESS)
+    # TODO: Other formatting?
+    # TODO: Validate: Use beautifulsoup or something?
+    return
 
 
 def _format_phone_column(df: pd.DataFrame) -> None:

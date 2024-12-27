@@ -64,7 +64,7 @@ class TestFormatAndValidateData:
                 (
                     " 2 ",  # Test trimming whitespace.
                     "Bob ",  # Test trimming whitespace.
-                    "456 Elm St",
+                    " 456 Elm St",  # Test trimming whitespace.
                     "555-5678",
                     "you@me.com",
                     "",
