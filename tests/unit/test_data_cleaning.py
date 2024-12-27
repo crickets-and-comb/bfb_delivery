@@ -18,6 +18,7 @@ class TestFormatColumnNames:
 
     def test_format_column_names(self) -> None:
         """Test formatting column names."""
+        # TODO: Int column names? Is that possible?
         columns = ["  Name  ", Columns.ADDRESS, "  Phone  "]
         expected = [Columns.NAME, Columns.ADDRESS, Columns.PHONE]
         assert format_column_names(columns) == expected
@@ -28,16 +29,16 @@ class TestFormatAndValidateData:
 
     @pytest.mark.parametrize(
         "column_name, expected_values",
-        [
-            (Columns.STOP_NO, [1]),
-            (Columns.NAME, ["Alice"]),
-            (Columns.ADDRESS, ["123 Main St"]),
-            (Columns.PHONE, ["555-1234"]),
-            (Columns.EMAIL, ["me@me.com"]),
-            (Columns.NOTES, [""]),
-            (Columns.ORDER_COUNT, [1]),
-            (Columns.BOX_TYPE, ["Basic"]),
-            (Columns.NEIGHBORHOOD, ["York"]),
+        [  # TODO: Pull this out into a class-scoped fixture df. Useful input to next tests.
+            (Columns.STOP_NO, [1, 2, 3, 4]),
+            (Columns.NAME, ["Alice", "Bob", "Charlie", "David"]),
+            (Columns.ADDRESS, ["123 Main St", "456 Elm St", "789 Oak St", "1011 Pine St"]),
+            (Columns.PHONE, ["555-1234", "555-5678", "555-9012", "555-3456"]),
+            (Columns.EMAIL, ["me@me.com", "you@me.com", "we@me.com", "me@you.com"]),
+            (Columns.NOTES, ["", "", "", ""]),
+            (Columns.ORDER_COUNT, [1, 1, 1, 1]),
+            (Columns.BOX_TYPE, ["Basic", "Basic", "Basic", "Basic"]),
+            (Columns.NEIGHBORHOOD, ["York", "York", "York", "York"]),
         ],
     )
     def test_format_and_validate_data(self, column_name: str, expected_values: list) -> None:
@@ -59,7 +60,40 @@ class TestFormatAndValidateData:
             data=[
                 # TODO: Starter row. As formatting is implemented, add/update rows and comment
                 # what formatting is under test.
-                (1, "Alice", "123 Main St", "555-1234", "me@me.com", "", 1, "Basic", "York")
+                (1, "Alice", "123 Main St", "555-1234", "me@me.com", "", 1, "Basic", "York"),
+                (
+                    " 2 ",  # Test trimming whitespace.
+                    "Bob",
+                    "456 Elm St",
+                    "555-5678",
+                    "you@me.com",
+                    "",
+                    1,
+                    "Basic",
+                    "York",
+                ),
+                (
+                    3.0,  # Test cast float.
+                    "Charlie",
+                    "789 Oak St",
+                    "555-9012",
+                    "we@me.com",
+                    "",
+                    1,
+                    "Basic",
+                    "York",
+                ),
+                (
+                    "4.0 ",  # Test cast str float.
+                    "David",
+                    "1011 Pine St",
+                    "555-3456",
+                    "me@you.com",
+                    "",
+                    1,
+                    "Basic",
+                    "York",
+                ),
             ],
         )
         format_and_validate_data(df, columns)
