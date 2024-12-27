@@ -1,7 +1,5 @@
 """split_chunked_route CLI. See :doc:`split_chunked_route` for more information."""
 
-from pathlib import Path
-
 import click
 from typeguard import typechecked
 
@@ -44,7 +42,7 @@ from bfb_delivery import split_chunked_route
     help="Number of workbooks to split into. Default is 4.",
 )
 @typechecked
-def main(input_path: str, output_dir: str, output_filename: str, n_books: int) -> list[Path]:
+def main(input_path: str, output_dir: str, output_filename: str, n_books: int) -> list[str]:
     """See public docstring: :py:func:`bfb_delivery.api.public.split_chunked_route`."""
     paths = split_chunked_route(
         input_path=input_path,
@@ -52,5 +50,7 @@ def main(input_path: str, output_dir: str, output_filename: str, n_books: int) -
         output_filename=output_filename,
         n_books=n_books,
     )
-    click.echo(f"Split workbook(s) saved to: {[str(path) for path in paths]}")
-    return paths
+    return_paths = [str(path) for path in paths]
+    click.echo(f"Split workbook(s) saved to: {return_paths}")
+
+    return return_paths
