@@ -95,3 +95,6 @@ def format_combined_routes(
     return internal.format_combined_routes(
         input_path=input_path, output_dir=output_dir, output_filename=output_filename
     )
+
+
+# TODO: Wrap format and combine functions in a single function.
