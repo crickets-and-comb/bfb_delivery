@@ -1,7 +1,5 @@
 """combine_route_tables CLI. See :doc:`combine_route_tables` for more information."""
 
-from pathlib import Path
-
 import click
 from typeguard import typechecked
 
@@ -40,5 +38,6 @@ def main(input_paths: tuple[str, ...], output_dir: str, output_filename: str) ->
     path = combine_route_tables(
         input_paths=list(input_paths), output_dir=output_dir, output_filename=output_filename
     )
-    click.echo(f"Combined workbook saved to: {str(path)}")
-    return str(path)
+    path = str(path)
+    click.echo(f"Combined workbook saved to: {path}")
+    return path
