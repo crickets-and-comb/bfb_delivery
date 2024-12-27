@@ -1,4 +1,4 @@
-"""split_chunked_route CLI. See :doc:`split_chunked_route` for more information."""
+"""combine_route_tables CLI. See :doc:`combine_route_tables` for more information."""
 
 from pathlib import Path
 
