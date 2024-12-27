@@ -98,7 +98,6 @@ def split_chunked_route(
     return split_workbook_paths
 
 
-# TODO: Order by apartment number.
 @typechecked
 def format_combined_routes(
     input_path: Path | str, output_dir: Path | str = "", output_filename: str = ""
@@ -134,6 +133,8 @@ def format_combined_routes(
             # TODO: Add date cell.
             # TODO: Add driver name cell.
             # TODO: Color code data.
-            route_df[COMBINED_ROUTES_COLUMNS].to_excel(writer, driver_name, index=False)
+            route_df[COMBINED_ROUTES_COLUMNS].to_excel(
+                excel_writer=writer, sheet_name=driver_name, index=False
+            )
 
     return output_path.resolve()
