@@ -11,9 +11,11 @@ class Columns:
     DRIVER: Final[str] = "Driver"  # TODO: Accept any case of columns?
     EMAIL: Final[str] = "Email"
     NAME: Final[str] = "Name"
+    NEIGHBORHOOD: Final[str] = "Neighborhood"
     NOTES: Final[str] = "Notes"
     ORDER_COUNT: Final[str] = "Order Count"
     PHONE: Final[str] = "Phone"
+    STOP_NO: Final[str] = "Stop #"
 
 
 SPLIT_ROUTE_COLUMNS: Final[list[str]] = [
@@ -24,6 +26,18 @@ SPLIT_ROUTE_COLUMNS: Final[list[str]] = [
     Columns.NOTES,
     Columns.ORDER_COUNT,
     Columns.BOX_TYPE,
+    Columns.NEIGHBORHOOD,
+]
+
+COMBINED_ROUTES_COLUMNS: Final[list[str]] = [
+    Columns.STOP_NO,
+    Columns.NAME,
+    Columns.ADDRESS,
+    Columns.PHONE,
+    Columns.NOTES,
+    Columns.ORDER_COUNT,  # TODO: Drop this when we add formatting.
+    Columns.BOX_TYPE,
+    Columns.NEIGHBORHOOD,
 ]
 
 # TODO: Make box type enum? (Use Pandera?)
