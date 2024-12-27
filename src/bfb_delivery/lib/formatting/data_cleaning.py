@@ -85,7 +85,7 @@ def _format_stop_no_column(df: pd.DataFrame) -> None:
 
 def _format_name_column(df: pd.DataFrame) -> None:
     """Format the name column."""
-    _strip_whitespace_from_column(df=df, column=Columns.NAME)
+    _format_string_column(df=df, column=Columns.NAME)
     # TODO: Vaidate:
     # no special characters
     # no numbers?
@@ -95,7 +95,7 @@ def _format_name_column(df: pd.DataFrame) -> None:
 
 def _format_address_column(df: pd.DataFrame) -> None:
     """Format the address column."""
-    _strip_whitespace_from_column(df=df, column=Columns.ADDRESS)
+    _format_string_column(df=df, column=Columns.ADDRESS)
     # TODO: Other formatting? beautifulsoup?
     # TODO: Validate: Use beautifulsoup or something?
     return
@@ -103,7 +103,7 @@ def _format_address_column(df: pd.DataFrame) -> None:
 
 def _format_phone_column(df: pd.DataFrame) -> None:
     """Format the phone column."""
-    _strip_whitespace_from_column(df=df, column=Columns.PHONE)
+    _format_string_column(df=df, column=Columns.PHONE)
     # TODO: Other formatting? beautifulsoup?
     # area and country code.
     # different input formats (e.g., dashes, parentheses, spaces, periods)
@@ -113,7 +113,7 @@ def _format_phone_column(df: pd.DataFrame) -> None:
 
 def _format_email_column(df: pd.DataFrame) -> None:
     """Format the email column."""
-    _strip_whitespace_from_column(df=df, column=Columns.EMAIL)
+    _format_string_column(df=df, column=Columns.EMAIL)
     # TODO: Other formatting? beautifulsoup?
     # TODO: Validate: Use beautifulsoup or something?
     return
@@ -121,7 +121,7 @@ def _format_email_column(df: pd.DataFrame) -> None:
 
 def _format_notes_column(df: pd.DataFrame) -> None:
     """Format the notes column."""
-    _strip_whitespace_from_column(df=df, column=Columns.NOTES)
+    _format_string_column(df=df, column=Columns.NOTES)
     return
 
 
@@ -143,14 +143,20 @@ def _format_neighborhood_column(df: pd.DataFrame) -> None:
     pass
 
 
-def _strip_whitespace_from_column(df: pd.DataFrame, column: str) -> None:
-    """Strip whitespace from a column. Note: Casts to string."""
-    df[column] = df[column].astype(str).str.strip()
-    return
-
-
 def _format_int_column(df: pd.DataFrame, column: str) -> None:
     """Basic formatting for an integer column."""
     _strip_whitespace_from_column(df=df, column=column)
     df[column] = df[column].astype(float).astype(int)
+    return
+
+
+def _format_string_column(df: pd.DataFrame, column: str) -> None:
+    """Basic formatting for a string column."""
+    _strip_whitespace_from_column(df=df, column=column)
+    return
+
+
+def _strip_whitespace_from_column(df: pd.DataFrame, column: str) -> None:
+    """Strip whitespace from a column. Note: Casts to string."""
+    df[column] = df[column].astype(str).str.strip()
     return
