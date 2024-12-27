@@ -9,9 +9,6 @@ from typeguard import typechecked
 from bfb_delivery.lib.constants import SPLIT_ROUTE_COLUMNS, Columns
 
 
-# TODO: Order by apartment number.
-# TODO: Get real input tables to verify this works.
-# (Should match structure of split_chunked_route outputs.)
 @typechecked
 def combine_route_tables(
     input_paths: list[Path | str], output_dir: Path | str, output_filename: str
@@ -30,16 +27,21 @@ def combine_route_tables(
     output_path = output_dir / output_filename
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    dfs: list[pd.DataFrame] = [pd.read_csv(path) for path in paths]
     with pd.ExcelWriter(output_path) as writer:
-        for path in paths:
-            df = pd.read_excel(path)
-            df.to_excel(writer, sheet_name=path.stem, index=False)
+        for df in dfs:
+            drivers = df[Columns.DRIVER].unique()
+            if len(drivers) != 1:
+                raise ValueError(f"Each CSV must have only one driver. drivers: {drivers}")
+            driver = drivers[0]
+            df.to_excel(writer, sheet_name=driver, index=False)
 
     return output_path.resolve()
 
 
 # TODO: There's got to be a way to set the docstring as a constant.
 # TODO: Use Pandera.
+# TODO: Get/make some realish data to test with.
 # TODO: Switch to or allow CSVs instead of Excel files.
 @typechecked
 def split_chunked_route(
