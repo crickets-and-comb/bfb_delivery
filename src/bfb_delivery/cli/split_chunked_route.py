@@ -52,7 +52,5 @@ def main(input_path: str, output_dir: str, output_filename: str, n_books: int) -
         output_filename=output_filename,
         n_books=n_books,
     )
-    click.echo("Split workbook(s) saved to:")
-    for path in paths:
-        click.echo(path)
+    click.echo(f"Split workbook(s) saved to: {[str(path) for path in paths]}")
     return paths
