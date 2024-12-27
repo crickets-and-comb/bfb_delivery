@@ -31,7 +31,7 @@ from bfb_delivery import combine_route_tables
     default="",
     help=(
         "The name of the output workbook. Empty string (default) will name the file "
-        'combined_routes_{date}.xlsx".'
+        '"combined_routes_{date}.xlsx".'
     ),
 )
 @typechecked
