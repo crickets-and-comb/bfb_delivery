@@ -70,7 +70,7 @@ class TestFormatAndValidateData:
                     " Drop the box.",  # Test trimming whitespace.
                     "1 ",  # Test trimming whitespace.
                     " Basic ",  # Test trimming whitespace.
-                    "York",
+                    " York",  # Test trimming whitespace.
                 ),
                 (
                     3.0,  # Test cast float.
