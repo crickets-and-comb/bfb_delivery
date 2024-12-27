@@ -69,7 +69,7 @@ class TestFormatAndValidateData:
                     "you@me.com ",  # Test trimming whitespace.
                     " Drop the box.",  # Test trimming whitespace.
                     "1 ",  # Test trimming whitespace.
-                    "Basic",
+                    " Basic ",  # Test trimming whitespace.
                     "York",
                 ),
                 (

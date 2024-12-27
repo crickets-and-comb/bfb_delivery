@@ -144,8 +144,9 @@ def _format_order_count_column(df: pd.DataFrame) -> None:
 
 def _format_box_type_column(df: pd.DataFrame) -> None:
     """Format the box type column."""
-    # TODO: Implement formatting.
-    pass
+    _format_string_column(df=df, column=Columns.BOX_TYPE)
+    # TODO: Validate: make enum.StrEnum?
+    return
 
 
 def _format_neighborhood_column(df: pd.DataFrame) -> None:
