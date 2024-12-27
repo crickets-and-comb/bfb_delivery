@@ -11,7 +11,7 @@ from click.testing import CliRunner
 from bfb_delivery import combine_route_tables, split_chunked_route
 from bfb_delivery.cli import combine_route_tables as combine_route_tables_cli
 from bfb_delivery.cli import split_chunked_route as split_chunked_route_cli
-from bfb_delivery.lib.constants import Columns
+from bfb_delivery.lib.constants import SPLIT_ROUTE_COLUMNS, Columns
 
 N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
 
@@ -28,18 +28,106 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
     fp: Path = module_tmp_dir / "mock_chunked_sheet_raw.xlsx"
     # TODO: Use specific sheet name?
     raw_chunked_sheet = pd.DataFrame(
-        {
-            Columns.DRIVER: ["A", "A", "B", "B", "C", "C", "D"],
-            Columns.ADDRESS: [
-                "123 Main",
-                "456 Elm",
-                "789 Oak",
-                "1011 Pine",
-                "1213 Maple",
-                "1415 Birch",
-                "1617 Cedar",
-            ],
-        }
+        columns=SPLIT_ROUTE_COLUMNS + [Columns.DRIVER, "Box Count", "Stop #"],
+        # TODO: Validate box count.
+        data=[
+            (
+                "Client One",
+                "123 Main St",
+                "555-555-5555",
+                "client1@email.com",
+                "Notes for Client One.",
+                "1",
+                "Basic",
+                "Driver One",
+                2,
+                1,
+            ),
+            (
+                "Client Two",
+                "123 Main St",
+                "555-555-5555",
+                "client1@email.com",
+                "Notes for Client Two.",
+                "1",
+                "GF",
+                "Driver One",
+                None,
+                2,
+            ),
+            (
+                "Client Three",
+                "123 Main St",
+                "555-555-5555",
+                "client1@email.com",
+                "Notes for Client Three.",
+                "1",
+                "Vegan",
+                "Driver Two",
+                2,
+                3,
+            ),
+            (
+                "Client Four",
+                "123 Main St",
+                "555-555-5555",
+                "client1@email.com",
+                "Notes for Client Four.",
+                "1",
+                "LA",
+                "Driver Two",
+                None,
+                4,
+            ),
+            (
+                "Client Five",
+                "123 Main St",
+                "555-555-5555",
+                "client1@email.com",
+                "Notes for Client Five.",
+                "1",
+                "Basic",
+                "Driver Three",
+                2,
+                5,
+            ),
+            (
+                "Client Six",
+                "123 Main St",
+                "555-555-5555",
+                "client1@email.com",
+                "Notes for Client Six.",
+                "1",
+                "GF",
+                "Driver Three",
+                None,
+                6,
+            ),
+            (
+                "Client Seven",
+                "123 Main St",
+                "555-555-5555",
+                "client1@email.com",
+                "Notes for Client Seven.",
+                "1",
+                "Vegan",
+                "Driver Three",
+                None,
+                7,
+            ),
+            (
+                "Client Eight",
+                "123 Main St",
+                "555-555-5555",
+                "client1@email.com",
+                "Notes for Client Eight.",
+                "1",
+                "LA",
+                "Driver Four",
+                1,
+                8,
+            ),
+        ],
     )
     raw_chunked_sheet.to_excel(fp, index=False)
 
@@ -331,6 +419,15 @@ class TestSplitChunkedRoute:
                 Path(output_dir) if output_dir else mock_chunked_sheet_raw.parent
             )
             assert (Path(expected_output_dir) / expected_filename).exists()
+
+    def test_output_columns(self, mock_chunked_sheet_raw: Path) -> None:
+        """Test that the output columns match the SPLIT_ROUTE_COLUMNS constant."""
+        output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw)
+        for output_path in output_paths:
+            workbook = pd.ExcelFile(output_path)
+            for sheet_name in workbook.sheet_names:
+                driver_sheet = pd.read_excel(workbook, sheet_name=sheet_name)
+                assert driver_sheet.columns.to_list() == SPLIT_ROUTE_COLUMNS
 
 
 def _get_driver_sheets(output_paths: list[Path]) -> list[pd.DataFrame]:

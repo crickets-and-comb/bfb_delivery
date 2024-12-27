@@ -25,3 +25,5 @@ SPLIT_ROUTE_COLUMNS: Final[list[str]] = [
     Columns.ORDER_COUNT,
     Columns.BOX_TYPE,
 ]
+
+# TODO: Make box type enum? (Use Pandera?)

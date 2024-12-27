@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import Columns
+from bfb_delivery.lib.constants import SPLIT_ROUTE_COLUMNS, Columns
 
 
 @typechecked
@@ -40,7 +40,6 @@ def combine_route_tables(
 
 
 # TODO: There's got to be a way to set the docstring as a constant.
-# TODO: Find out what columns we need to keep.
 # TODO: Use Pandera.
 # TODO: Get/make some realish data to test with.
 # TODO: Switch to or allow CSVs instead of Excel files.
@@ -55,6 +54,8 @@ def split_chunked_route(
     input_path = Path(input_path)
 
     chunked_sheet: pd.DataFrame = pd.read_excel(input_path)
+    # TODO: Clean column names.
+    # TODO: Validate columns? (Use Pandera?)
 
     drivers = chunked_sheet[Columns.DRIVER].unique()
     driver_count = len(drivers)
@@ -82,7 +83,9 @@ def split_chunked_route(
         with pd.ExcelWriter(split_workbook_path) as writer:
             driver_set_df = chunked_sheet[chunked_sheet[Columns.DRIVER].isin(driver_set)]
             for driver, data in driver_set_df.groupby(Columns.DRIVER):
-                data.to_excel(writer, sheet_name=str(driver), index=False)
+                data[SPLIT_ROUTE_COLUMNS].to_excel(
+                    writer, sheet_name=str(driver), index=False
+                )
 
     split_workbook_paths = [path.resolve() for path in split_workbook_paths]
 
