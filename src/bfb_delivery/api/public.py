@@ -74,3 +74,24 @@ def split_chunked_route(
         output_filename=output_filename,
         n_books=n_books,
     )
+
+
+@typechecked
+def format_combined_routes(
+    input_path: Path | str, output_dir: Path | str = "", output_filename: str = ""
+) -> Path:
+    """Formats the combined routes table.
+
+    Args:
+        input_path: The path to the combined routes table.
+        output_dir: The directory to write the formatted table to.
+            Empty string (default) saves to the input path's parent directory.
+        output_filename: The name of the formatted workbook.
+            Empty string (default) will name the file "formatted_routes_{date}.xlsx".
+
+    Returns:
+        The path to the formatted table.
+    """
+    return internal.format_combined_routes(
+        input_path=input_path, output_dir=output_dir, output_filename=output_filename
+    )

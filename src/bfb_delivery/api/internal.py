@@ -33,3 +33,13 @@ def split_chunked_route(
         output_filename=output_filename,
         n_books=n_books,
     )
+
+
+@typechecked
+def format_combined_routes(
+    input_path: Path | str, output_dir: Path | str = "", output_filename: str = ""
+) -> Path:
+    """See public docstring: :py:func:`bfb_delivery.api.public.format_combined_routes`."""
+    return sheet_shaping.format_combined_routes(
+        input_path=input_path, output_dir=output_dir, output_filename=output_filename
+    )

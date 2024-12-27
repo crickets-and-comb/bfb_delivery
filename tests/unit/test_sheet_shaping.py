@@ -8,12 +8,16 @@ import pandas as pd
 import pytest
 from click.testing import CliRunner
 
-from bfb_delivery import combine_route_tables, split_chunked_route
+from bfb_delivery import combine_route_tables, format_combined_routes, split_chunked_route
 from bfb_delivery.cli import combine_route_tables as combine_route_tables_cli
+from bfb_delivery.cli import format_combined_routes as format_combined_routes_cli
 from bfb_delivery.cli import split_chunked_route as split_chunked_route_cli
 from bfb_delivery.lib.constants import COMBINED_ROUTES_COLUMNS, SPLIT_ROUTE_COLUMNS, Columns
 
 N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
+DRIVERS: Final[list[str]] = [f"Driver {i}" for i in range(1, 10)]
+BOX_TYPES: Final[list[str]] = ["Basic", "GF", "Vegan", "LA"]
+NEIGHBORHOODS: Final[list[str]] = ["York", "Puget", "Samish", "Sehome", "South Hill"]
 
 
 @pytest.fixture(scope="module")
@@ -32,11 +36,11 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
         # TODO: Validate box count.
         data=[
             (
-                "Client One",
+                "Recipient One",
                 "123 Main St",
                 "555-555-1234",
-                "client1@email.com",
-                "Notes for Client One.",
+                "Recipient1@email.com",
+                "Notes for Recipient One.",
                 "1",
                 "Basic",
                 "York",
@@ -45,11 +49,11 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 1,
             ),
             (
-                "Client Two",
+                "Recipient Two",
                 "456 Elm St",
                 "555-555-5678",
-                "client2@email.com",
-                "Notes for Client Two.",
+                "Recipient2@email.com",
+                "Notes for Recipient Two.",
                 "1",
                 "GF",
                 "Puget",
@@ -58,11 +62,11 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 2,
             ),
             (
-                "Client Three",
+                "Recipient Three",
                 "789 Oak St",
                 "555-555-9101",
-                "client3@email.com",
-                "Notes for Client Three.",
+                "Recipient3@email.com",
+                "Notes for Recipient Three.",
                 "1",
                 "Vegan",
                 "Puget",
@@ -71,11 +75,11 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 3,
             ),
             (
-                "Client Four",
+                "Recipient Four",
                 "1011 Pine St",
                 "555-555-1121",
-                "client4@email.com",
-                "Notes for Client Four.",
+                "Recipient4@email.com",
+                "Notes for Recipient Four.",
                 "1",
                 "LA",
                 "Puget",
@@ -84,11 +88,11 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 4,
             ),
             (
-                "Client Five",
+                "Recipient Five",
                 "1314 Cedar St",
                 "555-555-3141",
-                "client5@email.com",
-                "Notes for Client Five.",
+                "Recipient5@email.com",
+                "Notes for Recipient Five.",
                 "1",
                 "Basic",
                 "Samish",
@@ -97,11 +101,11 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 5,
             ),
             (
-                "Client Six",
+                "Recipient Six",
                 "1516 Fir St",
                 "555-555-5161",
-                "client6@email.com",
-                "Notes for Client Six.",
+                "Recipient6@email.com",
+                "Notes for Recipient Six.",
                 "1",
                 "GF",
                 "Sehome",
@@ -110,11 +114,11 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 6,
             ),
             (
-                "Client Seven",
+                "Recipient Seven",
                 "1718 Spruce St",
                 "555-555-7181",
-                "client7@email.com",
-                "Notes for Client Seven.",
+                "Recipient7@email.com",
+                "Notes for Recipient Seven.",
                 "1",
                 "Vegan",
                 "Samish",
@@ -123,11 +127,11 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 7,
             ),
             (
-                "Client Eight",
+                "Recipient Eight",
                 "1920 Maple St",
                 "555-555-9202",
-                "client8@email.com",
-                "Notes for Client Eight.",
+                "Recipient8@email.com",
+                "Notes for Recipient Eight.",
                 "1",
                 "LA",
                 "South Hill",
@@ -163,7 +167,7 @@ class TestCombineRouteTables:
         return output_paths
 
     @pytest.mark.parametrize("output_dir_type", [Path, str])
-    @pytest.mark.parametrize("output_dir", ["", "output"])
+    @pytest.mark.parametrize("output_dir", ["", "dummy_output"])
     def test_set_output_dir(
         self,
         output_dir_type: type[Path | str],
@@ -178,7 +182,7 @@ class TestCombineRouteTables:
         )
         assert str(output_path.parent) == str(output_dir)
 
-    @pytest.mark.parametrize("output_filename", ["", "output_filename.csv"])
+    @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.csv"])
     def test_set_output_filename(
         self, output_filename: str, mock_route_tables: list[Path]
     ) -> None:
@@ -203,8 +207,8 @@ class TestCombineRouteTables:
             driver_sheet = pd.read_excel(workbook, sheet_name=sheet_name)
             assert driver_sheet.columns.to_list() == COMBINED_ROUTES_COLUMNS
 
-    def test_unique_clients(self, mock_route_tables: list[Path]) -> None:
-        """Test that the clients don't overlap between the driver route tables.
+    def test_unique_recipients(self, mock_route_tables: list[Path]) -> None:
+        """Test that the recipients don't overlap between the driver route tables.
 
         By name, address, and phone.
         """
@@ -238,9 +242,8 @@ class TestCombineRouteTables:
 
         pd.testing.assert_frame_equal(full_input_data, combined_output_data)
 
-    @pytest.mark.parametrize(
-        "output_dir, output_filename", [("output", "output_filename.xlsx"), ("output", "")]
-    )
+    @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
+    @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
     def test_cli(
         self,
         output_dir: str,
@@ -264,7 +267,8 @@ class TestCombineRouteTables:
             if output_filename == ""
             else output_filename
         )
-        assert (Path(output_dir) / expected_output_filename).exists()
+        expected_output_dir = Path(output_dir) if output_dir else mock_route_tables[0].parent
+        assert (expected_output_dir / expected_output_filename).exists()
 
 
 # TODO: Can upload multiple CSVs to Circuit instead of Excel file with multiple sheets?
@@ -272,7 +276,7 @@ class TestSplitChunkedRoute:
     """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
 
     @pytest.mark.parametrize("output_dir_type", [Path, str])
-    @pytest.mark.parametrize("output_dir", ["", "output"])
+    @pytest.mark.parametrize("output_dir", ["", "dummy_output"])
     @pytest.mark.parametrize("n_books", [1, 4])
     def test_set_output_dir(
         self,
@@ -289,7 +293,7 @@ class TestSplitChunkedRoute:
         )
         assert all(str(output_path.parent) == str(output_dir) for output_path in output_paths)
 
-    @pytest.mark.parametrize("output_filename", ["", "output_filename.xlsx"])
+    @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
     @pytest.mark.parametrize("n_books", [1, 4])
     def test_set_output_filename(
         self, output_filename: str, mock_chunked_sheet_raw: Path, n_books: int
@@ -326,23 +330,23 @@ class TestSplitChunkedRoute:
         assert len(output_paths) == n_books
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
-    def test_clients_unique(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
-        """Test that the clients don't overlap between the split workbooks.
+    def test_recipients_unique(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
+        """Test that the recipients don't overlap between the split workbooks.
 
         By name, address, phone, and email.
         """
         output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
 
-        client_sets = []
+        recipient_sets = []
         for output_path in output_paths:
             driver_sheets = _get_driver_sheets(output_paths=[output_path])
-            client_sets.append(
+            recipient_sets.append(
                 pd.concat(driver_sheets, ignore_index=True)[
                     [Columns.NAME, Columns.ADDRESS, Columns.PHONE, Columns.EMAIL]
                 ]
             )
-        clients_df = pd.concat(client_sets, ignore_index=True)
-        assert clients_df.duplicated().sum() == 0
+        recipients_df = pd.concat(recipient_sets, ignore_index=True)
+        assert recipients_df.duplicated().sum() == 0
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_unique_drivers_across_books(
@@ -399,11 +403,7 @@ class TestSplitChunkedRoute:
 
     @pytest.mark.parametrize(
         "output_dir, output_filename, n_books",
-        [
-            ("", "", 4),
-            ("output", "output_filename.xlsx", 3),
-            ("output", "output_filename.xlsx", 1),
-        ],
+        [("", "", 4), ("output", "", 3), ("", "output_filename.xlsx", 1)],
     )
     def test_cli(
         self,
@@ -449,6 +449,111 @@ class TestSplitChunkedRoute:
             for sheet_name in workbook.sheet_names:
                 driver_sheet = pd.read_excel(workbook, sheet_name=sheet_name)
                 assert driver_sheet.columns.to_list() == SPLIT_ROUTE_COLUMNS
+
+
+class TestFormatCombinedRoutes:
+    """format_combined_routes formats the combined routes table."""
+
+    @pytest.fixture(scope="class")
+    def mock_combined_routes(
+        self, module_tmp_dir: Path, mock_chunked_sheet_raw: Path
+    ) -> Path:
+        """Mock the combined routes table."""
+        output_path = module_tmp_dir / "combined_routes.xlsx"
+        with pd.ExcelWriter(output_path) as writer:
+            for driver in DRIVERS:
+                df = pd.DataFrame(columns=COMBINED_ROUTES_COLUMNS)
+                stops = [stop_no + 1 for stop_no in range(9)]
+                df[Columns.STOP_NO] = stops
+                df[Columns.NAME] = [f"{driver} Recipient {stop_no}" for stop_no in stops]
+                df[Columns.ADDRESS] = [
+                    f"{driver} stop {stop_no} address" for stop_no in stops
+                ]
+                df[Columns.PHONE] = [f"{driver} stop {stop_no} phone" for stop_no in stops]
+                df[Columns.NOTES] = [f"{driver} stop {stop_no} notes" for stop_no in stops]
+                df[Columns.ORDER_COUNT] = [1] * len(stops)
+                df[Columns.BOX_TYPE] = [
+                    BOX_TYPES[i % len(BOX_TYPES)] for i in range(len(stops))
+                ]
+                df[Columns.NEIGHBORHOOD] = [
+                    NEIGHBORHOODS[i % len(NEIGHBORHOODS)] for i in range(len(stops))
+                ]
+
+                assert df.isna().sum().sum() == 0
+                assert set(df.columns.to_list()) == set(COMBINED_ROUTES_COLUMNS)
+
+                df.to_excel(writer, sheet_name=driver, index=False)
+
+        return output_path
+
+    @pytest.mark.parametrize("output_dir_type", [Path, str])
+    @pytest.mark.parametrize("output_dir", ["", "dummy_output"])
+    def test_set_output_dir(
+        self,
+        output_dir_type: type[Path | str],
+        output_dir: Path | str,
+        module_tmp_dir: Path,
+        mock_combined_routes: Path,
+    ) -> None:
+        """Test that the output directory can be set."""
+        output_dir = output_dir_type(module_tmp_dir / output_dir)
+        output_path = format_combined_routes(
+            input_path=mock_combined_routes, output_dir=output_dir
+        )
+        assert str(output_path.parent) == str(output_dir)
+
+    @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.csv"])
+    def test_set_output_filename(
+        self, output_filename: str, mock_combined_routes: Path
+    ) -> None:
+        """Test that the output filename can be set."""
+        output_path = format_combined_routes(
+            input_path=mock_combined_routes, output_filename=output_filename
+        )
+        expected_output_filename = (
+            f"formatted_routes_{datetime.now().strftime('%Y%m%d')}.xlsx"
+            if output_filename == ""
+            else output_filename
+        )
+        assert output_path.name == expected_output_filename
+
+    def test_all_drivers_have_a_sheet(self, mock_combined_routes: Path) -> None:
+        """Test that all drivers have a sheet in the formatted workbook."""
+        output_path = format_combined_routes(input_path=mock_combined_routes)
+        workbook = pd.ExcelFile(output_path)
+        assert set(workbook.sheet_names) == set(DRIVERS)
+
+    @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
+    @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
+    def test_cli(
+        self,
+        output_dir: str,
+        output_filename: str,
+        cli_runner: CliRunner,
+        mock_combined_routes: Path,
+        module_tmp_dir: Path,
+    ) -> None:
+        """Test CLI works."""
+        output_dir = str(module_tmp_dir / output_dir) if output_dir else output_dir
+        arg_list = [
+            "--input_path",
+            str(mock_combined_routes),
+            "--output_dir",
+            output_dir,
+            "--output_filename",
+            output_filename,
+        ]
+
+        result = cli_runner.invoke(format_combined_routes_cli.main, arg_list)
+        assert result.exit_code == 0
+
+        expected_output_filename = (
+            f"formatted_routes_{datetime.now().strftime('%Y%m%d')}.xlsx"
+            if output_filename == ""
+            else output_filename
+        )
+        expected_output_dir = Path(output_dir) if output_dir else mock_combined_routes.parent
+        assert (expected_output_dir / expected_output_filename).exists()
 
 
 def _get_driver_sheets(output_paths: list[Path]) -> list[pd.DataFrame]:

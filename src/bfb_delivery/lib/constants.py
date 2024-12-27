@@ -41,4 +41,14 @@ COMBINED_ROUTES_COLUMNS: Final[list[str]] = [
     Columns.NEIGHBORHOOD,
 ]
 
-# TODO: Make enums? (Use Pandera?): box type, neighborhood
+FORMATTED_ROUTES_COLUMNS: Final[list[str]] = [
+    Columns.STOP_NO,
+    Columns.NAME,
+    Columns.ADDRESS,
+    Columns.PHONE,
+    Columns.NOTES,
+    Columns.ORDER_COUNT,  # TODO: Drop this when we add formatting.
+    Columns.BOX_TYPE,
+]
+
+# TODO: Make enums? (Use Pandera?): box types, neighborhood

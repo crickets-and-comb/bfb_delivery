@@ -89,3 +89,25 @@ def split_chunked_route(
     split_workbook_paths = [path.resolve() for path in split_workbook_paths]
 
     return split_workbook_paths
+
+
+@typechecked
+def format_combined_routes(
+    input_path: Path | str, output_dir: Path | str = "", output_filename: str = ""
+) -> Path:
+    """See public docstring: :py:func:`bfb_delivery.api.public.format_combined_routes`."""
+    input_path = Path(input_path)
+    output_dir = Path(output_dir) if output_dir else input_path.parent
+    output_filename = (
+        f"formatted_routes_{datetime.now().strftime('%Y%m%d')}.xlsx"
+        if output_filename == ""
+        else output_filename
+    )
+    output_path = Path(output_dir) / output_filename
+
+    with pd.ExcelWriter(output_path) as writer, pd.ExcelFile(input_path) as xls:
+        for sheet_name in xls.sheet_names:
+            df = pd.read_excel(xls, sheet_name)
+            df[COMBINED_ROUTES_COLUMNS].to_excel(writer, sheet_name, index=False)
+
+    return output_path.resolve()
