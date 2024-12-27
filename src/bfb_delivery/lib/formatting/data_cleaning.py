@@ -117,8 +117,10 @@ def _format_phone_column(df: pd.DataFrame) -> None:
 
 def _format_email_column(df: pd.DataFrame) -> None:
     """Format the email column."""
-    # TODO: Implement formatting.
-    pass
+    _strip_whitespace_from_column(df=df, column=Columns.EMAIL)
+    # TODO: Other formatting? beautifulsoup?
+    # TODO: Validate: Use beautifulsoup or something?
+    return
 
 
 def _format_notes_column(df: pd.DataFrame) -> None:
