@@ -6,4 +6,4 @@ from typing import Final
 class Columns:
     """Column name constants."""
 
-    DRIVER: Final[str] = "driver"
+    DRIVER: Final[str] = "Driver"
