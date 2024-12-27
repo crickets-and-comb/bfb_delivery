@@ -58,12 +58,12 @@ class TestFormatAndValidateData:
         df = pd.DataFrame(
             columns=columns,
             data=[
-                # TODO: Starter row. As formatting is implemented, add/update rows and comment
+                # TODO: As formatting is implemented, add/update rows and comment
                 # what formatting is under test.
                 (1, "Alice", "123 Main St", "555-1234", "me@me.com", "", 1, "Basic", "York"),
                 (
                     " 2 ",  # Test trimming whitespace.
-                    "Bob",
+                    "Bob ",  # Test trimming whitespace.
                     "456 Elm St",
                     "555-5678",
                     "you@me.com",

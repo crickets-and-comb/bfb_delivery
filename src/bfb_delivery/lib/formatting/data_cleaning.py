@@ -89,8 +89,11 @@ def _format_stop_no_column(df: pd.DataFrame) -> None:
 
 def _format_name_column(df: pd.DataFrame) -> None:
     """Format the name column."""
-    # TODO: Implement formatting.
-    pass
+    _strip_whitespace_from_column(df=df, column=Columns.NAME)
+    # TODO: Vaidate:
+    # no special characters
+    # no numbers?
+    return
 
 
 def _format_address_column(df: pd.DataFrame) -> None:
