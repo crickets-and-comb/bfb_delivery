@@ -20,7 +20,7 @@ from bfb_delivery import combine_route_tables
     required=False,
     default="",
     help=(
-        "The directory to write the output workbook to. Empty string (default) saves to "
+        "The directory to write the output workbook to. Empty string (default) saves "
         "to the first input path's parent directory."
     ),
 )
