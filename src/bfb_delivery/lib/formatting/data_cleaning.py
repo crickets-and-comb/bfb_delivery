@@ -125,8 +125,8 @@ def _format_email_column(df: pd.DataFrame) -> None:
 
 def _format_notes_column(df: pd.DataFrame) -> None:
     """Format the notes column."""
-    # TODO: Implement formatting.
-    pass
+    _strip_whitespace_from_column(df=df, column=Columns.NOTES)
+    return
 
 
 def _format_order_count_column(df: pd.DataFrame) -> None:

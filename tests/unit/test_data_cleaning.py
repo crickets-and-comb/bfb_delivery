@@ -35,7 +35,7 @@ class TestFormatAndValidateData:
             (Columns.ADDRESS, ["123 Main St", "456 Elm St", "789 Oak St", "1011 Pine St"]),
             (Columns.PHONE, ["555-1234", "555-5678", "555-9012", "555-3456"]),
             (Columns.EMAIL, ["me@me.com", "you@me.com", "we@me.com", "me@you.com"]),
-            (Columns.NOTES, ["", "", "", ""]),
+            (Columns.NOTES, ["", "Drop the box.", "", ""]),
             (Columns.ORDER_COUNT, [1, 1, 1, 1]),
             (Columns.BOX_TYPE, ["Basic", "Basic", "Basic", "Basic"]),
             (Columns.NEIGHBORHOOD, ["York", "York", "York", "York"]),
@@ -66,8 +66,8 @@ class TestFormatAndValidateData:
                     "Bob ",  # Test trimming whitespace.
                     " 456 Elm St",  # Test trimming whitespace.
                     " 555-5678 ",  # Test trimming whitespace.
-                    "you@me.com ", # Test trimming whitespace.
-                    "",
+                    "you@me.com ",  # Test trimming whitespace.
+                    " Drop the box.",  # Test trimming whitespace.
                     1,
                     "Basic",
                     "York",
