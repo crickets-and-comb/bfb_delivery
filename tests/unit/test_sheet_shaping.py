@@ -307,6 +307,25 @@ class TestSplitChunkedRoute:
         assert len(output_paths) == n_books
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
+    def test_clients_unique(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
+        """Test that the clients don't overlap between the split workbooks.
+
+        By name, address, phone, and email.
+        """
+        output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
+
+        client_sets = []
+        for output_path in output_paths:
+            driver_sheets = _get_driver_sheets(output_paths=[output_path])
+            client_sets.append(
+                pd.concat(driver_sheets, ignore_index=True)[
+                    [Columns.NAME, Columns.ADDRESS, Columns.PHONE, Columns.EMAIL]
+                ]
+            )
+        clients_df = pd.concat(client_sets, ignore_index=True)
+        assert clients_df.duplicated().sum() == 0
+
+    @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_unique_drivers_across_books(
         self, n_books: int, mock_chunked_sheet_raw: Path
     ) -> None:
