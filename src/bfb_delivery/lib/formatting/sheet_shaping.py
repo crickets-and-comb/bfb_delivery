@@ -30,15 +30,10 @@ def combine_route_tables(
     output_path = output_dir / output_filename
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # TODO: Use filename (driver) instead of driver column for sheet name.
-    dfs: list[pd.DataFrame] = [pd.read_csv(path) for path in paths]
     with pd.ExcelWriter(output_path) as writer:
-        for df in dfs:
-            drivers = df[Columns.DRIVER].unique()
-            if len(drivers) != 1:
-                raise ValueError(f"Each CSV must have only one driver. drivers: {drivers}")
-            driver = drivers[0]
-            df.to_excel(writer, sheet_name=driver, index=False)
+        for path in paths:
+            df = pd.read_csv(path)
+            df.to_excel(writer, sheet_name=path.stem, index=False)
 
     return output_path.resolve()
 

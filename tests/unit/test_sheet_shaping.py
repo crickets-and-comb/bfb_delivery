@@ -148,7 +148,7 @@ class TestCombineRouteTables:
             output_path = module_tmp_dir / f"{driver}.csv"
             output_paths.append(output_path)
             driver_df = chunked_df[chunked_df[Columns.DRIVER] == driver]
-            driver_df.to_csv(module_tmp_dir / output_path, index=False)
+            driver_df[SPLIT_ROUTE_COLUMNS].to_csv(module_tmp_dir / output_path, index=False)
 
         return output_paths
 
@@ -183,23 +183,6 @@ class TestCombineRouteTables:
             else output_filename
         )
         assert output_path.name == expected_filename
-
-    def test_one_driver_per_sheet(self, mock_route_tables: list[Path]) -> None:
-        """Test that each sheet contains only one driver's data."""
-        output_path = combine_route_tables(input_paths=mock_route_tables)
-        workbook = pd.ExcelFile(output_path)
-        driver_sheets = [
-            pd.read_excel(workbook, sheet_name=sheet) for sheet in workbook.sheet_names
-        ]
-        assert all(sheet[Columns.DRIVER].nunique() == 1 for sheet in driver_sheets)
-
-    def test_sheets_named_by_driver(self, mock_route_tables: list[Path]) -> None:
-        """Test that each sheet is named after the driver."""
-        output_path = combine_route_tables(input_paths=mock_route_tables)
-        workbook = pd.ExcelFile(output_path)
-        for sheet_name in workbook.sheet_names:
-            driver_sheet = pd.read_excel(workbook, sheet_name=sheet_name)
-            assert sheet_name == driver_sheet[Columns.DRIVER].unique()[0]
 
     def test_complete_contents(self, mock_route_tables: list[Path]) -> None:
         """Test that the input data is all covered in the combined workbook."""
