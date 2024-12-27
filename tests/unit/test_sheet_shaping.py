@@ -184,6 +184,25 @@ class TestCombineRouteTables:
         )
         assert output_path.name == expected_filename
 
+    # TODO: Test output columns.
+
+    def test_unique_clients(self, mock_route_tables: list[Path]) -> None:
+        """Test that the clients don't overlap between the driver route tables.
+
+        By name, address, phone, and email.
+        """
+        output_path = combine_route_tables(input_paths=mock_route_tables)
+        driver_sheets = _get_driver_sheets(output_paths=[output_path])
+        combined_output_data = pd.concat(driver_sheets, ignore_index=True)
+        assert (
+            combined_output_data[
+                [Columns.NAME, Columns.ADDRESS, Columns.PHONE, Columns.EMAIL]
+            ]
+            .duplicated()
+            .sum()
+            == 0  # noqa: W503
+        )
+
     def test_complete_contents(self, mock_route_tables: list[Path]) -> None:
         """Test that the input data is all covered in the combined workbook."""
         output_path = combine_route_tables(input_paths=mock_route_tables)
