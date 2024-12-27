@@ -8,6 +8,7 @@ class Columns:
 
     ADDRESS: Final[str] = "Address"
     BOX_TYPE: Final[str] = "Box Type"
+    BOX_COUNT: Final[str] = "Box Count"
     DRIVER: Final[str] = "Driver"  # TODO: Accept any case of columns?
     EMAIL: Final[str] = "Email"
     NAME: Final[str] = "Name"
