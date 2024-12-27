@@ -11,7 +11,7 @@ from click.testing import CliRunner
 from bfb_delivery import combine_route_tables, split_chunked_route
 from bfb_delivery.cli import combine_route_tables as combine_route_tables_cli
 from bfb_delivery.cli import split_chunked_route as split_chunked_route_cli
-from bfb_delivery.lib.constants import SPLIT_ROUTE_COLUMNS, Columns
+from bfb_delivery.lib.constants import COMBINED_ROUTES_COLUMNS, SPLIT_ROUTE_COLUMNS, Columns
 
 N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
 
@@ -28,101 +28,109 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
     fp: Path = module_tmp_dir / "mock_chunked_sheet_raw.xlsx"
     # TODO: Use specific sheet name?
     raw_chunked_sheet = pd.DataFrame(
-        columns=SPLIT_ROUTE_COLUMNS + [Columns.DRIVER, "Box Count", "Stop #"],
+        columns=SPLIT_ROUTE_COLUMNS + [Columns.DRIVER, Columns.BOX_COUNT, Columns.STOP_NO],
         # TODO: Validate box count.
         data=[
             (
                 "Client One",
                 "123 Main St",
-                "555-555-5555",
+                "555-555-1234",
                 "client1@email.com",
                 "Notes for Client One.",
                 "1",
                 "Basic",
+                "York",
                 "Driver One",
                 2,
                 1,
             ),
             (
                 "Client Two",
-                "123 Main St",
-                "555-555-5555",
-                "client1@email.com",
+                "456 Elm St",
+                "555-555-5678",
+                "client2@email.com",
                 "Notes for Client Two.",
                 "1",
                 "GF",
+                "Puget",
                 "Driver One",
                 None,
                 2,
             ),
             (
                 "Client Three",
-                "123 Main St",
-                "555-555-5555",
-                "client1@email.com",
+                "789 Oak St",
+                "555-555-9101",
+                "client3@email.com",
                 "Notes for Client Three.",
                 "1",
                 "Vegan",
+                "Puget",
                 "Driver Two",
                 2,
                 3,
             ),
             (
                 "Client Four",
-                "123 Main St",
-                "555-555-5555",
-                "client1@email.com",
+                "1011 Pine St",
+                "555-555-1121",
+                "client4@email.com",
                 "Notes for Client Four.",
                 "1",
                 "LA",
+                "Puget",
                 "Driver Two",
                 None,
                 4,
             ),
             (
                 "Client Five",
-                "123 Main St",
-                "555-555-5555",
-                "client1@email.com",
+                "1314 Cedar St",
+                "555-555-3141",
+                "client5@email.com",
                 "Notes for Client Five.",
                 "1",
                 "Basic",
+                "Samish",
                 "Driver Three",
                 2,
                 5,
             ),
             (
                 "Client Six",
-                "123 Main St",
-                "555-555-5555",
-                "client1@email.com",
+                "1516 Fir St",
+                "555-555-5161",
+                "client6@email.com",
                 "Notes for Client Six.",
                 "1",
                 "GF",
+                "Sehome",
                 "Driver Three",
                 None,
                 6,
             ),
             (
                 "Client Seven",
-                "123 Main St",
-                "555-555-5555",
-                "client1@email.com",
+                "1718 Spruce St",
+                "555-555-7181",
+                "client7@email.com",
                 "Notes for Client Seven.",
                 "1",
                 "Vegan",
+                "Samish",
                 "Driver Three",
                 None,
                 7,
             ),
             (
                 "Client Eight",
-                "123 Main St",
-                "555-555-5555",
-                "client1@email.com",
+                "1920 Maple St",
+                "555-555-9202",
+                "client8@email.com",
                 "Notes for Client Eight.",
                 "1",
                 "LA",
+                "South Hill",
                 "Driver Four",
                 1,
                 8,
@@ -143,12 +151,14 @@ class TestCombineRouteTables:
     ) -> list[Path]:
         """Mock the driver route tables returned by Circuit."""
         output_paths = []
+        output_cols = [Columns.STOP_NO] + SPLIT_ROUTE_COLUMNS
         chunked_df = pd.read_excel(mock_chunked_sheet_raw)
         for driver in chunked_df[Columns.DRIVER].unique():
             output_path = module_tmp_dir / f"{driver}.csv"
             output_paths.append(output_path)
             driver_df = chunked_df[chunked_df[Columns.DRIVER] == driver]
-            driver_df[SPLIT_ROUTE_COLUMNS].to_csv(module_tmp_dir / output_path, index=False)
+            driver_df[Columns.STOP_NO] = [i + 1 for i in range(len(driver_df))]
+            driver_df[output_cols].to_csv(module_tmp_dir / output_path, index=False)
 
         return output_paths
 
@@ -185,19 +195,24 @@ class TestCombineRouteTables:
         assert output_path.name == expected_filename
 
     # TODO: Test output columns.
+    def test_output_columns(self, mock_route_tables: list[Path]) -> None:
+        """Test that the output columns match the COMBINED_ROUTES_COLUMNS constant."""
+        output_path = combine_route_tables(input_paths=mock_route_tables)
+        workbook = pd.ExcelFile(output_path)
+        for sheet_name in workbook.sheet_names:
+            driver_sheet = pd.read_excel(workbook, sheet_name=sheet_name)
+            assert driver_sheet.columns.to_list() == COMBINED_ROUTES_COLUMNS
 
     def test_unique_clients(self, mock_route_tables: list[Path]) -> None:
         """Test that the clients don't overlap between the driver route tables.
 
-        By name, address, phone, and email.
+        By name, address, and phone.
         """
         output_path = combine_route_tables(input_paths=mock_route_tables)
         driver_sheets = _get_driver_sheets(output_paths=[output_path])
         combined_output_data = pd.concat(driver_sheets, ignore_index=True)
         assert (
-            combined_output_data[
-                [Columns.NAME, Columns.ADDRESS, Columns.PHONE, Columns.EMAIL]
-            ]
+            combined_output_data[[Columns.NAME, Columns.ADDRESS, Columns.PHONE]]
             .duplicated()
             .sum()
             == 0  # noqa: W503
@@ -208,16 +223,18 @@ class TestCombineRouteTables:
         output_path = combine_route_tables(input_paths=mock_route_tables)
 
         full_input_data = pd.concat(
-            [pd.read_csv(path) for path in mock_route_tables], ignore_index=True
+            [pd.read_csv(path)[COMBINED_ROUTES_COLUMNS] for path in mock_route_tables],
+            ignore_index=True,
         )
         driver_sheets = _get_driver_sheets(output_paths=[output_path])
         combined_output_data = pd.concat(driver_sheets, ignore_index=True)
 
-        cols = full_input_data.columns.to_list()
-        full_input_data = full_input_data.sort_values(by=cols).reset_index(drop=True)
-        combined_output_data = combined_output_data.sort_values(by=cols).reset_index(
+        full_input_data = full_input_data.sort_values(by=COMBINED_ROUTES_COLUMNS).reset_index(
             drop=True
         )
+        combined_output_data = combined_output_data.sort_values(
+            by=COMBINED_ROUTES_COLUMNS
+        ).reset_index(drop=True)
 
         pd.testing.assert_frame_equal(full_input_data, combined_output_data)
 

@@ -6,12 +6,13 @@ from pathlib import Path
 import pandas as pd
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import SPLIT_ROUTE_COLUMNS, Columns
+from bfb_delivery.lib.constants import COMBINED_ROUTES_COLUMNS, SPLIT_ROUTE_COLUMNS, Columns
 
 
 # TODO: Order by apartment number.
 # TODO: Get real input tables to verify this works.
 # (Should match structure of split_chunked_route outputs.)
+# TODO: Validate stop numbers?
 @typechecked
 def combine_route_tables(
     input_paths: list[Path | str], output_dir: Path | str, output_filename: str
@@ -33,7 +34,7 @@ def combine_route_tables(
     with pd.ExcelWriter(output_path) as writer:
         for path in paths:
             df = pd.read_csv(path)
-            df.to_excel(writer, sheet_name=path.stem, index=False)
+            df[COMBINED_ROUTES_COLUMNS].to_excel(writer, sheet_name=path.stem, index=False)
 
     return output_path.resolve()
 

@@ -41,4 +41,4 @@ COMBINED_ROUTES_COLUMNS: Final[list[str]] = [
     Columns.NEIGHBORHOOD,
 ]
 
-# TODO: Make box type enum? (Use Pandera?)
+# TODO: Make enums? (Use Pandera?): box type, neighborhood
