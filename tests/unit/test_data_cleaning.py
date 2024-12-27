@@ -68,7 +68,7 @@ class TestFormatAndValidateData:
                     " 555-5678 ",  # Test trimming whitespace.
                     "you@me.com ",  # Test trimming whitespace.
                     " Drop the box.",  # Test trimming whitespace.
-                    1,
+                    "1 ",  # Test trimming whitespace.
                     "Basic",
                     "York",
                 ),
@@ -79,7 +79,7 @@ class TestFormatAndValidateData:
                     "555-9012",
                     "we@me.com",
                     "",
-                    1,
+                    1.0,  # Test cast float.
                     "Basic",
                     "York",
                 ),
@@ -90,7 +90,7 @@ class TestFormatAndValidateData:
                     "555-3456",
                     "me@you.com",
                     "",
-                    1,
+                    "1.0",  # Test cast str float.
                     "Basic",
                     "York",
                 ),

@@ -69,6 +69,14 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
     return
 
 
+# TODO: Some common (post-formatting) validations for all columns:
+# Are the prescribed types.
+# Have no nulls (where appropriate).
+
+# TODO: Some common (post-formatting) validations for column types:
+# int: > 0
+
+
 def _format_stop_no_column(df: pd.DataFrame) -> None:
     """Format the stop number column."""
     _format_int_column(df=df, column=Columns.STOP_NO)
@@ -127,8 +135,11 @@ def _format_notes_column(df: pd.DataFrame) -> None:
 
 def _format_order_count_column(df: pd.DataFrame) -> None:
     """Format the order count column."""
-    # TODO: Implement formatting.
-    pass
+    _format_int_column(df=df, column=Columns.ORDER_COUNT)
+    # TODO: Validate:
+    # > 0
+    # < some constant max.
+    return
 
 
 def _format_box_type_column(df: pd.DataFrame) -> None:
@@ -153,6 +164,7 @@ def _format_int_column(df: pd.DataFrame, column: str) -> None:
 def _format_string_column(df: pd.DataFrame, column: str) -> None:
     """Basic formatting for a string column."""
     _strip_whitespace_from_column(df=df, column=column)
+    # TODO: Other formatting? (e.g., remove special characters)
     return
 
 
