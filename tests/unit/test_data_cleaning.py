@@ -3,8 +3,10 @@
 import re
 from collections.abc import Callable
 from contextlib import AbstractContextManager, nullcontext
+from typing import Final
 
 import pandas as pd
+import phonenumbers
 import pytest
 
 from bfb_delivery.lib.constants import MAX_ORDER_COUNT, Columns
@@ -13,6 +15,11 @@ from bfb_delivery.lib.formatting.data_cleaning import (
     format_and_validate_data,
     format_column_names,
 )
+
+INVALID_NUMBERS: Final[list[str]] = [
+    "+1" + str(phonenumbers.invalid_example_number(region_code="US").national_number),
+    "+15555555555",
+]
 
 
 class TestFormatColumnNames:
@@ -29,6 +36,7 @@ class TestFormatColumnNames:
 class TestFormatAndValidateData:
     """Test the format_and_validate_data function."""
 
+    @pytest.mark.usefixtures("mock_is_valid_number")
     @pytest.mark.parametrize(
         "column_name, expected_values",
         [  # TODO: Pull this out into a class-scoped fixture df. Useful input to next tests.
@@ -142,6 +150,7 @@ class TestFormatAndValidateData:
                 ),
             ],
         )
+
         format_and_validate_data(df=df, columns=columns)
         assert df[column_name].to_list() == expected_values
 
@@ -286,6 +295,23 @@ class TestFormatAndValidateData:
                 ),
                 format_and_validate_data,
             ),
+            (
+                pd.DataFrame(
+                    {
+                        Columns.PHONE: INVALID_NUMBERS
+                        + [  # noqa: W503
+                            "+1"
+                            + str(  # noqa: W503
+                                phonenumbers.example_number(region_code="US").national_number
+                            )
+                        ]
+                    }
+                ),
+                pytest.raises(
+                    ValueError, match=f"Invalid phone numbers found: {INVALID_NUMBERS}"
+                ),
+                format_and_validate_data,
+            ),
         ],
     )
     def test_validations(
@@ -296,4 +322,7 @@ class TestFormatAndValidateData:
     ) -> None:
         """Test validations."""
         with expected_error_context:
-            validating_function(df=df, columns=df.columns.to_list())
+            if validating_function == format_and_validate_data:
+                format_and_validate_data(df=df, columns=df.columns.to_list())
+            else:
+                validating_function(df=df)
