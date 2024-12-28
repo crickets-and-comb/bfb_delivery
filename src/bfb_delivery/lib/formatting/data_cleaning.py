@@ -188,7 +188,11 @@ def _format_and_validate_phone_column(df: pd.DataFrame) -> None:
         for number in validation_df["formatted_numbers"].to_list()
     ]
     validation_df["is_valid"] = validation_df["formatted_numbers"].apply(
-        lambda number: phonenumbers.is_valid_number(number)
+        lambda number: (
+            phonenumbers.is_valid_number(number)
+            if isinstance(number, phonenumbers.phonenumber.PhoneNumber)
+            else True
+        )
     )
 
     if not validation_df["is_valid"].all():
