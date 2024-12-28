@@ -4,6 +4,7 @@ This allows separation of API from implementation. It also allows a simplified p
 separate from a more complex internal API with more options for power users.
 """
 
+from logging import warning
 from pathlib import Path
 
 from typeguard import typechecked
@@ -76,11 +77,14 @@ def split_chunked_route(
     )
 
 
+# TODO: Updater docs. (What until done, though.)
 @typechecked
 def format_combined_routes(
     input_path: Path | str, output_dir: Path | str = "", output_filename: str = ""
 ) -> Path:
     """Formats the combined routes table.
+
+    NOTE: This function is still under construction.
 
     Args:
         input_path: The path to the combined routes table.
@@ -92,6 +96,7 @@ def format_combined_routes(
     Returns:
         The path to the formatted table.
     """
+    warning("This function is still under construction.")
     return internal.format_combined_routes(
         input_path=input_path, output_dir=output_dir, output_filename=output_filename
     )
