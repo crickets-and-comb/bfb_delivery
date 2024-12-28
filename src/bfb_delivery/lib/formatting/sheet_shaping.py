@@ -63,6 +63,7 @@ def split_chunked_route(
     chunked_sheet.columns = format_column_names(columns=chunked_sheet.columns.to_list())
     # TODO: Wrap for this use case so we can test in isolation?
     format_and_validate_data(df=chunked_sheet, columns=SPLIT_ROUTE_COLUMNS + [Columns.DRIVER])
+    chunked_sheet.sort_values(by=[Columns.DRIVER, Columns.STOP_NO], inplace=True)
     # TODO: Validate columns? (Use Pandera?)
 
     drivers = chunked_sheet[Columns.DRIVER].unique()
@@ -128,7 +129,7 @@ def format_combined_routes(
             # Or, for now, just do it if the apartments are already in contiguous stops.
             # Or if discontinuous, just regroup and bump the following stops.
             # Also, may not make the most sense in order of apt number. Ask team.
-            # TODO: Sort by stop number.
+            route_df.sort_values(by=[Columns.STOP_NO], inplace=True)
             # TODO: Aggregate data.
             # Box count by type.
             # Total box count.
