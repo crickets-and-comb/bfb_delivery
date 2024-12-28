@@ -296,4 +296,4 @@ class TestFormatAndValidateData:
     ) -> None:
         """Test validations."""
         with expected_error_context:
-            format_and_validate_data(df=df, columns=df.columns.to_list())
+            validating_function(df=df, columns=df.columns.to_list())
