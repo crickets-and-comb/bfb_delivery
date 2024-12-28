@@ -413,8 +413,8 @@ class TestFormatAndValidateData:
                         ]
                     }
                 ),
-                pytest.raises(
-                    ValueError, match=f"Invalid phone numbers found: {INVALID_NUMBERS}"
+                pytest.warns(
+                    UserWarning, match=f"Invalid phone numbers found: {INVALID_NUMBERS}"
                 ),
                 format_and_validate_data,
             ),

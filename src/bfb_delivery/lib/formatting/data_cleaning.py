@@ -1,7 +1,8 @@
 """Data cleaning utilities."""
 
+import warnings
 from collections.abc import Callable
-from logging import info, warning
+from logging import info
 
 import email_validator
 import pandas as pd
@@ -132,7 +133,7 @@ def _format_and_validate_email_column(df: pd.DataFrame) -> None:
             formatted_email = email_info.normalized
         except email_validator.EmailNotValidError as e:
             invalid_emails.append(email)
-            warning(f"Invalid email address, {email}: {e}")
+            warnings.warn(message=f"Invalid email address, {email}: {e}", stacklevel=2)
             info("Checking for more invalid addresses before raising error.")
         else:
             formatted_emails.append(formatted_email)
@@ -198,8 +199,9 @@ def _format_and_validate_phone_column(df: pd.DataFrame) -> None:
     )
     if not validation_df["is_valid"].all():
         invalid_numbers = validation_df[~validation_df["is_valid"]]
-        raise ValueError(
-            f"Invalid phone numbers found: {invalid_numbers[df.columns.to_list()]}"
+        warnings.warn(
+            message=f"Invalid phone numbers found: {invalid_numbers[df.columns.to_list()]}",
+            stacklevel=2,
         )
 
     # TODO: Use phonenumbers.format_by_pattern to achieve (555) 555-5555 if desired.
