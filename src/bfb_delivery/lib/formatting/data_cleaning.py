@@ -5,6 +5,7 @@ from logging import info, warning
 
 import email_validator
 import pandas as pd
+import phonenumbers
 from typeguard import typechecked
 
 from bfb_delivery.lib.constants import MAX_ORDER_COUNT, Columns
@@ -56,7 +57,7 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
     formatters_dict = {
         Columns.ADDRESS: _format_address_column,
         Columns.BOX_TYPE: _format_box_type_column,
-        Columns.EMAIL: _format_email_column,
+        Columns.EMAIL: _format_and_validate_email_column,
         Columns.DRIVER: _format_driver_column,
         Columns.NAME: _format_name_column,
         Columns.NEIGHBORHOOD: _format_neighborhood_column,
@@ -114,8 +115,8 @@ def _format_driver_column(df: pd.DataFrame) -> None:
     return
 
 
-def _format_email_column(df: pd.DataFrame) -> None:
-    """Format the email column."""
+def _format_and_validate_email_column(df: pd.DataFrame) -> None:
+    """Format and validate the email column."""
     _format_string_column(df=df, column=Columns.EMAIL)
 
     formatted_emails = []
@@ -170,12 +171,30 @@ def _format_order_count_column(df: pd.DataFrame) -> None:
 
 
 def _format_phone_column(df: pd.DataFrame) -> None:
-    """Format the phone column."""
+    """Format and validate the phone column."""
     _format_string_column(df=df, column=Columns.PHONE)
-    # TODO: Other formatting? Some package?
-    # area and country code.
-    # different input formats (e.g., dashes, parentheses, spaces, periods)
-    # TODO: Validate: Use some package or something?
+
+    numbers = [
+        "+" + number if (len(number) > 0 and number[0] != "+") else number
+        for number in df[Columns.PHONE].to_list()
+    ]
+    phone_numbers = [
+        phonenumbers.parse(number=number) if len(number) > 0 else number for number in numbers
+    ]
+
+    # TODO: Validate here.
+
+    formatted_numbers = [
+        str(
+            phonenumbers.format_number(
+                number, num_format=phonenumbers.PhoneNumberFormat.INTERNATIONAL
+            )
+        )
+        for number in phone_numbers
+    ]
+
+    df[Columns.PHONE] = formatted_numbers
+
     return
 
 
@@ -194,7 +213,7 @@ def _format_int_column(df: pd.DataFrame, column: str) -> None:
 
 
 def _format_string_column(df: pd.DataFrame, column: str) -> None:
-    """Basic formatting for a string column."""
+    """Basic formatting for a string column. Note: Casts to string."""
     _strip_whitespace_from_column(df=df, column=column)
     # TODO: Other formatting? (e.g., remove special characters)
     return

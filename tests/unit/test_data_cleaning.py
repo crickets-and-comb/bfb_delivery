@@ -38,7 +38,16 @@ class TestFormatAndValidateData:
                 Columns.ADDRESS,
                 ["123 Main St", "456 Elm St", "789 Oak St", "1011 Pine St", "1213 Cedar St"],
             ),
-            (Columns.PHONE, ["555-1234", "555-5678", "555-9012", "555-3456", "555-7890"]),
+            (
+                Columns.PHONE,
+                [
+                    "+1 360-555-1234",
+                    "+1 360-555-5678",
+                    "+1 360-555-9012",
+                    "+1 360-555-3456",
+                    "+1 360-555-7890",
+                ],
+            ),
             (
                 Columns.EMAIL,
                 ["me@me.com", "you@me.com", "we@me.com", "me@you.com", "you@you.com"],
@@ -74,7 +83,7 @@ class TestFormatAndValidateData:
                     1,
                     "Alice",
                     "123 Main St",
-                    "555-1234",
+                    "+13605551234",
                     "me@me.com",
                     "",
                     1,
@@ -86,7 +95,7 @@ class TestFormatAndValidateData:
                     " 2 ",  # Test stripping whitespace.
                     "Bob ",  # Test stripping whitespace.
                     " 456 Elm St",  # Test stripping whitespace.
-                    " 555-5678 ",  # Test stripping whitespace.
+                    " +13605555678 ",  # Test stripping whitespace.
                     "you@me.com ",  # Test stripping whitespace.
                     " Drop the box.",  # Test stripping whitespace.
                     "1 ",  # Test stripping whitespace.
@@ -98,7 +107,7 @@ class TestFormatAndValidateData:
                     3.0,  # Test cast float.
                     "Charlie",
                     "789 Oak St",
-                    "555-9012",
+                    "13605559012",  # Without +.
                     # TODO: File issue with email_validator.
                     # Examples claim spaces are removed from domains.
                     "we@mE.cOm",  # Test domain case formatting.
@@ -112,7 +121,7 @@ class TestFormatAndValidateData:
                     "4.0 ",  # Test cast str float.
                     "David",
                     "1011 Pine St",
-                    "555-3456",
+                    13605553456,  # Test cast from int.
                     "me@you.com",
                     "",
                     "1.0",  # Test cast str float.
@@ -124,7 +133,7 @@ class TestFormatAndValidateData:
                     5,
                     "Eve",
                     "1213 Cedar St",
-                    "555-7890",
+                    "+1 (360) 555-7890",  # Test U.S. standard format.
                     "you@you.com",
                     "",
                     MAX_ORDER_COUNT,  # Test max order count.
