@@ -112,12 +112,10 @@ def _format_box_type_column(df: pd.DataFrame) -> None:
     return
 
 
-# TODO: Make this wrap a list formatter to use that for sheet names.
+# TODO: Make this wrap a list formatter to use that for sheet names. Or make sheetnames a df.
 def _format_driver_column(df: pd.DataFrame) -> None:
     """Format the driver column."""
-    _format_string_column(df=df, column=Columns.DRIVER)
-    # TODO: See name formatter to include anything added there.
-    # TODO: Abstract name formatting?
+    _format_name_columns(df=df, column=Columns.DRIVER)
     return
 
 
@@ -150,11 +148,7 @@ def _format_and_validate_email_column(df: pd.DataFrame) -> None:
 
 def _format_name_column(df: pd.DataFrame) -> None:
     """Format the name column."""
-    _format_string_column(df=df, column=Columns.NAME)
-    # TODO: Vaidate:
-    # They do "John #2" and "Joe & Mary", so other special characters?
-    # Eventually, we may have a DB, but need to be flexible for now.
-    # Some package?
+    _format_name_columns(df=df, column=Columns.NAME)
     return
 
 
@@ -229,6 +223,14 @@ def _format_stop_no_column(df: pd.DataFrame) -> None:
     """Format the stop number column."""
     _format_int_column(df=df, column=Columns.STOP_NO)
     _validate_stop_no_column(df=df)
+    return
+
+
+def _format_name_columns(df: pd.DataFrame, column: str) -> None:
+    """Format a column with names."""
+    _format_string_column(df=df, column=column)
+    # Could use nameparser or str.title(), but neither handles all cases. Some other package?
+    df[column] = df[column].apply(lambda name: name.upper())
     return
 
 

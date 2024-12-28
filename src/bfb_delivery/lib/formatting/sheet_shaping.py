@@ -123,10 +123,11 @@ def format_combined_routes(
             route_df.columns = format_column_names(columns=route_df.columns.to_list())
             format_and_validate_data(df=route_df, columns=COMBINED_ROUTES_COLUMNS)
             # TODO: Use Pandera?
-            # TODO: Order by apartment number, and redo stop numbers.
+            # TODO: Order by apartment number, and redo stop numbers?
             # May need to postpone this.
             # Or, for now, just do it if the apartments are already in contiguous stops.
             # Or if discontinuous, just regroup and bump the following stops.
+            # Also, may not make the most sense in order of apt number. Ask team.
             # TODO: Sort by stop number.
             # TODO: Aggregate data.
             # Box count by type.
@@ -134,8 +135,9 @@ def format_combined_routes(
             # Protein count.
             # TODO: Add aggregate cells.
             # TODO: Add header cells.
-            # TODO: Add date cell.
             # TODO: Add driver name cell.
+            # TODO: Add date cell.
+            # TODO: Add date to sheet name.
             # TODO: Color code data.
             route_df[COMBINED_ROUTES_COLUMNS].to_excel(
                 excel_writer=writer, sheet_name=driver_name, index=False

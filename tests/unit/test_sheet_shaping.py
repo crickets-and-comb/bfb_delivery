@@ -13,7 +13,10 @@ from bfb_delivery.cli import combine_route_tables as combine_route_tables_cli
 from bfb_delivery.cli import format_combined_routes as format_combined_routes_cli
 from bfb_delivery.cli import split_chunked_route as split_chunked_route_cli
 from bfb_delivery.lib.constants import COMBINED_ROUTES_COLUMNS, SPLIT_ROUTE_COLUMNS, Columns
-from bfb_delivery.lib.formatting.data_cleaning import _format_and_validate_phone_column
+from bfb_delivery.lib.formatting.data_cleaning import (
+    _format_and_validate_phone_column,
+    _format_name_column,
+)
 
 N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
 DRIVERS: Final[list[str]] = [f"Driver {i}" for i in range(1, 10)]
@@ -381,13 +384,21 @@ class TestSplitChunkedRoute:
         full_data = full_data[cols].sort_values(by=cols).reset_index(drop=True)
         split_data = split_data.sort_values(by=cols).reset_index(drop=True)
 
-        # This is kind of hacky, but need to make sure phone numbers haven't really changed.
-        cols_without_phone = [col for col in cols if col != Columns.PHONE]
+        # Hacky, but need to make sure formatted values haven't fundamentally changed.
+        cols_without_formatting = [
+            col for col in cols if col not in [Columns.PHONE, Columns.NAME]
+        ]
         pd.testing.assert_frame_equal(
-            full_data[cols_without_phone], split_data[cols_without_phone]
+            full_data[cols_without_formatting], split_data[cols_without_formatting]
         )
-        _format_and_validate_phone_column(df=full_data)
-        assert full_data[Columns.PHONE].equals(split_data[Columns.PHONE])
+
+        phone_df = full_data[[Columns.PHONE]].copy()
+        _format_and_validate_phone_column(df=phone_df)
+        assert phone_df[Columns.PHONE].equals(split_data[Columns.PHONE])
+
+        name_df = full_data[[Columns.NAME]].copy()
+        _format_name_column(df=name_df)
+        assert name_df[Columns.NAME].equals(split_data[Columns.NAME])
 
     @pytest.mark.parametrize("n_books", [0, -1])
     def test_invalid_n_books(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:

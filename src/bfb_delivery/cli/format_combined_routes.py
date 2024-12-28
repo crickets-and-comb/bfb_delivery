@@ -7,7 +7,6 @@ from bfb_delivery import format_combined_routes
 
 
 # TODO: Can we set the defaults as constants to sync with public?
-# TODO: They may want to just pass a text file of the paths instead of multiple args.
 @click.command()
 @click.option("--input_path", required=True, help="The path to the combined routes table.")
 @click.option(

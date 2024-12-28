@@ -44,21 +44,31 @@ class TestFormatAndValidateData:
             (
                 Columns.DRIVER,
                 [
-                    "Driver",
-                    "Driver",
-                    "Driver",
-                    "Driver",
-                    "Driver",
-                    "Driver",
-                    "Driver",
-                    "Driver",
-                    "Driver",
+                    "DRIVER",
+                    "DRIVER",
+                    "BOATY MCBOATFACE",
+                    "TIM #2",
+                    "DRIVER",
+                    "DRIVER",
+                    "DRIVER",
+                    "DRIVER",
+                    "DRIVER",
                 ],
             ),
             (Columns.STOP_NO, [1, 2, 3, 4, 5, 6, 7, 8, 9]),
             (
                 Columns.NAME,
-                ["Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Gina", "Hank", "Ivy"],
+                [
+                    "ALICE",
+                    "BOB",
+                    "CHARLIE BUCKET",
+                    "DAVID & JONATHAN",
+                    "EVE",
+                    "FRANK",
+                    "GINA",
+                    "HANK",
+                    "IVY",
+                ],
             ),
             (
                 Columns.ADDRESS,
@@ -169,9 +179,9 @@ class TestFormatAndValidateData:
                     " York",  # Test stripping whitespace.
                 ),
                 (
-                    "Driver",
+                    "Boaty McBoatface",  # Test real name.
                     3.0,  # Test cast float.
-                    "Charlie",
+                    "Charlie Bucket",  # Test real name.
                     "789 Oak St",
                     "13605559012",  # Without +.
                     # TODO: File issue with email_validator.
@@ -183,9 +193,9 @@ class TestFormatAndValidateData:
                     "York",
                 ),
                 (
-                    "Driver",
+                    "Tim #2",  # Test special character and numbers.
                     "4.0 ",  # Test cast str float.
-                    "David",
+                    "David & Jonathan",  # Test special character.
                     "1011 Pine St",
                     13605553456,  # Test cast from int.
                     "me@you.com",
