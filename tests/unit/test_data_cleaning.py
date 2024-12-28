@@ -33,6 +33,7 @@ class TestFormatColumnNames:
         assert format_column_names(columns=columns) == expected
 
 
+# TODO: Test nulls, empty strings, and whitespace.
 class TestFormatAndValidateData:
     """Test the format_and_validate_data function."""
 
@@ -40,11 +41,36 @@ class TestFormatAndValidateData:
     @pytest.mark.parametrize(
         "column_name, expected_values",
         [  # TODO: Pull this out into a class-scoped fixture df. Useful input to next tests.
-            (Columns.STOP_NO, [1, 2, 3, 4, 5]),
-            (Columns.NAME, ["Alice", "Bob", "Charlie", "David", "Eve"]),
+            (
+                Columns.DRIVER,
+                [
+                    "Driver",
+                    "Driver",
+                    "Driver",
+                    "Driver",
+                    "Driver",
+                    "Driver",
+                    "Driver",
+                    "Driver",
+                ],
+            ),
+            (Columns.STOP_NO, [1, 2, 3, 4, 5, 6, 7, 8]),
+            (
+                Columns.NAME,
+                ["Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Gina", "Hank"],
+            ),
             (
                 Columns.ADDRESS,
-                ["123 Main St", "456 Elm St", "789 Oak St", "1011 Pine St", "1213 Cedar St"],
+                [
+                    "123 Main St",
+                    "456 Elm St",
+                    "789 Oak St",
+                    "1011 Pine St",
+                    "1213 Cedar St",
+                    "1315 Birch St",
+                    "1417 Elm St",
+                    "1519 Fir St",
+                ],
             ),
             (
                 Columns.PHONE,
@@ -54,16 +80,34 @@ class TestFormatAndValidateData:
                     "+1 360-555-9012",
                     "+1 360-555-3456",
                     "+1 360-555-7890",
+                    "",
+                    "",
+                    "",
                 ],
             ),
             (
                 Columns.EMAIL,
-                ["me@me.com", "you@me.com", "we@me.com", "me@you.com", "you@you.com"],
+                [
+                    "me@me.com",
+                    "you@me.com",
+                    "we@me.com",
+                    "me@you.com",
+                    "you@you.com",
+                    "we@you.com",
+                    "me@we.com",
+                    "you@we.com",
+                ],
             ),
-            (Columns.NOTES, ["", "Drop the box.", "", "", ""]),
-            (Columns.ORDER_COUNT, [1, 1, 1, 1, MAX_ORDER_COUNT]),
-            (Columns.BOX_TYPE, ["Basic", "Basic", "Basic", "Basic", "Basic"]),
-            (Columns.NEIGHBORHOOD, ["York", "York", "York", "York", "York"]),
+            (Columns.NOTES, ["", "Drop the box.", "", "", "", "", "", ""]),
+            (Columns.ORDER_COUNT, [1, 1, 1, 1, MAX_ORDER_COUNT, 1, 1, 1]),
+            (
+                Columns.BOX_TYPE,
+                ["Basic", "Basic", "Basic", "Basic", "Basic", "Basic", "Basic", "Basic"],
+            ),
+            (
+                Columns.NEIGHBORHOOD,
+                ["York", "York", "York", "York", "York", "York", "York", "York"],
+            ),
         ],
     )
     def test_format_data(self, column_name: str, expected_values: list) -> None:
@@ -145,6 +189,42 @@ class TestFormatAndValidateData:
                     "you@you.com",
                     "",
                     MAX_ORDER_COUNT,  # Test max order count.
+                    "Basic",
+                    "York",
+                ),
+                (
+                    "Driver",
+                    6,
+                    "Frank",
+                    "1315 Birch St",
+                    "",  # Test empty string.
+                    "we@you.com",
+                    "",
+                    1,
+                    "Basic",
+                    "York",
+                ),
+                (
+                    "Driver",
+                    7,
+                    "Gina",
+                    "1417 Elm St",
+                    None,  # Test null.
+                    "me@we.com",
+                    "",
+                    1,
+                    "Basic",
+                    "York",
+                ),
+                (
+                    "Driver",
+                    8,
+                    "Hank",
+                    "1519 Fir St",
+                    " ",  # Test empty white space.
+                    "you@we.com",
+                    "",
+                    1,
                     "Basic",
                     "York",
                 ),

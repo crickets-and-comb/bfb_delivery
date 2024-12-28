@@ -52,6 +52,9 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
     # TODO: Pre-Validate:
     # ints actually integers and not something that gets cast to an int (beautfulsoup?)
 
+    # TODO: FutureWarning: Setting an item of incompatible dtype is deprecated and will
+    # raise an error in a future version of pandas. Value '' has dtype incompatible with
+    # float64, please explicitly cast to a compatible dtype first.
     df.fillna("", inplace=True)
 
     # TODO: Could use generic or class? But, this works, and is flexible and transparent.
@@ -184,10 +187,10 @@ def _format_and_validate_phone_column(df: pd.DataFrame) -> None:
         phonenumbers.parse(number) if len(number) > 0 else number
         for number in validation_df["formatted_numbers"].to_list()
     ]
-
     validation_df["is_valid"] = validation_df["formatted_numbers"].apply(
         lambda number: phonenumbers.is_valid_number(number)
     )
+
     if not validation_df["is_valid"].all():
         invalid_numbers = validation_df[~validation_df["is_valid"]]
         raise ValueError(
@@ -196,10 +199,14 @@ def _format_and_validate_phone_column(df: pd.DataFrame) -> None:
 
     # TODO: Use phonenumbers.format_by_pattern to achieve (555) 555-5555 if desired.
     validation_df["formatted_numbers"] = [
-        str(
-            phonenumbers.format_number(
-                number, num_format=phonenumbers.PhoneNumberFormat.INTERNATIONAL
+        (
+            str(
+                phonenumbers.format_number(
+                    number, num_format=phonenumbers.PhoneNumberFormat.INTERNATIONAL
+                )
             )
+            if isinstance(number, phonenumbers.phonenumber.PhoneNumber)
+            else number
         )
         for number in validation_df["formatted_numbers"].to_list()
     ]
