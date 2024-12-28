@@ -56,12 +56,13 @@ def split_chunked_route(
     """See public docstring: :py:func:`bfb_delivery.api.public.split_chunked_route`."""
     if n_books <= 0:
         raise ValueError("n_books must be greater than 0.")
-    # TODO: Make this accept input_path only as Path?
+    # TODO: Make this accept input_path only as Path? Or only as str to simplify?
     input_path = Path(input_path)
 
     chunked_sheet: pd.DataFrame = pd.read_excel(input_path)
     chunked_sheet.columns = format_column_names(columns=chunked_sheet.columns.to_list())
-    format_and_validate_data(df=chunked_sheet, columns=SPLIT_ROUTE_COLUMNS)
+    # TODO: Wrap for this use case so we can test in isolation?
+    format_and_validate_data(df=chunked_sheet, columns=SPLIT_ROUTE_COLUMNS + [Columns.DRIVER])
     # TODO: Validate columns? (Use Pandera?)
 
     drivers = chunked_sheet[Columns.DRIVER].unique()

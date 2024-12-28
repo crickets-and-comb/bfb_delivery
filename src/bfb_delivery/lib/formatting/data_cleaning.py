@@ -47,10 +47,12 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
         raise ValueError(f"Columns not found in DataFrame: {missing_columns}.")
 
     # TODO: Could use generic or class? But, this works, and is flexible and transparent.
+    # TODO: Could remove smurf typing (_column), but wait to see if using lambdas etc.
     formatters_dict = {
         Columns.ADDRESS: _format_address_column,
         Columns.BOX_TYPE: _format_box_type_column,
         Columns.EMAIL: _format_email_column,
+        Columns.DRIVER: _format_driver_column,
         Columns.NAME: _format_name_column,
         Columns.NEIGHBORHOOD: _format_neighborhood_column,
         Columns.NOTES: _format_notes_column,
@@ -66,7 +68,9 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
             raise ValueError(f"No formatter found for column: {column}.") from e
         formatter_fx(df=df)
 
-    # TODO: Sort by driver and stop number if avaialable.
+    # TODO: Sort by driver and stop number if avaailable.
+
+    # TODO: Split validation into second step so we can test validations.
 
     return
 
@@ -101,6 +105,15 @@ def _format_email_column(df: pd.DataFrame) -> None:
     _format_string_column(df=df, column=Columns.EMAIL)
     # TODO: Other formatting? beautifulsoup?
     # TODO: Validate: Use beautifulsoup or something?
+    return
+
+
+# TODO: Make this wrap a list formatter to use that for sheet names.
+def _format_driver_column(df: pd.DataFrame) -> None:
+    """Format the driver column."""
+    _format_string_column(df=df, column=Columns.DRIVER)
+    # TODO: See name formatter to include anything added there.
+    # TODO: Abstract name formatting?
     return
 
 

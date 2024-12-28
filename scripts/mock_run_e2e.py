@@ -49,7 +49,6 @@ def main(mock_raw_chunked_sheet_path: str) -> None:
         f"Split chunked route saved to: {[str(path) for path in split_chunked_sheet_paths]}"
     )
 
-    # TODO: Why am I getting a sheet named "MARK K .csv"? Add driver to columns to format.
     output_paths = mock_route_tables(
         split_chunked_sheet_paths=split_chunked_sheet_paths,
         output_dir=OUTPUT_DIRS["CIRCUIT_TABLES_DIR"],
