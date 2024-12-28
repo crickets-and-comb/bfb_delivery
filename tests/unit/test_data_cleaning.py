@@ -268,7 +268,7 @@ class TestFormatAndValidateData:
         )
 
         format_and_validate_data(df=df, columns=columns)
-        assert df[column_name].to_list() == expected_values
+        assert sorted(df[column_name].to_list()) == sorted(expected_values)
 
     @pytest.mark.parametrize(
         "columns, df, expected_error_context",

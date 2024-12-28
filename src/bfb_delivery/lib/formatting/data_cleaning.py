@@ -79,19 +79,21 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
             raise ValueError(f"No formatter found for column: {column}.") from e
         formatter_fx(df=df)
 
-    # TODO: Sort by driver and stop number if available.
+    sort_columns = []
+    if Columns.DRIVER in columns:
+        sort_columns.append(Columns.DRIVER)
+    if Columns.STOP_NO in columns:
+        sort_columns.append(Columns.STOP_NO)
+    if Columns.ADDRESS in columns:
+        sort_columns.append(Columns.ADDRESS)
+    if sort_columns:
+        df.sort_values(by=sort_columns, inplace=True)
 
-    # TODO: Split validation into second step so we can test validations.
+    # TODO: Some common (post-formatting) validations for all columns:
+    # Are the prescribed types.
+    # Have no nulls (where appropriate).
 
     return
-
-
-# TODO: Some common (post-formatting) validations for all columns:
-# Are the prescribed types.
-# Have no nulls (where appropriate).
-
-# TODO: Some common (post-formatting) validations for column types:
-# int: > 0
 
 
 def _format_and_validate_address(df: pd.DataFrame) -> None:
