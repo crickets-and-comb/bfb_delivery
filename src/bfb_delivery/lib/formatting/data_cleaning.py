@@ -48,15 +48,15 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
 
     # TODO: Could use generic or class? But, this works, and is flexible and transparent.
     formatters_dict = {
-        Columns.STOP_NO: _format_stop_no_column,
-        Columns.NAME: _format_name_column,
         Columns.ADDRESS: _format_address_column,
-        Columns.PHONE: _format_phone_column,
+        Columns.BOX_TYPE: _format_box_type_column,
         Columns.EMAIL: _format_email_column,
+        Columns.NAME: _format_name_column,
+        Columns.NEIGHBORHOOD: _format_neighborhood_column,
         Columns.NOTES: _format_notes_column,
         Columns.ORDER_COUNT: _format_order_count_column,
-        Columns.BOX_TYPE: _format_box_type_column,
-        Columns.NEIGHBORHOOD: _format_neighborhood_column,
+        Columns.PHONE: _format_phone_column,
+        Columns.STOP_NO: _format_stop_no_column,
     }
     for column in columns:
         formatter_fx: Callable
@@ -79,17 +79,28 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
 # int: > 0
 
 
-def _format_stop_no_column(df: pd.DataFrame) -> None:
-    """Format the stop number column."""
-    _format_int_column(df=df, column=Columns.STOP_NO)
-    # TODO: Validate:
-    # > 0
-    # unique
-    # no gaps
-    # starts at 1
-    # sorted
-    # actually integers and not something that gets cast to an int
-    # etc.?
+def _format_address_column(df: pd.DataFrame) -> None:
+    """Format the address column."""
+    _format_string_column(df=df, column=Columns.ADDRESS)
+    # TODO: Other formatting? beautifulsoup?
+    # TODO: Validate: Use beautifulsoup or something?
+    return
+
+
+def _format_box_type_column(df: pd.DataFrame) -> None:
+    """Format the box type column."""
+    _format_string_column(df=df, column=Columns.BOX_TYPE)
+    # TODO: What about multiple box types for one stop?
+    # Split and format each value separately, then rejoin.
+    # TODO: Validate: make enum.StrEnum?
+    return
+
+
+def _format_email_column(df: pd.DataFrame) -> None:
+    """Format the email column."""
+    _format_string_column(df=df, column=Columns.EMAIL)
+    # TODO: Other formatting? beautifulsoup?
+    # TODO: Validate: Use beautifulsoup or something?
     return
 
 
@@ -103,29 +114,10 @@ def _format_name_column(df: pd.DataFrame) -> None:
     return
 
 
-def _format_address_column(df: pd.DataFrame) -> None:
-    """Format the address column."""
-    _format_string_column(df=df, column=Columns.ADDRESS)
-    # TODO: Other formatting? beautifulsoup?
-    # TODO: Validate: Use beautifulsoup or something?
-    return
-
-
-def _format_phone_column(df: pd.DataFrame) -> None:
-    """Format the phone column."""
-    _format_string_column(df=df, column=Columns.PHONE)
-    # TODO: Other formatting? beautifulsoup?
-    # area and country code.
-    # different input formats (e.g., dashes, parentheses, spaces, periods)
-    # TODO: Validate: Use beautifulsoup or something?
-    return
-
-
-def _format_email_column(df: pd.DataFrame) -> None:
-    """Format the email column."""
-    _format_string_column(df=df, column=Columns.EMAIL)
-    # TODO: Other formatting? beautifulsoup?
-    # TODO: Validate: Use beautifulsoup or something?
+def _format_neighborhood_column(df: pd.DataFrame) -> None:
+    """Format the neighborhood column."""
+    _format_string_column(df=df, column=Columns.NEIGHBORHOOD)
+    # TODO: Validate: make enum.StrEnum?
     return
 
 
@@ -144,19 +136,27 @@ def _format_order_count_column(df: pd.DataFrame) -> None:
     return
 
 
-def _format_box_type_column(df: pd.DataFrame) -> None:
-    """Format the box type column."""
-    _format_string_column(df=df, column=Columns.BOX_TYPE)
-    # TODO: What about multiple box types for one stop?
-    # Split and format each value separately, then rejoin.
-    # TODO: Validate: make enum.StrEnum?
+def _format_phone_column(df: pd.DataFrame) -> None:
+    """Format the phone column."""
+    _format_string_column(df=df, column=Columns.PHONE)
+    # TODO: Other formatting? beautifulsoup?
+    # area and country code.
+    # different input formats (e.g., dashes, parentheses, spaces, periods)
+    # TODO: Validate: Use beautifulsoup or something?
     return
 
 
-def _format_neighborhood_column(df: pd.DataFrame) -> None:
-    """Format the neighborhood column."""
-    _format_string_column(df=df, column=Columns.NEIGHBORHOOD)
-    # TODO: Validate: make enum.StrEnum?
+def _format_stop_no_column(df: pd.DataFrame) -> None:
+    """Format the stop number column."""
+    _format_int_column(df=df, column=Columns.STOP_NO)
+    # TODO: Validate:
+    # > 0
+    # unique
+    # no gaps
+    # starts at 1
+    # sorted
+    # actually integers and not something that gets cast to an int
+    # etc.?
     return
 
 
