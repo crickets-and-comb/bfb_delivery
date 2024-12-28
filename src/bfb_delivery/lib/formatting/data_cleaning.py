@@ -5,7 +5,7 @@ from collections.abc import Callable
 import pandas as pd
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import Columns
+from bfb_delivery.lib.constants import MAX_ORDER_COUNT, Columns
 
 
 @typechecked
@@ -143,9 +143,7 @@ def _format_notes_column(df: pd.DataFrame) -> None:
 def _format_order_count_column(df: pd.DataFrame) -> None:
     """Format the order count column."""
     _format_int_column(df=df, column=Columns.ORDER_COUNT)
-    # TODO: Validate:
-    # > 0
-    # < some constant max.
+    _validate_order_count_column(df=df)
     return
 
 
@@ -190,4 +188,42 @@ def _format_string_column(df: pd.DataFrame, column: str) -> None:
 def _strip_whitespace_from_column(df: pd.DataFrame, column: str) -> None:
     """Strip whitespace from a column. Note: Casts to string."""
     df[column] = df[column].astype(str).str.strip()
+    return
+
+
+def _validate_order_count_column(df: pd.DataFrame) -> None:
+    """Validate the order count column."""
+    _validate_col_not_empty(df=df, column=Columns.ORDER_COUNT)
+    _validate_greater_than_zero(df=df, column=Columns.ORDER_COUNT)
+
+    too_many_orders_df = df[df[Columns.ORDER_COUNT] > MAX_ORDER_COUNT]
+    if not too_many_orders_df.empty:
+        raise ValueError(
+            f"Order count exceeds maximum of {MAX_ORDER_COUNT}: " f"{too_many_orders_df}"
+        )
+
+    return
+
+
+def _validate_col_not_empty(df: pd.DataFrame, column: str) -> None:
+    """No nulls or empty strings in column."""
+    null_df = df[df[column].isnull()]
+    if not null_df.empty:
+        raise ValueError(f"Null values found in {column} column: " f"{null_df}")
+
+    empty_df = df[df[column] == ""]
+    if not empty_df.empty:
+        raise ValueError(f"Empty values found in {column} column: " f"{empty_df}")
+
+    return
+
+
+def _validate_greater_than_zero(df: pd.DataFrame, column: str) -> None:
+    """Validate column is greater than zero."""
+    negative_df = df[df[column] <= 0]
+    if not negative_df.empty:
+        raise ValueError(
+            f"Values less than or equal to zero found in {column} column: " f"{negative_df}"
+        )
+
     return

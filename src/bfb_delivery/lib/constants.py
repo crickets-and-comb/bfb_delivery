@@ -51,4 +51,6 @@ FORMATTED_ROUTES_COLUMNS: Final[list[str]] = [
     Columns.BOX_TYPE,
 ]
 
+MAX_ORDER_COUNT: Final[int] = 5
+
 # TODO: Make enums? (Use Pandera?): box types, neighborhood

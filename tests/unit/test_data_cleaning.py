@@ -6,7 +6,7 @@ from contextlib import AbstractContextManager, nullcontext
 import pandas as pd
 import pytest
 
-from bfb_delivery.lib.constants import Columns
+from bfb_delivery.lib.constants import MAX_ORDER_COUNT, Columns
 from bfb_delivery.lib.formatting.data_cleaning import (
     format_and_validate_data,
     format_column_names,
@@ -21,7 +21,7 @@ class TestFormatColumnNames:
         # TODO: Int column names? Is that possible?
         columns = ["  Name  ", Columns.ADDRESS, "  Phone  "]
         expected = [Columns.NAME, Columns.ADDRESS, Columns.PHONE]
-        assert format_column_names(columns) == expected
+        assert format_column_names(columns=columns) == expected
 
 
 class TestFormatAndValidateData:
@@ -30,15 +30,21 @@ class TestFormatAndValidateData:
     @pytest.mark.parametrize(
         "column_name, expected_values",
         [  # TODO: Pull this out into a class-scoped fixture df. Useful input to next tests.
-            (Columns.STOP_NO, [1, 2, 3, 4]),
-            (Columns.NAME, ["Alice", "Bob", "Charlie", "David"]),
-            (Columns.ADDRESS, ["123 Main St", "456 Elm St", "789 Oak St", "1011 Pine St"]),
-            (Columns.PHONE, ["555-1234", "555-5678", "555-9012", "555-3456"]),
-            (Columns.EMAIL, ["me@me.com", "you@me.com", "we@me.com", "me@you.com"]),
-            (Columns.NOTES, ["", "Drop the box.", "", ""]),
-            (Columns.ORDER_COUNT, [1, 1, 1, 1]),
-            (Columns.BOX_TYPE, ["Basic", "Basic", "Basic", "Basic"]),
-            (Columns.NEIGHBORHOOD, ["York", "York", "York", "York"]),
+            (Columns.STOP_NO, [1, 2, 3, 4, 5]),
+            (Columns.NAME, ["Alice", "Bob", "Charlie", "David", "Eve"]),
+            (
+                Columns.ADDRESS,
+                ["123 Main St", "456 Elm St", "789 Oak St", "1011 Pine St", "1213 Cedar St"],
+            ),
+            (Columns.PHONE, ["555-1234", "555-5678", "555-9012", "555-3456", "555-7890"]),
+            (
+                Columns.EMAIL,
+                ["me@me.com", "you@me.com", "we@me.com", "me@you.com", "you@you.com"],
+            ),
+            (Columns.NOTES, ["", "Drop the box.", "", "", ""]),
+            (Columns.ORDER_COUNT, [1, 1, 1, 1, MAX_ORDER_COUNT]),
+            (Columns.BOX_TYPE, ["Basic", "Basic", "Basic", "Basic", "Basic"]),
+            (Columns.NEIGHBORHOOD, ["York", "York", "York", "York", "York"]),
         ],
     )
     def test_format_and_validate_data(self, column_name: str, expected_values: list) -> None:
@@ -60,7 +66,7 @@ class TestFormatAndValidateData:
             columns=columns,
             data=[
                 # TODO: As formatting is implemented, add/update rows and comment
-                # what formatting is under test.
+                # what formatting is under test. Leave perfect starter row.
                 (
                     "Driver",
                     1,
@@ -109,9 +115,21 @@ class TestFormatAndValidateData:
                     "Basic",
                     "York",
                 ),
+                (
+                    "Driver",
+                    5,
+                    "Eve",
+                    "1213 Cedar St",
+                    "555-7890",
+                    "you@you.com",
+                    "",
+                    MAX_ORDER_COUNT,  # Test max order count.
+                    "Basic",
+                    "York",
+                ),
             ],
         )
-        format_and_validate_data(df, columns)
+        format_and_validate_data(df=df, columns=columns)
         assert df[column_name].to_list() == expected_values
 
     @pytest.mark.parametrize(
@@ -157,4 +175,41 @@ class TestFormatAndValidateData:
     ) -> None:
         """Test missing columns raise an error."""
         with expected_error_context:
-            format_and_validate_data(df, columns)
+            format_and_validate_data(df=df, columns=columns)
+
+    @pytest.mark.parametrize(
+        "df, expected_error_context",
+        [
+            (
+                pd.DataFrame({Columns.ORDER_COUNT: [None]}),
+                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+            ),
+            (
+                pd.DataFrame({Columns.ORDER_COUNT: [""]}),
+                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+            ),
+            (
+                pd.DataFrame({Columns.ORDER_COUNT: [-1]}),
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(
+                        "Values less than or equal to zero found in "
+                        f"{Columns.ORDER_COUNT} column: "
+                    ),
+                ),
+            ),
+            (
+                pd.DataFrame({Columns.ORDER_COUNT: [MAX_ORDER_COUNT + 1]}),
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(f"Order count exceeds maximum of {MAX_ORDER_COUNT}: "),
+                ),
+            ),
+        ],
+    )
+    def test_validations(
+        self, df: pd.DataFrame, expected_error_context: AbstractContextManager
+    ) -> None:
+        """Test validations."""
+        with expected_error_context:
+            format_and_validate_data(df=df, columns=df.columns.to_list())
