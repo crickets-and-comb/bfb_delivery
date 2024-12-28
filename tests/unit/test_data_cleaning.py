@@ -428,6 +428,7 @@ class TestFormatAndValidateData:
                 ),
                 format_and_validate_data,
             ),
+            (pd.DataFrame({Columns.EMAIL: [""]}), nullcontext(), format_and_validate_data),
         ],
     )
     def test_validations(

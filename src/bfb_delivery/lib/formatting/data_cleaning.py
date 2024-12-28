@@ -128,15 +128,18 @@ def _format_and_validate_email_column(df: pd.DataFrame) -> None:
     formatted_emails = []
     invalid_emails = []
     for email in df[Columns.EMAIL]:
+        formatted_email = email
+
         try:
-            email_info = email_validator.validate_email(email, check_deliverability=False)
-            formatted_email = email_info.normalized
+            if email:
+                email_info = email_validator.validate_email(email, check_deliverability=False)
+                formatted_email = email_info.normalized
         except email_validator.EmailNotValidError as e:
             invalid_emails.append(email)
             warnings.warn(message=f"Invalid email address, {email}: {e}", stacklevel=2)
             info("Checking for more invalid addresses before raising error.")
-        else:
-            formatted_emails.append(formatted_email)
+
+        formatted_emails.append(formatted_email)
 
     if invalid_emails:
         warnings.warn(
