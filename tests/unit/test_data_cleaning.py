@@ -440,6 +440,16 @@ class TestFormatAndValidateData:
                 pytest.raises(ValueError),  # Actually, throws error when casting to string.
                 format_and_validate_data,
             ),
+            (
+                pd.DataFrame({Columns.BOX_TYPE: [None]}),
+                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                format_and_validate_data,
+            ),
+            (
+                pd.DataFrame({Columns.BOX_TYPE: [""]}),
+                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                format_and_validate_data,
+            ),
         ],
     )
     def test_validations(
