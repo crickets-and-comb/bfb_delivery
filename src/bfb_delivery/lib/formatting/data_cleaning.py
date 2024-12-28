@@ -1,7 +1,9 @@
 """Data cleaning utilities."""
 
 from collections.abc import Callable
+from logging import info, warning
 
+import email_validator
 import pandas as pd
 from typeguard import typechecked
 
@@ -89,8 +91,8 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
 def _format_address_column(df: pd.DataFrame) -> None:
     """Format the address column."""
     _format_string_column(df=df, column=Columns.ADDRESS)
-    # TODO: Other formatting? beautifulsoup?
-    # TODO: Validate: Use beautifulsoup or something?
+    # TODO: Other formatting?
+    # TODO: Validate: Use some package or something?
     return
 
 
@@ -98,16 +100,8 @@ def _format_box_type_column(df: pd.DataFrame) -> None:
     """Format the box type column."""
     _format_string_column(df=df, column=Columns.BOX_TYPE)
     # TODO: What about multiple box types for one stop?
-    # Split and format each value separately, then rejoin.
+    # Split and format each value separately, then rejoin?
     # TODO: Validate: make enum.StrEnum?
-    return
-
-
-def _format_email_column(df: pd.DataFrame) -> None:
-    """Format the email column."""
-    _format_string_column(df=df, column=Columns.EMAIL)
-    # TODO: Other formatting? beautifulsoup?
-    # TODO: Validate: Use beautifulsoup or something?
     return
 
 
@@ -120,13 +114,38 @@ def _format_driver_column(df: pd.DataFrame) -> None:
     return
 
 
+def _format_email_column(df: pd.DataFrame) -> None:
+    """Format the email column."""
+    _format_string_column(df=df, column=Columns.EMAIL)
+
+    formatted_emails = []
+    invalid_emails = []
+    for email in df[Columns.EMAIL]:
+        try:
+            email_info = email_validator.validate_email(email, check_deliverability=False)
+            formatted_email = email_info.normalized
+        except email_validator.EmailNotValidError as e:
+            invalid_emails.append(email)
+            warning(f"Invalid email address, {email}: {e}")
+            info("Checking for more invalid addresses before raising error.")
+        else:
+            formatted_emails.append(formatted_email)
+
+    if invalid_emails:
+        raise ValueError(f"Invalid email addresses found: {invalid_emails}")
+    else:
+        df[Columns.EMAIL] = formatted_emails
+
+    return
+
+
 def _format_name_column(df: pd.DataFrame) -> None:
     """Format the name column."""
     _format_string_column(df=df, column=Columns.NAME)
     # TODO: Vaidate:
-    # no special characters
-    # no numbers?
-    # beautifulsoup?
+    # They do "John #2" and "Joe & Mary", so other special characters?
+    # Eventually, we may have a DB, but need to be flexible for now.
+    # Some package?
     return
 
 
@@ -153,10 +172,10 @@ def _format_order_count_column(df: pd.DataFrame) -> None:
 def _format_phone_column(df: pd.DataFrame) -> None:
     """Format the phone column."""
     _format_string_column(df=df, column=Columns.PHONE)
-    # TODO: Other formatting? beautifulsoup?
+    # TODO: Other formatting? Some package?
     # area and country code.
     # different input formats (e.g., dashes, parentheses, spaces, periods)
-    # TODO: Validate: Use beautifulsoup or something?
+    # TODO: Validate: Use some package or something?
     return
 
 

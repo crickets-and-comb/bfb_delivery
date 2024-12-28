@@ -263,6 +263,18 @@ class TestFormatAndValidateData:
                 ),
                 _validate_stop_no_column,
             ),
+            (
+                pd.DataFrame(
+                    {Columns.EMAIL: ["us@them..com", "u@s@them.com", "us@them.com"]}
+                ),
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(
+                        "Invalid email addresses found: ['us@them..com', 'u@s@them.com']"
+                    ),
+                ),
+                format_and_validate_data,
+            ),
         ],
     )
     def test_validations(
