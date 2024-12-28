@@ -17,6 +17,7 @@ from bfb_delivery.lib.formatting.data_cleaning import (
     _format_and_validate_phone_column,
     _format_box_type_column,
     _format_name_column,
+    _format_neighborhood_column,
 )
 
 N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
@@ -387,7 +388,10 @@ class TestSplitChunkedRoute:
 
         # Hacky, but need to make sure formatted values haven't fundamentally changed.
         cols_without_formatting = [
-            col for col in cols if col not in [Columns.PHONE, Columns.NAME, Columns.BOX_TYPE]
+            col
+            for col in cols
+            if col
+            not in [Columns.PHONE, Columns.NAME, Columns.BOX_TYPE, Columns.NEIGHBORHOOD]
         ]
         pd.testing.assert_frame_equal(
             full_data[cols_without_formatting], split_data[cols_without_formatting]
@@ -404,6 +408,10 @@ class TestSplitChunkedRoute:
         box_type_df = full_data[[Columns.BOX_TYPE]].copy()
         _format_box_type_column(df=box_type_df)
         assert box_type_df[Columns.BOX_TYPE].equals(split_data[Columns.BOX_TYPE])
+
+        neighborhood_df = full_data[[Columns.NEIGHBORHOOD]].copy()
+        _format_neighborhood_column(df=neighborhood_df)
+        assert neighborhood_df[Columns.NEIGHBORHOOD].equals(split_data[Columns.NEIGHBORHOOD])
 
     @pytest.mark.parametrize("n_books", [0, -1])
     def test_invalid_n_books(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:

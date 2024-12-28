@@ -130,7 +130,7 @@ class TestFormatAndValidateData:
             ),
             (
                 Columns.NEIGHBORHOOD,
-                ["York", "York", "York", "York", "York", "York", "York", "York", "York"],
+                ["YORK", "YORK", "YORK", "YORK", "YORK", "YORK", "YORK", "YORK", "YORK"],
             ),
         ],
     )

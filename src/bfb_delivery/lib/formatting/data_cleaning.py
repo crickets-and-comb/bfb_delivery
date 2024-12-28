@@ -157,6 +157,7 @@ def _format_name_column(df: pd.DataFrame) -> None:
 def _format_neighborhood_column(df: pd.DataFrame) -> None:
     """Format the neighborhood column."""
     _format_string_column(df=df, column=Columns.NEIGHBORHOOD)
+    df[Columns.NEIGHBORHOOD] = df[Columns.NEIGHBORHOOD].apply(lambda x: x.upper())
     # TODO: Validate: make enum.StrEnum?
     return
 
