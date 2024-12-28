@@ -6,7 +6,12 @@ from pathlib import Path
 import pandas as pd
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import COMBINED_ROUTES_COLUMNS, SPLIT_ROUTE_COLUMNS, Columns
+from bfb_delivery.lib.constants import (
+    COMBINED_ROUTES_COLUMNS,
+    PROTEIN_BOX_TYPES,
+    SPLIT_ROUTE_COLUMNS,
+    Columns,
+)
 from bfb_delivery.lib.formatting.data_cleaning import (
     format_and_validate_data,
     format_column_names,
@@ -130,10 +135,9 @@ def format_combined_routes(
             # Or if discontinuous, just regroup and bump the following stops.
             # Also, may not make the most sense in order of apt number. Ask team.
             route_df.sort_values(by=[Columns.STOP_NO], inplace=True)
-            # TODO: Aggregate data.
-            # Box count by type.
-            # Total box count.
-            # Protein count.
+
+            # agg_dict = _aggregate_route_data(df=route_df)
+
             # TODO: Add aggregate cells.
             # TODO: Add header cells.
             # TODO: Add driver name cell.
@@ -145,3 +149,23 @@ def format_combined_routes(
             )
 
     return output_path.resolve()
+
+
+@typechecked
+def _aggregate_route_data(df: pd.DataFrame) -> dict:
+    """Aggregate data for a single route.
+
+    Args:
+        df: The route data to aggregate.
+
+    Returns:
+        Dictionary of aggregated data.
+    """
+    agg_dict = {
+        "box_counts": df.groupby(Columns.BOX_TYPE)[Columns.BOX_COUNT].sum().to_dict(),
+        "total_box_count": df[Columns.BOX_COUNT].sum(),
+        "protein_box_count": df[df[Columns.BOX_TYPE].isin(PROTEIN_BOX_TYPES)][
+            Columns.BOX_COUNT
+        ].sum(),
+    }
+    return agg_dict

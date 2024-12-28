@@ -19,6 +19,7 @@ from bfb_delivery.lib.formatting.data_cleaning import (
     _format_and_validate_neighborhood,
     _format_and_validate_phone,
 )
+from bfb_delivery.lib.formatting.sheet_shaping import _aggregate_route_data
 
 N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
 DRIVERS: Final[list[str]] = [f"Driver {i}" for i in range(1, 10)]
@@ -587,6 +588,24 @@ class TestFormatCombinedRoutes:
         )
         expected_output_dir = Path(output_dir) if output_dir else mock_combined_routes.parent
         assert (expected_output_dir / expected_output_filename).exists()
+
+
+def test_aggregate_route_data() -> None:
+    """Test that a route's data is aggregated correctly."""
+    route_df = pd.DataFrame(
+        {
+            Columns.BOX_TYPE: ["BASIC", "GF", "LA", "BASIC", "GF", "LA", "Vegan"],
+            Columns.BOX_COUNT: [1, 1, 1, 2, 1, 1, 2],
+        }
+    )
+    expected_agg_dict = agg_dict = {
+        "box_counts": {"BASIC": 3, "GF": 2, "LA": 2, "Vegan": 2},
+        "total_box_count": 9,
+        "protein_box_count": 7,
+    }
+
+    agg_dict = _aggregate_route_data(df=route_df)
+    assert agg_dict == expected_agg_dict
 
 
 def _get_driver_sheets(output_paths: list[Path]) -> list[pd.DataFrame]:

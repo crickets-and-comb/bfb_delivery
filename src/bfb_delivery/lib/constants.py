@@ -53,4 +53,6 @@ FORMATTED_ROUTES_COLUMNS: Final[list[str]] = [
 
 MAX_ORDER_COUNT: Final[int] = 5
 
+PROTEIN_BOX_TYPES: Final[list[str]] = ["BASIC", "GF", "LA"]
+
 # TODO: Make enums? (Use Pandera?): box types, neighborhood
