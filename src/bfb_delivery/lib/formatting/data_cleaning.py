@@ -59,18 +59,17 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
     df.fillna("", inplace=True)
 
     # TODO: Could use generic or class? But, this works, and is flexible and transparent.
-    # TODO: Could remove smurf typing (_column), but wait to see if using lambdas etc.
     formatters_dict = {
-        Columns.ADDRESS: _format_address_column,
-        Columns.BOX_TYPE: _format_box_type_column,
-        Columns.EMAIL: _format_and_validate_email_column,
-        Columns.DRIVER: _format_driver_column,
-        Columns.NAME: _format_name_column,
-        Columns.NEIGHBORHOOD: _format_neighborhood_column,
-        Columns.NOTES: _format_notes_column,
-        Columns.ORDER_COUNT: _format_order_count_column,
-        Columns.PHONE: _format_and_validate_phone_column,
-        Columns.STOP_NO: _format_stop_no_column,
+        Columns.ADDRESS: _format_and_validate_address,
+        Columns.BOX_TYPE: _format_and_validate_box_type,
+        Columns.EMAIL: _format_and_validate_email,
+        Columns.DRIVER: _format_and_validate_driver,
+        Columns.NAME: _format_and_validate_name,
+        Columns.NEIGHBORHOOD: _format_and_validate_neighborhood,
+        Columns.NOTES: _format_notes,
+        Columns.ORDER_COUNT: _format_and_validate_order_count,
+        Columns.PHONE: _format_and_validate_phone,
+        Columns.STOP_NO: _format_and_validate_stop_no,
     }
     for column in columns:
         formatter_fx: Callable
@@ -95,19 +94,19 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
 # int: > 0
 
 
-def _format_address_column(df: pd.DataFrame) -> None:
+def _format_and_validate_address(df: pd.DataFrame) -> None:
     """Format the address column."""
     # Avoid modifying values until we need to. Mostly established values used in Circuit.
     # Will hold off on validation/formatting until we've swallowed more of the process
     # and are starting to map etc.
-    _format_string_column(df=df, column=Columns.ADDRESS)
+    _format_string(df=df, column=Columns.ADDRESS)
     _validate_col_not_empty(df=df, column=Columns.ADDRESS)
     return
 
 
-def _format_box_type_column(df: pd.DataFrame) -> None:
+def _format_and_validate_box_type(df: pd.DataFrame) -> None:
     """Format the box type column."""
-    _format_and_validate_name_columns(df=df, column=Columns.BOX_TYPE)
+    _format_and_validate_names(df=df, column=Columns.BOX_TYPE)
     # TODO: What about multiple box types for one stop?
     # Split and format each value separately, then rejoin?
     # TODO: Validate: make enum.StrEnum?
@@ -115,15 +114,15 @@ def _format_box_type_column(df: pd.DataFrame) -> None:
 
 
 # TODO: Make this wrap a list formatter to use that for sheet names. Or make sheetnames a df.
-def _format_driver_column(df: pd.DataFrame) -> None:
+def _format_and_validate_driver(df: pd.DataFrame) -> None:
     """Format the driver column."""
-    _format_and_validate_name_columns(df=df, column=Columns.DRIVER)
+    _format_and_validate_names(df=df, column=Columns.DRIVER)
     return
 
 
-def _format_and_validate_email_column(df: pd.DataFrame) -> None:
+def _format_and_validate_email(df: pd.DataFrame) -> None:
     """Format and validate the email column."""
-    _format_string_column(df=df, column=Columns.EMAIL)
+    _format_string(df=df, column=Columns.EMAIL)
 
     formatted_emails = []
     invalid_emails = []
@@ -151,35 +150,35 @@ def _format_and_validate_email_column(df: pd.DataFrame) -> None:
     return
 
 
-def _format_name_column(df: pd.DataFrame) -> None:
+def _format_and_validate_name(df: pd.DataFrame) -> None:
     """Format the name column."""
-    _format_and_validate_name_columns(df=df, column=Columns.NAME)
+    _format_and_validate_names(df=df, column=Columns.NAME)
     return
 
 
-def _format_neighborhood_column(df: pd.DataFrame) -> None:
+def _format_and_validate_neighborhood(df: pd.DataFrame) -> None:
     """Format the neighborhood column."""
-    _format_and_validate_name_columns(df=df, column=Columns.NEIGHBORHOOD)
+    _format_and_validate_names(df=df, column=Columns.NEIGHBORHOOD)
     # TODO: Validate: make enum.StrEnum?
     return
 
 
-def _format_notes_column(df: pd.DataFrame) -> None:
+def _format_notes(df: pd.DataFrame) -> None:
     """Format the notes column."""
-    _format_string_column(df=df, column=Columns.NOTES)
+    _format_string(df=df, column=Columns.NOTES)
     return
 
 
-def _format_order_count_column(df: pd.DataFrame) -> None:
+def _format_and_validate_order_count(df: pd.DataFrame) -> None:
     """Format the order count column."""
-    _format_int_column(df=df, column=Columns.ORDER_COUNT)
-    _validate_order_count_column(df=df)
+    _format_int(df=df, column=Columns.ORDER_COUNT)
+    _validate_order_count(df=df)
     return
 
 
-def _format_and_validate_phone_column(df: pd.DataFrame) -> None:
+def _format_and_validate_phone(df: pd.DataFrame) -> None:
     """Format and validate the phone column."""
-    _format_string_column(df=df, column=Columns.PHONE)
+    _format_string(df=df, column=Columns.PHONE)
     df[Columns.PHONE] = df[Columns.PHONE].apply(lambda x: x[:-2] if x.endswith(".0") else x)
 
     validation_df = df.copy()
@@ -224,43 +223,36 @@ def _format_and_validate_phone_column(df: pd.DataFrame) -> None:
     return
 
 
-def _format_stop_no_column(df: pd.DataFrame) -> None:
+def _format_and_validate_stop_no(df: pd.DataFrame) -> None:
     """Format the stop number column."""
-    _format_int_column(df=df, column=Columns.STOP_NO)
-    _validate_stop_no_column(df=df)
+    _format_int(df=df, column=Columns.STOP_NO)
+    _validate_stop_no(df=df)
     return
 
 
-def _format_and_validate_name_columns(df: pd.DataFrame, column: str) -> None:
+def _format_and_validate_names(df: pd.DataFrame, column: str) -> None:
     """Format a column with names."""
-    _format_string_column(df=df, column=column)
+    _format_string(df=df, column=column)
     _validate_col_not_empty(df=df, column=column)
     # Could use nameparser or str.title(), but neither handles all cases. Some other package?
     df[column] = df[column].apply(lambda name: name.upper())
     return
 
 
-def _format_int_column(df: pd.DataFrame, column: str) -> None:
+def _format_int(df: pd.DataFrame, column: str) -> None:
     """Basic formatting for an integer column."""
-    _strip_whitespace_from_column(df=df, column=column)
+    df[column] = df[column].astype(str).str.strip()
     df[column] = df[column].astype(float).astype(int)
     return
 
 
-def _format_string_column(df: pd.DataFrame, column: str) -> None:
+def _format_string(df: pd.DataFrame, column: str) -> None:
     """Basic formatting for a string column. Note: Casts to string."""
-    _strip_whitespace_from_column(df=df, column=column)
-    # TODO: Other formatting? (e.g., remove special characters)
-    return
-
-
-def _strip_whitespace_from_column(df: pd.DataFrame, column: str) -> None:
-    """Strip whitespace from a column. Note: Casts to string."""
     df[column] = df[column].astype(str).str.strip()
     return
 
 
-def _validate_order_count_column(df: pd.DataFrame) -> None:
+def _validate_order_count(df: pd.DataFrame) -> None:
     """Validate the order count column."""
     _validate_col_not_empty(df=df, column=Columns.ORDER_COUNT)
     _validate_greater_than_zero(df=df, column=Columns.ORDER_COUNT)
@@ -274,7 +266,7 @@ def _validate_order_count_column(df: pd.DataFrame) -> None:
     return
 
 
-def _validate_stop_no_column(df: pd.DataFrame) -> None:
+def _validate_stop_no(df: pd.DataFrame) -> None:
     """Validate the stop number column."""
     _validate_col_not_empty(df=df, column=Columns.STOP_NO)
     _validate_greater_than_zero(df=df, column=Columns.STOP_NO)

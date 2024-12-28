@@ -11,7 +11,7 @@ import pytest
 
 from bfb_delivery.lib.constants import MAX_ORDER_COUNT, Columns
 from bfb_delivery.lib.formatting.data_cleaning import (
-    _validate_stop_no_column,
+    _validate_stop_no,
     format_and_validate_data,
     format_column_names,
 )
@@ -397,7 +397,7 @@ class TestFormatAndValidateData:
                 pytest.raises(
                     ValueError, match=re.escape("Stop numbers are not sorted: [1, 3, 2]")
                 ),
-                _validate_stop_no_column,
+                _validate_stop_no,
             ),
             (
                 pd.DataFrame(

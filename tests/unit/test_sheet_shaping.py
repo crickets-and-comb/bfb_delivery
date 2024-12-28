@@ -14,10 +14,10 @@ from bfb_delivery.cli import format_combined_routes as format_combined_routes_cl
 from bfb_delivery.cli import split_chunked_route as split_chunked_route_cli
 from bfb_delivery.lib.constants import COMBINED_ROUTES_COLUMNS, SPLIT_ROUTE_COLUMNS, Columns
 from bfb_delivery.lib.formatting.data_cleaning import (
-    _format_and_validate_phone_column,
-    _format_box_type_column,
-    _format_name_column,
-    _format_neighborhood_column,
+    _format_and_validate_box_type,
+    _format_and_validate_name,
+    _format_and_validate_neighborhood,
+    _format_and_validate_phone,
 )
 
 N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
@@ -398,19 +398,19 @@ class TestSplitChunkedRoute:
         )
 
         phone_df = full_data[[Columns.PHONE]].copy()
-        _format_and_validate_phone_column(df=phone_df)
+        _format_and_validate_phone(df=phone_df)
         assert phone_df[Columns.PHONE].equals(split_data[Columns.PHONE])
 
         name_df = full_data[[Columns.NAME]].copy()
-        _format_name_column(df=name_df)
+        _format_and_validate_name(df=name_df)
         assert name_df[Columns.NAME].equals(split_data[Columns.NAME])
 
         box_type_df = full_data[[Columns.BOX_TYPE]].copy()
-        _format_box_type_column(df=box_type_df)
+        _format_and_validate_box_type(df=box_type_df)
         assert box_type_df[Columns.BOX_TYPE].equals(split_data[Columns.BOX_TYPE])
 
         neighborhood_df = full_data[[Columns.NEIGHBORHOOD]].copy()
-        _format_neighborhood_column(df=neighborhood_df)
+        _format_and_validate_neighborhood(df=neighborhood_df)
         assert neighborhood_df[Columns.NEIGHBORHOOD].equals(split_data[Columns.NEIGHBORHOOD])
 
     @pytest.mark.parametrize("n_books", [0, -1])
