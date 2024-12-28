@@ -35,6 +35,7 @@ def combine_route_tables(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     with pd.ExcelWriter(output_path) as writer:
+        # TODO: Sort by driver and stop number.
         for path in paths:
             route_df = pd.read_csv(path)
             driver_name = path.stem
@@ -88,6 +89,7 @@ def split_chunked_route(
 
         with pd.ExcelWriter(split_workbook_path) as writer:
             driver_set_df = chunked_sheet[chunked_sheet[Columns.DRIVER].isin(driver_set)]
+            # TODO: Sort by driver and stop number.
             for driver_name, data in driver_set_df.groupby(Columns.DRIVER):
                 data[SPLIT_ROUTE_COLUMNS].to_excel(
                     writer, sheet_name=str(driver_name), index=False
@@ -113,6 +115,7 @@ def format_combined_routes(
     output_path = Path(output_dir) / output_filename
 
     with pd.ExcelWriter(output_path) as writer, pd.ExcelFile(input_path) as xls:
+        # TODO: Sort by driver.
         for sheet_name in xls.sheet_names:
             driver_name = str(sheet_name)
             route_df = pd.read_excel(xls, driver_name)

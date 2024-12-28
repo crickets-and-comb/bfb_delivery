@@ -66,6 +66,8 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
             raise ValueError(f"No formatter found for column: {column}.") from e
         formatter_fx(df=df)
 
+    # TODO: Sort by driver and stop number if avaialable.
+
     return
 
 
