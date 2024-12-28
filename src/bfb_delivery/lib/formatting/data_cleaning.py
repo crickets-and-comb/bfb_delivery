@@ -46,6 +46,9 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
     if missing_columns:
         raise ValueError(f"Columns not found in DataFrame: {missing_columns}.")
 
+    # TODO: Pre-Validate:
+    # ints actually integers and not something that gets cast to an int (beautfulsoup?)
+
     # TODO: Could use generic or class? But, this works, and is flexible and transparent.
     # TODO: Could remove smurf typing (_column), but wait to see if using lambdas etc.
     formatters_dict = {
@@ -160,14 +163,7 @@ def _format_phone_column(df: pd.DataFrame) -> None:
 def _format_stop_no_column(df: pd.DataFrame) -> None:
     """Format the stop number column."""
     _format_int_column(df=df, column=Columns.STOP_NO)
-    # TODO: Validate:
-    # > 0
-    # unique
-    # no gaps
-    # starts at 1
-    # sorted
-    # actually integers and not something that gets cast to an int
-    # etc.?
+    _validate_stop_no_column(df=df)
     return
 
 
@@ -201,6 +197,25 @@ def _validate_order_count_column(df: pd.DataFrame) -> None:
         raise ValueError(
             f"Order count exceeds maximum of {MAX_ORDER_COUNT}: " f"{too_many_orders_df}"
         )
+
+    return
+
+
+def _validate_stop_no_column(df: pd.DataFrame) -> None:
+    """Validate the stop number column."""
+    _validate_col_not_empty(df=df, column=Columns.STOP_NO)
+    _validate_greater_than_zero(df=df, column=Columns.STOP_NO)
+
+    duplicates_df = df[df.duplicated(subset=[Columns.STOP_NO], keep=False)]
+    if not duplicates_df.empty:
+        raise ValueError(f"Duplicate stop numbers found: {duplicates_df}")
+
+    stop_numbers = df[Columns.STOP_NO].to_list()
+    if sorted(stop_numbers) != list(range(1, len(stop_numbers) + 1)):
+        raise ValueError(f"Stop numbers are not contiguous starting at 1: {stop_numbers}")
+
+    if stop_numbers != sorted(stop_numbers):
+        raise ValueError(f"Stop numbers are not sorted: {stop_numbers}")
 
     return
 

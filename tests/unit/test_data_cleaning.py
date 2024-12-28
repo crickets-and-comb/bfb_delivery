@@ -1,6 +1,7 @@
 """Unit tests for the data_cleaning module."""
 
 import re
+from collections.abc import Callable
 from contextlib import AbstractContextManager, nullcontext
 
 import pandas as pd
@@ -8,6 +9,7 @@ import pytest
 
 from bfb_delivery.lib.constants import MAX_ORDER_COUNT, Columns
 from bfb_delivery.lib.formatting.data_cleaning import (
+    _validate_stop_no_column,
     format_and_validate_data,
     format_column_names,
 )
@@ -178,37 +180,96 @@ class TestFormatAndValidateData:
             format_and_validate_data(df=df, columns=columns)
 
     @pytest.mark.parametrize(
-        "df, expected_error_context",
+        "df, expected_error_context, validating_function",
         [
             (
                 pd.DataFrame({Columns.ORDER_COUNT: [None]}),
                 pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.ORDER_COUNT: [""]}),
                 pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.ORDER_COUNT: [-1]}),
                 pytest.raises(
                     ValueError,
-                    match=re.escape(
+                    match=(
                         "Values less than or equal to zero found in "
                         f"{Columns.ORDER_COUNT} column: "
                     ),
                 ),
+                format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.ORDER_COUNT: [MAX_ORDER_COUNT + 1]}),
                 pytest.raises(
-                    ValueError,
-                    match=re.escape(f"Order count exceeds maximum of {MAX_ORDER_COUNT}: "),
+                    ValueError, match=f"Order count exceeds maximum of {MAX_ORDER_COUNT}: "
                 ),
+                format_and_validate_data,
+            ),
+            (
+                pd.DataFrame({Columns.STOP_NO: [None]}),
+                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                format_and_validate_data,
+            ),
+            (
+                pd.DataFrame({Columns.STOP_NO: [""]}),
+                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                format_and_validate_data,
+            ),
+            (
+                pd.DataFrame({Columns.STOP_NO: [-1]}),
+                pytest.raises(
+                    ValueError,
+                    match=(
+                        "Values less than or equal to zero found in "
+                        f"{Columns.STOP_NO} column: "
+                    ),
+                ),
+                format_and_validate_data,
+            ),
+            (
+                pd.DataFrame({Columns.STOP_NO: [1, 1]}),
+                pytest.raises(ValueError, match="Duplicate stop numbers found: "),
+                format_and_validate_data,
+            ),
+            (
+                pd.DataFrame({Columns.STOP_NO: [1, 2, 4]}),
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(
+                        "Stop numbers are not contiguous starting at 1: [1, 2, 4]"
+                    ),
+                ),
+                format_and_validate_data,
+            ),
+            (
+                pd.DataFrame({Columns.STOP_NO: [2, 3, 4]}),
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(
+                        "Stop numbers are not contiguous starting at 1: [2, 3, 4]"
+                    ),
+                ),
+                format_and_validate_data,
+            ),
+            (
+                pd.DataFrame({Columns.STOP_NO: [1, 3, 2]}),
+                pytest.raises(
+                    ValueError, match=re.escape("Stop numbers are not sorted: [1, 3, 2]")
+                ),
+                _validate_stop_no_column,
             ),
         ],
     )
     def test_validations(
-        self, df: pd.DataFrame, expected_error_context: AbstractContextManager
+        self,
+        df: pd.DataFrame,
+        expected_error_context: AbstractContextManager,
+        validating_function: Callable,
     ) -> None:
         """Test validations."""
         with expected_error_context:
