@@ -49,7 +49,7 @@ class TestFormatAndValidateData:
             (Columns.NEIGHBORHOOD, ["York", "York", "York", "York", "York"]),
         ],
     )
-    def test_format_and_validate_data(self, column_name: str, expected_values: list) -> None:
+    def test_format_data(self, column_name: str, expected_values: list) -> None:
         """Test formatting and validating data."""
         # TODO: Pull this out into a class-scoped fixture to avoid repeated calls.
         columns = [
@@ -99,7 +99,7 @@ class TestFormatAndValidateData:
                     "Charlie",
                     "789 Oak St",
                     "555-9012",
-                    "we@me.com",
+                    "we@mE.cOm",  # Test domain case formatting.
                     "",
                     1.0,  # Test cast float.
                     "Basic",
