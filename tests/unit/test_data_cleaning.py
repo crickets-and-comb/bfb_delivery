@@ -45,6 +45,7 @@ class TestFormatAndValidateData:
         """Test formatting and validating data."""
         # TODO: Pull this out into a class-scoped fixture to avoid repeated calls.
         columns = [
+            Columns.DRIVER,
             Columns.STOP_NO,
             Columns.NAME,
             Columns.ADDRESS,
@@ -60,19 +61,32 @@ class TestFormatAndValidateData:
             data=[
                 # TODO: As formatting is implemented, add/update rows and comment
                 # what formatting is under test.
-                (1, "Alice", "123 Main St", "555-1234", "me@me.com", "", 1, "Basic", "York"),
                 (
-                    " 2 ",  # Test trimming whitespace.
-                    "Bob ",  # Test trimming whitespace.
-                    " 456 Elm St",  # Test trimming whitespace.
-                    " 555-5678 ",  # Test trimming whitespace.
-                    "you@me.com ",  # Test trimming whitespace.
-                    " Drop the box.",  # Test trimming whitespace.
-                    "1 ",  # Test trimming whitespace.
-                    " Basic ",  # Test trimming whitespace.
-                    " York",  # Test trimming whitespace.
+                    "Driver",
+                    1,
+                    "Alice",
+                    "123 Main St",
+                    "555-1234",
+                    "me@me.com",
+                    "",
+                    1,
+                    "Basic",
+                    "York",
                 ),
                 (
+                    " Driver",  # Test stripping whitespace.
+                    " 2 ",  # Test stripping whitespace.
+                    "Bob ",  # Test stripping whitespace.
+                    " 456 Elm St",  # Test stripping whitespace.
+                    " 555-5678 ",  # Test stripping whitespace.
+                    "you@me.com ",  # Test stripping whitespace.
+                    " Drop the box.",  # Test stripping whitespace.
+                    "1 ",  # Test stripping whitespace.
+                    " Basic ",  # Test stripping whitespace.
+                    " York",  # Test stripping whitespace.
+                ),
+                (
+                    "Driver",
                     3.0,  # Test cast float.
                     "Charlie",
                     "789 Oak St",
@@ -84,6 +98,7 @@ class TestFormatAndValidateData:
                     "York",
                 ),
                 (
+                    "Driver",
                     "4.0 ",  # Test cast str float.
                     "David",
                     "1011 Pine St",
