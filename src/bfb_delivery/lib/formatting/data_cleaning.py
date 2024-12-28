@@ -120,6 +120,7 @@ def _format_box_type_column(df: pd.DataFrame) -> None:
 def _format_driver_column(df: pd.DataFrame) -> None:
     """Format the driver column."""
     _format_name_columns(df=df, column=Columns.DRIVER)
+    _validate_col_not_empty(df=df, column=Columns.DRIVER)
     return
 
 
