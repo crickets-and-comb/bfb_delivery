@@ -97,15 +97,17 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
 
 def _format_address_column(df: pd.DataFrame) -> None:
     """Format the address column."""
+    # Avoid modifying values until we need to. Mostly established values used in Circuit.
+    # Will hold off on validation/formatting until we've swallowed more of the process
+    # and are starting to map etc.
     _format_string_column(df=df, column=Columns.ADDRESS)
-    # TODO: Other formatting?
-    # TODO: Validate: Use some package or something?
     return
 
 
 def _format_box_type_column(df: pd.DataFrame) -> None:
     """Format the box type column."""
     _format_string_column(df=df, column=Columns.BOX_TYPE)
+    df[Columns.BOX_TYPE] = df[Columns.BOX_TYPE].apply(lambda x: x.upper())
     # TODO: What about multiple box types for one stop?
     # Split and format each value separately, then rejoin?
     # TODO: Validate: make enum.StrEnum?

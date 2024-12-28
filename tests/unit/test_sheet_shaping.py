@@ -15,6 +15,7 @@ from bfb_delivery.cli import split_chunked_route as split_chunked_route_cli
 from bfb_delivery.lib.constants import COMBINED_ROUTES_COLUMNS, SPLIT_ROUTE_COLUMNS, Columns
 from bfb_delivery.lib.formatting.data_cleaning import (
     _format_and_validate_phone_column,
+    _format_box_type_column,
     _format_name_column,
 )
 
@@ -386,7 +387,7 @@ class TestSplitChunkedRoute:
 
         # Hacky, but need to make sure formatted values haven't fundamentally changed.
         cols_without_formatting = [
-            col for col in cols if col not in [Columns.PHONE, Columns.NAME]
+            col for col in cols if col not in [Columns.PHONE, Columns.NAME, Columns.BOX_TYPE]
         ]
         pd.testing.assert_frame_equal(
             full_data[cols_without_formatting], split_data[cols_without_formatting]
@@ -399,6 +400,10 @@ class TestSplitChunkedRoute:
         name_df = full_data[[Columns.NAME]].copy()
         _format_name_column(df=name_df)
         assert name_df[Columns.NAME].equals(split_data[Columns.NAME])
+
+        box_type_df = full_data[[Columns.BOX_TYPE]].copy()
+        _format_box_type_column(df=box_type_df)
+        assert box_type_df[Columns.BOX_TYPE].equals(split_data[Columns.BOX_TYPE])
 
     @pytest.mark.parametrize("n_books", [0, -1])
     def test_invalid_n_books(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
