@@ -4,6 +4,8 @@ from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
+from openpyxl import load_workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
 from typeguard import typechecked
 
 from bfb_delivery.lib.constants import (
@@ -121,8 +123,8 @@ def format_combined_routes(
     )
     output_path = Path(output_dir) / output_filename
 
-    with pd.ExcelWriter(output_path) as writer, pd.ExcelFile(input_path) as xls:
-        # TODO: Sort by driver.
+    with pd.ExcelFile(input_path) as xls:
+        wb = load_workbook(input_path)
         for sheet_name in xls.sheet_names:
             driver_name = str(sheet_name)
             route_df = pd.read_excel(xls, driver_name)
@@ -138,15 +140,25 @@ def format_combined_routes(
 
             # agg_dict = _aggregate_route_data(df=route_df)
 
+            ws = wb[driver_name]
+            for row in ws.iter_rows():
+                for cell in row:
+                    cell.value = None
+            for r_idx, row in enumerate(
+                dataframe_to_rows(route_df, index=False, header=True), start=1
+            ):
+                for c_idx, value in enumerate(row, start=1):
+                    ws.cell(row=r_idx, column=c_idx, value=value)
+
             # TODO: Add aggregate cells.
             # TODO: Add header cells.
             # TODO: Add driver name cell.
             # TODO: Add date cell.
             # TODO: Add date to sheet name.
             # TODO: Color code data.
-            route_df[COMBINED_ROUTES_COLUMNS].to_excel(
-                excel_writer=writer, sheet_name=driver_name, index=False
-            )
+            # TODO: Sort sheets.
+
+        wb.save(output_path)
 
     return output_path.resolve()
 
