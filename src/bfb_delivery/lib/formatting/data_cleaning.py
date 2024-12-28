@@ -30,6 +30,7 @@ def format_column_names(columns: list[str]) -> list[str]:
     return columns
 
 
+@typechecked
 def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
     """Clean, format, and validate selected columns in a DataFrame.
 
@@ -86,6 +87,7 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
     return
 
 
+@typechecked
 def _format_and_validate_address(df: pd.DataFrame) -> None:
     """Format the address column."""
     # Avoid modifying values until we need to. Mostly established values used in Circuit.
@@ -96,6 +98,7 @@ def _format_and_validate_address(df: pd.DataFrame) -> None:
     return
 
 
+@typechecked
 def _format_and_validate_box_type(df: pd.DataFrame) -> None:
     """Format the box type column."""
     _format_and_validate_names(df=df, column=Columns.BOX_TYPE)
@@ -106,12 +109,14 @@ def _format_and_validate_box_type(df: pd.DataFrame) -> None:
 
 
 # TODO: Make this wrap a list formatter to use that for sheet names. Or make sheetnames a df.
+@typechecked
 def _format_and_validate_driver(df: pd.DataFrame) -> None:
     """Format the driver column."""
     _format_and_validate_names(df=df, column=Columns.DRIVER)
     return
 
 
+@typechecked
 def _format_and_validate_email(df: pd.DataFrame) -> None:
     """Format and validate the email column."""
     _format_string(df=df, column=Columns.EMAIL)
@@ -142,12 +147,14 @@ def _format_and_validate_email(df: pd.DataFrame) -> None:
     return
 
 
+@typechecked
 def _format_and_validate_name(df: pd.DataFrame) -> None:
     """Format the name column."""
     _format_and_validate_names(df=df, column=Columns.NAME)
     return
 
 
+@typechecked
 def _format_and_validate_neighborhood(df: pd.DataFrame) -> None:
     """Format the neighborhood column."""
     _format_and_validate_names(df=df, column=Columns.NEIGHBORHOOD)
@@ -155,12 +162,14 @@ def _format_and_validate_neighborhood(df: pd.DataFrame) -> None:
     return
 
 
+@typechecked
 def _format_notes(df: pd.DataFrame) -> None:
     """Format the notes column."""
     _format_string(df=df, column=Columns.NOTES)
     return
 
 
+@typechecked
 def _format_and_validate_order_count(df: pd.DataFrame) -> None:
     """Format the order count column."""
     _format_int(df=df, column=Columns.ORDER_COUNT)
@@ -168,6 +177,7 @@ def _format_and_validate_order_count(df: pd.DataFrame) -> None:
     return
 
 
+@typechecked
 def _format_and_validate_phone(df: pd.DataFrame) -> None:
     """Format and validate the phone column."""
     _format_string(df=df, column=Columns.PHONE)
@@ -215,6 +225,7 @@ def _format_and_validate_phone(df: pd.DataFrame) -> None:
     return
 
 
+@typechecked
 def _format_and_validate_stop_no(df: pd.DataFrame) -> None:
     """Format the stop number column."""
     _format_int(df=df, column=Columns.STOP_NO)
@@ -222,6 +233,7 @@ def _format_and_validate_stop_no(df: pd.DataFrame) -> None:
     return
 
 
+@typechecked
 def _format_and_validate_names(df: pd.DataFrame, column: str) -> None:
     """Format a column with names."""
     _format_string(df=df, column=column)
@@ -231,6 +243,7 @@ def _format_and_validate_names(df: pd.DataFrame, column: str) -> None:
     return
 
 
+@typechecked
 def _format_int(df: pd.DataFrame, column: str) -> None:
     """Basic formatting for an integer column."""
     df[column] = df[column].astype(str).str.strip()
@@ -238,12 +251,14 @@ def _format_int(df: pd.DataFrame, column: str) -> None:
     return
 
 
+@typechecked
 def _format_string(df: pd.DataFrame, column: str) -> None:
     """Basic formatting for a string column. Note: Casts to string."""
     df[column] = df[column].astype(str).str.strip()
     return
 
 
+@typechecked
 def _validate_order_count(df: pd.DataFrame) -> None:
     """Validate the order count column."""
     _validate_col_not_empty(df=df, column=Columns.ORDER_COUNT)
@@ -258,6 +273,7 @@ def _validate_order_count(df: pd.DataFrame) -> None:
     return
 
 
+@typechecked
 def _validate_stop_no(df: pd.DataFrame) -> None:
     """Validate the stop number column."""
     _validate_col_not_empty(df=df, column=Columns.STOP_NO)
@@ -277,6 +293,7 @@ def _validate_stop_no(df: pd.DataFrame) -> None:
     return
 
 
+@typechecked
 def _validate_col_not_empty(df: pd.DataFrame, column: str) -> None:
     """No nulls or empty strings in column."""
     null_df = df[df[column].isnull()]
@@ -290,6 +307,7 @@ def _validate_col_not_empty(df: pd.DataFrame, column: str) -> None:
     return
 
 
+@typechecked
 def _validate_greater_than_zero(df: pd.DataFrame, column: str) -> None:
     """Validate column is greater than zero."""
     negative_df = df[df[column] <= 0]
