@@ -52,6 +52,8 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
     # TODO: Pre-Validate:
     # ints actually integers and not something that gets cast to an int (beautfulsoup?)
 
+    df.fillna("", inplace=True)
+
     # TODO: Could use generic or class? But, this works, and is flexible and transparent.
     # TODO: Could remove smurf typing (_column), but wait to see if using lambdas etc.
     formatters_dict = {
@@ -74,7 +76,7 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
             raise ValueError(f"No formatter found for column: {column}.") from e
         formatter_fx(df=df)
 
-    # TODO: Sort by driver and stop number if avaailable.
+    # TODO: Sort by driver and stop number if available.
 
     # TODO: Split validation into second step so we can test validations.
 
@@ -182,6 +184,7 @@ def _format_and_validate_phone_column(df: pd.DataFrame) -> None:
         phonenumbers.parse(number) if len(number) > 0 else number
         for number in validation_df["formatted_numbers"].to_list()
     ]
+
     validation_df["is_valid"] = validation_df["formatted_numbers"].apply(
         lambda number: phonenumbers.is_valid_number(number)
     )
