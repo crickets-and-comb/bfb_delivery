@@ -451,12 +451,22 @@ class TestFormatAndValidateData:
                 format_and_validate_data,
             ),
             (
-                pd.DataFrame({Columns.BOX_TYPE: [None]}),
+                pd.DataFrame({Columns.DRIVER: [None]}),
                 pytest.raises(ValueError),  # Actually, throws error when casting to string.
                 format_and_validate_data,
             ),
             (
-                pd.DataFrame({Columns.BOX_TYPE: [""]}),
+                pd.DataFrame({Columns.DRIVER: [""]}),
+                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                format_and_validate_data,
+            ),
+            (
+                pd.DataFrame({Columns.NAME: [None]}),
+                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                format_and_validate_data,
+            ),
+            (
+                pd.DataFrame({Columns.NAME: [""]}),
                 pytest.raises(ValueError),  # Actually, throws error when casting to string.
                 format_and_validate_data,
             ),
