@@ -99,6 +99,8 @@ class TestFormatAndValidateData:
                     "Charlie",
                     "789 Oak St",
                     "555-9012",
+                    # TODO: File issue with email_validator.
+                    # Examples claim spaces are removed from domains.
                     "we@mE.cOm",  # Test domain case formatting.
                     "",
                     1.0,  # Test cast float.
