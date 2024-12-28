@@ -107,9 +107,7 @@ def _format_address_column(df: pd.DataFrame) -> None:
 
 def _format_box_type_column(df: pd.DataFrame) -> None:
     """Format the box type column."""
-    _format_string_column(df=df, column=Columns.BOX_TYPE)
-    _validate_col_not_empty(df=df, column=Columns.BOX_TYPE)
-    df[Columns.BOX_TYPE] = df[Columns.BOX_TYPE].apply(lambda x: x.upper())
+    _format_and_validate_name_columns(df=df, column=Columns.BOX_TYPE)
     # TODO: What about multiple box types for one stop?
     # Split and format each value separately, then rejoin?
     # TODO: Validate: make enum.StrEnum?
