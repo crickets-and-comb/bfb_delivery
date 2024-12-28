@@ -101,6 +101,7 @@ def _format_address_column(df: pd.DataFrame) -> None:
     # Will hold off on validation/formatting until we've swallowed more of the process
     # and are starting to map etc.
     _format_string_column(df=df, column=Columns.ADDRESS)
+    _validate_col_not_empty(df=df, column=Columns.ADDRESS)
     return
 
 

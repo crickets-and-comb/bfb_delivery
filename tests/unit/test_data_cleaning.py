@@ -430,6 +430,16 @@ class TestFormatAndValidateData:
             ),
             (pd.DataFrame({Columns.EMAIL: [""]}), nullcontext(), format_and_validate_data),
             (pd.DataFrame({Columns.PHONE: [""]}), nullcontext(), format_and_validate_data),
+            (
+                pd.DataFrame({Columns.ADDRESS: [None]}),
+                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                format_and_validate_data,
+            ),
+            (
+                pd.DataFrame({Columns.ADDRESS: [""]}),
+                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                format_and_validate_data,
+            ),
         ],
     )
     def test_validations(
