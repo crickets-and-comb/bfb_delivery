@@ -393,8 +393,8 @@ class TestFormatAndValidateData:
                 pd.DataFrame(
                     {Columns.EMAIL: ["us@them..com", "u@s@them.com", "us@them.com"]}
                 ),
-                pytest.raises(
-                    ValueError,
+                pytest.warns(
+                    UserWarning,
                     match=re.escape(
                         "Invalid email addresses found: ['us@them..com', 'u@s@them.com']"
                     ),

@@ -139,7 +139,9 @@ def _format_and_validate_email_column(df: pd.DataFrame) -> None:
             formatted_emails.append(formatted_email)
 
     if invalid_emails:
-        raise ValueError(f"Invalid email addresses found: {invalid_emails}")
+        warnings.warn(
+            message=f"Invalid email addresses found: {invalid_emails}", stacklevel=2
+        )
     else:
         df[Columns.EMAIL] = formatted_emails
 
