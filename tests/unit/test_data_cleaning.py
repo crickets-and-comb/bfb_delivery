@@ -52,12 +52,13 @@ class TestFormatAndValidateData:
                     "Driver",
                     "Driver",
                     "Driver",
+                    "Driver",
                 ],
             ),
-            (Columns.STOP_NO, [1, 2, 3, 4, 5, 6, 7, 8]),
+            (Columns.STOP_NO, [1, 2, 3, 4, 5, 6, 7, 8, 9]),
             (
                 Columns.NAME,
-                ["Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Gina", "Hank"],
+                ["Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Gina", "Hank", "Ivy"],
             ),
             (
                 Columns.ADDRESS,
@@ -70,6 +71,7 @@ class TestFormatAndValidateData:
                     "1315 Birch St",
                     "1417 Elm St",
                     "1519 Fir St",
+                    "1619 Elm St",
                 ],
             ),
             (
@@ -83,6 +85,7 @@ class TestFormatAndValidateData:
                     "",
                     "",
                     "",
+                    "+1 360-555-1001",
                 ],
             ),
             (
@@ -96,17 +99,28 @@ class TestFormatAndValidateData:
                     "we@you.com",
                     "me@we.com",
                     "you@we.com",
+                    "we@we.com",
                 ],
             ),
-            (Columns.NOTES, ["", "Drop the box.", "", "", "", "", "", ""]),
-            (Columns.ORDER_COUNT, [1, 1, 1, 1, MAX_ORDER_COUNT, 1, 1, 1]),
+            (Columns.NOTES, ["", "Drop the box.", "", "", "", "", "", "", ""]),
+            (Columns.ORDER_COUNT, [1, 1, 1, 1, MAX_ORDER_COUNT, 1, 1, 1, 1]),
             (
                 Columns.BOX_TYPE,
-                ["Basic", "Basic", "Basic", "Basic", "Basic", "Basic", "Basic", "Basic"],
+                [
+                    "Basic",
+                    "Basic",
+                    "Basic",
+                    "Basic",
+                    "Basic",
+                    "Basic",
+                    "Basic",
+                    "Basic",
+                    "Basic",
+                ],
             ),
             (
                 Columns.NEIGHBORHOOD,
-                ["York", "York", "York", "York", "York", "York", "York", "York"],
+                ["York", "York", "York", "York", "York", "York", "York", "York", "York"],
             ),
         ],
     )
@@ -223,6 +237,18 @@ class TestFormatAndValidateData:
                     "1519 Fir St",
                     " ",  # Test empty white space.
                     "you@we.com",
+                    "",
+                    1,
+                    "Basic",
+                    "York",
+                ),
+                (
+                    "Driver",
+                    9,
+                    "Ivy",
+                    "1619 Elm St",
+                    13605551001.0,  # Test float.
+                    "we@we.com",
                     "",
                     1,
                     "Basic",

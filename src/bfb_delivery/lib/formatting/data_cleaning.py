@@ -178,6 +178,7 @@ def _format_order_count_column(df: pd.DataFrame) -> None:
 def _format_and_validate_phone_column(df: pd.DataFrame) -> None:
     """Format and validate the phone column."""
     _format_string_column(df=df, column=Columns.PHONE)
+    df[Columns.PHONE] = df[Columns.PHONE].apply(lambda x: x[:-2] if x.endswith(".0") else x)
 
     validation_df = df.copy()
     validation_df["formatted_numbers"] = validation_df[Columns.PHONE].apply(
@@ -187,6 +188,7 @@ def _format_and_validate_phone_column(df: pd.DataFrame) -> None:
         phonenumbers.parse(number) if len(number) > 0 else number
         for number in validation_df["formatted_numbers"].to_list()
     ]
+
     validation_df["is_valid"] = validation_df["formatted_numbers"].apply(
         lambda number: (
             phonenumbers.is_valid_number(number)
@@ -194,7 +196,6 @@ def _format_and_validate_phone_column(df: pd.DataFrame) -> None:
             else True
         )
     )
-
     if not validation_df["is_valid"].all():
         invalid_numbers = validation_df[~validation_df["is_valid"]]
         raise ValueError(
