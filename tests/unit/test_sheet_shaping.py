@@ -31,6 +31,7 @@ from bfb_delivery.lib.formatting.sheet_shaping import _aggregate_route_data
 N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
 DRIVERS: Final[list[str]] = [f"Driver {i}" for i in range(1, 10)]
 BOX_TYPES: Final[list[str]] = ["Basic", "GF", "Vegan", "LA"]
+MANIFEST_DATE: Final[str] = "1.1"
 NEIGHBORHOODS: Final[list[str]] = ["York", "Puget", "Samish", "Sehome", "South Hill"]
 
 
@@ -528,6 +529,14 @@ class TestFormatCombinedRoutes:
 
         return output_path
 
+    @pytest.fixture(scope="class")
+    def basic_manifest(self, mock_combined_routes: Path) -> Path:
+        """Create a basic manifest scoped to class for reuse."""
+        output_path = format_combined_routes(
+            input_path=mock_combined_routes, date=MANIFEST_DATE
+        )
+        return output_path
+
     @pytest.mark.parametrize("output_dir_type", [Path, str])
     @pytest.mark.parametrize("output_dir", ["", "dummy_output"])
     def test_set_output_dir(
@@ -612,19 +621,14 @@ class TestFormatCombinedRoutes:
         expected_output_dir = Path(output_dir) if output_dir else mock_combined_routes.parent
         assert (expected_output_dir / expected_output_filename).exists()
 
-    def test_df_is_same(self, mock_combined_routes: Path) -> None:
+    def test_df_is_same(self, mock_combined_routes: Path, basic_manifest: Path) -> None:
         """All the input data is in the formatted workbook."""
-        # TODO: Make this a class-scoped fixture and share with other tests.
-        # Other classes too?
-        date = "1.1"
-        output_path = format_combined_routes(input_path=mock_combined_routes, date=date)
-
         with pd.ExcelFile(mock_combined_routes) as input_xls:
             for sheet_name in sorted(input_xls.sheet_names):
                 input_df = pd.read_excel(input_xls, sheet_name=sheet_name)
                 input_df.sort_values(by=[Columns.STOP_NO], inplace=True)
                 output_df = pd.read_excel(
-                    output_path, sheet_name=f"{date} {sheet_name}", skiprows=8
+                    basic_manifest, sheet_name=f"{MANIFEST_DATE} {sheet_name}", skiprows=8
                 )
 
                 # Hacky, but need to make sure formatted values haven't fundamentally changed.
