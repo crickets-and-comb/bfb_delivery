@@ -254,14 +254,57 @@ def _add_header_row(ws: Worksheet, row_definition: list[dict]) -> None:
 def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: str) -> None:
     """Append left and right blocks to the worksheet row by row."""
     # TODO: Yeah, let's use an enum for box types since the manifest is a contract.
+    # TODO: Add borders around box type counts.
     right_block = [
-        [{"value": None}],
-        [{"value": "BASIC"}, {"value": agg_dict["box_counts"].get("BASIC", 0)}],
-        [{"value": "LA"}, {"value": agg_dict["box_counts"].get("LA", 0)}],
-        [{"value": "GF"}, {"value": agg_dict["box_counts"].get("GF", 0)}],
-        [{"value": "VEGAN"}, {"value": agg_dict["box_counts"].get("VEGAN", 0)}],
-        [{"value": "TOTAL BOX COUNT"}, {"value": agg_dict["total_box_count"]}],
-        [{"value": "PROTEIN COUNT"}, {"value": agg_dict["protein_box_count"]}],
+        [{"value": None, "fill": None}],
+        [
+            {
+                "value": "BASIC",
+                "fill": PatternFill(
+                    start_color=CellColors.BASIC,
+                    end_color=CellColors.BASIC,
+                    fill_type="solid",
+                ),
+            },
+            {"value": agg_dict["box_counts"].get("BASIC", 0), "fill": None},
+        ],
+        [
+            {
+                "value": "LA",
+                "fill": PatternFill(
+                    start_color=CellColors.LA, end_color=CellColors.LA, fill_type="solid"
+                ),
+            },
+            {"value": agg_dict["box_counts"].get("LA", 0), "fill": None},
+        ],
+        [
+            {
+                "value": "GF",
+                "fill": PatternFill(
+                    start_color=CellColors.GF, end_color=CellColors.GF, fill_type="solid"
+                ),
+            },
+            {"value": agg_dict["box_counts"].get("GF", 0), "fill": None},
+        ],
+        [
+            {
+                "value": "VEGAN",
+                "fill": PatternFill(
+                    start_color=CellColors.VEGAN,
+                    end_color=CellColors.VEGAN,
+                    fill_type="solid",
+                ),
+            },
+            {"value": agg_dict["box_counts"].get("VEGAN", 0), "fill": None},
+        ],
+        [
+            {"value": "TOTAL BOX COUNT", "fill": None},
+            {"value": agg_dict["total_box_count"], "fill": None},
+        ],
+        [
+            {"value": "PROTEIN COUNT", "fill": None},
+            {"value": agg_dict["protein_box_count"], "fill": None},
+        ],
     ]
 
     left_block = [
@@ -290,6 +333,8 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
             cell = ws.cell(row=i, column=col_idx, value=cell_definition["value"])
             cell.font = bold_font
             cell.alignment = alignment_right
+            if isinstance(cell_definition["fill"], PatternFill):
+                cell.fill = cell_definition["fill"]
 
 
 @typechecked

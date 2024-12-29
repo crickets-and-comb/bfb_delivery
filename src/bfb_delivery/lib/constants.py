@@ -8,11 +8,11 @@ from typing import Final
 class CellColors:
     """Colors for spreadsheet formatting."""
 
-    BASIC: Final[str] = "FFA500"  # Orange
-    HEADER: Final[str] = "FFC0CB"  # Pink
-    LA: Final[str] = "0000FF"  # Blue
-    GF: Final[str] = "008000"  # Green
-    VEGAN: Final[str] = "808080"  # Grey
+    BASIC: Final[str] = "FFCC00"  # Orange
+    HEADER: Final[str] = "FFCCCC"  # Pink
+    LA: Final[str] = "3399CC"  # Blue
+    GF: Final[str] = "99CC33"  # Green
+    VEGAN: Final[str] = "CCCCCC"  # Grey
 
 
 class Columns:
