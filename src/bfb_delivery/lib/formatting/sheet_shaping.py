@@ -164,22 +164,13 @@ def format_combined_routes(
             # If that's so, ignore it or validate always a 1?
 
             ws = wb.create_sheet(title=new_sheet_name, index=sheet_idx)
-
-            # TODO: Wrap in a function for tidiness and testing, `_make_manifest`
-            # TODO: Test final sheet from `format_combined_routes`, and from `_make_manifest`,
-            # and test each helper.
-            _add_header_row(ws=ws)
-            neighborhoods_row_number = _add_aggregate_block(
-                ws=ws, agg_dict=agg_dict, date=date, driver_name=driver_name
+            _make_manifest_sheet(
+                ws=ws,
+                agg_dict=agg_dict,
+                route_df=route_df,
+                date=date,
+                driver_name=driver_name,
             )
-            df_start_row = _write_data_to_sheet(ws=ws, df=route_df)
-            _auto_adjust_column_widths(ws=ws, df_start_row=df_start_row)
-            _word_wrap_notes_column(ws=ws)
-            _merge_and_wrap_neighborhoods(
-                ws=ws, neighborhoods_row_number=neighborhoods_row_number
-            )
-            # TODO: Set print_area (Use calculate_dimensions)
-            # TODO: set_printer_settings(paper_size, orientation)
 
     # TODO: Write a test that at least checks that the sheets are not empty.
     # Can check cell values, though. (Maye read dataframe from start row?)
@@ -208,6 +199,23 @@ def _aggregate_route_data(df: pd.DataFrame) -> dict:
     }
 
     return agg_dict
+
+
+@typechecked
+def _make_manifest_sheet(
+    ws: Worksheet, agg_dict: dict, route_df: pd.DataFrame, date: str, driver_name: str
+) -> None:
+    """Create a manifest sheet."""
+    _add_header_row(ws=ws)
+    neighborhoods_row_number = _add_aggregate_block(
+        ws=ws, agg_dict=agg_dict, date=date, driver_name=driver_name
+    )
+    df_start_row = _write_data_to_sheet(ws=ws, df=route_df)
+    _auto_adjust_column_widths(ws=ws, df_start_row=df_start_row)
+    _word_wrap_notes_column(ws=ws)
+    _merge_and_wrap_neighborhoods(ws=ws, neighborhoods_row_number=neighborhoods_row_number)
+    # TODO: Set print_area (Use calculate_dimensions)
+    # TODO: set_printer_settings(paper_size, orientation)
 
 
 @typechecked
