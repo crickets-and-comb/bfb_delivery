@@ -28,6 +28,7 @@ from bfb_delivery.lib.formatting.data_cleaning import (
 )
 
 
+# TODO: Do we need to add the date to the sheet name at this stage before Circuit upload?
 # TODO: When wrapping in final function, start calling it "make_manifest" or similar.
 # TODO: There's got to be a way to set the docstring as a constant.
 # TODO: Use Pandera.
@@ -142,6 +143,7 @@ def format_combined_routes(
         for sheet_idx, sheet_name in enumerate(sorted(xls.sheet_names)):
 
             driver_name = str(sheet_name)
+            new_sheet_name = f"{date} {driver_name}"
             route_df = pd.read_excel(xls, driver_name)
 
             # TODO: Use Pandera?
@@ -161,7 +163,9 @@ def format_combined_routes(
             # Oh wait, they're all 1s, so is that just a way for them to count them with sum?
             # If that's so, ignore it or validate always a 1?
 
-            ws = wb.create_sheet(title=driver_name, index=sheet_idx)
+            ws = wb.create_sheet(title=new_sheet_name, index=sheet_idx)
+
+            # TODO: Wrap in a function for tidiness?
             _add_header_row(ws=ws)
             neighborhoods_row_number = _add_aggregate_block(
                 ws=ws, agg_dict=agg_dict, date=date, driver_name=driver_name
@@ -172,7 +176,6 @@ def format_combined_routes(
             _merge_and_wrap_neighborhoods(
                 ws=ws, neighborhoods_row_number=neighborhoods_row_number
             )
-            # TODO: Add date to sheet name.
             # TODO: Set print_area (Use calculate_dimensions)
             # TODO: set_printer_settings(paper_size, orientation)
             # TODO: Test that default date works. (When writing cell/sheet tests.)

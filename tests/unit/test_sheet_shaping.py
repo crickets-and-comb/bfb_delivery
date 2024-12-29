@@ -551,11 +551,26 @@ class TestFormatCombinedRoutes:
         )
         assert output_path.name == expected_output_filename
 
-    def test_all_drivers_have_a_sheet(self, mock_combined_routes: Path) -> None:
-        """Test that all drivers have a sheet in the formatted workbook."""
-        output_path = format_combined_routes(input_path=mock_combined_routes)
+    @pytest.mark.parametrize(
+        "date, expected_date",
+        [
+            ("", datetime.now().strftime("%m.%d")),
+            (None, "Dummy date"),
+            ("Dummy date", "Dummy date"),
+        ],
+    )
+    def test_all_drivers_have_a_sheet(
+        self, mock_combined_routes: Path, date: str | None, expected_date: str
+    ) -> None:
+        """Test that all drivers have a sheet in the formatted workbook. And date works."""
+        sheet_names = set([f"{expected_date} {driver}" for driver in DRIVERS])
+        kwargs: dict[str, str | Path] = {"input_path": mock_combined_routes}
+        if date is not None:
+            kwargs["date"] = date
+
+        output_path = format_combined_routes(**kwargs)
         workbook = pd.ExcelFile(output_path)
-        assert set(workbook.sheet_names) == set(DRIVERS)
+        assert set(workbook.sheet_names) == sheet_names
 
     @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
