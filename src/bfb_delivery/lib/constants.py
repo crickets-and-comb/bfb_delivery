@@ -53,6 +53,8 @@ FORMATTED_ROUTES_COLUMNS: Final[list[str]] = [
 
 MAX_ORDER_COUNT: Final[int] = 5
 
+NOTES_COLUMN_WIDTH: Final[float] = 56.67
+
 PROTEIN_BOX_TYPES: Final[list[str]] = ["BASIC", "GF", "LA"]
 
 SPLIT_ROUTE_COLUMNS: Final[list[str]] = [

@@ -14,6 +14,7 @@ from typeguard import typechecked
 from bfb_delivery.lib.constants import (
     COMBINED_ROUTES_COLUMNS,
     FORMATTED_ROUTES_COLUMNS,
+    NOTES_COLUMN_WIDTH,
     PROTEIN_BOX_TYPES,
     SPLIT_ROUTE_COLUMNS,
     CellColors,
@@ -162,7 +163,9 @@ def format_combined_routes(
             _add_aggregate_block(ws=ws, agg_dict=agg_dict, date=date, driver_name=driver_name)
             df_start_row = _write_data_to_sheet(ws=ws, df=route_df)
             _auto_adjust_column_widths(ws=ws, df_start_row=df_start_row)
-            # TODO: Word wrap notes (and neighborhoods?)
+            _word_wrap_notes_column(ws=ws)
+            # TODO: Word wrap neighborhoods. (Merge with next two cells)
+            # TODO: Color code boxt types.
             # TODO: Add date to sheet name.
             # TODO: Append and format as we go instead.
             # TODO: Set print_area (Use calculate_dimensions)
@@ -395,27 +398,29 @@ def _write_data_to_sheet(ws: Worksheet, df: pd.DataFrame) -> int:
 def _auto_adjust_column_widths(ws: Worksheet, df_start_row: int) -> None:
     """Auto-adjust column widths to fit the dataframe."""
     for col in ws.columns:
-        width = 0
+        max_length = 0
 
         col_letter = col[0].column_letter
-        if col_letter == "E":
-            width = 56.67
-        else:
-            max_length = 0
-            padding_scalar = 0.9 if col_letter == "C" else 1  # C is address column.
-            for cell in col:
-                if cell.row >= df_start_row:
-                    try:
-                        if cell.value:
-                            max_length = max(
-                                max_length, len(str(cell.value)) * padding_scalar
-                            )
-                    except Exception as e:
-                        warnings.warn(
-                            f"Error while adjusting column widths: {e}", stacklevel=2
-                        )
-            width = max(8, round(max_length))
+        padding_scalar = 0.9 if col_letter == "C" else 1  # C is address column.
+        for cell in col:
+            if cell.row >= df_start_row:
+                try:
+                    if cell.value:
+                        max_length = max(max_length, len(str(cell.value)) * padding_scalar)
+                except Exception as e:
+                    warnings.warn(f"Error while adjusting column widths: {e}", stacklevel=2)
 
-        ws.column_dimensions[col_letter].width = width
+        ws.column_dimensions[col_letter].width = max(8, round(max_length))
+
+    return
+
+
+@typechecked
+def _word_wrap_notes_column(ws: Worksheet) -> None:
+    """Word wrap the notes column, and set width."""
+    col_letter = "E"
+    ws.column_dimensions[col_letter].width = NOTES_COLUMN_WIDTH
+    for cell in ws[f"{col_letter}"]:
+        cell.alignment = Alignment(wrap_text=True)
 
     return
