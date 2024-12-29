@@ -146,7 +146,6 @@ def format_combined_routes(
             # Also, may not make the most sense in order of apt number. Ask team.
             route_df.sort_values(by=[Columns.STOP_NO], inplace=True)
 
-            # TODO: Aggregate neighborhoods.
             # agg_dict = _aggregate_route_data(df=route_df)
             # TODO: !! What happens when there are more than one order for a stop? Two rows?
             # (Since order count column is dropped in manifest)
@@ -190,6 +189,7 @@ def _aggregate_route_data(df: pd.DataFrame) -> dict:
         "protein_box_count": df[df[Columns.BOX_TYPE].isin(PROTEIN_BOX_TYPES)][
             Columns.BOX_COUNT
         ].sum(),
+        "neighborhoods": df[Columns.NEIGHBORHOOD].unique().tolist(),
     }
     return agg_dict
 
