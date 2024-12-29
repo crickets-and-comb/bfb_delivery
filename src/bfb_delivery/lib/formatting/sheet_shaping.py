@@ -29,40 +29,6 @@ from bfb_delivery.lib.formatting.data_cleaning import (
 
 
 # TODO: When wrapping in final function, start calling it "make_manifest" or similar.
-# TODO: Reoganize functions for workflow order.
-# TODO: Get real input tables to verify this works.
-# (Should match structure of split_chunked_route outputs.)
-# TODO: Validate stop numbers?
-@typechecked
-def combine_route_tables(
-    input_paths: list[Path | str], output_dir: Path | str, output_filename: str
-) -> Path:
-    """See public docstring: :py:func:`bfb_delivery.api.public.combine_route_tables`."""
-    if len(input_paths) == 0:
-        raise ValueError("input_paths must have at least one path.")
-
-    paths = [Path(path) for path in input_paths]
-    output_dir = Path(output_dir) if output_dir else paths[0].parent
-    output_filename = (
-        f"combined_routes_{datetime.now().strftime('%Y%m%d')}.xlsx"
-        if output_filename == ""
-        else output_filename
-    )
-    output_path = output_dir / output_filename
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    with pd.ExcelWriter(output_path) as writer:
-        # TODO: Sort by driver and stop number.
-        for path in paths:
-            route_df = pd.read_csv(path)
-            driver_name = path.stem
-            route_df[COMBINED_ROUTES_COLUMNS].to_excel(
-                writer, sheet_name=driver_name, index=False
-            )
-
-    return output_path.resolve()
-
-
 # TODO: There's got to be a way to set the docstring as a constant.
 # TODO: Use Pandera.
 # TODO: Switch to or allow CSVs instead of Excel files.
@@ -119,6 +85,39 @@ def split_chunked_route(
     return split_workbook_paths
 
 
+# TODO: Get real input tables to verify this works.
+# (Should match structure of split_chunked_route outputs.)
+# TODO: Validate stop numbers?
+@typechecked
+def combine_route_tables(
+    input_paths: list[Path | str], output_dir: Path | str, output_filename: str
+) -> Path:
+    """See public docstring: :py:func:`bfb_delivery.api.public.combine_route_tables`."""
+    if len(input_paths) == 0:
+        raise ValueError("input_paths must have at least one path.")
+
+    paths = [Path(path) for path in input_paths]
+    output_dir = Path(output_dir) if output_dir else paths[0].parent
+    output_filename = (
+        f"combined_routes_{datetime.now().strftime('%Y%m%d')}.xlsx"
+        if output_filename == ""
+        else output_filename
+    )
+    output_path = output_dir / output_filename
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    with pd.ExcelWriter(output_path) as writer:
+        # TODO: Sort by driver and stop number.
+        for path in paths:
+            route_df = pd.read_csv(path)
+            driver_name = path.stem
+            route_df[COMBINED_ROUTES_COLUMNS].to_excel(
+                writer, sheet_name=driver_name, index=False
+            )
+
+    return output_path.resolve()
+
+
 @typechecked
 def format_combined_routes(
     input_path: Path | str, output_dir: Path | str = "", output_filename: str = ""
@@ -169,11 +168,10 @@ def format_combined_routes(
             _auto_adjust_column_widths(ws=ws, df_start_row=df_start_row)
             _word_wrap_notes_column(ws=ws)
             _merge_and_wrap_neighborhoods(ws=ws, neighborhoods_row=neighborhoods_row)
-            # TODO: Color code boxt types.
             # TODO: Add date to sheet name.
-            # TODO: Append and format as we go instead.
             # TODO: Set print_area (Use calculate_dimensions)
             # TODO: set_printer_settings(paper_size, orientation)
+
     # TODO: Write a test that at least checks that the sheets are not empty.
     # Can check cell values, though. (Maye read dataframe from start row?)
     wb.save(output_path)
