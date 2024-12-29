@@ -5,8 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 from openpyxl import Workbook
-
-# from openpyxl.styles import Alignment, Border, Font, Side
+from openpyxl.styles import Alignment, Border, Font, Side
 from openpyxl.utils.dataframe import dataframe_to_rows
 from typeguard import typechecked
 
@@ -156,30 +155,30 @@ def format_combined_routes(
                     ws.cell(row=r_idx, column=c_idx, value=value)
 
             # Format sheet.
-            # thin_border = Border(
-            #     left=Side(style="thin"),
-            #     right=Side(style="thin"),
-            #     top=Side(style="thin"),
-            #     bottom=Side(style="thin"),
-            # )
+            thin_border = Border(
+                left=Side(style="thin"),
+                right=Side(style="thin"),
+                top=Side(style="thin"),
+                bottom=Side(style="thin"),
+            )
 
-            # header_font = Font(bold=True)
+            header_font = Font(bold=True)
 
-            # header_row = ws[df_header_row_number]
-            # for cell in header_row:
-            #     if cell.value:
-            #         cell.font = header_font
-            #         cell.alignment = Alignment(horizontal="center", vertical="center")
-            #         # cell.border = thin_border
+            header_row = ws[df_header_row_number]
+            for cell in header_row:
+                if cell.value:
+                    cell.font = header_font
+                    cell.alignment = Alignment(horizontal="center", vertical="center")
+                    # cell.border = thin_border
 
-            # for row in ws.iter_rows(
-            #     min_row=df_header_row_number,
-            #     max_row=ws.max_row,
-            #     min_col=1,
-            #     max_col=ws.max_column,
-            # ):
-            #     for cell in row:
-            #         cell.border = thin_border
+            for row in ws.iter_rows(
+                min_row=df_header_row_number,
+                max_row=ws.max_row,
+                min_col=1,
+                max_col=ws.max_column,
+            ):
+                for cell in row:
+                    cell.border = thin_border
 
             # TODO: Add aggregate cells.
             # TODO: Add header cells.
