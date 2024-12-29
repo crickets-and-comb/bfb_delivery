@@ -231,12 +231,17 @@ def _add_header_row(ws: Worksheet) -> None:
     ]
 
     for col_idx, col_data in enumerate(formatted_row, start=1):
-        cell = ws.cell(row=1, column=col_idx, value=col_data["value"])
-        cell.font = col_data["font"]
+        cell_value = col_data["value"] if isinstance(col_data["value"], str) else ""
+        cell = ws.cell(row=1, column=col_idx, value=cell_value)
+        if col_data["font"]:
+            if isinstance(col_data["font"], Font):
+                cell.font = col_data["font"]
         if col_data["alignment"]:
-            cell.alignment = col_data["alignment"]
+            if isinstance(col_data["alignment"], Alignment):
+                cell.alignment = col_data["alignment"]
         if col_data["fill"]:
-            cell.fill = col_data["fill"]
+            if isinstance(col_data["fill"], PatternFill):
+                cell.fill = col_data["fill"]
 
     return
 
