@@ -1,6 +1,6 @@
 """Functions for shaping and formatting spreadsheets."""
 
-# TODO: When wrapping in final function, start calling it "make_manifest" or similar.
+import warnings
 from datetime import datetime
 from pathlib import Path
 
@@ -25,6 +25,7 @@ from bfb_delivery.lib.formatting.data_cleaning import (
 )
 
 
+# TODO: When wrapping in final function, start calling it "make_manifest" or similar.
 # TODO: Reoganize functions for workflow order.
 # TODO: Get real input tables to verify this works.
 # (Should match structure of split_chunked_route outputs.)
@@ -138,7 +139,6 @@ def format_combined_routes(
             driver_name = str(sheet_name)
             route_df = pd.read_excel(xls, driver_name)
             route_df.columns = format_column_names(columns=route_df.columns.to_list())
-            # TODO: Drop columns. (Set the constant?)
             # TODO: Use Pandera?
             format_and_validate_data(df=route_df, columns=COMBINED_ROUTES_COLUMNS)
             # TODO: Order by apartment number, and redo stop numbers?
@@ -157,16 +157,15 @@ def format_combined_routes(
             ws = wb.create_sheet(title=driver_name, index=sheet_idx)
             _add_header_row(ws=ws)
             _add_aggregate_block(ws=ws, agg_dict=agg_dict, date=date, driver_name=driver_name)
-            _write_data_to_sheet(ws=ws, df=route_df)
-
-            # TODO: Set column widths by df. (May need to write df before other cells.)
+            df_start_row = _write_data_to_sheet(ws=ws, df=route_df)
+            _auto_adjust_column_widths(ws=ws, df_start_row=df_start_row)
             # TODO: Word wrap notes (and neighborhoods?)
-
             # TODO: Add date to sheet name.
             # TODO: Append and format as we go instead.
             # TODO: Set print_area (Use calculate_dimensions)
             # TODO: set_printer_settings(paper_size, orientation)
-        # TODO: Write a test that at least checks that the sheets are not empty.
+    # TODO: Write a test that at least checks that the sheets are not empty.
+    # Can check cell values, though. (Maye read dataframe from start row?)
     wb.save(output_path)
 
     return output_path.resolve()
@@ -241,7 +240,7 @@ def _add_header_row(ws: Worksheet) -> None:
 
 @typechecked
 def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: str) -> None:
-    """Append left and right blocks to the worksheet row by row."""
+    """Append left and right aggregation blocks to the worksheet row by row."""
     # TODO: Yeah, let's use an enum for box types since the manifest is a contract.
     thin_border = Border(
         left=Side(style="thin"),
@@ -336,8 +335,9 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
     alignment_left = Alignment(horizontal="left")
     alignment_right = Alignment(horizontal="right")
 
+    start_row = ws.max_row + 1
     for i, (left_row, right_row) in enumerate(
-        zip(left_block, right_block, strict=True), start=2
+        zip(left_block, right_block, strict=True), start=start_row
     ):
         for col_idx, cell_definition in enumerate(left_row, start=1):
             cell = ws.cell(row=i, column=col_idx, value=cell_definition["value"])
@@ -357,7 +357,8 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
 
 
 @typechecked
-def _write_data_to_sheet(ws: Worksheet, df: pd.DataFrame) -> None:
+def _write_data_to_sheet(ws: Worksheet, df: pd.DataFrame) -> int:
+    """Write and format the dataframe itself."""
     thin_border = Border(
         left=Side(style="thin"),
         right=Side(style="thin"),
@@ -367,17 +368,34 @@ def _write_data_to_sheet(ws: Worksheet, df: pd.DataFrame) -> None:
 
     header_font = Font(bold=True)
 
-    df_header_row_number = 9
-
+    start_row = ws.max_row + 1
     for r_idx, row in enumerate(
         dataframe_to_rows(df[FORMATTED_ROUTES_COLUMNS], index=False, header=True),
-        start=df_header_row_number,
+        start=start_row,
     ):
         for c_idx, value in enumerate(row, start=1):
             cell = ws.cell(row=r_idx, column=c_idx, value=value)
             cell.border = thin_border
-            if r_idx == df_header_row_number:
+            if r_idx == start_row:
                 cell.font = header_font
                 cell.alignment = Alignment(horizontal="left")
+
+    return start_row
+
+
+def _auto_adjust_column_widths(ws: Worksheet, df_start_row: int) -> None:
+    """Auto-adjust column widths to fit the dataframe."""
+    for col in ws.columns:
+        max_length = 0
+        col_letter = col[0].column_letter
+        for cell in col:
+            if cell.row >= df_start_row:
+                try:
+                    if cell.value:
+                        max_length = max(max_length, len(str(cell.value)))
+                except Exception as e:
+                    warnings.warn(f"Error while adjusting column widths: {e}", stacklevel=2)
+        adjusted_width = max_length
+        ws.column_dimensions[col_letter].width = adjusted_width
 
     return
