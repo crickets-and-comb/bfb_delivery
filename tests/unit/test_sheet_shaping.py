@@ -391,6 +391,12 @@ class TestCombineRouteTables:
 
         return output_paths
 
+    @pytest.fixture(scope="class")
+    def basic_combined_routes(self, mock_route_tables: list[Path]) -> Path:
+        """Create a basic combined routes table scoped to class for reuse."""
+        output_path = combine_route_tables(input_paths=mock_route_tables)
+        return output_path
+
     @pytest.mark.parametrize("output_dir_type", [Path, str])
     @pytest.mark.parametrize("output_dir", ["", "dummy_output"])
     def test_set_output_dir(
@@ -422,21 +428,23 @@ class TestCombineRouteTables:
         )
         assert output_path.name == expected_filename
 
-    def test_output_columns(self, mock_route_tables: list[Path]) -> None:
+    def test_output_columns(
+        self, mock_route_tables: list[Path], basic_combined_routes: Path
+    ) -> None:
         """Test that the output columns match the COMBINED_ROUTES_COLUMNS constant."""
-        output_path = combine_route_tables(input_paths=mock_route_tables)
-        workbook = pd.ExcelFile(output_path)
+        workbook = pd.ExcelFile(basic_combined_routes)
         for sheet_name in workbook.sheet_names:
             driver_sheet = pd.read_excel(workbook, sheet_name=sheet_name)
             assert driver_sheet.columns.to_list() == COMBINED_ROUTES_COLUMNS
 
-    def test_unique_recipients(self, mock_route_tables: list[Path]) -> None:
+    def test_unique_recipients(
+        self, mock_route_tables: list[Path], basic_combined_routes: Path
+    ) -> None:
         """Test that the recipients don't overlap between the driver route tables.
 
         By name, address, and phone.
         """
-        output_path = combine_route_tables(input_paths=mock_route_tables)
-        driver_sheets = _get_driver_sheets(output_paths=[output_path])
+        driver_sheets = _get_driver_sheets(output_paths=[basic_combined_routes])
         combined_output_data = pd.concat(driver_sheets, ignore_index=True)
         assert (
             combined_output_data[[Columns.NAME, Columns.ADDRESS, Columns.PHONE]]
@@ -445,15 +453,15 @@ class TestCombineRouteTables:
             == 0  # noqa: W503
         )
 
-    def test_complete_contents(self, mock_route_tables: list[Path]) -> None:
+    def test_complete_contents(
+        self, mock_route_tables: list[Path], basic_combined_routes: Path
+    ) -> None:
         """Test that the input data is all covered in the combined workbook."""
-        output_path = combine_route_tables(input_paths=mock_route_tables)
-
         full_input_data = pd.concat(
             [pd.read_csv(path)[COMBINED_ROUTES_COLUMNS] for path in mock_route_tables],
             ignore_index=True,
         )
-        driver_sheets = _get_driver_sheets(output_paths=[output_path])
+        driver_sheets = _get_driver_sheets(output_paths=[basic_combined_routes])
         combined_output_data = pd.concat(driver_sheets, ignore_index=True)
 
         full_input_data = full_input_data.sort_values(by=COMBINED_ROUTES_COLUMNS).reset_index(
