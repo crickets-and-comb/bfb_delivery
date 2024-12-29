@@ -340,7 +340,7 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
         [{"value": None}],
         [{"value": f"Driver: {driver_name}"}],
         [{"value": None}],
-        [{"value": f"Neighborhoods: {", ".join(agg_dict['neighborhoods'])}"}],
+        [{"value": f"Neighborhoods: {', '.join(agg_dict['neighborhoods'])}"}],
         [{"value": None}],
     ]
 
