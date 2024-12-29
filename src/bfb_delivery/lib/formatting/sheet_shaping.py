@@ -131,7 +131,6 @@ def format_combined_routes(
 
     wb = Workbook()
     wb.remove(wb["Sheet"])
-    header_row_definition = _create_formatted_header_row()
     # TODO: Pass in date as argument from CLI.
     date = "Dummy date"
     with pd.ExcelFile(input_path) as xls:
@@ -156,7 +155,7 @@ def format_combined_routes(
             # If that's so, ignore it or validate always a 1?
 
             ws = wb.create_sheet(title=driver_name, index=sheet_idx)
-            _add_header_row(ws=ws, row_definition=header_row_definition)
+            _add_header_row(ws=ws)
             _add_aggregate_block(ws=ws, agg_dict=agg_dict, date=date, driver_name=driver_name)
 
             df_header_row_number = 9
@@ -196,12 +195,13 @@ def _aggregate_route_data(df: pd.DataFrame) -> dict:
         ].sum(),
         "neighborhoods": df[Columns.NEIGHBORHOOD].unique().tolist(),
     }
+
     return agg_dict
 
 
 @typechecked
-def _create_formatted_header_row() -> list[dict]:
-    """Create a reusable formatted row definition."""
+def _add_header_row(ws: Worksheet) -> None:
+    """Append a reusable formatted row to the worksheet."""
     font = Font(bold=True)
     alignment_left = Alignment(horizontal="left")
     alignment_right = Alignment(horizontal="right")
@@ -233,30 +233,30 @@ def _create_formatted_header_row() -> list[dict]:
         },
     ]
 
-    return formatted_row
-
-
-@typechecked
-def _add_header_row(ws: Worksheet, row_definition: list[dict]) -> None:
-    """Append a reusable formatted row to the worksheet."""
-    next_row = ws.max_row
-
-    for col_idx, col_data in enumerate(row_definition, start=1):
-        cell = ws.cell(row=next_row, column=col_idx, value=col_data["value"])
+    for col_idx, col_data in enumerate(formatted_row, start=1):
+        cell = ws.cell(row=1, column=col_idx, value=col_data["value"])
         cell.font = col_data["font"]
         if col_data["alignment"]:
             cell.alignment = col_data["alignment"]
         if col_data["fill"]:
             cell.fill = col_data["fill"]
 
+    return
+
 
 @typechecked
 def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: str) -> None:
     """Append left and right blocks to the worksheet row by row."""
     # TODO: Yeah, let's use an enum for box types since the manifest is a contract.
-    # TODO: Add borders around box type counts.
+    thin_border = Border(
+        left=Side(style="thin"),
+        right=Side(style="thin"),
+        top=Side(style="thin"),
+        bottom=Side(style="thin"),
+    )
+
     right_block = [
-        [{"value": None, "fill": None}],
+        [{"value": None, "fill": None, "border": None}],
         [
             {
                 "value": "BASIC",
@@ -265,8 +265,13 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
                     end_color=CellColors.BASIC,
                     fill_type="solid",
                 ),
+                "border": thin_border,
             },
-            {"value": agg_dict["box_counts"].get("BASIC", 0), "fill": None},
+            {
+                "value": agg_dict["box_counts"].get("BASIC", 0),
+                "fill": None,
+                "border": thin_border,
+            },
         ],
         [
             {
@@ -274,8 +279,13 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
                 "fill": PatternFill(
                     start_color=CellColors.LA, end_color=CellColors.LA, fill_type="solid"
                 ),
+                "border": thin_border,
             },
-            {"value": agg_dict["box_counts"].get("LA", 0), "fill": None},
+            {
+                "value": agg_dict["box_counts"].get("LA", 0),
+                "fill": None,
+                "border": thin_border,
+            },
         ],
         [
             {
@@ -283,8 +293,13 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
                 "fill": PatternFill(
                     start_color=CellColors.GF, end_color=CellColors.GF, fill_type="solid"
                 ),
+                "border": thin_border,
             },
-            {"value": agg_dict["box_counts"].get("GF", 0), "fill": None},
+            {
+                "value": agg_dict["box_counts"].get("GF", 0),
+                "fill": None,
+                "border": thin_border,
+            },
         ],
         [
             {
@@ -294,16 +309,21 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
                     end_color=CellColors.VEGAN,
                     fill_type="solid",
                 ),
+                "border": thin_border,
             },
-            {"value": agg_dict["box_counts"].get("VEGAN", 0), "fill": None},
+            {
+                "value": agg_dict["box_counts"].get("VEGAN", 0),
+                "fill": None,
+                "border": thin_border,
+            },
         ],
         [
-            {"value": "TOTAL BOX COUNT", "fill": None},
-            {"value": agg_dict["total_box_count"], "fill": None},
+            {"value": "TOTAL BOX COUNT", "fill": None, "border": None},
+            {"value": agg_dict["total_box_count"], "fill": None, "border": None},
         ],
         [
-            {"value": "PROTEIN COUNT", "fill": None},
-            {"value": agg_dict["protein_box_count"], "fill": None},
+            {"value": "PROTEIN COUNT", "fill": None, "border": None},
+            {"value": agg_dict["protein_box_count"], "fill": None, "border": None},
         ],
     ]
 
@@ -335,6 +355,10 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
             cell.alignment = alignment_right
             if isinstance(cell_definition["fill"], PatternFill):
                 cell.fill = cell_definition["fill"]
+            if isinstance(cell_definition["border"], Border):
+                cell.border = cell_definition["border"]
+
+    return
 
 
 @typechecked
@@ -345,6 +369,8 @@ def _write_data_to_sheet(ws: Worksheet, df: pd.DataFrame, df_header_row_number: 
     ):
         for c_idx, value in enumerate(row, start=1):
             ws.cell(row=r_idx, column=c_idx, value=value)
+
+    return
 
 
 @typechecked
@@ -369,3 +395,5 @@ def _format_sheet(ws: Worksheet, df_header_row_number: int) -> None:
     ):
         for cell in row:
             cell.border = thin_border
+
+    return
