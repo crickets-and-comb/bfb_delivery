@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 from openpyxl import Workbook
-from openpyxl.styles import Alignment, Border, Font, Side
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.worksheet.worksheet import Worksheet
 from typeguard import typechecked
@@ -132,8 +132,9 @@ def format_combined_routes(
             driver_name = str(sheet_name)
             route_df = pd.read_excel(xls, driver_name)
             route_df.columns = format_column_names(columns=route_df.columns.to_list())
-            format_and_validate_data(df=route_df, columns=COMBINED_ROUTES_COLUMNS)
+            # TODO: Drop columns. (Set the constant?)
             # TODO: Use Pandera?
+            format_and_validate_data(df=route_df, columns=COMBINED_ROUTES_COLUMNS)
             # TODO: Order by apartment number, and redo stop numbers?
             # May need to postpone this.
             # Or, for now, just do it if the apartments are already in contiguous stops.
@@ -141,9 +142,15 @@ def format_combined_routes(
             # Also, may not make the most sense in order of apt number. Ask team.
             route_df.sort_values(by=[Columns.STOP_NO], inplace=True)
 
+            # TODO: Aggregate neighborhoods.
             # agg_dict = _aggregate_route_data(df=route_df)
 
             ws = wb.create_sheet(title=driver_name, index=sheet_idx)
+            _add_header_row(ws=ws)
+            # TODO: Add driver name cell.
+            # TODO: Add date cell.
+            # TODO: Add aggregate cells.
+            # TODO: Color code data.
 
             df_header_row_number = 9
             _write_data_to_sheet(
@@ -151,13 +158,10 @@ def format_combined_routes(
             )
             _format_sheet(ws=ws, df_header_row_number=df_header_row_number)
 
-            # TODO: Add header cells.
-            # TODO: Add aggregate cells.
-            # TODO: Add driver name cell.
-            # TODO: Add date cell.
             # TODO: Add date to sheet name.
-            # TODO: Color code data.
-            # TODO: Sort sheets.
+            # TODO: Append and format as we go instead.
+            # TODO: Set print_area (Use calculate_dimensions)
+            # TODO: set_printer_settings(paper_size, orientation)
         # TODO: Write a test that at least checks that the sheets are not empty.
         wb.save(output_path)
 
@@ -182,6 +186,32 @@ def _aggregate_route_data(df: pd.DataFrame) -> dict:
         ].sum(),
     }
     return agg_dict
+
+
+@typechecked
+def _add_header_row(ws: Worksheet) -> None:
+    # TODO: Make the numbers args to pass in so they don't get published.
+    # Or, make them required env vars? Wrap in try and give a helpful error message
+    # on how to create a .env file or pass env vars? Maybe add a precheck?
+    ws["A1"] = "DRIVER SUPPORT: 555-555-5555"
+    ws["D1"] = "RECIPIENT SUPPORT: 555-555-5555 X5"
+    ws["F1"] = "PLEASE SHRED MANIFEST AFTER COMPLETING ROUTE"
+
+    ws["D1"].alignment = Alignment(horizontal="right")
+    ws["F1"].alignment = Alignment(horizontal="right")
+
+    for cell in ws[1]:
+        cell.font = Font(bold=True)
+
+    last_col = 1
+    for cell in ws[1]:
+        if cell.value:
+            last_col = cell.column
+
+    # Color all cells in the first row up to the last cell with data
+    for col in range(1, last_col + 1):
+        cell = ws.cell(row=1, column=col)
+        cell.fill = PatternFill(start_color="FFC0CB", end_color="FFC0CB", fill_type="solid")
 
 
 @typechecked
