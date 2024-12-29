@@ -60,6 +60,8 @@ FORMATTED_ROUTES_COLUMNS: Final[list[str]] = [
     Columns.BOX_TYPE,
 ]
 
+MANIFEST_DATE_FORMAT: Final[str] = "%m.%d"
+
 MAX_ORDER_COUNT: Final[int] = 5
 
 NOTES_COLUMN_WIDTH: Final[float] = 56.67

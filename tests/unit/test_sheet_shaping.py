@@ -15,6 +15,7 @@ from bfb_delivery.cli import split_chunked_route as split_chunked_route_cli
 from bfb_delivery.lib.constants import (
     COMBINED_ROUTES_COLUMNS,
     FILE_DATE_FORMAT,
+    MANIFEST_DATE_FORMAT,
     SPLIT_ROUTE_COLUMNS,
     Columns,
 )
@@ -560,7 +561,7 @@ class TestFormatCombinedRoutes:
     @pytest.mark.parametrize(
         "date, expected_date",
         [
-            ("", datetime.now().strftime("%m.%d")),
+            ("", datetime.now().strftime(MANIFEST_DATE_FORMAT)),
             (None, "Dummy date"),
             ("Dummy date", "Dummy date"),
         ],

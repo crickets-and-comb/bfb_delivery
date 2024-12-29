@@ -17,6 +17,7 @@ from bfb_delivery.lib.constants import (
     COMBINED_ROUTES_COLUMNS,
     FILE_DATE_FORMAT,
     FORMATTED_ROUTES_COLUMNS,
+    MANIFEST_DATE_FORMAT,
     NOTES_COLUMN_WIDTH,
     PROTEIN_BOX_TYPES,
     SPLIT_ROUTE_COLUMNS,
@@ -134,7 +135,7 @@ def format_combined_routes(
         else output_filename
     )
     output_path = Path(output_dir) / output_filename
-    date = date if date else datetime.now().strftime("%m.%d")
+    date = date if date else datetime.now().strftime(MANIFEST_DATE_FORMAT)
 
     wb = Workbook()
     wb.remove(wb["Sheet"])
