@@ -62,7 +62,7 @@ def main(mock_raw_chunked_sheet_path: str) -> None:
     click.echo(f"Combined workbook saved to: {combined_path}")
 
     formatted_path = format_combined_routes(
-        input_path=combined_path, output_dir=OUTPUT_DIRS["FORMATTED_TABLES_DIR"]
+        input_path=combined_path, output_dir=OUTPUT_DIRS["FORMATTED_TABLES_DIR"], date=""
     )
     click.echo(f"Formatted workbook saved to: {formatted_path}")
 

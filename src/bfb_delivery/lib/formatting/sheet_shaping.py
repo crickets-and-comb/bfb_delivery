@@ -120,7 +120,10 @@ def combine_route_tables(
 
 @typechecked
 def format_combined_routes(
-    input_path: Path | str, output_dir: Path | str = "", output_filename: str = ""
+    input_path: Path | str,
+    output_dir: Path | str = "",
+    output_filename: str = "",
+    date: str = "Dummy date",
 ) -> Path:
     """See public docstring: :py:func:`bfb_delivery.api.public.format_combined_routes`."""
     input_path = Path(input_path)
@@ -131,11 +134,10 @@ def format_combined_routes(
         else output_filename
     )
     output_path = Path(output_dir) / output_filename
+    date = date if date else datetime.now().strftime("%m.%d")
 
     wb = Workbook()
     wb.remove(wb["Sheet"])
-    # TODO: Pass in date as argument from CLI.
-    date = "Dummy date"
     with pd.ExcelFile(input_path) as xls:
         for sheet_idx, sheet_name in enumerate(sorted(xls.sheet_names)):
 
@@ -161,16 +163,19 @@ def format_combined_routes(
 
             ws = wb.create_sheet(title=driver_name, index=sheet_idx)
             _add_header_row(ws=ws)
-            neighborhoods_row = _add_aggregate_block(
+            neighborhoods_row_number = _add_aggregate_block(
                 ws=ws, agg_dict=agg_dict, date=date, driver_name=driver_name
             )
             df_start_row = _write_data_to_sheet(ws=ws, df=route_df)
             _auto_adjust_column_widths(ws=ws, df_start_row=df_start_row)
             _word_wrap_notes_column(ws=ws)
-            _merge_and_wrap_neighborhoods(ws=ws, neighborhoods_row=neighborhoods_row)
+            _merge_and_wrap_neighborhoods(
+                ws=ws, neighborhoods_row_number=neighborhoods_row_number
+            )
             # TODO: Add date to sheet name.
             # TODO: Set print_area (Use calculate_dimensions)
             # TODO: set_printer_settings(paper_size, orientation)
+            # TODO: Test that default date works. (When writing cell/sheet tests.)
 
     # TODO: Write a test that at least checks that the sheets are not empty.
     # Can check cell values, though. (Maye read dataframe from start row?)
@@ -211,6 +216,7 @@ def _add_header_row(ws: Worksheet) -> None:
         start_color=CellColors.HEADER, end_color=CellColors.HEADER, fill_type="solid"
     )
 
+    # TODO: Pull support numbers from config file.
     formatted_row = [
         {
             "value": "DRIVER SUPPORT: 555-555-5555",
@@ -349,7 +355,7 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
     alignment_right = Alignment(horizontal="right")
 
     start_row = ws.max_row + 1
-    neighborhoods_row = 0
+    neighborhoods_row_number = 0
     for i, (left_row, right_row) in enumerate(
         zip(left_block, right_block, strict=True), start=start_row
     ):
@@ -360,7 +366,7 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
             if cell_definition["value"] and cell_definition["value"].startswith(
                 "Neighborhoods"
             ):
-                neighborhoods_row = i
+                neighborhoods_row_number = i
 
         for col_idx, cell_definition in enumerate(right_row, start=5):
             cell = ws.cell(row=i, column=col_idx, value=cell_definition["value"])
@@ -371,7 +377,7 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
             if isinstance(cell_definition["border"], Border):
                 cell.border = cell_definition["border"]
 
-    return neighborhoods_row
+    return neighborhoods_row_number
 
 
 @typechecked
@@ -444,17 +450,17 @@ def _word_wrap_notes_column(ws: Worksheet) -> None:
 
 
 @typechecked
-def _merge_and_wrap_neighborhoods(ws: Worksheet, neighborhoods_row: int) -> None:
+def _merge_and_wrap_neighborhoods(ws: Worksheet, neighborhoods_row_number: int) -> None:
     """Merge the neighborhoods cell and wrap the text."""
     start_col = 1
     end_col = 3
     ws.merge_cells(
-        start_row=neighborhoods_row,
+        start_row=neighborhoods_row_number,
         start_column=start_col,
-        end_row=neighborhoods_row,
+        end_row=neighborhoods_row_number,
         end_column=end_col,
     )
-    cell = ws.cell(row=neighborhoods_row, column=start_col)
+    cell = ws.cell(row=neighborhoods_row_number, column=start_col)
     cell.alignment = Alignment(wrap_text=True)
 
     # Merged cells don't adjust height automatically, so we need to estimate it.
@@ -469,6 +475,6 @@ def _merge_and_wrap_neighborhoods(ws: Worksheet, neighborhoods_row: int) -> None
             line_length = len(line) * char_width
             lines += line_length / merged_width
 
-        ws.row_dimensions[neighborhoods_row].height = max(15, math.ceil(lines) * 15)
+        ws.row_dimensions[neighborhoods_row_number].height = max(15, math.ceil(lines) * 15)
 
     return

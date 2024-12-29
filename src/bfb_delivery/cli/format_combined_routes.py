@@ -29,12 +29,25 @@ from bfb_delivery import format_combined_routes
         '"formatted_routes_{date}.xlsx".'
     ),
 )
+@click.option(
+    "--date",
+    type=str,
+    required=False,
+    default="Dummy date",
+    help=(
+        "The date to use in driver manifests. Empty string (default) will use today's date "
+        "as {MM.DD}'"
+    ),
+)
 @typechecked
-def main(input_path: str, output_dir: str, output_filename: str) -> str:
+def main(input_path: str, output_dir: str, output_filename: str, date: str) -> str:
     """See public docstring: :py:func:`bfb_delivery.api.public.format_combined_routes`."""
     path = format_combined_routes(
-        input_path=input_path, output_dir=output_dir, output_filename=output_filename
+        input_path=input_path,
+        output_dir=output_dir,
+        output_filename=output_filename,
+        date=date,
     )
     path = str(path)
-    click.echo(f"Formatted workbook saved to: {path}")
+    click.echo(f"Formatted driver manifest saved to: {path}")
     return path

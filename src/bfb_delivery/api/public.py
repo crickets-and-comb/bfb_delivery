@@ -43,6 +43,10 @@ def split_chunked_route(
 
     Returns:
         Paths to the split chunked route workbooks.
+
+    Raises:
+        ValueError: If `n_books` is less than 1.
+        ValueError: If `n_books` is greater than the number of drivers in the input workbook.
     """
     return internal.split_chunked_route(
         input_path=input_path,
@@ -71,6 +75,9 @@ def combine_route_tables(
 
     Returns:
         The path to the output workbook.
+
+    Raises:
+        ValueError: If `input_paths` is empty.
     """
     return internal.combine_route_tables(
         input_paths=input_paths, output_dir=output_dir, output_filename=output_filename
@@ -78,9 +85,13 @@ def combine_route_tables(
 
 
 # TODO: Update docs. (What until done, though.)
+# TODO: Set default to empty string once usage confirmed with users.
 @typechecked
 def format_combined_routes(
-    input_path: Path | str, output_dir: Path | str = "", output_filename: str = ""
+    input_path: Path | str,
+    output_dir: Path | str = "",
+    output_filename: str = "",
+    date: str = "Dummy date",
 ) -> Path:
     """Formats the combined routes table.
 
@@ -92,13 +103,18 @@ def format_combined_routes(
             Empty string (default) saves to the input path's parent directory.
         output_filename: The name of the formatted workbook.
             Empty string (default) will name the file "formatted_routes_{date}.xlsx".
+        date: The date to use in driver manifests. Empty string (default) will use today's
+            date as {MM.DD}.
 
     Returns:
         The path to the formatted table.
     """
     warning("This function is still under construction.")
     return internal.format_combined_routes(
-        input_path=input_path, output_dir=output_dir, output_filename=output_filename
+        input_path=input_path,
+        output_dir=output_dir,
+        output_filename=output_filename,
+        date=date,
     )
 
 
