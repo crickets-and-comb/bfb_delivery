@@ -1,5 +1,6 @@
 """Functions for shaping and formatting spreadsheets."""
 
+# TODO: When wrapping in final function, start calling it "make_manifest" or similar.
 from datetime import datetime
 from pathlib import Path
 
@@ -12,6 +13,7 @@ from typeguard import typechecked
 
 from bfb_delivery.lib.constants import (
     COMBINED_ROUTES_COLUMNS,
+    FORMATTED_ROUTES_COLUMNS,
     PROTEIN_BOX_TYPES,
     SPLIT_ROUTE_COLUMNS,
     Columns,
@@ -22,6 +24,7 @@ from bfb_delivery.lib.formatting.data_cleaning import (
 )
 
 
+# TODO: Reoganize functions for workflow order.
 # TODO: Get real input tables to verify this works.
 # (Should match structure of split_chunked_route outputs.)
 # TODO: Validate stop numbers?
@@ -145,6 +148,8 @@ def format_combined_routes(
 
             # TODO: Aggregate neighborhoods.
             # agg_dict = _aggregate_route_data(df=route_df)
+            # TODO: !! What happens when there are more than one order for a stop? Two rows?
+            # (Since order count column is dropped in manifest)
 
             ws = wb.create_sheet(title=driver_name, index=sheet_idx)
             _add_header_row(ws=ws, row_definition=header_row_definition)
@@ -242,7 +247,8 @@ def _create_formatted_header_row() -> list[dict]:
 @typechecked
 def _write_data_to_sheet(ws: Worksheet, df: pd.DataFrame, df_header_row_number: int) -> None:
     for r_idx, row in enumerate(
-        dataframe_to_rows(df, index=False, header=True), start=df_header_row_number
+        dataframe_to_rows(df[FORMATTED_ROUTES_COLUMNS], index=False, header=True),
+        start=df_header_row_number,
     ):
         for c_idx, value in enumerate(row, start=1):
             ws.cell(row=r_idx, column=c_idx, value=value)

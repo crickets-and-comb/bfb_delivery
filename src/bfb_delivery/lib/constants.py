@@ -47,7 +47,6 @@ FORMATTED_ROUTES_COLUMNS: Final[list[str]] = [
     Columns.ADDRESS,
     Columns.PHONE,
     Columns.NOTES,
-    Columns.ORDER_COUNT,  # TODO: Drop this when we add aggregation.
     Columns.BOX_TYPE,
 ]
 
