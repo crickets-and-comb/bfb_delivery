@@ -30,6 +30,9 @@ from bfb_delivery.lib.formatting.data_cleaning import (
 )
 from bfb_delivery.utils import get_phone_number
 
+# Silences warning for in-place operations on copied df slices.
+pd.options.mode.copy_on_write = True
+
 
 # TODO: When wrapping in final function, start calling it "make_manifest" or similar.
 # TODO: There's got to be a way to set the docstring as a constant.
