@@ -136,11 +136,14 @@ def format_combined_routes(
     date = "Dummy date"
     with pd.ExcelFile(input_path) as xls:
         for sheet_idx, sheet_name in enumerate(sorted(xls.sheet_names)):
+
             driver_name = str(sheet_name)
             route_df = pd.read_excel(xls, driver_name)
-            route_df.columns = format_column_names(columns=route_df.columns.to_list())
+
             # TODO: Use Pandera?
+            route_df.columns = format_column_names(columns=route_df.columns.to_list())
             format_and_validate_data(df=route_df, columns=COMBINED_ROUTES_COLUMNS)
+
             # TODO: Order by apartment number, and redo stop numbers?
             # May need to postpone this.
             # Or, for now, just do it if the apartments are already in contiguous stops.
@@ -388,14 +391,15 @@ def _auto_adjust_column_widths(ws: Worksheet, df_start_row: int) -> None:
     for col in ws.columns:
         max_length = 0
         col_letter = col[0].column_letter
+        padding_scalar = 0.9 if col_letter == "C" else 1  # C is address column.
         for cell in col:
             if cell.row >= df_start_row:
                 try:
                     if cell.value:
-                        max_length = max(max_length, len(str(cell.value)))
+                        max_length = max(max_length, len(str(cell.value)) * padding_scalar)
                 except Exception as e:
                     warnings.warn(f"Error while adjusting column widths: {e}", stacklevel=2)
-        adjusted_width = max_length
+        adjusted_width = max(8, round(max_length))
         ws.column_dimensions[col_letter].width = adjusted_width
 
     return
