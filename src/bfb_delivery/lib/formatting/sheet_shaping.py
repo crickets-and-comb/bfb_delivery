@@ -13,6 +13,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 from typeguard import typechecked
 
 from bfb_delivery.lib.constants import (
+    BOX_TYPE_COLOR_MAP,
     COMBINED_ROUTES_COLUMNS,
     FORMATTED_ROUTES_COLUMNS,
     NOTES_COLUMN_WIDTH,
@@ -387,6 +388,8 @@ def _write_data_to_sheet(ws: Worksheet, df: pd.DataFrame) -> int:
 
     header_font = Font(bold=True)
 
+    box_type_col_idx = df.columns.get_loc(Columns.BOX_TYPE)
+
     start_row = ws.max_row + 1
     for r_idx, row in enumerate(
         dataframe_to_rows(df[FORMATTED_ROUTES_COLUMNS], index=False, header=True),
@@ -398,6 +401,14 @@ def _write_data_to_sheet(ws: Worksheet, df: pd.DataFrame) -> int:
             if r_idx == start_row:
                 cell.font = header_font
                 cell.alignment = Alignment(horizontal="left")
+
+            if c_idx == box_type_col_idx and r_idx > start_row:
+                box_type = str(value)
+                fill_color = BOX_TYPE_COLOR_MAP.get(box_type)
+                if fill_color:
+                    cell.fill = PatternFill(
+                        start_color=fill_color, end_color=fill_color, fill_type="solid"
+                    )
 
     return start_row
 

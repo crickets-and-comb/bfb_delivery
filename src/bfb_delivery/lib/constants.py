@@ -15,6 +15,15 @@ class CellColors:
     VEGAN: Final[str] = "CCCCCC"  # Grey
 
 
+# TODO: Make box type StrEnum.
+BOX_TYPE_COLOR_MAP: Final[dict[str, str]] = {
+    "BASIC": CellColors.BASIC,
+    "GF": CellColors.GF,
+    "LA": CellColors.LA,
+    "VEGAN": CellColors.VEGAN,
+}
+
+
 class Columns:
     """Column name constants."""
 
