@@ -4,7 +4,9 @@ from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
-from openpyxl import load_workbook
+from openpyxl import Workbook
+
+# from openpyxl.styles import Alignment, Border, Font, Side
 from openpyxl.utils.dataframe import dataframe_to_rows
 from typeguard import typechecked
 
@@ -124,8 +126,9 @@ def format_combined_routes(
     output_path = Path(output_dir) / output_filename
 
     with pd.ExcelFile(input_path) as xls:
-        wb = load_workbook(input_path)
-        for sheet_name in xls.sheet_names:
+        wb = Workbook()
+        wb.remove(wb["Sheet"])
+        for sheet_idx, sheet_name in enumerate(sorted(xls.sheet_names)):
             driver_name = str(sheet_name)
             route_df = pd.read_excel(xls, driver_name)
             route_df.columns = format_column_names(columns=route_df.columns.to_list())
@@ -140,15 +143,43 @@ def format_combined_routes(
 
             # agg_dict = _aggregate_route_data(df=route_df)
 
-            ws = wb[driver_name]
-            for row in ws.iter_rows():
-                for cell in row:
-                    cell.value = None
+            ws = wb.create_sheet(title=driver_name, index=sheet_idx)
+
+            # Write data to sheet.
+            df_header_row_number = 9
+
             for r_idx, row in enumerate(
-                dataframe_to_rows(route_df, index=False, header=True), start=1
+                dataframe_to_rows(route_df, index=False, header=True),
+                start=df_header_row_number,
             ):
                 for c_idx, value in enumerate(row, start=1):
                     ws.cell(row=r_idx, column=c_idx, value=value)
+
+            # Format sheet.
+            # thin_border = Border(
+            #     left=Side(style="thin"),
+            #     right=Side(style="thin"),
+            #     top=Side(style="thin"),
+            #     bottom=Side(style="thin"),
+            # )
+
+            # header_font = Font(bold=True)
+
+            # header_row = ws[df_header_row_number]
+            # for cell in header_row:
+            #     if cell.value:
+            #         cell.font = header_font
+            #         cell.alignment = Alignment(horizontal="center", vertical="center")
+            #         # cell.border = thin_border
+
+            # for row in ws.iter_rows(
+            #     min_row=df_header_row_number,
+            #     max_row=ws.max_row,
+            #     min_col=1,
+            #     max_col=ws.max_column,
+            # ):
+            #     for cell in row:
+            #         cell.border = thin_border
 
             # TODO: Add aggregate cells.
             # TODO: Add header cells.
