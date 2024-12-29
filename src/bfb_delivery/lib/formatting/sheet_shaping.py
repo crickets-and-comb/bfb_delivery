@@ -395,17 +395,27 @@ def _write_data_to_sheet(ws: Worksheet, df: pd.DataFrame) -> int:
 def _auto_adjust_column_widths(ws: Worksheet, df_start_row: int) -> None:
     """Auto-adjust column widths to fit the dataframe."""
     for col in ws.columns:
-        max_length = 0
+        width = 0
+
         col_letter = col[0].column_letter
-        padding_scalar = 0.9 if col_letter == "C" else 1  # C is address column.
-        for cell in col:
-            if cell.row >= df_start_row:
-                try:
-                    if cell.value:
-                        max_length = max(max_length, len(str(cell.value)) * padding_scalar)
-                except Exception as e:
-                    warnings.warn(f"Error while adjusting column widths: {e}", stacklevel=2)
-        adjusted_width = max(8, round(max_length))
-        ws.column_dimensions[col_letter].width = adjusted_width
+        if col_letter == "E":
+            width = 56.67
+        else:
+            max_length = 0
+            padding_scalar = 0.9 if col_letter == "C" else 1  # C is address column.
+            for cell in col:
+                if cell.row >= df_start_row:
+                    try:
+                        if cell.value:
+                            max_length = max(
+                                max_length, len(str(cell.value)) * padding_scalar
+                            )
+                    except Exception as e:
+                        warnings.warn(
+                            f"Error while adjusting column widths: {e}", stacklevel=2
+                        )
+            width = max(8, round(max_length))
+
+        ws.column_dimensions[col_letter].width = width
 
     return
