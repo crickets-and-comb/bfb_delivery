@@ -26,9 +26,9 @@ from bfb_delivery.lib.formatting.data_cleaning import (
     format_and_validate_data,
     format_column_names,
 )
+from bfb_delivery.utils import get_phone_number
 
 
-# TODO: Do we need to add the date to the sheet name at this stage before Circuit upload?
 # TODO: When wrapping in final function, start calling it "make_manifest" or similar.
 # TODO: There's got to be a way to set the docstring as a constant.
 # TODO: Use Pandera.
@@ -219,10 +219,11 @@ def _add_header_row(ws: Worksheet) -> None:
         start_color=CellColors.HEADER, end_color=CellColors.HEADER, fill_type="solid"
     )
 
-    # TODO: Pull support numbers from config file.
+    driver_support_phone = get_phone_number("driver_support")
+    recipient_support_phone = get_phone_number("recipient_support")
     formatted_row = [
         {
-            "value": "DRIVER SUPPORT: 555-555-5555",
+            "value": f"DRIVER SUPPORT: {driver_support_phone}",
             "font": font,
             "alignment": alignment_left,
             "fill": fill,
@@ -230,7 +231,7 @@ def _add_header_row(ws: Worksheet) -> None:
         {"value": "", "font": font, "alignment": None, "fill": fill},
         {"value": "", "font": font, "alignment": None, "fill": fill},
         {
-            "value": "RECIPIENT SUPPORT: 555-555-5555 X5",
+            "value": f"RECIPIENT SUPPORT: {recipient_support_phone}",
             "font": font,
             "alignment": alignment_right,
             "fill": fill,
