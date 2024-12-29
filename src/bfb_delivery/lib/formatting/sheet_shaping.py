@@ -74,7 +74,7 @@ def split_chunked_route(
 
         with pd.ExcelWriter(split_workbook_path) as writer:
             driver_set_df = chunked_sheet[chunked_sheet[Columns.DRIVER].isin(driver_set)]
-            # TODO: Sort by driver and stop number.
+            driver_set_df.sort_values(by=[Columns.DRIVER, Columns.STOP_NO], inplace=True)
             for driver_name, data in driver_set_df.groupby(Columns.DRIVER):
                 data[SPLIT_ROUTE_COLUMNS].to_excel(
                     writer, sheet_name=str(driver_name), index=False
