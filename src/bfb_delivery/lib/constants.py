@@ -36,7 +36,7 @@ COMBINED_ROUTES_COLUMNS: Final[list[str]] = [
     Columns.ADDRESS,
     Columns.PHONE,
     Columns.NOTES,
-    Columns.ORDER_COUNT,  # TODO: Drop this when we add formatting.
+    Columns.ORDER_COUNT,
     Columns.BOX_TYPE,
     Columns.NEIGHBORHOOD,
 ]

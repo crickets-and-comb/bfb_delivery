@@ -131,6 +131,8 @@ def format_combined_routes(
     wb = Workbook()
     wb.remove(wb["Sheet"])
     header_row_definition = _create_formatted_header_row()
+    # TODO: Pass in date as argument from CLI.
+    date = "Dummy date"
     with pd.ExcelFile(input_path) as xls:
         for sheet_idx, sheet_name in enumerate(sorted(xls.sheet_names)):
             driver_name = str(sheet_name)
@@ -146,22 +148,24 @@ def format_combined_routes(
             # Also, may not make the most sense in order of apt number. Ask team.
             route_df.sort_values(by=[Columns.STOP_NO], inplace=True)
 
-            # agg_dict = _aggregate_route_data(df=route_df)
+            agg_dict = _aggregate_route_data(df=route_df)
             # TODO: !! What happens when there are more than one order for a stop? Two rows?
             # (Since order count column is dropped in manifest)
+            # Oh wait, they're all 1s, so is that just a way for them to count them with sum?
+            # If that's so, ignore it or validate always a 1?
 
             ws = wb.create_sheet(title=driver_name, index=sheet_idx)
             _add_header_row(ws=ws, row_definition=header_row_definition)
-            # TODO: Add driver name cell.
-            # TODO: Add date cell.
-            # TODO: Add aggregate cells.
-            # TODO: Color code data.
+            _add_aggregate_block(ws=ws, agg_dict=agg_dict, date=date, driver_name=driver_name)
 
             df_header_row_number = 9
             _write_data_to_sheet(
                 ws=ws, df=route_df, df_header_row_number=df_header_row_number
             )
             _format_sheet(ws=ws, df_header_row_number=df_header_row_number)
+
+            # TODO: Set column widths by df content. (May need to write df before other cells.)
+            # TODO: Word wrap notes (and naighborhoods?)
 
             # TODO: Add date to sheet name.
             # TODO: Append and format as we go instead.
@@ -184,28 +188,14 @@ def _aggregate_route_data(df: pd.DataFrame) -> dict:
         Dictionary of aggregated data.
     """
     agg_dict = {
-        "box_counts": df.groupby(Columns.BOX_TYPE)[Columns.BOX_COUNT].sum().to_dict(),
-        "total_box_count": df[Columns.BOX_COUNT].sum(),
+        "box_counts": df.groupby(Columns.BOX_TYPE)[Columns.ORDER_COUNT].sum().to_dict(),
+        "total_box_count": df[Columns.ORDER_COUNT].sum(),
         "protein_box_count": df[df[Columns.BOX_TYPE].isin(PROTEIN_BOX_TYPES)][
-            Columns.BOX_COUNT
+            Columns.ORDER_COUNT
         ].sum(),
         "neighborhoods": df[Columns.NEIGHBORHOOD].unique().tolist(),
     }
     return agg_dict
-
-
-@typechecked
-def _add_header_row(ws: Worksheet, row_definition: list[dict]) -> None:
-    """Append a reusable formatted row to the worksheet."""
-    next_row = ws.max_row
-
-    for col_idx, col_data in enumerate(row_definition, start=1):
-        cell = ws.cell(row=next_row, column=col_idx, value=col_data["value"])
-        cell.font = col_data["font"]
-        if col_data["alignment"]:
-            cell.alignment = col_data["alignment"]
-        if col_data["fill"]:
-            cell.fill = col_data["fill"]
 
 
 @typechecked
@@ -242,6 +232,62 @@ def _create_formatted_header_row() -> list[dict]:
     ]
 
     return formatted_row
+
+
+@typechecked
+def _add_header_row(ws: Worksheet, row_definition: list[dict]) -> None:
+    """Append a reusable formatted row to the worksheet."""
+    next_row = ws.max_row
+
+    for col_idx, col_data in enumerate(row_definition, start=1):
+        cell = ws.cell(row=next_row, column=col_idx, value=col_data["value"])
+        cell.font = col_data["font"]
+        if col_data["alignment"]:
+            cell.alignment = col_data["alignment"]
+        if col_data["fill"]:
+            cell.fill = col_data["fill"]
+
+
+@typechecked
+def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: str) -> None:
+    """Append left and right blocks to the worksheet row by row."""
+    # TODO: Yeah, let's use an enum for box types since the manifest is a contract.
+    right_block = [
+        [None],
+        ["BASIC", agg_dict["box_counts"].get("BASIC", 0)],
+        ["LA", agg_dict["box_counts"].get("LA", 0)],
+        ["GF", agg_dict["box_counts"].get("GF", 0)],
+        ["VEGAN", agg_dict["box_counts"].get("VEGAN", 0)],
+        ["TOTAL BOX COUNT", agg_dict["total_box_count"]],
+        ["PROTEIN COUNT", agg_dict["protein_box_count"]],
+    ]
+
+    left_block = [
+        [None],
+        [f"Date: {date}"],
+        [None],
+        [f"Driver: {driver_name}"],
+        [None],
+        [f"Neighborhoods: {", ".join(agg_dict['neighborhoods'])}"],
+        [None],
+    ]
+
+    bold_font = Font(bold=True)
+    alignment_left = Alignment(horizontal="left")
+    alignment_right = Alignment(horizontal="right")
+
+    for i, (left_row, right_row) in enumerate(
+        zip(left_block, right_block, strict=True), start=ws.max_row + 1
+    ):
+        for col_idx, value in enumerate(left_row, start=1):
+            cell = ws.cell(row=i, column=col_idx, value=value)
+            cell.font = bold_font
+            cell.alignment = alignment_left
+
+        for col_idx, value in enumerate(right_row, start=5):
+            cell = ws.cell(row=i, column=col_idx, value=value)
+            cell.font = bold_font
+            cell.alignment = alignment_right
 
 
 @typechecked

@@ -595,13 +595,15 @@ def test_aggregate_route_data() -> None:
     route_df = pd.DataFrame(
         {
             Columns.BOX_TYPE: ["BASIC", "GF", "LA", "BASIC", "GF", "LA", "Vegan"],
-            Columns.BOX_COUNT: [1, 1, 1, 2, 1, 1, 2],
+            Columns.ORDER_COUNT: [1, 1, 1, 2, 1, 1, 2],
+            Columns.NEIGHBORHOOD: ["YORK", "YORK", "YORK", "PUGET", "YORK", "YORK", "PUGET"],
         }
     )
     expected_agg_dict = agg_dict = {
         "box_counts": {"BASIC": 3, "GF": 2, "LA": 2, "Vegan": 2},
         "total_box_count": 9,
         "protein_box_count": 7,
+        "neighborhoods": ["YORK", "PUGET"],
     }
 
     agg_dict = _aggregate_route_data(df=route_df)
