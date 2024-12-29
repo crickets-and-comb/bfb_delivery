@@ -106,9 +106,9 @@ def combine_route_tables(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     with pd.ExcelWriter(output_path) as writer:
-        # TODO: Sort by driver and stop number.
-        for path in paths:
+        for path in sorted(paths):
             route_df = pd.read_csv(path)
+            route_df.sort_values(by=[Columns.STOP_NO], inplace=True)
             driver_name = path.stem
             route_df[COMBINED_ROUTES_COLUMNS].to_excel(
                 writer, sheet_name=driver_name, index=False
