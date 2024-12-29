@@ -145,45 +145,20 @@ def format_combined_routes(
 
             ws = wb.create_sheet(title=driver_name, index=sheet_idx)
 
-            # Write data to sheet.
             df_header_row_number = 9
             _write_data_to_sheet(
                 ws=ws, df=route_df, df_header_row_number=df_header_row_number
             )
+            _format_sheet(ws=ws, df_header_row_number=df_header_row_number)
 
-            # Format sheet.
-            thin_border = Border(
-                left=Side(style="thin"),
-                right=Side(style="thin"),
-                top=Side(style="thin"),
-                bottom=Side(style="thin"),
-            )
-
-            header_font = Font(bold=True)
-
-            header_row = ws[df_header_row_number]
-            for cell in header_row:
-                if cell.value:
-                    cell.font = header_font
-                    cell.alignment = Alignment(horizontal="center", vertical="center")
-
-            for row in ws.iter_rows(
-                min_row=df_header_row_number,
-                max_row=ws.max_row,
-                min_col=1,
-                max_col=ws.max_column,
-            ):
-                for cell in row:
-                    cell.border = thin_border
-
-            # TODO: Add aggregate cells.
             # TODO: Add header cells.
+            # TODO: Add aggregate cells.
             # TODO: Add driver name cell.
             # TODO: Add date cell.
             # TODO: Add date to sheet name.
             # TODO: Color code data.
             # TODO: Sort sheets.
-
+        # TODO: Write a test that at least checks that the sheets are not empty.
         wb.save(output_path)
 
     return output_path.resolve()
@@ -216,3 +191,27 @@ def _write_data_to_sheet(ws: Worksheet, df: pd.DataFrame, df_header_row_number: 
     ):
         for c_idx, value in enumerate(row, start=1):
             ws.cell(row=r_idx, column=c_idx, value=value)
+
+
+@typechecked
+def _format_sheet(ws: Worksheet, df_header_row_number: int) -> None:
+    thin_border = Border(
+        left=Side(style="thin"),
+        right=Side(style="thin"),
+        top=Side(style="thin"),
+        bottom=Side(style="thin"),
+    )
+
+    header_font = Font(bold=True)
+
+    header_row = ws[df_header_row_number]
+    for cell in header_row:
+        if cell.value:
+            cell.font = header_font
+            cell.alignment = Alignment(horizontal="center", vertical="center")
+
+    for row in ws.iter_rows(
+        min_row=df_header_row_number, max_row=ws.max_row, min_col=1, max_col=ws.max_column
+    ):
+        for cell in row:
+            cell.border = thin_border
