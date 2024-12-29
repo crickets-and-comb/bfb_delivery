@@ -15,6 +15,7 @@ from bfb_delivery.cli import split_chunked_route as split_chunked_route_cli
 from bfb_delivery.lib.constants import (
     COMBINED_ROUTES_COLUMNS,
     FILE_DATE_FORMAT,
+    FORMATTED_ROUTES_COLUMNS,
     MANIFEST_DATE_FORMAT,
     SPLIT_ROUTE_COLUMNS,
     Columns,
@@ -610,6 +611,40 @@ class TestFormatCombinedRoutes:
         )
         expected_output_dir = Path(output_dir) if output_dir else mock_combined_routes.parent
         assert (expected_output_dir / expected_output_filename).exists()
+
+    def test_df_is_same(self, mock_combined_routes: Path) -> None:
+        """All the input data is in the formatted workbook."""
+        # TODO: Make this a class-scoped fixture and share with other tests.
+        # Other classes too?
+        date = "1.1"
+        output_path = format_combined_routes(input_path=mock_combined_routes, date=date)
+
+        with pd.ExcelFile(mock_combined_routes) as input_xls:
+            for sheet_name in sorted(input_xls.sheet_names):
+                input_df = pd.read_excel(input_xls, sheet_name=sheet_name)
+                input_df.sort_values(by=[Columns.STOP_NO], inplace=True)
+                output_df = pd.read_excel(
+                    output_path, sheet_name=f"{date} {sheet_name}", skiprows=8
+                )
+
+                # Hacky, but need to make sure formatted values haven't fundamentally changed.
+                formatted_columns = [Columns.BOX_TYPE, Columns.NAME, Columns.PHONE]
+                unformatted_columns = [
+                    col for col in FORMATTED_ROUTES_COLUMNS if col not in formatted_columns
+                ]
+                assert input_df[unformatted_columns].equals(output_df[unformatted_columns])
+
+                input_box_type_df = input_df[[Columns.BOX_TYPE]]
+                _format_and_validate_box_type(df=input_box_type_df)
+                assert input_box_type_df.equals(output_df[[Columns.BOX_TYPE]])
+
+                input_name_df = input_df[[Columns.NAME]]
+                _format_and_validate_name(df=input_name_df)
+                assert input_name_df.equals(output_df[[Columns.NAME]])
+
+                input_phone_df = input_df[[Columns.PHONE]]
+                _format_and_validate_phone(df=input_phone_df)
+                assert input_phone_df.equals(output_df[[Columns.PHONE]])
 
 
 def test_aggregate_route_data() -> None:
