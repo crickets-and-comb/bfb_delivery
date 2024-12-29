@@ -125,9 +125,10 @@ def format_combined_routes(
     )
     output_path = Path(output_dir) / output_filename
 
+    wb = Workbook()
+    wb.remove(wb["Sheet"])
+    header_row_definition = _create_formatted_header_row()
     with pd.ExcelFile(input_path) as xls:
-        wb = Workbook()
-        wb.remove(wb["Sheet"])
         for sheet_idx, sheet_name in enumerate(sorted(xls.sheet_names)):
             driver_name = str(sheet_name)
             route_df = pd.read_excel(xls, driver_name)
@@ -146,7 +147,7 @@ def format_combined_routes(
             # agg_dict = _aggregate_route_data(df=route_df)
 
             ws = wb.create_sheet(title=driver_name, index=sheet_idx)
-            _add_header_row(ws=ws)
+            _add_header_row(ws=ws, row_definition=header_row_definition)
             # TODO: Add driver name cell.
             # TODO: Add date cell.
             # TODO: Add aggregate cells.
@@ -163,7 +164,7 @@ def format_combined_routes(
             # TODO: Set print_area (Use calculate_dimensions)
             # TODO: set_printer_settings(paper_size, orientation)
         # TODO: Write a test that at least checks that the sheets are not empty.
-        wb.save(output_path)
+    wb.save(output_path)
 
     return output_path.resolve()
 
@@ -189,29 +190,53 @@ def _aggregate_route_data(df: pd.DataFrame) -> dict:
 
 
 @typechecked
-def _add_header_row(ws: Worksheet) -> None:
-    # TODO: Make the numbers args to pass in so they don't get published.
-    # Or, make them required env vars? Wrap in try and give a helpful error message
-    # on how to create a .env file or pass env vars? Maybe add a precheck?
-    ws["A1"] = "DRIVER SUPPORT: 555-555-5555"
-    ws["D1"] = "RECIPIENT SUPPORT: 555-555-5555 X5"
-    ws["F1"] = "PLEASE SHRED MANIFEST AFTER COMPLETING ROUTE"
+def _add_header_row(ws: Worksheet, row_definition: list[dict]) -> None:
+    """Append a reusable formatted row to the worksheet."""
+    next_row = ws.max_row
 
-    ws["D1"].alignment = Alignment(horizontal="right")
-    ws["F1"].alignment = Alignment(horizontal="right")
+    for col_idx, col_data in enumerate(row_definition, start=1):
+        cell = ws.cell(row=next_row, column=col_idx, value=col_data["value"])
+        cell.font = col_data["font"]
+        if col_data["alignment"]:
+            cell.alignment = col_data["alignment"]
+        if col_data["fill"]:
+            cell.fill = col_data["fill"]
 
-    for cell in ws[1]:
-        cell.font = Font(bold=True)
 
-    last_col = 1
-    for cell in ws[1]:
-        if cell.value:
-            last_col = cell.column
+@typechecked
+def _create_formatted_header_row() -> list[dict]:
+    """Create a reusable formatted row definition."""
+    font = Font(bold=True)
+    alignment_left = Alignment(horizontal="left")
+    alignment_right = Alignment(horizontal="right")
+    fill_color = "FFC0CB"
+    fill = PatternFill(start_color=fill_color, end_color=fill_color, fill_type="solid")
 
-    # Color all cells in the first row up to the last cell with data
-    for col in range(1, last_col + 1):
-        cell = ws.cell(row=1, column=col)
-        cell.fill = PatternFill(start_color="FFC0CB", end_color="FFC0CB", fill_type="solid")
+    formatted_row = [
+        {
+            "value": "DRIVER SUPPORT: 555-555-5555",
+            "font": font,
+            "alignment": alignment_left,
+            "fill": fill,
+        },
+        {"value": "", "font": font, "alignment": None, "fill": fill},
+        {"value": "", "font": font, "alignment": None, "fill": fill},
+        {
+            "value": "RECIPIENT SUPPORT: 555-555-5555 X5",
+            "font": font,
+            "alignment": alignment_right,
+            "fill": fill,
+        },
+        {"value": "", "font": font, "alignment": None, "fill": fill},
+        {
+            "value": "PLEASE SHRED MANIFEST AFTER COMPLETING ROUTE",
+            "font": font,
+            "alignment": alignment_right,
+            "fill": fill,
+        },
+    ]
+
+    return formatted_row
 
 
 @typechecked
@@ -238,7 +263,7 @@ def _format_sheet(ws: Worksheet, df_header_row_number: int) -> None:
     for cell in header_row:
         if cell.value:
             cell.font = header_font
-            cell.alignment = Alignment(horizontal="center", vertical="center")
+            cell.alignment = Alignment(horizontal="left")
 
     for row in ws.iter_rows(
         min_row=df_header_row_number, max_row=ws.max_row, min_col=1, max_col=ws.max_column
