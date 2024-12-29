@@ -16,6 +16,7 @@ from bfb_delivery.lib.constants import (
     FORMATTED_ROUTES_COLUMNS,
     PROTEIN_BOX_TYPES,
     SPLIT_ROUTE_COLUMNS,
+    CellColors,
     Columns,
 )
 from bfb_delivery.lib.formatting.data_cleaning import (
@@ -164,8 +165,8 @@ def format_combined_routes(
             )
             _format_sheet(ws=ws, df_header_row_number=df_header_row_number)
 
-            # TODO: Set column widths by df content. (May need to write df before other cells.)
-            # TODO: Word wrap notes (and naighborhoods?)
+            # TODO: Set column widths by df. (May need to write df before other cells.)
+            # TODO: Word wrap notes (and neighborhoods?)
 
             # TODO: Add date to sheet name.
             # TODO: Append and format as we go instead.
@@ -204,8 +205,9 @@ def _create_formatted_header_row() -> list[dict]:
     font = Font(bold=True)
     alignment_left = Alignment(horizontal="left")
     alignment_right = Alignment(horizontal="right")
-    fill_color = "FFC0CB"
-    fill = PatternFill(start_color=fill_color, end_color=fill_color, fill_type="solid")
+    fill = PatternFill(
+        start_color=CellColors.HEADER, end_color=CellColors.HEADER, fill_type="solid"
+    )
 
     formatted_row = [
         {
@@ -253,23 +255,23 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
     """Append left and right blocks to the worksheet row by row."""
     # TODO: Yeah, let's use an enum for box types since the manifest is a contract.
     right_block = [
-        [None],
-        ["BASIC", agg_dict["box_counts"].get("BASIC", 0)],
-        ["LA", agg_dict["box_counts"].get("LA", 0)],
-        ["GF", agg_dict["box_counts"].get("GF", 0)],
-        ["VEGAN", agg_dict["box_counts"].get("VEGAN", 0)],
-        ["TOTAL BOX COUNT", agg_dict["total_box_count"]],
-        ["PROTEIN COUNT", agg_dict["protein_box_count"]],
+        [{"value": None}],
+        [{"value": "BASIC"}, {"value": agg_dict["box_counts"].get("BASIC", 0)}],
+        [{"value": "LA"}, {"value": agg_dict["box_counts"].get("LA", 0)}],
+        [{"value": "GF"}, {"value": agg_dict["box_counts"].get("GF", 0)}],
+        [{"value": "VEGAN"}, {"value": agg_dict["box_counts"].get("VEGAN", 0)}],
+        [{"value": "TOTAL BOX COUNT"}, {"value": agg_dict["total_box_count"]}],
+        [{"value": "PROTEIN COUNT"}, {"value": agg_dict["protein_box_count"]}],
     ]
 
     left_block = [
-        [None],
-        [f"Date: {date}"],
-        [None],
-        [f"Driver: {driver_name}"],
-        [None],
-        [f"Neighborhoods: {", ".join(agg_dict['neighborhoods'])}"],
-        [None],
+        [{"value": None}],
+        [{"value": f"Date: {date}"}],
+        [{"value": None}],
+        [{"value": f"Driver: {driver_name}"}],
+        [{"value": None}],
+        [{"value": f"Neighborhoods: {", ".join(agg_dict['neighborhoods'])}"}],
+        [{"value": None}],
     ]
 
     bold_font = Font(bold=True)
@@ -279,13 +281,13 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
     for i, (left_row, right_row) in enumerate(
         zip(left_block, right_block, strict=True), start=ws.max_row + 1
     ):
-        for col_idx, value in enumerate(left_row, start=1):
-            cell = ws.cell(row=i, column=col_idx, value=value)
+        for col_idx, cell_definition in enumerate(left_row, start=1):
+            cell = ws.cell(row=i, column=col_idx, value=cell_definition["value"])
             cell.font = bold_font
             cell.alignment = alignment_left
 
-        for col_idx, value in enumerate(right_row, start=5):
-            cell = ws.cell(row=i, column=col_idx, value=value)
+        for col_idx, cell_definition in enumerate(right_row, start=5):
+            cell = ws.cell(row=i, column=col_idx, value=cell_definition["value"])
             cell.font = bold_font
             cell.alignment = alignment_right
 

@@ -1,6 +1,18 @@
 """Constants used in the project."""
 
+# TODO: Make enums? (Use Pandera?): box types, neighborhood
+
 from typing import Final
+
+
+class CellColors:
+    """Colors for spreadsheet formatting."""
+
+    BASIC: Final[str] = "FFA500"  # Orange
+    HEADER: Final[str] = "FFC0CB"  # Pink
+    LA: Final[str] = "0000FF"  # Blue
+    GF: Final[str] = "008000"  # Green
+    VEGAN: Final[str] = "808080"  # Grey
 
 
 class Columns:
@@ -18,17 +30,6 @@ class Columns:
     PHONE: Final[str] = "Phone"
     STOP_NO: Final[str] = "Stop #"
 
-
-SPLIT_ROUTE_COLUMNS: Final[list[str]] = [
-    Columns.NAME,
-    Columns.ADDRESS,
-    Columns.PHONE,
-    Columns.EMAIL,
-    Columns.NOTES,
-    Columns.ORDER_COUNT,
-    Columns.BOX_TYPE,
-    Columns.NEIGHBORHOOD,
-]
 
 COMBINED_ROUTES_COLUMNS: Final[list[str]] = [
     Columns.STOP_NO,
@@ -54,4 +55,13 @@ MAX_ORDER_COUNT: Final[int] = 5
 
 PROTEIN_BOX_TYPES: Final[list[str]] = ["BASIC", "GF", "LA"]
 
-# TODO: Make enums? (Use Pandera?): box types, neighborhood
+SPLIT_ROUTE_COLUMNS: Final[list[str]] = [
+    Columns.NAME,
+    Columns.ADDRESS,
+    Columns.PHONE,
+    Columns.EMAIL,
+    Columns.NOTES,
+    Columns.ORDER_COUNT,
+    Columns.BOX_TYPE,
+    Columns.NEIGHBORHOOD,
+]
