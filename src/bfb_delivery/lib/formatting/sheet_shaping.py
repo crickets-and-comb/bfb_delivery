@@ -7,6 +7,7 @@ import pandas as pd
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, Side
 from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.worksheet.worksheet import Worksheet
 from typeguard import typechecked
 
 from bfb_delivery.lib.constants import (
@@ -146,13 +147,9 @@ def format_combined_routes(
 
             # Write data to sheet.
             df_header_row_number = 9
-
-            for r_idx, row in enumerate(
-                dataframe_to_rows(route_df, index=False, header=True),
-                start=df_header_row_number,
-            ):
-                for c_idx, value in enumerate(row, start=1):
-                    ws.cell(row=r_idx, column=c_idx, value=value)
+            _write_data_to_sheet(
+                ws=ws, df=route_df, df_header_row_number=df_header_row_number
+            )
 
             # Format sheet.
             thin_border = Border(
@@ -169,7 +166,6 @@ def format_combined_routes(
                 if cell.value:
                     cell.font = header_font
                     cell.alignment = Alignment(horizontal="center", vertical="center")
-                    # cell.border = thin_border
 
             for row in ws.iter_rows(
                 min_row=df_header_row_number,
@@ -211,3 +207,12 @@ def _aggregate_route_data(df: pd.DataFrame) -> dict:
         ].sum(),
     }
     return agg_dict
+
+
+@typechecked
+def _write_data_to_sheet(ws: Worksheet, df: pd.DataFrame, df_header_row_number: int) -> None:
+    for r_idx, row in enumerate(
+        dataframe_to_rows(df, index=False, header=True), start=df_header_row_number
+    ):
+        for c_idx, value in enumerate(row, start=1):
+            ws.cell(row=r_idx, column=c_idx, value=value)
