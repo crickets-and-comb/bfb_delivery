@@ -1,5 +1,6 @@
 """Functions for shaping and formatting spreadsheets."""
 
+import math
 import warnings
 from datetime import datetime
 from pathlib import Path
@@ -160,11 +161,13 @@ def format_combined_routes(
 
             ws = wb.create_sheet(title=driver_name, index=sheet_idx)
             _add_header_row(ws=ws)
-            _add_aggregate_block(ws=ws, agg_dict=agg_dict, date=date, driver_name=driver_name)
+            neighborhoods_row = _add_aggregate_block(
+                ws=ws, agg_dict=agg_dict, date=date, driver_name=driver_name
+            )
             df_start_row = _write_data_to_sheet(ws=ws, df=route_df)
             _auto_adjust_column_widths(ws=ws, df_start_row=df_start_row)
             _word_wrap_notes_column(ws=ws)
-            # TODO: Word wrap neighborhoods. (Merge with next two cells)
+            _merge_and_wrap_neighborhoods(ws=ws, neighborhoods_row=neighborhoods_row)
             # TODO: Color code boxt types.
             # TODO: Add date to sheet name.
             # TODO: Append and format as we go instead.
@@ -250,7 +253,7 @@ def _add_header_row(ws: Worksheet) -> None:
 
 
 @typechecked
-def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: str) -> None:
+def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: str) -> int:
     """Append left and right aggregation blocks to the worksheet row by row."""
     # TODO: Yeah, let's use an enum for box types since the manifest is a contract.
     thin_border = Border(
@@ -347,6 +350,7 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
     alignment_right = Alignment(horizontal="right")
 
     start_row = ws.max_row + 1
+    neighborhoods_row = 0
     for i, (left_row, right_row) in enumerate(
         zip(left_block, right_block, strict=True), start=start_row
     ):
@@ -354,6 +358,10 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
             cell = ws.cell(row=i, column=col_idx, value=cell_definition["value"])
             cell.font = bold_font
             cell.alignment = alignment_left
+            if cell_definition["value"] and cell_definition["value"].startswith(
+                "Neighborhoods"
+            ):
+                neighborhoods_row = i
 
         for col_idx, cell_definition in enumerate(right_row, start=5):
             cell = ws.cell(row=i, column=col_idx, value=cell_definition["value"])
@@ -364,7 +372,7 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
             if isinstance(cell_definition["border"], Border):
                 cell.border = cell_definition["border"]
 
-    return
+    return neighborhoods_row
 
 
 @typechecked
@@ -422,5 +430,36 @@ def _word_wrap_notes_column(ws: Worksheet) -> None:
     ws.column_dimensions[col_letter].width = NOTES_COLUMN_WIDTH
     for cell in ws[f"{col_letter}"]:
         cell.alignment = Alignment(wrap_text=True)
+
+    return
+
+
+@typechecked
+def _merge_and_wrap_neighborhoods(ws: Worksheet, neighborhoods_row: int) -> None:
+    """Merge the neighborhoods cell and wrap the text."""
+    start_col = 1
+    end_col = 3
+    ws.merge_cells(
+        start_row=neighborhoods_row,
+        start_column=start_col,
+        end_row=neighborhoods_row,
+        end_column=end_col,
+    )
+    cell = ws.cell(row=neighborhoods_row, column=start_col)
+    cell.alignment = Alignment(wrap_text=True)
+
+    # Merged cells don't adjust height automatically, so we need to estimate it.
+    if cell.value:
+        merged_width = sum(
+            ws.column_dimensions[col[0].column_letter].width
+            for col in ws.iter_cols(min_col=start_col, max_col=end_col)
+        )
+        char_width = 1.2
+        lines = 0
+        for line in str(cell.value).split():
+            line_length = len(line) * char_width
+            lines += line_length / merged_width
+
+        ws.row_dimensions[neighborhoods_row].height = max(15, math.ceil(lines) * 15)
 
     return
