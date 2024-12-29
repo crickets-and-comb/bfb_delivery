@@ -49,6 +49,8 @@ COMBINED_ROUTES_COLUMNS: Final[list[str]] = [
     Columns.NEIGHBORHOOD,
 ]
 
+FILE_DATE_FORMAT: Final[str] = "%Y%m%d"
+
 FORMATTED_ROUTES_COLUMNS: Final[list[str]] = [
     Columns.STOP_NO,
     Columns.NAME,

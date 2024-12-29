@@ -15,6 +15,7 @@ from typeguard import typechecked
 from bfb_delivery.lib.constants import (
     BOX_TYPE_COLOR_MAP,
     COMBINED_ROUTES_COLUMNS,
+    FILE_DATE_FORMAT,
     FORMATTED_ROUTES_COLUMNS,
     NOTES_COLUMN_WIDTH,
     PROTEIN_BOX_TYPES,
@@ -59,7 +60,7 @@ def split_chunked_route(
 
     output_dir = Path(output_dir) if output_dir else Path(input_path).parent
     base_output_filename = (
-        f"split_workbook_{datetime.now().strftime('%Y%m%d')}.xlsx"
+        f"split_workbook_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
         if output_filename == ""
         else output_filename
     )
@@ -98,7 +99,7 @@ def combine_route_tables(
     paths = [Path(path) for path in input_paths]
     output_dir = Path(output_dir) if output_dir else paths[0].parent
     output_filename = (
-        f"combined_routes_{datetime.now().strftime('%Y%m%d')}.xlsx"
+        f"combined_routes_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
         if output_filename == ""
         else output_filename
     )
@@ -128,7 +129,7 @@ def format_combined_routes(
     input_path = Path(input_path)
     output_dir = Path(output_dir) if output_dir else input_path.parent
     output_filename = (
-        f"formatted_routes_{datetime.now().strftime('%Y%m%d')}.xlsx"
+        f"formatted_routes_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
         if output_filename == ""
         else output_filename
     )

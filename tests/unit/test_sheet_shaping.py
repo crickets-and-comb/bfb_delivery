@@ -12,7 +12,12 @@ from bfb_delivery import combine_route_tables, format_combined_routes, split_chu
 from bfb_delivery.cli import combine_route_tables as combine_route_tables_cli
 from bfb_delivery.cli import format_combined_routes as format_combined_routes_cli
 from bfb_delivery.cli import split_chunked_route as split_chunked_route_cli
-from bfb_delivery.lib.constants import COMBINED_ROUTES_COLUMNS, SPLIT_ROUTE_COLUMNS, Columns
+from bfb_delivery.lib.constants import (
+    COMBINED_ROUTES_COLUMNS,
+    FILE_DATE_FORMAT,
+    SPLIT_ROUTE_COLUMNS,
+    Columns,
+)
 from bfb_delivery.lib.formatting.data_cleaning import (
     _format_and_validate_box_type,
     _format_and_validate_name,
@@ -196,8 +201,7 @@ class TestCombineRouteTables:
             input_paths=mock_route_tables, output_filename=output_filename
         )
         expected_filename = (
-            # TODO: Make date format constant.
-            f"combined_routes_{datetime.now().strftime('%Y%m%d')}.xlsx"
+            f"combined_routes_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
             if output_filename == ""
             else output_filename
         )
@@ -267,7 +271,7 @@ class TestCombineRouteTables:
         assert result.exit_code == 0
 
         expected_output_filename = (
-            f"combined_routes_{datetime.now().strftime('%Y%m%d')}.xlsx"
+            f"combined_routes_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
             if output_filename == ""
             else output_filename
         )
@@ -314,7 +318,10 @@ class TestSplitChunkedRoute:
             expected_filename = (
                 f"{expected_filename}_{i + 1}.xlsx"
                 if output_filename
-                else f"split_workbook_{datetime.now().strftime('%Y%m%d')}_{i + 1}.xlsx"
+                else (
+                    f"split_workbook_{datetime.now().strftime(FILE_DATE_FORMAT)}"
+                    f"_{i + 1}.xlsx"
+                )
             )
             assert output_path.name == expected_filename
 
@@ -464,7 +471,10 @@ class TestSplitChunkedRoute:
             expected_filename = (
                 f"{output_filename.split('.')[0]}_{i + 1}.xlsx"
                 if output_filename
-                else f"split_workbook_{datetime.now().strftime('%Y%m%d')}_{i + 1}.xlsx"
+                else (
+                    f"split_workbook_{datetime.now().strftime(FILE_DATE_FORMAT)}"
+                    f"_{i + 1}.xlsx"
+                )
             )
             expected_output_dir = (
                 Path(output_dir) if output_dir else mock_chunked_sheet_raw.parent
@@ -541,7 +551,7 @@ class TestFormatCombinedRoutes:
             input_path=mock_combined_routes, output_filename=output_filename
         )
         expected_output_filename = (
-            f"formatted_routes_{datetime.now().strftime('%Y%m%d')}.xlsx"
+            f"formatted_routes_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
             if output_filename == ""
             else output_filename
         )
@@ -593,7 +603,7 @@ class TestFormatCombinedRoutes:
         assert result.exit_code == 0
 
         expected_output_filename = (
-            f"formatted_routes_{datetime.now().strftime('%Y%m%d')}.xlsx"
+            f"formatted_routes_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
             if output_filename == ""
             else output_filename
         )
