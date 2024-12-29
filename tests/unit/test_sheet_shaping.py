@@ -571,9 +571,9 @@ class TestFormatCombinedRoutes:
     ) -> None:
         """Test that all drivers have a sheet in the formatted workbook. And date works."""
         sheet_names = set([f"{expected_date} {driver}" for driver in DRIVERS])
-        kwargs: dict[str, str | Path] = {"input_path": mock_combined_routes}
+        kwargs: dict[str, str] = {"input_path": str(mock_combined_routes)}
         if date is not None:
-            kwargs["date"] = date
+            kwargs["date"] = str(date)
 
         output_path = format_combined_routes(**kwargs)
         workbook = pd.ExcelFile(output_path)
