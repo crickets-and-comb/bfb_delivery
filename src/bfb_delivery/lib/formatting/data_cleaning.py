@@ -24,9 +24,10 @@ def format_column_names(columns: list[str]) -> list[str]:
     Returns:
         The cleaned column names.
     """
-    # TODO: Other column cleaning? (e.g., remove special characters, set casing)
     columns = [column.strip() for column in columns]
+    # TODO: Other column cleaning? (e.g., remove special characters, set casing)
     # TODO: Validate? Use general constant list?
+    # TODO: Make column names StrEnum? Or just make sure they are in the constants list?
     return columns
 
 
@@ -57,9 +58,10 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
     # TODO: FutureWarning: Setting an item of incompatible dtype is deprecated and will
     # raise an error in a future version of pandas. Value '' has dtype incompatible with
     # float64, please explicitly cast to a compatible dtype first.
+    # Cast all to string to start? Then convert "nan" to ""?
     df.fillna("", inplace=True)
 
-    # TODO: Could use generic or class? But, this works, and is flexible and transparent.
+    # Could use generic, class, or Pandera? But, this works, and is flexible and transparent.
     formatters_dict = {
         Columns.ADDRESS: _format_and_validate_address,
         Columns.BOX_TYPE: _format_and_validate_box_type,
@@ -108,7 +110,6 @@ def _format_and_validate_box_type(df: pd.DataFrame) -> None:
     return
 
 
-# TODO: Make this wrap a list formatter to use that for sheet names. Or make sheetnames a df.
 @typechecked
 def _format_and_validate_driver(df: pd.DataFrame) -> None:
     """Format the driver column."""

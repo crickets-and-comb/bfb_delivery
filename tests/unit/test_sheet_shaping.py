@@ -37,10 +37,8 @@ def module_tmp_dir(tmp_path_factory: pytest.TempPathFactory) -> Path:
 def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
     """Save mock chunked route sheet and get path."""
     fp: Path = module_tmp_dir / "mock_chunked_sheet_raw.xlsx"
-    # TODO: Use specific sheet name?
     raw_chunked_sheet = pd.DataFrame(
         columns=SPLIT_ROUTE_COLUMNS + [Columns.DRIVER, Columns.BOX_COUNT, Columns.STOP_NO],
-        # TODO: Validate box count.
         data=[
             (
                 "Recipient One",
@@ -205,7 +203,6 @@ class TestCombineRouteTables:
         )
         assert output_path.name == expected_filename
 
-    # TODO: Test output columns.
     def test_output_columns(self, mock_route_tables: list[Path]) -> None:
         """Test that the output columns match the COMBINED_ROUTES_COLUMNS constant."""
         output_path = combine_route_tables(input_paths=mock_route_tables)
@@ -502,7 +499,6 @@ class TestFormatCombinedRoutes:
                 df[Columns.ADDRESS] = [
                     f"{driver} stop {stop_no} address" for stop_no in stops
                 ]
-                # TODO: Use phonenumbers.example_number for testing.
                 df[Columns.PHONE] = ["13607345215"] * len(stops)
                 df[Columns.NOTES] = [f"{driver} stop {stop_no} notes" for stop_no in stops]
                 df[Columns.ORDER_COUNT] = [1] * len(stops)

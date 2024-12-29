@@ -1,7 +1,5 @@
 """Constants used in the project."""
 
-# TODO: Make enums? (Use Pandera?): box types, neighborhood
-
 from typing import Final
 
 

@@ -152,8 +152,6 @@ class TestFormatAndValidateData:
         df = pd.DataFrame(
             columns=columns,
             data=[
-                # TODO: As formatting is implemented, add/update rows and comment
-                # what formatting is under test. Leave perfect starter row.
                 (
                     "Driver",
                     1,

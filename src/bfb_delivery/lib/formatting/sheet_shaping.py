@@ -45,7 +45,6 @@ def split_chunked_route(
 
     chunked_sheet: pd.DataFrame = pd.read_excel(input_path)
     chunked_sheet.columns = format_column_names(columns=chunked_sheet.columns.to_list())
-    # TODO: Wrap for this use case so we can test in isolation?
     format_and_validate_data(df=chunked_sheet, columns=SPLIT_ROUTE_COLUMNS + [Columns.DRIVER])
     chunked_sheet.sort_values(by=[Columns.DRIVER, Columns.STOP_NO], inplace=True)
     # TODO: Validate columns? (Use Pandera?)
@@ -88,7 +87,6 @@ def split_chunked_route(
 
 # TODO: Get real input tables to verify this works.
 # (Should match structure of split_chunked_route outputs.)
-# TODO: Validate stop numbers?
 @typechecked
 def combine_route_tables(
     input_paths: list[Path | str], output_dir: Path | str, output_filename: str
@@ -165,7 +163,9 @@ def format_combined_routes(
 
             ws = wb.create_sheet(title=new_sheet_name, index=sheet_idx)
 
-            # TODO: Wrap in a function for tidiness?
+            # TODO: Wrap in a function for tidiness and testing, `_make_manifest`
+            # TODO: Test final sheet from `format_combined_routes`, and from `_make_manifest`,
+            # and test each helper.
             _add_header_row(ws=ws)
             neighborhoods_row_number = _add_aggregate_block(
                 ws=ws, agg_dict=agg_dict, date=date, driver_name=driver_name
@@ -178,7 +178,6 @@ def format_combined_routes(
             )
             # TODO: Set print_area (Use calculate_dimensions)
             # TODO: set_printer_settings(paper_size, orientation)
-            # TODO: Test that default date works. (When writing cell/sheet tests.)
 
     # TODO: Write a test that at least checks that the sheets are not empty.
     # Can check cell values, though. (Maye read dataframe from start row?)
