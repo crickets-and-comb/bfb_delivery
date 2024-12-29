@@ -386,6 +386,7 @@ def _write_data_to_sheet(ws: Worksheet, df: pd.DataFrame) -> int:
     return start_row
 
 
+@typechecked
 def _auto_adjust_column_widths(ws: Worksheet, df_start_row: int) -> None:
     """Auto-adjust column widths to fit the dataframe."""
     for col in ws.columns:
