@@ -157,12 +157,7 @@ def format_combined_routes(
             ws = wb.create_sheet(title=driver_name, index=sheet_idx)
             _add_header_row(ws=ws)
             _add_aggregate_block(ws=ws, agg_dict=agg_dict, date=date, driver_name=driver_name)
-
-            df_header_row_number = 9
-            _write_data_to_sheet(
-                ws=ws, df=route_df, df_header_row_number=df_header_row_number
-            )
-            _format_sheet(ws=ws, df_header_row_number=df_header_row_number)
+            _write_data_to_sheet(ws=ws, df=route_df)
 
             # TODO: Set column widths by df. (May need to write df before other cells.)
             # TODO: Word wrap notes (and neighborhoods?)
@@ -342,7 +337,7 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
     alignment_right = Alignment(horizontal="right")
 
     for i, (left_row, right_row) in enumerate(
-        zip(left_block, right_block, strict=True), start=ws.max_row + 1
+        zip(left_block, right_block, strict=True), start=2
     ):
         for col_idx, cell_definition in enumerate(left_row, start=1):
             cell = ws.cell(row=i, column=col_idx, value=cell_definition["value"])
@@ -362,19 +357,7 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
 
 
 @typechecked
-def _write_data_to_sheet(ws: Worksheet, df: pd.DataFrame, df_header_row_number: int) -> None:
-    for r_idx, row in enumerate(
-        dataframe_to_rows(df[FORMATTED_ROUTES_COLUMNS], index=False, header=True),
-        start=df_header_row_number,
-    ):
-        for c_idx, value in enumerate(row, start=1):
-            ws.cell(row=r_idx, column=c_idx, value=value)
-
-    return
-
-
-@typechecked
-def _format_sheet(ws: Worksheet, df_header_row_number: int) -> None:
+def _write_data_to_sheet(ws: Worksheet, df: pd.DataFrame) -> None:
     thin_border = Border(
         left=Side(style="thin"),
         right=Side(style="thin"),
@@ -384,16 +367,17 @@ def _format_sheet(ws: Worksheet, df_header_row_number: int) -> None:
 
     header_font = Font(bold=True)
 
-    header_row = ws[df_header_row_number]
-    for cell in header_row:
-        if cell.value:
-            cell.font = header_font
-            cell.alignment = Alignment(horizontal="left")
+    df_header_row_number = 9
 
-    for row in ws.iter_rows(
-        min_row=df_header_row_number, max_row=ws.max_row, min_col=1, max_col=ws.max_column
+    for r_idx, row in enumerate(
+        dataframe_to_rows(df[FORMATTED_ROUTES_COLUMNS], index=False, header=True),
+        start=df_header_row_number,
     ):
-        for cell in row:
+        for c_idx, value in enumerate(row, start=1):
+            cell = ws.cell(row=r_idx, column=c_idx, value=value)
             cell.border = thin_border
+            if r_idx == df_header_row_number:
+                cell.font = header_font
+                cell.alignment = Alignment(horizontal="left")
 
     return
