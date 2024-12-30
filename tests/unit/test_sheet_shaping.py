@@ -7,6 +7,7 @@ from typing import Final
 import pandas as pd
 import pytest
 from click.testing import CliRunner
+from openpyxl import Workbook, load_workbook
 
 from bfb_delivery import combine_route_tables, format_combined_routes, split_chunked_route
 from bfb_delivery.cli import combine_route_tables as combine_route_tables_cli
@@ -545,6 +546,12 @@ class TestFormatCombinedRoutes:
         )
         return output_path
 
+    @pytest.fixture(scope="class")
+    def basic_manifest_workbook(self, basic_manifest: Path) -> Workbook:
+        """Create a basic manifest workbook scoped to class for reuse."""
+        workbook = load_workbook(basic_manifest)
+        return workbook
+
     @pytest.mark.parametrize("output_dir_type", [Path, str])
     @pytest.mark.parametrize("output_dir", ["", "dummy_output"])
     def test_set_output_dir(
@@ -657,6 +664,25 @@ class TestFormatCombinedRoutes:
                 input_phone_df = input_df[[Columns.PHONE]]
                 _format_and_validate_phone(df=input_phone_df)
                 assert input_phone_df.equals(output_df[[Columns.PHONE]])
+
+    @pytest.mark.parametrize(
+        "cell, expected_value",
+        [
+            ("A1", "DRIVER SUPPORT: 555-555-5555"),
+            ("B1", None),
+            ("C1", None),
+            ("D1", "RECIPIENT SUPPORT: 555-555-5555 x5"),
+            ("E1", None),
+            ("F1", "PLEASE SHRED MANIFEST AFTER COMPLETING ROUTE."),
+        ],
+    )
+    def test_header_row(
+        self, cell: str, expected_value: str, basic_manifest_workbook: Workbook
+    ) -> None:
+        """Test that the header row is correct."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            assert ws[cell].value == expected_value
 
 
 def test_aggregate_route_data() -> None:

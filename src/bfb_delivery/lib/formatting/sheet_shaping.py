@@ -250,7 +250,7 @@ def _add_header_row(ws: Worksheet) -> None:
         },
         {"value": "", "font": font, "alignment": None, "fill": fill},
         {
-            "value": "PLEASE SHRED MANIFEST AFTER COMPLETING ROUTE",
+            "value": "PLEASE SHRED MANIFEST AFTER COMPLETING ROUTE.",
             "font": font,
             "alignment": alignment_right,
             "fill": fill,
