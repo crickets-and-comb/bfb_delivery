@@ -192,8 +192,8 @@ def _aggregate_route_data(df: pd.DataFrame) -> dict:
     Returns:
         Dictionary of aggregated data.
     """
-    # df = df.copy()
-    # df[Columns.BOX_TYPE] = df[Columns.BOX_TYPE].str.upper().str.strip()
+    df = df.copy()
+    df[Columns.BOX_TYPE] = df[Columns.BOX_TYPE].str.upper().str.strip()
     agg_dict = {
         "box_counts": df.groupby(Columns.BOX_TYPE)[Columns.ORDER_COUNT].sum().to_dict(),
         "total_box_count": df[Columns.ORDER_COUNT].sum(),

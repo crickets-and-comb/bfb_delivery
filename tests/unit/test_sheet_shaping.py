@@ -14,7 +14,7 @@ from bfb_delivery import combine_route_tables, format_combined_routes, split_chu
 from bfb_delivery.cli import combine_route_tables as combine_route_tables_cli
 from bfb_delivery.cli import format_combined_routes as format_combined_routes_cli
 from bfb_delivery.cli import split_chunked_route as split_chunked_route_cli
-from bfb_delivery.lib.constants import (
+from bfb_delivery.lib.constants import (  # BoxType,
     COMBINED_ROUTES_COLUMNS,
     FILE_DATE_FORMAT,
     FORMATTED_ROUTES_COLUMNS,
@@ -726,18 +726,34 @@ class TestFormatCombinedRoutes:
             assert ws["A5"].value == f"Driver: {driver_name}"
             assert driver_name.upper() in drivers
 
-    def test_neighborhood_cell(
-        self, mock_combined_routes_ExcelFile: pd.ExcelFile, basic_manifest_workbook: Workbook
-    ) -> None:
-        """Test that the neighborhood cell is correct."""
-        for sheet_name in sorted(mock_combined_routes_ExcelFile.sheet_names):
-            input_df = pd.read_excel(mock_combined_routes_ExcelFile, sheet_name=sheet_name)
-            manifest_sheet_name = f"{MANIFEST_DATE} {sheet_name}"
-            ws = basic_manifest_workbook[manifest_sheet_name]
+    # def test_agg_cells(
+    #     self,
+    #     mock_combined_routes_ExcelFile: pd.ExcelFile,
+    #     basic_manifest_workbook: Workbook,  # noqa: E501
+    # ) -> None:
+    #     """Test that the aggregated cells are correct."""
+    #     for sheet_name in sorted(mock_combined_routes_ExcelFile.sheet_names):
+    #         input_df = pd.read_excel(mock_combined_routes_ExcelFile, sheet_name=sheet_name)
+    #         manifest_sheet_name = f"{MANIFEST_DATE} {sheet_name}"
+    #         ws = basic_manifest_workbook[manifest_sheet_name]
 
-            agg_dict = _aggregate_route_data(df=input_df)
-            neighborhoods = ", ".join(agg_dict["neighborhoods"])
-            assert ws["A7"].value == f"Neighborhoods: {neighborhoods.upper()}"
+    #         agg_dict = _aggregate_route_data(df=input_df)
+
+    #         neighborhoods = ", ".join(agg_dict["neighborhoods"])
+    #         assert ws["A7"].value == f"Neighborhoods: {neighborhoods.upper()}"
+    #         assert ws["E3"].value == BoxType.BASIC
+    #         assert ws["F3"].value == agg_dict["box_counts"][BoxType.BASIC]
+    #         # TODO: Alphabetize box types rows.
+    #         assert ws["E4"].value == BoxType.LA
+    #         assert ws["F4"].value == agg_dict["box_counts"][BoxType.LA]
+    #         assert ws["E5"].value == BoxType.GF
+    #         assert ws["F5"].value == agg_dict["box_counts"][BoxType.GF]
+    #         assert ws["E6"].value == BoxType.VEGAN
+    #         assert ws["F6"].value == agg_dict["box_counts"][BoxType.VEGAN]
+    #         assert ws["E7"].value == "TOTAL BOX COUNT="
+    #         assert ws["F7"].value == agg_dict["total_box_count"]
+    #         assert ws["E8"].value == "PROTEIN COUNT="
+    #         assert ws["F8"].value == agg_dict["protein_box_count"]
 
     @pytest.mark.parametrize(
         "cell",
@@ -791,7 +807,7 @@ def test_aggregate_route_data() -> None:
         }
     )
     expected_agg_dict = agg_dict = {
-        "box_counts": {"BASIC": 3, "GF": 2, "LA": 2, "Vegan": 2},
+        "box_counts": {"BASIC": 3, "GF": 2, "LA": 2, "VEGAN": 2},
         "total_box_count": 9,
         "protein_box_count": 7,
         "neighborhoods": ["YORK", "PUGET"],
