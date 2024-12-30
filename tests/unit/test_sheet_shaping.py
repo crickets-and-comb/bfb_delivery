@@ -20,6 +20,7 @@ from bfb_delivery.lib.constants import (
     FILE_DATE_FORMAT,
     FORMATTED_ROUTES_COLUMNS,
     MANIFEST_DATE_FORMAT,
+    NOTES_COLUMN_WIDTH,
     SPLIT_ROUTE_COLUMNS,
     BoxType,
     CellColors,
@@ -767,6 +768,13 @@ class TestFormatCombinedRoutes:
             for cell in ws["E"]:
                 if cell.row > 2 and cell.row < 7:
                     assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
+
+    def test_notes_column_width(self, basic_manifest_workbook: Workbook) -> None:
+        """Test that the notes column width is correct."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            assert ws["E9"].value == Columns.NOTES
+            assert ws.column_dimensions["E"].width == NOTES_COLUMN_WIDTH
 
     @pytest.mark.parametrize(
         "cell",
