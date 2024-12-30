@@ -1,6 +1,15 @@
 CLI
 ===
 
+split_chunked_route
+-------------------
+
+See also :doc:`split_chunked_route </split_chunked_route>` for the full documentation.
+
+.. click:: bfb_delivery.cli.split_chunked_route:main
+   :prog: split_chunked_route
+   :nested: full
+
 combine_route_tables
 --------------------
 
@@ -10,11 +19,11 @@ See also :doc:`combine_route_tables </combine_route_tables>` for the full docume
    :prog: combine_route_tables
    :nested: full
 
-split_chunked_route
--------------------
+format_combined_routes
+----------------------
 
-See also :doc:`split_chunked_route </split_chunked_route>` for the full documentation.
+See also :doc:`format_combined_routes </format_combined_routes>` for the full documentation.
 
-.. click:: bfb_delivery.cli.split_chunked_route:main
-   :prog: split_chunked_route
+.. click:: bfb_delivery.cli.format_combined_routes:main
+   :prog: format_combined_routes
    :nested: full
