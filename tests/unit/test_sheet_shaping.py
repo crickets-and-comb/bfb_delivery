@@ -701,6 +701,12 @@ class TestFormatCombinedRoutes:
             ws = basic_manifest_workbook[sheet_name]
             assert ws[cell].fill.start_color.rgb == f"{CellColors.HEADER}"
 
+    def test_date_cell(self, basic_manifest_workbook: Workbook) -> None:
+        """Test that the date cell is correct."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            assert ws["A3"].value == f"Date: {MANIFEST_DATE}"
+
 
 def test_aggregate_route_data() -> None:
     """Test that a route's data is aggregated correctly."""
