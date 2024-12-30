@@ -6,7 +6,7 @@ This project is based on the Crickets and Comb ``reference_package`` template. F
 
 See also the `BFB Delivery GitHub repository <https://github.com/crickets-and-comb/bfb_delivery/>`_.
 
-If you've already cloned the repo and set up the ``shared`` Git submodule, check your make targets with:
+If you've already cloned the repo and set up the ``shared`` Git submodule, check your make targets byt running:
 
 .. code:: bash
 
