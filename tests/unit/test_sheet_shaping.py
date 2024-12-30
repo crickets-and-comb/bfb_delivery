@@ -1,5 +1,6 @@
 """Unit tests for sheet_shaping.py."""
 
+from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
 from typing import Final
@@ -540,6 +541,14 @@ class TestFormatCombinedRoutes:
         return output_path
 
     @pytest.fixture(scope="class")
+    def mock_combined_routes_ExcelFile(
+        self, mock_combined_routes: Path
+    ) -> Iterator[pd.ExcelFile]:
+        """Mock the combined routes table ExcelFile."""
+        with pd.ExcelFile(mock_combined_routes) as xls:
+            yield xls
+
+    @pytest.fixture(scope="class")
     def basic_manifest(self, mock_combined_routes: Path) -> Path:
         """Create a basic manifest scoped to class for reuse."""
         output_path = format_combined_routes(
@@ -637,34 +646,35 @@ class TestFormatCombinedRoutes:
         expected_output_dir = Path(output_dir) if output_dir else mock_combined_routes.parent
         assert (expected_output_dir / expected_output_filename).exists()
 
-    def test_df_is_same(self, mock_combined_routes: Path, basic_manifest: Path) -> None:
+    def test_df_is_same(
+        self, mock_combined_routes_ExcelFile: pd.ExcelFile, basic_manifest: Path
+    ) -> None:
         """All the input data is in the formatted workbook."""
-        with pd.ExcelFile(mock_combined_routes) as input_xls:
-            for sheet_name in sorted(input_xls.sheet_names):
-                input_df = pd.read_excel(input_xls, sheet_name=sheet_name)
-                input_df.sort_values(by=[Columns.STOP_NO], inplace=True)
-                output_df = pd.read_excel(
-                    basic_manifest, sheet_name=f"{MANIFEST_DATE} {sheet_name}", skiprows=8
-                )
+        for sheet_name in sorted(mock_combined_routes_ExcelFile.sheet_names):
+            input_df = pd.read_excel(mock_combined_routes_ExcelFile, sheet_name=sheet_name)
+            input_df.sort_values(by=[Columns.STOP_NO], inplace=True)
+            output_df = pd.read_excel(
+                basic_manifest, sheet_name=f"{MANIFEST_DATE} {sheet_name}", skiprows=8
+            )
 
-                # Hacky, but need to make sure formatted values haven't fundamentally changed.
-                formatted_columns = [Columns.BOX_TYPE, Columns.NAME, Columns.PHONE]
-                unformatted_columns = [
-                    col for col in FORMATTED_ROUTES_COLUMNS if col not in formatted_columns
-                ]
-                assert input_df[unformatted_columns].equals(output_df[unformatted_columns])
+            # Hacky, but need to make sure formatted values haven't fundamentally changed.
+            formatted_columns = [Columns.BOX_TYPE, Columns.NAME, Columns.PHONE]
+            unformatted_columns = [
+                col for col in FORMATTED_ROUTES_COLUMNS if col not in formatted_columns
+            ]
+            assert input_df[unformatted_columns].equals(output_df[unformatted_columns])
 
-                input_box_type_df = input_df[[Columns.BOX_TYPE]]
-                _format_and_validate_box_type(df=input_box_type_df)
-                assert input_box_type_df.equals(output_df[[Columns.BOX_TYPE]])
+            input_box_type_df = input_df[[Columns.BOX_TYPE]]
+            _format_and_validate_box_type(df=input_box_type_df)
+            assert input_box_type_df.equals(output_df[[Columns.BOX_TYPE]])
 
-                input_name_df = input_df[[Columns.NAME]]
-                _format_and_validate_name(df=input_name_df)
-                assert input_name_df.equals(output_df[[Columns.NAME]])
+            input_name_df = input_df[[Columns.NAME]]
+            _format_and_validate_name(df=input_name_df)
+            assert input_name_df.equals(output_df[[Columns.NAME]])
 
-                input_phone_df = input_df[[Columns.PHONE]]
-                _format_and_validate_phone(df=input_phone_df)
-                assert input_phone_df.equals(output_df[[Columns.PHONE]])
+            input_phone_df = input_df[[Columns.PHONE]]
+            _format_and_validate_phone(df=input_phone_df)
+            assert input_phone_df.equals(output_df[[Columns.PHONE]])
 
     @pytest.mark.parametrize(
         "cell, expected_value",
@@ -717,19 +727,17 @@ class TestFormatCombinedRoutes:
             assert driver_name.upper() in drivers
 
     def test_neighborhood_cell(
-        self, mock_combined_routes: Path, basic_manifest_workbook: Workbook
+        self, mock_combined_routes_ExcelFile: pd.ExcelFile, basic_manifest_workbook: Workbook
     ) -> None:
         """Test that the neighborhood cell is correct."""
-        # TODO: Make ExceFile a fixture.
-        with pd.ExcelFile(mock_combined_routes) as input_xls:
-            for sheet_name in sorted(input_xls.sheet_names):
-                input_df = pd.read_excel(input_xls, sheet_name=sheet_name)
-                manifest_sheet_name = f"{MANIFEST_DATE} {sheet_name}"
-                ws = basic_manifest_workbook[manifest_sheet_name]
+        for sheet_name in sorted(mock_combined_routes_ExcelFile.sheet_names):
+            input_df = pd.read_excel(mock_combined_routes_ExcelFile, sheet_name=sheet_name)
+            manifest_sheet_name = f"{MANIFEST_DATE} {sheet_name}"
+            ws = basic_manifest_workbook[manifest_sheet_name]
 
-                agg_dict = _aggregate_route_data(df=input_df)
-                neighborhoods = ", ".join(agg_dict["neighborhoods"])
-                assert ws["A7"].value == f"Neighborhoods: {neighborhoods.upper()}"
+            agg_dict = _aggregate_route_data(df=input_df)
+            neighborhoods = ", ".join(agg_dict["neighborhoods"])
+            assert ws["A7"].value == f"Neighborhoods: {neighborhoods.upper()}"
 
     @pytest.mark.parametrize(
         "cell",
