@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="bfb_delivery.lib.formatting package" href="bfb_delivery.lib.formatting.html" /><link rel="prev" title="bfb_delivery.cli package" href="bfb_delivery.cli.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>bfb_delivery.lib package - bfb_delivery 0.2.8 documentation</title>
+        <title>bfb_delivery.lib package - bfb_delivery 0.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.2.8 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.3.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.2.8 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.3.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -200,8 +200,9 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="combine_route_tables.html">Combine Driver Route Tables into a Single Workbook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="combine_route_tables.html">Combine Driver Route Tables into a Single Workbook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="format_combined_routes.html">Format Manifests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -215,6 +216,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="developers.html">Developer Resources</a></li>
 </ul>
 
 </div>
@@ -263,8 +265,14 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="bfb_delivery.lib.formatting.html">bfb_delivery.lib.formatting package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="bfb_delivery.lib.formatting.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bfb_delivery.lib.formatting.html#module-bfb_delivery.lib.formatting.data_cleaning">bfb_delivery.lib.formatting.data_cleaning module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning.format_and_validate_data"><code class="docutils literal notranslate"><span class="pre">format_and_validate_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning.format_column_names"><code class="docutils literal notranslate"><span class="pre">format_column_names()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="bfb_delivery.lib.formatting.html#module-bfb_delivery.lib.formatting.sheet_shaping">bfb_delivery.lib.formatting.sheet_shaping module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping.combine_route_tables"><code class="docutils literal notranslate"><span class="pre">combine_route_tables()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping.format_combined_routes"><code class="docutils literal notranslate"><span class="pre">format_combined_routes()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping.split_chunked_route"><code class="docutils literal notranslate"><span class="pre">split_chunked_route()</span></code></a></li>
 </ul>
 </li>
@@ -280,6 +288,65 @@
 <section id="module-bfb_delivery.lib.constants">
 <span id="bfb-delivery-lib-constants-module"></span><h2>bfb_delivery.lib.constants module<a class="headerlink" href="#module-bfb_delivery.lib.constants" title="Link to this heading">¶</a></h2>
 <p>Constants used in the project.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.BoxType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.constants.</span></span><span class="sig-name descname"><span class="pre">BoxType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.constants.BoxType" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">StrEnum</span></code></p>
+<p>Box types for the delivery service.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.BoxType.BASIC">
+<span class="sig-name descname"><span class="pre">BASIC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'BASIC'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.BoxType.BASIC" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.BoxType.GF">
+<span class="sig-name descname"><span class="pre">GF</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GF'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.BoxType.GF" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.BoxType.LA">
+<span class="sig-name descname"><span class="pre">LA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'LA'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.BoxType.LA" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.BoxType.VEGAN">
+<span class="sig-name descname"><span class="pre">VEGAN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'VEGAN'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.BoxType.VEGAN" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.CellColors">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.constants.</span></span><span class="sig-name descname"><span class="pre">CellColors</span></span><a class="headerlink" href="#bfb_delivery.lib.constants.CellColors" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Colors for spreadsheet formatting.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.CellColors.BASIC">
+<span class="sig-name descname"><span class="pre">BASIC</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'00FFCC00'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CellColors.BASIC" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.CellColors.GF">
+<span class="sig-name descname"><span class="pre">GF</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'0099CC33'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CellColors.GF" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.CellColors.HEADER">
+<span class="sig-name descname"><span class="pre">HEADER</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'00FFCCCC'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CellColors.HEADER" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.CellColors.LA">
+<span class="sig-name descname"><span class="pre">LA</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'003399CC'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CellColors.LA" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.CellColors.VEGAN">
+<span class="sig-name descname"><span class="pre">VEGAN</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'00CCCCCC'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CellColors.VEGAN" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="bfb_delivery.lib.constants.Columns">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.constants.</span></span><span class="sig-name descname"><span class="pre">Columns</span></span><a class="headerlink" href="#bfb_delivery.lib.constants.Columns" title="Link to this definition">¶</a></dt>
@@ -408,6 +475,21 @@
 <li><a class="reference internal" href="#subpackages">Subpackages</a></li>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-bfb_delivery.lib.constants">bfb_delivery.lib.constants module</a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.BoxType"><code class="docutils literal notranslate"><span class="pre">BoxType</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.BoxType.BASIC"><code class="docutils literal notranslate"><span class="pre">BoxType.BASIC</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.BoxType.GF"><code class="docutils literal notranslate"><span class="pre">BoxType.GF</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.BoxType.LA"><code class="docutils literal notranslate"><span class="pre">BoxType.LA</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.BoxType.VEGAN"><code class="docutils literal notranslate"><span class="pre">BoxType.VEGAN</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.CellColors"><code class="docutils literal notranslate"><span class="pre">CellColors</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.CellColors.BASIC"><code class="docutils literal notranslate"><span class="pre">CellColors.BASIC</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.CellColors.GF"><code class="docutils literal notranslate"><span class="pre">CellColors.GF</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.CellColors.HEADER"><code class="docutils literal notranslate"><span class="pre">CellColors.HEADER</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.CellColors.LA"><code class="docutils literal notranslate"><span class="pre">CellColors.LA</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.CellColors.VEGAN"><code class="docutils literal notranslate"><span class="pre">CellColors.VEGAN</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.Columns"><code class="docutils literal notranslate"><span class="pre">Columns</span></code></a><ul>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.Columns.ADDRESS"><code class="docutils literal notranslate"><span class="pre">Columns.ADDRESS</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.Columns.BOX_COUNT"><code class="docutils literal notranslate"><span class="pre">Columns.BOX_COUNT</span></code></a></li>
@@ -436,7 +518,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=b01fafc3"></script>
+</div><script src="_static/documentation_options.js?v=e259d695"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

@@ -7,6 +7,17 @@ If you're reading this, you are probably an end user who, at the current state o
 Setting up your machine
 -----------------------
 
+Config file setup
+^^^^^^^^^^^^^^^^^^
+
+This tool requires a local config file with phone numbers. We store them locally so we don't put phone numbers in the codebase. The config file should be named ``config.ini`` and should be in the same directory as where you're running the tool. The file should look like this:
+
+.. code:: ini
+
+    [phone_numbers]
+    driver_support = 555-555-5555
+    recipient_support = 555-555-5555 x5
+
 First-time setup: Installing the package
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

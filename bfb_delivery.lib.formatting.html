@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="bfb_delivery.lib package" href="bfb_delivery.lib.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Developer Resources" href="developers.html" /><link rel="prev" title="bfb_delivery.lib package" href="bfb_delivery.lib.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>bfb_delivery.lib.formatting package - bfb_delivery 0.2.8 documentation</title>
+        <title>bfb_delivery.lib.formatting package - bfb_delivery 0.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.2.8 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.3.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.2.8 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.3.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -200,8 +200,9 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="combine_route_tables.html">Combine Driver Route Tables into a Single Workbook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="combine_route_tables.html">Combine Driver Route Tables into a Single Workbook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="format_combined_routes.html">Format Manifests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -215,6 +216,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="developers.html">Developer Resources</a></li>
 </ul>
 
 </div>
@@ -260,13 +262,73 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
 </section>
+<section id="module-bfb_delivery.lib.formatting.data_cleaning">
+<span id="bfb-delivery-lib-formatting-data-cleaning-module"></span><h2>bfb_delivery.lib.formatting.data_cleaning module<a class="headerlink" href="#module-bfb_delivery.lib.formatting.data_cleaning" title="Link to this heading">¶</a></h2>
+<p>Data cleaning utilities.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="bfb_delivery.lib.formatting.data_cleaning.format_and_validate_data">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.formatting.data_cleaning.</span></span><span class="sig-name descname"><span class="pre">format_and_validate_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.formatting.data_cleaning.format_and_validate_data" title="Link to this definition">¶</a></dt>
+<dd><p>Clean, format, and validate selected columns in a DataFrame.</p>
+<p>Operates in place.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></span>) – The DataFrame to clean.</p></li>
+<li><p><strong>columns</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>) – The columns to clean.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If columns are not found in the DataFrame.</p></li>
+<li><p><strong>ValueError</strong> – If no formatter is found for a column.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bfb_delivery.lib.formatting.data_cleaning.format_column_names">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.formatting.data_cleaning.</span></span><span class="sig-name descname"><span class="pre">format_column_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.formatting.data_cleaning.format_column_names" title="Link to this definition">¶</a></dt>
+<dd><p>Clean column names.</p>
+<p>Just strips whitespace for now.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>columns</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>) – The column names to clean.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The cleaned column names.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 <section id="module-bfb_delivery.lib.formatting.sheet_shaping">
 <span id="bfb-delivery-lib-formatting-sheet-shaping-module"></span><h2>bfb_delivery.lib.formatting.sheet_shaping module<a class="headerlink" href="#module-bfb_delivery.lib.formatting.sheet_shaping" title="Link to this heading">¶</a></h2>
 <p>Functions for shaping and formatting spreadsheets.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="bfb_delivery.lib.formatting.sheet_shaping.combine_route_tables">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.formatting.sheet_shaping.</span></span><span class="sig-name descname"><span class="pre">combine_route_tables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.formatting.sheet_shaping.combine_route_tables" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.formatting.sheet_shaping.</span></span><span class="sig-name descname"><span class="pre">combine_route_tables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.formatting.sheet_shaping.combine_route_tables" title="Link to this definition">¶</a></dt>
 <dd><p>See public docstring: <a class="reference internal" href="bfb_delivery.api.html#bfb_delivery.api.public.combine_route_tables" title="bfb_delivery.api.public.combine_route_tables"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.combine_route_tables()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bfb_delivery.lib.formatting.sheet_shaping.format_combined_routes">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.formatting.sheet_shaping.</span></span><span class="sig-name descname"><span class="pre">format_combined_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Dummy</span> <span class="pre">date'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.formatting.sheet_shaping.format_combined_routes" title="Link to this definition">¶</a></dt>
+<dd><p>See public docstring: <a class="reference internal" href="bfb_delivery.api.html#bfb_delivery.api.public.format_combined_routes" title="bfb_delivery.api.public.format_combined_routes"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.format_combined_routes()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span></p>
@@ -297,7 +359,15 @@
       <footer>
         
         <div class="related-pages">
-          
+          <a class="next-page" href="developers.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Developer Resources</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
           <a class="prev-page" href="bfb_delivery.lib.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
@@ -341,8 +411,14 @@
             <ul>
 <li><a class="reference internal" href="#">bfb_delivery.lib.formatting package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-bfb_delivery.lib.formatting.data_cleaning">bfb_delivery.lib.formatting.data_cleaning module</a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.formatting.data_cleaning.format_and_validate_data"><code class="docutils literal notranslate"><span class="pre">format_and_validate_data()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.formatting.data_cleaning.format_column_names"><code class="docutils literal notranslate"><span class="pre">format_column_names()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#module-bfb_delivery.lib.formatting.sheet_shaping">bfb_delivery.lib.formatting.sheet_shaping module</a><ul>
 <li><a class="reference internal" href="#bfb_delivery.lib.formatting.sheet_shaping.combine_route_tables"><code class="docutils literal notranslate"><span class="pre">combine_route_tables()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.formatting.sheet_shaping.format_combined_routes"><code class="docutils literal notranslate"><span class="pre">format_combined_routes()</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.formatting.sheet_shaping.split_chunked_route"><code class="docutils literal notranslate"><span class="pre">split_chunked_route()</span></code></a></li>
 </ul>
 </li>
@@ -358,7 +434,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=b01fafc3"></script>
+</div><script src="_static/documentation_options.js?v=e259d695"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

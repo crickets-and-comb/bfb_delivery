@@ -4,6 +4,14 @@ bfb\_delivery.lib.formatting package
 Submodules
 ----------
 
+bfb\_delivery.lib.formatting.data\_cleaning module
+--------------------------------------------------
+
+.. automodule:: bfb_delivery.lib.formatting.data_cleaning
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bfb\_delivery.lib.formatting.sheet\_shaping module
 --------------------------------------------------
 

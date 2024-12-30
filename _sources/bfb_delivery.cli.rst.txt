@@ -12,6 +12,14 @@ bfb\_delivery.cli.combine\_route\_tables module
    :undoc-members:
    :show-inheritance:
 
+bfb\_delivery.cli.format\_combined\_routes module
+-------------------------------------------------
+
+.. automodule:: bfb_delivery.cli.format_combined_routes
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bfb\_delivery.cli.split\_chunked\_route module
 ----------------------------------------------
 

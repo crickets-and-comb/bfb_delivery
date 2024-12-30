@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="bfb_delivery.lib package" href="bfb_delivery.lib.html" /><link rel="prev" title="bfb_delivery.api package" href="bfb_delivery.api.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="CLI" href="CLI.html" /><link rel="prev" title="Combine Driver Route Tables into a Single Workbook" href="combine_route_tables.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>bfb_delivery.cli package - bfb_delivery 0.3.0 documentation</title>
+        <title>Format Manifests - bfb_delivery 0.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -202,12 +202,12 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="combine_route_tables.html">Combine Driver Route Tables into a Single Workbook</a></li>
-<li class="toctree-l1"><a class="reference internal" href="format_combined_routes.html">Format Manifests</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Format Manifests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2 current has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.api.html">bfb_delivery.api package</a></li>
-<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">bfb_delivery.cli package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.cli.html">bfb_delivery.cli package</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="bfb_delivery.lib.html">bfb_delivery.lib package</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of bfb_delivery.lib package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.formatting.html">bfb_delivery.lib.formatting package</a></li>
 </ul>
@@ -237,7 +237,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="_sources/bfb_delivery.cli.rst.txt" title="View this page">
+  <a class="muted-link" href="_sources/format_combined_routes.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -257,26 +257,84 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="bfb-delivery-cli-package">
-<h1>bfb_delivery.cli package<a class="headerlink" href="#bfb-delivery-cli-package" title="Link to this heading">¶</a></h1>
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+          <section id="format-manifests">
+<h1>Format Manifests<a class="headerlink" href="#format-manifests" title="Link to this heading">¶</a></h1>
+<p>After you’ve combined your optimized routes into a single workbook, using <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> (see <a class="reference internal" href="combine_route_tables.html"><span class="doc">combine_route_tables</span></a>), you’ll need to format the combined routes into printable manifests for the drivers. This can be done using the <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code> tool.</p>
+<p>This tool replaces the Excel macro previously used, as well as some manual steps afterward. The output is ready to print.</p>
+<p>Python API documentation at <a class="reference internal" href="bfb_delivery.api.html#bfb_delivery.api.public.format_combined_routes" title="bfb_delivery.api.public.format_combined_routes"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.format_combined_routes()</span></code></a>.</p>
+<p>CLI documentation at <a class="reference internal" href="CLI.html"><span class="doc">CLI</span></a>.</p>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading">¶</a></h2>
+<p>This tool requires a local config file with phone numbers. We store them locally so we don’t put phone numbers in the codebase. The config file should be named <code class="docutils literal notranslate"><span class="pre">config.ini</span></code> and should be in the same directory as where you’re running the tool. The file should look like this:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[phone_numbers]</span>
+<span class="na">driver_support</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">555-555-5555</span>
+<span class="na">recipient_support</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">555-555-5555 x5</span>
+</pre></div>
+</div>
 </section>
-<section id="module-bfb_delivery.cli.combine_route_tables">
-<span id="bfb-delivery-cli-combine-route-tables-module"></span><h2>bfb_delivery.cli.combine_route_tables module<a class="headerlink" href="#module-bfb_delivery.cli.combine_route_tables" title="Link to this heading">¶</a></h2>
-<p>combine_route_tables CLI. See <a class="reference internal" href="combine_route_tables.html"><span class="doc">Combine Driver Route Tables into a Single Workbook</span></a> for more information.</p>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<p>When you ran <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code>, you received a single workbook with all the optimized routes combined. Now, you can pass that file to <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code>, along with any other optional arguments, to create printable manifests for your drivers. If you ran the CLI, the filepath to the combined file was printed to the console. If you used the Python API, the function will return the filepath to the formatted file.</p>
+<p>You must at least pass <code class="code docutils literal notranslate"><span class="pre">input_path</span></code> to <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bfb_delivery</span> <span class="kn">import</span> <span class="n">format_combined_routes</span>
+
+<span class="n">combine_route_tables</span><span class="p">(</span><span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/combined_workbook.xlsx&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Or, use the CLI:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>combine_route_tables<span class="w"> </span>--input_path<span class="w"> </span>path/to/combined_workbook.xlsx
+</pre></div>
+</div>
+<p>The function will return the filepath to the formatted manifest workbook, which you can then open, review, and print. If you’re using the CLI, the filepath will be printed to the console.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can pass the <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> ouput to <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code> without reviewing the combined file first. We’re going to soon wrap these two steps into a single tool. But, for now, you need to run them separately.</p>
+</div>
+<section id="optional-arguments">
+<h3>Optional arguments<a class="headerlink" href="#optional-arguments" title="Link to this heading">¶</a></h3>
+<p>You can specify a few things about the formatted manifest workbook.</p>
+<section id="output-directory">
+<h4>Output directory<a class="headerlink" href="#output-directory" title="Link to this heading">¶</a></h4>
+<p>Use the optional argument <code class="code docutils literal notranslate"><span class="pre">output_dir</span></code> to specify the filepath where the combined file will be saved:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">combine_route_tables</span><span class="p">(</span>
+    <span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/combined_workbook.xlsx&quot;</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;path/to/output_dir/&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>combine_route_tables<span class="w"> </span>--input_path<span class="w"> </span>path/to/combined_workbook.xlsx<span class="w"> </span>--output_dir<span class="w"> </span>path/to/output_dir
+</pre></div>
+</div>
 </section>
-<section id="module-bfb_delivery.cli.format_combined_routes">
-<span id="bfb-delivery-cli-format-combined-routes-module"></span><h2>bfb_delivery.cli.format_combined_routes module<a class="headerlink" href="#module-bfb_delivery.cli.format_combined_routes" title="Link to this heading">¶</a></h2>
-<p>format_combined_routes CLI. See <a class="reference internal" href="format_combined_routes.html"><span class="doc">Format Manifests</span></a> for more information.</p>
+<section id="output-filename">
+<h4>Output filename<a class="headerlink" href="#output-filename" title="Link to this heading">¶</a></h4>
+<p>Choose the filename with <code class="code docutils literal notranslate"><span class="pre">output_name</span></code>. The default filename will be <code class="code docutils literal notranslate"><span class="pre">combined_routes_{today's</span> <span class="pre">date}.xlsx</span></code> (e.g., <code class="code docutils literal notranslate"><span class="pre">combined_routes_19991231.xlsx</span></code>). But, you can pass a preferred name that will be used instead:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">combine_route_tables</span><span class="p">(</span>
+    <span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/combined_workbook.xlsx&quot;</span><span class="p">,</span>
+    <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;manifests.xlsx&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>combine_route_tables<span class="w"> </span>--input_path<span class="w"> </span>path/to/combined_workbook.xlsx<span class="w"> </span>--output_name<span class="w"> </span>manifests.xlsx
+</pre></div>
+</div>
 </section>
-<section id="module-bfb_delivery.cli.split_chunked_route">
-<span id="bfb-delivery-cli-split-chunked-route-module"></span><h2>bfb_delivery.cli.split_chunked_route module<a class="headerlink" href="#module-bfb_delivery.cli.split_chunked_route" title="Link to this heading">¶</a></h2>
-<p>split_chunked_route CLI. See <a class="reference internal" href="split_chunked_route.html"><span class="doc">Split Chunked Route Sheet into Multiple Files</span></a> for more information.</p>
+<section id="manifest-date">
+<h4>Manifest date<a class="headerlink" href="#manifest-date" title="Link to this heading">¶</a></h4>
+<p>A date is prepended to the driver’s name in the manifest worksheets, and it’s also used in the date field in the worksheets.</p>
+<p>The default is today’s date as <code class="docutils literal notranslate"><span class="pre">MM.DD</span></code>. But, you can pass a specific date with <code class="code docutils literal notranslate"><span class="pre">date</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">combine_route_tables</span><span class="p">(</span>
+    <span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/combined_workbook.xlsx&quot;</span><span class="p">,</span>
+    <span class="n">date</span><span class="o">=</span><span class="s2">&quot;1971.01.27&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>combine_route_tables<span class="w"> </span>--input_path<span class="w"> </span>path/to/combined_workbook.xlsx<span class="w"> </span>--date<span class="w"> </span><span class="s2">&quot;1971.01.27&quot;</span>
+</pre></div>
+</div>
+<p>It doesn’t have to be a date; it can be any text you want. Also, it doesn’t affect the date in the filename.</p>
 </section>
-<section id="module-bfb_delivery.cli">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bfb_delivery.cli" title="Link to this heading">¶</a></h2>
-<p>CLI init. See <a class="reference internal" href="CLI.html"><span class="doc">CLI</span></a> &lt;/CLI&gt;.</p>
+</section>
 </section>
 </section>
 
@@ -285,23 +343,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="bfb_delivery.lib.html">
+          <a class="next-page" href="CLI.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">bfb_delivery.lib package</div>
+                <div class="title">CLI</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="bfb_delivery.api.html">
+          <a class="prev-page" href="combine_route_tables.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">bfb_delivery.api package</div>
+                <div class="title">Combine Driver Route Tables into a Single Workbook</div>
                 
               </div>
             </a>
@@ -335,12 +393,17 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">bfb_delivery.cli package</a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-bfb_delivery.cli.combine_route_tables">bfb_delivery.cli.combine_route_tables module</a></li>
-<li><a class="reference internal" href="#module-bfb_delivery.cli.format_combined_routes">bfb_delivery.cli.format_combined_routes module</a></li>
-<li><a class="reference internal" href="#module-bfb_delivery.cli.split_chunked_route">bfb_delivery.cli.split_chunked_route module</a></li>
-<li><a class="reference internal" href="#module-bfb_delivery.cli">Module contents</a></li>
+<li><a class="reference internal" href="#">Format Manifests</a><ul>
+<li><a class="reference internal" href="#setup">Setup</a></li>
+<li><a class="reference internal" href="#usage">Usage</a><ul>
+<li><a class="reference internal" href="#optional-arguments">Optional arguments</a><ul>
+<li><a class="reference internal" href="#output-directory">Output directory</a></li>
+<li><a class="reference internal" href="#output-filename">Output filename</a></li>
+<li><a class="reference internal" href="#manifest-date">Manifest date</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

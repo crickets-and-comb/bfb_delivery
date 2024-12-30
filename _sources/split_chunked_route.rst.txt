@@ -4,6 +4,8 @@ Split Chunked Route Sheet into Multiple Files
 
 Once you have a large route sheet labeled by driver, you need to split it into multiple files and sheets to then upload each driver's route to Circuit for final optimization. This splitting task can be done by using the :code:`split_chunked_route` tool.
 
+This tool replaces the manual task of splitting the single route grouped by driver into individual Excel worksheets for each driver, grouped into a handful of workbooks for each staff member to upload to Circuit.
+
 Python API documentation at :py:func:`bfb_delivery.api.public.split_chunked_route`.
 
 CLI documentation at :doc:`CLI </CLI>`.
@@ -32,17 +34,25 @@ The function will return a list of filepaths to the split files, which you can t
 Optional arguments
 ^^^^^^^^^^^^^^^^^^
 
-You can optionally specify how many workbooks you want to split the route into by passing the argument :code:`--num_workbooks`. The default is 4, meaning the route will be split into 4 workbooks, each with a unique set of driver routes, for 4 staff members to upload.
+You can specify a few things about the split files.
+
+Number of workbooks
+~~~~~~~~~~~~~~~~~~~
+
+You can optionally specify how many workbooks you want to split the route into by passing the argument :code:`n_books`. The default is 4, meaning the route will be split into 4 workbooks, each with a unique set of driver routes, for 4 staff members to upload.
 
 .. code:: python
 
-    split_chunked_route(input_path="path/to/input.xlsx", num_workbooks=3)
+    split_chunked_route(input_path="path/to/input.xlsx", n_books=3)
 
 .. code:: bash
 
-    split_chunked_route --input_path path/to/input.xlsx --num_workbooks 3
+    split_chunked_route --input_path path/to/input.xlsx --n_books 3
 
-Use the optional argument :code:`--output_dir` to specify the directory where the split files will be saved:
+Output directory
+~~~~~~~~~~~~~~~~
+
+Use the optional argument :code:`output_dir` to specify the directory where the split files will be saved:
 
 .. code:: python
 
@@ -52,7 +62,10 @@ Use the optional argument :code:`--output_dir` to specify the directory where th
 
     split_chunked_route --input_path path/to/input.xlsx --output_dir path/to/output
 
-The default filenames will be :code:`split_workbook_{today's date}_{i of n workbooks}.xlsx` (e.g., :code:`split_workbook_2021-01-01_1_of_3.xlsx`). But, you can pass a preferred name that will be used instead, with just the workbook number appended to it. So, passing :code:`--output_name` as :code:`driver_routes` will result in files named :code:`driver_routes_1.xlsx`, :code:`driver_routes_2.xlsx`, etc.
+Output filename
+~~~~~~~~~~~~~~~
+
+Use :code:`output_name` to choose a standard filename. The default filenames will be :code:`split_workbook_{today's date}_{i of n workbooks}.xlsx` (e.g., :code:`split_workbook_19991231_1_of_3.xlsx`). But, you can pass a preferred name that will be used instead, with just the workbook number appended to it. So, passing :code:`output_name` as :code:`driver_routes` will result in files named :code:`driver_routes_1.xlsx`, :code:`driver_routes_2.xlsx`, etc.
 
 .. code:: python
 

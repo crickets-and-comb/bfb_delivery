@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Getting Started" href="getting_started.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>bfb_delivery 0.2.8 documentation</title>
+        <title>bfb_delivery 0.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">bfb_delivery 0.2.8 documentation</div></a>
+      <a href="#"><div class="brand">bfb_delivery 0.3.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.2.8 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.3.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -200,8 +200,9 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="combine_route_tables.html">Combine Driver Route Tables into a Single Workbook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="combine_route_tables.html">Combine Driver Route Tables into a Single Workbook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="format_combined_routes.html">Format Manifests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -215,6 +216,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="developers.html">Developer Resources</a></li>
 </ul>
 
 </div>
@@ -258,11 +260,12 @@
           <section id="bfb-delivery-a-cruft-cutter">
 <h1>BFB Delivery: A Cruft Cutter<a class="headerlink" href="#bfb-delivery-a-cruft-cutter" title="Link to this heading">¶</a></h1>
 <p>Library and CLI for Bellingham Food Bank Delivery. See also the GitHub repository: <a class="reference external" href="https://github.com/crickets-and-comb/bfb_delivery">https://github.com/crickets-and-comb/bfb_delivery</a></p>
-<p>This doesn’t do much yet. So far, you can:</p>
+<p>So far, you can use this package to cut some cruft around creating delivery route manifests. You can:</p>
 <blockquote>
 <div><ol class="arabic simple">
 <li><p>Split a driver-labeled route spreadsheet into individual driver spreadsheets. See <a class="reference internal" href="split_chunked_route.html"><span class="doc">Split Chunked Route Sheet into Multiple Files</span></a> for more information.</p></li>
 <li><p>Combine driver route spreadsheets into a single workbook. See <a class="reference internal" href="combine_route_tables.html"><span class="doc">Combine Driver Route Tables into a Single Workbook</span></a> for more information.</p></li>
+<li><p>Format the combined route workbook into manifests for printing. See <a class="reference internal" href="format_combined_routes.html"><span class="doc">Format Manifests</span></a> for more information.</p></li>
 </ol>
 </div></blockquote>
 <section id="contents">
@@ -271,6 +274,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="getting_started.html#setting-up-your-machine">Setting up your machine</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="getting_started.html#config-file-setup">Config file setup</a></li>
 <li class="toctree-l3"><a class="reference internal" href="getting_started.html#first-time-setup-installing-the-package">First-time setup: Installing the package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="getting_started.html#using-the-package-if-it-s-already-installed">Using the package if it’s already installed</a></li>
 </ul>
@@ -282,13 +286,6 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="combine_route_tables.html">Combine Driver Route Tables into a Single Workbook</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="combine_route_tables.html#usage">Usage</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="combine_route_tables.html#optional-arguments">Optional arguments</a></li>
-</ul>
-</li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="split_chunked_route.html#usage">Usage</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="split_chunked_route.html#optional-arguments">Optional arguments</a></li>
@@ -296,13 +293,32 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="combine_route_tables.html">Combine Driver Route Tables into a Single Workbook</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="combine_route_tables.html#usage">Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="combine_route_tables.html#optional-arguments">Optional arguments</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="format_combined_routes.html">Format Manifests</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="format_combined_routes.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="format_combined_routes.html#usage">Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="format_combined_routes.html#optional-arguments">Optional arguments</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="CLI.html#split-chunked-route">split_chunked_route</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CLI.html#split-chunked-route">split_chunked_route</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="CLI.html#combine-route-tables">combine_route_tables</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="CLI.html#combine-route-tables">combine_route_tables</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="CLI.html#split-chunked-route">split_chunked_route</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="CLI.html#split-chunked-route">split_chunked_route</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CLI.html#format-combined-routes">format_combined_routes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CLI.html#format-combined-routes">format_combined_routes</a></li>
 </ul>
 </li>
 </ul>
@@ -310,11 +326,14 @@
 <li class="toctree-l1"><a class="reference internal" href="modules.html">bfb_delivery</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.html#subpackages">Subpackages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.html#module-bfb_delivery.utils">bfb_delivery.utils module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.html#module-bfb_delivery">Module contents</a></li>
 </ul>
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="developers.html">Developer Resources</a></li>
 </ul>
 </div>
 </section>
@@ -388,7 +407,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=b01fafc3"></script>
+</div><script src="_static/documentation_options.js?v=e259d695"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>
