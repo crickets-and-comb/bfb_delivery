@@ -21,6 +21,7 @@ Contents
    split_chunked_route
    CLI
    modules
+   developers
 
 Installation
 ------------
