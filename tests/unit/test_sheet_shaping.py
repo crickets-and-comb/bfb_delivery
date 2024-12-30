@@ -821,9 +821,11 @@ class TestFormatCombinedRoutes:
         """Test right-aligned cells."""
         for sheet_name in basic_manifest_workbook.sheetnames:
             ws = basic_manifest_workbook[sheet_name]
-            for row in ws["E3:E8"]:
-                for cell in row:
-                    assert cell.alignment.horizontal == "right"
+            right_aligned_cells = [ws["D1"], ws["F1"]] + [
+                cell for row in ws["E3:F8"] for cell in row
+            ]
+            for cell in right_aligned_cells:
+                assert cell.alignment.horizontal == "right"
 
 
 def test_aggregate_route_data() -> None:
