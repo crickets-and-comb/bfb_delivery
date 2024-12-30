@@ -19,6 +19,7 @@ from bfb_delivery.lib.constants import (
     FORMATTED_ROUTES_COLUMNS,
     MANIFEST_DATE_FORMAT,
     SPLIT_ROUTE_COLUMNS,
+    CellColors,
     Columns,
 )
 from bfb_delivery.lib.formatting.data_cleaning import (
@@ -692,6 +693,13 @@ class TestFormatCombinedRoutes:
                 (cell.column for cell in ws[1] if cell.value), default=None
             )
             assert last_non_empty_col == 6
+
+    @pytest.mark.parametrize("cell", ["A1", "B1", "C1", "D1", "E1", "F1"])
+    def test_header_row_color(self, cell: str, basic_manifest_workbook: Workbook) -> None:
+        """Test the header row fill color."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            assert ws[cell].fill.start_color.rgb == f"00{CellColors.HEADER}"
 
 
 def test_aggregate_route_data() -> None:
