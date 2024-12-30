@@ -17,8 +17,9 @@ Contents
    :maxdepth: 3
 
    getting_started
-   combine_route_tables
    split_chunked_route
+   combine_route_tables
+   format_combined_routes
    CLI
    modules
    developers
