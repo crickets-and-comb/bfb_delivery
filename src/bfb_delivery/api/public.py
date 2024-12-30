@@ -62,7 +62,8 @@ def combine_route_tables(
 ) -> Path:
     """Combines the driver route CSVs into a single workbook.
 
-    This is used after optimizing and exporting the routes to individual CSVs.
+    This is used after optimizing and exporting the routes to individual CSVs. It prepares the
+    worksheets to be formatted with :py:func:`bfb_delivery.api.public.format_combined_routes`.
 
     See :doc:`combine_route_tables` for more information.
 
@@ -93,9 +94,16 @@ def format_combined_routes(
     output_filename: str = "",
     date: str = "Dummy date",
 ) -> Path:
-    """Formats the combined routes table.
+    """Formats the combined routes table into driver manifests to print.
+
+    Adds headers and aggregate data. Color codes box types.
+
+    This is used after combining the driver route CSVs into a single workbook
+    using :py:func:`bfb_delivery.api.public.combine_route_tables`.
 
     NOTE: This function is still under construction.
+
+    See :doc:`format_combined_routes` for more information.
 
     Args:
         input_path: The path to the combined routes table.
