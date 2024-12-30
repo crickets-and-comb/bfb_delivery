@@ -481,7 +481,7 @@ def _merge_and_wrap_neighborhoods(ws: Worksheet, neighborhoods_row_number: int) 
         end_column=end_col,
     )
     cell = ws.cell(row=neighborhoods_row_number, column=start_col)
-    cell.alignment = Alignment(wrap_text=True)
+    cell.alignment = Alignment(wrap_text=True, horizontal="left", vertical="top")
 
     # Merged cells don't adjust height automatically, so we need to estimate it.
     if cell.value:
