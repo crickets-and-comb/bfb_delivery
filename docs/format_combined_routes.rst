@@ -4,6 +4,8 @@ Format Manifests
 
 After you've combined your optimized routes into a single workbook, using :code:`combine_route_tables` (see :doc:`combine_route_tables </combine_route_tables>`), you'll need to format the combined routes into printable manifests for the drivers. This can be done using the :code:`format_combined_routes` tool.
 
+This tool replaces the Excel macro previously used, as well as some manual steps afterward. The output is ready to print.
+
 Python API documentation at :py:func:`bfb_delivery.api.public.format_combined_routes`.
 
 CLI documentation at :doc:`CLI </CLI>`.
