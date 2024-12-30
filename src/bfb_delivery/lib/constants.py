@@ -6,11 +6,11 @@ from typing import Final
 class CellColors:
     """Colors for spreadsheet formatting."""
 
-    BASIC: Final[str] = "FFCC00"  # Orange
-    HEADER: Final[str] = "FFCCCC"  # Pink
-    LA: Final[str] = "3399CC"  # Blue
-    GF: Final[str] = "99CC33"  # Green
-    VEGAN: Final[str] = "CCCCCC"  # Grey
+    BASIC: Final[str] = "00FFCC00"  # Orange
+    HEADER: Final[str] = "00FFCCCC"  # Pink
+    LA: Final[str] = "003399CC"  # Blue
+    GF: Final[str] = "0099CC33"  # Green
+    VEGAN: Final[str] = "00CCCCCC"  # Grey
 
 
 # TODO: Make box type StrEnum.

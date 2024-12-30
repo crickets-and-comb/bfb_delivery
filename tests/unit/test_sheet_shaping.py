@@ -699,7 +699,7 @@ class TestFormatCombinedRoutes:
         """Test the header row fill color."""
         for sheet_name in basic_manifest_workbook.sheetnames:
             ws = basic_manifest_workbook[sheet_name]
-            assert ws[cell].fill.start_color.rgb == f"00{CellColors.HEADER}"
+            assert ws[cell].fill.start_color.rgb == f"{CellColors.HEADER}"
 
 
 def test_aggregate_route_data() -> None:
