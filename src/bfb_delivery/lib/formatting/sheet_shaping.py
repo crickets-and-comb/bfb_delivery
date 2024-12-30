@@ -192,6 +192,8 @@ def _aggregate_route_data(df: pd.DataFrame) -> dict:
     Returns:
         Dictionary of aggregated data.
     """
+    # df = df.copy()
+    # df[Columns.BOX_TYPE] = df[Columns.BOX_TYPE].str.upper().str.strip()
     agg_dict = {
         "box_counts": df.groupby(Columns.BOX_TYPE)[Columns.ORDER_COUNT].sum().to_dict(),
         "total_box_count": df[Columns.ORDER_COUNT].sum(),
@@ -347,11 +349,11 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
             },
         ],
         [
-            {"value": "TOTAL BOX COUNT", "fill": None, "border": None},
+            {"value": "TOTAL BOX COUNT=", "fill": None, "border": None},
             {"value": agg_dict["total_box_count"], "fill": None, "border": None},
         ],
         [
-            {"value": "PROTEIN COUNT", "fill": None, "border": None},
+            {"value": "PROTEIN COUNT=", "fill": None, "border": None},
             {"value": agg_dict["protein_box_count"], "fill": None, "border": None},
         ],
     ]
