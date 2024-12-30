@@ -707,6 +707,47 @@ class TestFormatCombinedRoutes:
             ws = basic_manifest_workbook[sheet_name]
             assert ws["A3"].value == f"Date: {MANIFEST_DATE}"
 
+    @pytest.mark.parametrize(
+        "cell",
+        [
+            # Header row.
+            "A1",
+            "B1",
+            "C1",
+            "D1",
+            "E1",
+            "F1",
+            # Aggregated data.
+            "A3",
+            "A5",
+            "A7",
+            "E3",
+            "E4",
+            "E5",
+            "E6",
+            "E7",
+            "E8",
+            "F3",
+            "F4",
+            "F5",
+            "F6",
+            "F7",
+            "F8",
+            # Data header.
+            "A9",
+            "B9",
+            "C9",
+            "D9",
+            "E9",
+            "F9",
+        ],
+    )
+    def test_bold_cells(self, cell: str, basic_manifest_workbook: Workbook) -> None:
+        """Test that the cells are bold."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            assert ws[cell].font.bold
+
 
 def test_aggregate_route_data() -> None:
     """Test that a route's data is aggregated correctly."""
