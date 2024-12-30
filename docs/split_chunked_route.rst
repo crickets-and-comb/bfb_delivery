@@ -39,15 +39,15 @@ You can specify a few things about the split files.
 Number of workbooks
 ~~~~~~~~~~~~~~~~~~~
 
-You can optionally specify how many workbooks you want to split the route into by passing the argument :code:`num_workbooks`. The default is 4, meaning the route will be split into 4 workbooks, each with a unique set of driver routes, for 4 staff members to upload.
+You can optionally specify how many workbooks you want to split the route into by passing the argument :code:`n_books`. The default is 4, meaning the route will be split into 4 workbooks, each with a unique set of driver routes, for 4 staff members to upload.
 
 .. code:: python
 
-    split_chunked_route(input_path="path/to/input.xlsx", num_workbooks=3)
+    split_chunked_route(input_path="path/to/input.xlsx", n_books=3)
 
 .. code:: bash
 
-    split_chunked_route --input_path path/to/input.xlsx --num_workbooks 3
+    split_chunked_route --input_path path/to/input.xlsx --n_books 3
 
 Output directory
 ~~~~~~~~~~~~~~~~
