@@ -380,27 +380,29 @@ class TestSplitChunkedRoute:
 class TestCombineRouteTables:
     """combine_route_tables combines driver route CSVs into a single workbook."""
 
-    @pytest.fixture(scope="class")
-    def mock_route_tables(
-        self, module_tmp_dir: Path, mock_chunked_sheet_raw: Path
-    ) -> list[Path]:
+    @pytest.fixture()
+    def mock_route_tables(self, tmp_path: Path, mock_chunked_sheet_raw: Path) -> Path:
         """Mock the driver route tables returned by Circuit."""
-        output_paths = []
+        output_dir = tmp_path / "mock_route_tables"
+        output_dir.mkdir()
+
+        # TODO: Why do we need to add a column. Shouldn't it be in the constant?
         output_cols = [Columns.STOP_NO] + SPLIT_ROUTE_COLUMNS
         chunked_df = pd.read_excel(mock_chunked_sheet_raw)
         for driver in chunked_df[Columns.DRIVER].unique():
-            output_path = module_tmp_dir / f"{driver}.csv"
-            output_paths.append(output_path)
+            output_path = output_dir / f"{driver}.csv"
             driver_df = chunked_df[chunked_df[Columns.DRIVER] == driver]
             driver_df[Columns.STOP_NO] = [i + 1 for i in range(len(driver_df))]
-            driver_df[output_cols].to_csv(module_tmp_dir / output_path, index=False)
+            driver_df[output_cols].to_csv(output_dir / output_path, index=False)
 
-        return output_paths
+        return output_dir
 
-    @pytest.fixture(scope="class")
-    def basic_combined_routes(self, mock_route_tables: list[Path]) -> Path:
+    @pytest.fixture()
+    def basic_combined_routes(self, mock_route_tables: Path) -> Path:
         """Create a basic combined routes table scoped to class for reuse."""
-        output_path = combine_route_tables(input_paths=mock_route_tables)
+        output_dir = mock_route_tables.parent / "basic_combined_routes"
+        output_dir.mkdir()
+        output_path = combine_route_tables(input_dir=mock_route_tables, output_dir=output_dir)
         return output_path
 
     @pytest.mark.parametrize("output_dir_type", [Path, str])
@@ -410,22 +412,18 @@ class TestCombineRouteTables:
         output_dir_type: type[Path | str],
         output_dir: Path | str,
         module_tmp_dir: Path,
-        mock_route_tables: list[Path],
+        mock_route_tables: Path,
     ) -> None:
         """Test that the output directory can be set."""
         output_dir = output_dir_type(module_tmp_dir / output_dir)
-        output_path = combine_route_tables(
-            input_paths=mock_route_tables, output_dir=output_dir
-        )
+        output_path = combine_route_tables(input_dir=mock_route_tables, output_dir=output_dir)
         assert str(output_path.parent) == str(output_dir)
 
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.csv"])
-    def test_set_output_filename(
-        self, output_filename: str, mock_route_tables: list[Path]
-    ) -> None:
+    def test_set_output_filename(self, output_filename: str, mock_route_tables: Path) -> None:
         """Test that the output filename can be set."""
         output_path = combine_route_tables(
-            input_paths=mock_route_tables, output_filename=output_filename
+            input_dir=mock_route_tables, output_filename=output_filename
         )
         expected_filename = (
             f"combined_routes_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
@@ -434,18 +432,14 @@ class TestCombineRouteTables:
         )
         assert output_path.name == expected_filename
 
-    def test_output_columns(
-        self, mock_route_tables: list[Path], basic_combined_routes: Path
-    ) -> None:
+    def test_output_columns(self, basic_combined_routes: Path) -> None:
         """Test that the output columns match the COMBINED_ROUTES_COLUMNS constant."""
         workbook = pd.ExcelFile(basic_combined_routes)
         for sheet_name in workbook.sheet_names:
             driver_sheet = pd.read_excel(workbook, sheet_name=sheet_name)
             assert driver_sheet.columns.to_list() == COMBINED_ROUTES_COLUMNS
 
-    def test_unique_recipients(
-        self, mock_route_tables: list[Path], basic_combined_routes: Path
-    ) -> None:
+    def test_unique_recipients(self, basic_combined_routes: Path) -> None:
         """Test that the recipients don't overlap between the driver route tables.
 
         By name, address, and phone.
@@ -460,11 +454,12 @@ class TestCombineRouteTables:
         )
 
     def test_complete_contents(
-        self, mock_route_tables: list[Path], basic_combined_routes: Path
+        self, mock_route_tables: Path, basic_combined_routes: Path
     ) -> None:
         """Test that the input data is all covered in the combined workbook."""
+        mock_table_paths = list(mock_route_tables.glob("*"))
         full_input_data = pd.concat(
-            [pd.read_csv(path)[COMBINED_ROUTES_COLUMNS] for path in mock_route_tables],
+            [pd.read_csv(path)[COMBINED_ROUTES_COLUMNS] for path in mock_table_paths],
             ignore_index=True,
         )
         driver_sheets = _get_driver_sheets(output_paths=[basic_combined_routes])
@@ -486,15 +481,19 @@ class TestCombineRouteTables:
         output_dir: str,
         output_filename: str,
         cli_runner: CliRunner,
-        mock_route_tables: list[Path],
+        mock_route_tables: Path,
         module_tmp_dir: Path,
     ) -> None:
         """Test CLI works."""
         output_dir = str(module_tmp_dir / output_dir) if output_dir else output_dir
-        arg_list = ["--output_dir", output_dir, "--output_filename", output_filename]
-        for path in mock_route_tables:
-            arg_list.append("--input_paths")
-            arg_list.append(str(path))
+        arg_list = [
+            "--input_dir",
+            str(mock_route_tables),
+            "--output_dir",
+            output_dir,
+            "--output_filename",
+            output_filename,
+        ]
 
         result = cli_runner.invoke(combine_route_tables_cli.main, arg_list)
         assert result.exit_code == 0
@@ -504,7 +503,7 @@ class TestCombineRouteTables:
             if output_filename == ""
             else output_filename
         )
-        expected_output_dir = Path(output_dir) if output_dir else mock_route_tables[0].parent
+        expected_output_dir = Path(output_dir) if output_dir else mock_route_tables
         assert (expected_output_dir / expected_output_filename).exists()
 
 
@@ -512,9 +511,7 @@ class TestFormatCombinedRoutes:
     """format_combined_routes formats the combined routes table."""
 
     @pytest.fixture(scope="class")
-    def mock_combined_routes(
-        self, module_tmp_dir: Path, mock_chunked_sheet_raw: Path
-    ) -> Path:
+    def mock_combined_routes(self, module_tmp_dir: Path) -> Path:
         """Mock the combined routes table."""
         output_path = module_tmp_dir / "combined_routes.xlsx"
         with pd.ExcelWriter(output_path) as writer:

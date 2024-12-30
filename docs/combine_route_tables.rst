@@ -15,23 +15,21 @@ CLI documentation at :doc:`CLI </CLI>`.
 Usage
 -----
 
-You pass the filepaths of the optimized route tables to :code:`combine_route_tables`, along with any other optional arguments, and it will create a single workbook file with all the optimized routes combined. The tool then returns the filepath to that file so you can continue to work with it as needed (formatting and printing, see :doc:`format_combined_routes </format_combined_routes>`).
+You pass the directory containing the optimized route tables to :code:`combine_route_tables`, along with any other optional arguments, and it will create a single workbook file with all the optimized routes combined. The tool then returns the filepath to that file so you can continue to work with it as needed (formatting and printing, see :doc:`format_combined_routes </format_combined_routes>`).
 
-You must at least pass :code:`input_paths` to :code:`combine_route_tables`:
+You must at least pass :code:`input_dir` to :code:`combine_route_tables`:
 
 .. code:: python
 
     from bfb_delivery import combine_route_tables
 
-    combine_route_tables(input_paths=["path/to/input1.xlsx", "path/to/input2.xlsx"])
+    combine_route_tables(input_dir="path/to/input/")
 
 Or, use the command-line-interface:
 
 .. code:: bash
 
-    combine_route_tables --input_paths path/to/input1.xlsx --input_paths path/to/input2.xlsx
-
-Note, for the CLI, you currently pass :code:`--input_paths` multiple times to specify multiple input files. But, if desired, we'll soon allow you to pass the path to a file that lists the paths to the input files.
+    combine_route_tables --input_dir path/to/input/
 
 The function will return the filepath to the combined file, which you can then open and review before you pass to :code:`format_combined_routes` to format the manifests for printing (see :doc:`format_combined_routes </format_combined_routes>`). If you're using the CLI, the filepath will be printed to the console.
 
@@ -46,24 +44,18 @@ Use the optional argument :code:`output_dir` to specify the directory where the 
 
 .. code:: python
 
-    combine_route_tables(
-        input_paths=["path/to/input1.xlsx", "path/to/input2.xlsx"],
-        output_dir="path/to/output_dir/",
-    )
+    combine_route_tables(input_dir="path/to/input/", output_dir="path/to/output_dir/")
 
 .. code:: bash
 
-    combine_route_tables --input_paths path/to/input1.xlsx --input_paths path/to/input2.xlsx --output_dir path/to/output_dir/
+    combine_route_tables --input_dir path/to/input/ --output_dir path/to/output_dir/
 
 Choose the filename with :code:`output_name`. The default filename will be :code:`combined_routes_{today's date}.xlsx` (e.g., :code:`combined_routes_19991231.xlsx`). But, you can pass a preferred name that will be used instead:
 
 .. code:: python
 
-    combine_route_tables(
-        input_paths=["path/to/input1.xlsx", "path/to/input2.xlsx"],
-        output_name="all_routes.xlsx",
-    )
+    combine_route_tables(input_dir="path/to/input/", output_name="all_routes.xlsx")
 
 .. code:: bash
 
-    combine_route_tables --input_paths path/to/input1.xlsx --input_paths path/to/input2.xlsx --output_name all_routes.xlsx
+    combine_route_tables --input_dir path/to/input/ --output_name all_routes.xlsx

@@ -94,13 +94,12 @@ def split_chunked_route(
 # (Should match structure of split_chunked_route outputs.)
 @typechecked
 def combine_route_tables(
-    input_paths: list[Path | str], output_dir: Path | str, output_filename: str
+    input_dir: Path | str, output_dir: Path | str, output_filename: str
 ) -> Path:
     """See public docstring: :py:func:`bfb_delivery.api.public.combine_route_tables`."""
-    if len(input_paths) == 0:
-        raise ValueError("input_paths must have at least one path.")
+    input_dir = Path(input_dir)
+    paths = list(input_dir.glob("*.csv"))
 
-    paths = [Path(path) for path in input_paths]
     output_dir = Path(output_dir) if output_dir else paths[0].parent
     output_filename = (
         f"combined_routes_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"

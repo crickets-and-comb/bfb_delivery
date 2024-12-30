@@ -27,11 +27,11 @@ def split_chunked_route(
 
 @typechecked
 def combine_route_tables(
-    input_paths: list[Path | str], output_dir: Path | str, output_filename: str
+    input_dir: Path | str, output_dir: Path | str, output_filename: str
 ) -> Path:
     """See public docstring: :py:func:`bfb_delivery.api.public.combine_route_tables`."""
     return sheet_shaping.combine_route_tables(
-        input_paths=input_paths, output_dir=output_dir, output_filename=output_filename
+        input_dir=input_dir, output_dir=output_dir, output_filename=output_filename
     )
 
 

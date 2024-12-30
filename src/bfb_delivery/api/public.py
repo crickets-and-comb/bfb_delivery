@@ -58,7 +58,7 @@ def split_chunked_route(
 
 @typechecked
 def combine_route_tables(
-    input_paths: list[Path | str], output_dir: Path | str = "", output_filename: str = ""
+    input_dir: Path | str = "", output_dir: Path | str = "", output_filename: str = ""
 ) -> Path:
     """Combines the driver route CSVs into a single workbook.
 
@@ -68,7 +68,7 @@ def combine_route_tables(
     See :doc:`combine_route_tables` for more information.
 
     Args:
-        input_paths: The paths to the driver route CSVs.
+        input_dir: The directory containing the driver route CSVs.
         output_dir: The directory to write the output workbook to.
             Empty string (default) saves to the first input path's parent directory.
         output_filename: The name of the output workbook.
@@ -81,7 +81,7 @@ def combine_route_tables(
         ValueError: If `input_paths` is empty.
     """
     return internal.combine_route_tables(
-        input_paths=input_paths, output_dir=output_dir, output_filename=output_filename
+        input_dir=input_dir, output_dir=output_dir, output_filename=output_filename
     )
 
 
