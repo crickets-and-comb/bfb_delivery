@@ -716,6 +716,21 @@ class TestFormatCombinedRoutes:
             assert ws["A5"].value == f"Driver: {driver_name}"
             assert driver_name.upper() in drivers
 
+    def test_neighborhood_cell(
+        self, mock_combined_routes: Path, basic_manifest_workbook: Workbook
+    ) -> None:
+        """Test that the neighborhood cell is correct."""
+        # TODO: Make ExceFile a fixture.
+        with pd.ExcelFile(mock_combined_routes) as input_xls:
+            for sheet_name in sorted(input_xls.sheet_names):
+                input_df = pd.read_excel(input_xls, sheet_name=sheet_name)
+                manifest_sheet_name = f"{MANIFEST_DATE} {sheet_name}"
+                ws = basic_manifest_workbook[manifest_sheet_name]
+
+                agg_dict = _aggregate_route_data(df=input_df)
+                neighborhoods = ", ".join(agg_dict["neighborhoods"])
+                assert ws["A7"].value == f"Neighborhoods: {neighborhoods.upper()}"
+
     @pytest.mark.parametrize(
         "cell",
         [
