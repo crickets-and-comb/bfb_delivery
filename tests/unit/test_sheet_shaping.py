@@ -684,6 +684,15 @@ class TestFormatCombinedRoutes:
             ws = basic_manifest_workbook[sheet_name]
             assert ws[cell].value == expected_value
 
+    def test_header_row_end(self, basic_manifest_workbook: Workbook) -> None:
+        """Test that the header row ends at F1."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            last_non_empty_col = max(
+                (cell.column for cell in ws[1] if cell.value), default=None
+            )
+            assert last_non_empty_col == 6
+
 
 def test_aggregate_route_data() -> None:
     """Test that a route's data is aggregated correctly."""
