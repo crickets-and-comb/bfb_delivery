@@ -15,6 +15,7 @@ from bfb_delivery.cli import combine_route_tables as combine_route_tables_cli
 from bfb_delivery.cli import format_combined_routes as format_combined_routes_cli
 from bfb_delivery.cli import split_chunked_route as split_chunked_route_cli
 from bfb_delivery.lib.constants import (
+    BOX_TYPE_COLOR_MAP,
     COMBINED_ROUTES_COLUMNS,
     FILE_DATE_FORMAT,
     FORMATTED_ROUTES_COLUMNS,
@@ -755,6 +756,17 @@ class TestFormatCombinedRoutes:
             assert ws["F7"].value == agg_dict["total_box_count"]
             assert ws["E8"].value == "PROTEIN COUNT="
             assert ws["F8"].value == agg_dict["protein_box_count"]
+
+    def test_box_type_cell_colors(self, basic_manifest_workbook: Workbook) -> None:
+        """Test that the box type cells conditionally formatted with fill color."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            for cell in ws["F"]:
+                if cell.row > 9:
+                    assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
+            for cell in ws["E"]:
+                if cell.row > 2 and cell.row < 7:
+                    assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
 
     @pytest.mark.parametrize(
         "cell",
