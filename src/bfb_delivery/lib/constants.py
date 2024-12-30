@@ -1,6 +1,16 @@
 """Constants used in the project."""
 
+from enum import StrEnum
 from typing import Final
+
+
+class BoxType(StrEnum):
+    """Box types for the delivery service."""
+
+    BASIC = "BASIC"
+    GF = "GF"
+    LA = "LA"
+    VEGAN = "VEGAN"
 
 
 class CellColors:
@@ -15,10 +25,10 @@ class CellColors:
 
 # TODO: Make box type StrEnum.
 BOX_TYPE_COLOR_MAP: Final[dict[str, str]] = {
-    "BASIC": CellColors.BASIC,
-    "GF": CellColors.GF,
-    "LA": CellColors.LA,
-    "VEGAN": CellColors.VEGAN,
+    BoxType.BASIC: CellColors.BASIC,
+    BoxType.GF: CellColors.GF,
+    BoxType.LA: CellColors.LA,
+    BoxType.VEGAN: CellColors.VEGAN,
 }
 
 
