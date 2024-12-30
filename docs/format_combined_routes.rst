@@ -10,6 +10,17 @@ Python API documentation at :py:func:`bfb_delivery.api.public.format_combined_ro
 
 CLI documentation at :doc:`CLI </CLI>`.
 
+Setup
+-----
+
+This tool requires a local config file with phone numbers. We store them locally so we don't put phone numbers in the codebase. The config file should be named ``config.ini`` and should be in the same directory as where you're running the tool. The file should look like this:
+
+.. code:: ini
+
+    [phone_numbers]
+    driver_support = 555-555-5555
+    recipient_support = 555-555-5555 x5
+
 Usage
 -----
 
