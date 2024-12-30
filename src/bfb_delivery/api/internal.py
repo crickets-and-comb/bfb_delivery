@@ -13,16 +13,6 @@ from bfb_delivery.lib.formatting import sheet_shaping
 
 
 @typechecked
-def combine_route_tables(
-    input_paths: list[Path | str], output_dir: Path | str, output_filename: str
-) -> Path:
-    """See public docstring: :py:func:`bfb_delivery.api.public.combine_route_tables`."""
-    return sheet_shaping.combine_route_tables(
-        input_paths=input_paths, output_dir=output_dir, output_filename=output_filename
-    )
-
-
-@typechecked
 def split_chunked_route(
     input_path: Path | str, output_dir: Path | str, output_filename: str, n_books: int
 ) -> list[Path]:
@@ -32,4 +22,30 @@ def split_chunked_route(
         output_dir=output_dir,
         output_filename=output_filename,
         n_books=n_books,
+    )
+
+
+@typechecked
+def combine_route_tables(
+    input_dir: Path | str, output_dir: Path | str, output_filename: str
+) -> Path:
+    """See public docstring: :py:func:`bfb_delivery.api.public.combine_route_tables`."""
+    return sheet_shaping.combine_route_tables(
+        input_dir=input_dir, output_dir=output_dir, output_filename=output_filename
+    )
+
+
+@typechecked
+def format_combined_routes(
+    input_path: Path | str,
+    output_dir: Path | str = "",
+    output_filename: str = "",
+    date: str = "Dummy date",
+) -> Path:
+    """See public docstring: :py:func:`bfb_delivery.api.public.format_combined_routes`."""
+    return sheet_shaping.format_combined_routes(
+        input_path=input_path,
+        output_dir=output_dir,
+        output_filename=output_filename,
+        date=date,
     )

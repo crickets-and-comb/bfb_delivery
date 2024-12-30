@@ -1,6 +1,35 @@
 """Constants used in the project."""
 
+from enum import StrEnum
 from typing import Final
+
+
+class BoxType(StrEnum):
+    """Box types for the delivery service."""
+
+    BASIC = "BASIC"
+    GF = "GF"
+    LA = "LA"
+    VEGAN = "VEGAN"
+
+
+class CellColors:
+    """Colors for spreadsheet formatting."""
+
+    BASIC: Final[str] = "00FFCC00"  # Orange
+    HEADER: Final[str] = "00FFCCCC"  # Pink
+    LA: Final[str] = "003399CC"  # Blue
+    GF: Final[str] = "0099CC33"  # Green
+    VEGAN: Final[str] = "00CCCCCC"  # Grey
+
+
+# TODO: Make box type StrEnum.
+BOX_TYPE_COLOR_MAP: Final[dict[str, str]] = {
+    BoxType.BASIC: CellColors.BASIC,
+    BoxType.GF: CellColors.GF,
+    BoxType.LA: CellColors.LA,
+    BoxType.VEGAN: CellColors.VEGAN,
+}
 
 
 class Columns:
@@ -19,6 +48,36 @@ class Columns:
     STOP_NO: Final[str] = "Stop #"
 
 
+COMBINED_ROUTES_COLUMNS: Final[list[str]] = [
+    Columns.STOP_NO,
+    Columns.NAME,
+    Columns.ADDRESS,
+    Columns.PHONE,
+    Columns.NOTES,
+    Columns.ORDER_COUNT,
+    Columns.BOX_TYPE,
+    Columns.NEIGHBORHOOD,
+]
+
+FILE_DATE_FORMAT: Final[str] = "%Y%m%d"
+
+FORMATTED_ROUTES_COLUMNS: Final[list[str]] = [
+    Columns.STOP_NO,
+    Columns.NAME,
+    Columns.ADDRESS,
+    Columns.PHONE,
+    Columns.NOTES,
+    Columns.BOX_TYPE,
+]
+
+MANIFEST_DATE_FORMAT: Final[str] = "%m.%d"
+
+MAX_ORDER_COUNT: Final[int] = 5
+
+NOTES_COLUMN_WIDTH: Final[float] = 56.67
+
+PROTEIN_BOX_TYPES: Final[list[str]] = ["BASIC", "GF", "LA"]
+
 SPLIT_ROUTE_COLUMNS: Final[list[str]] = [
     Columns.NAME,
     Columns.ADDRESS,
@@ -29,16 +88,3 @@ SPLIT_ROUTE_COLUMNS: Final[list[str]] = [
     Columns.BOX_TYPE,
     Columns.NEIGHBORHOOD,
 ]
-
-COMBINED_ROUTES_COLUMNS: Final[list[str]] = [
-    Columns.STOP_NO,
-    Columns.NAME,
-    Columns.ADDRESS,
-    Columns.PHONE,
-    Columns.NOTES,
-    Columns.ORDER_COUNT,  # TODO: Drop this when we add formatting.
-    Columns.BOX_TYPE,
-    Columns.NEIGHBORHOOD,
-]
-
-# TODO: Make enums? (Use Pandera?): box type, neighborhood
