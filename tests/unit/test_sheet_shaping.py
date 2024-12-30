@@ -707,6 +707,15 @@ class TestFormatCombinedRoutes:
             ws = basic_manifest_workbook[sheet_name]
             assert ws["A3"].value == f"Date: {MANIFEST_DATE}"
 
+    def test_driver_cell(self, basic_manifest_workbook: Workbook) -> None:
+        """Test that the driver cell is correct."""
+        drivers = [driver.upper() for driver in DRIVERS]
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            driver_name = sheet_name.replace(f"{MANIFEST_DATE} ", "")
+            assert ws["A5"].value == f"Driver: {driver_name}"
+            assert driver_name.upper() in drivers
+
     @pytest.mark.parametrize(
         "cell",
         [
