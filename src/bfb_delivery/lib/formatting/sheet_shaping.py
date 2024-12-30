@@ -219,6 +219,7 @@ def _make_manifest_sheet(
     _auto_adjust_column_widths(ws=ws, df_start_row=df_start_row)
     _word_wrap_notes_column(ws=ws)
     _merge_and_wrap_neighborhoods(ws=ws, neighborhoods_row_number=neighborhoods_row_number)
+
     # TODO: Set print_area (Use calculate_dimensions)
     # TODO: set_printer_settings(paper_size, orientation)
 
@@ -285,6 +286,19 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
         top=Side(style="thin"),
         bottom=Side(style="thin"),
     )
+    alignment_left = Alignment(horizontal="left")
+    alignment_right = Alignment(horizontal="right")
+    bold_font = Font(bold=True)
+
+    left_block = [
+        [{"value": None}],
+        [{"value": f"Date: {date}"}],
+        [{"value": None}],
+        [{"value": f"Driver: {driver_name}"}],
+        [{"value": None}],
+        [{"value": f"Neighborhoods: {', '.join(agg_dict['neighborhoods'])}"}],
+        [{"value": None}],
+    ]
 
     right_block = [
         [{"value": None, "fill": None, "border": None}],
@@ -357,20 +371,6 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
             {"value": agg_dict["protein_box_count"], "fill": None, "border": None},
         ],
     ]
-
-    left_block = [
-        [{"value": None}],
-        [{"value": f"Date: {date}"}],
-        [{"value": None}],
-        [{"value": f"Driver: {driver_name}"}],
-        [{"value": None}],
-        [{"value": f"Neighborhoods: {', '.join(agg_dict['neighborhoods'])}"}],
-        [{"value": None}],
-    ]
-
-    bold_font = Font(bold=True)
-    alignment_left = Alignment(horizontal="left")
-    alignment_right = Alignment(horizontal="right")
 
     start_row = ws.max_row + 1
     neighborhoods_row_number = 0
@@ -459,10 +459,12 @@ def _auto_adjust_column_widths(ws: Worksheet, df_start_row: int) -> None:
 @typechecked
 def _word_wrap_notes_column(ws: Worksheet) -> None:
     """Word wrap the notes column, and set width."""
+    end_row = ws.max_row
     col_letter = "E"
     ws.column_dimensions[col_letter].width = NOTES_COLUMN_WIDTH
-    for cell in ws[f"{col_letter}"]:
-        cell.alignment = Alignment(wrap_text=True)
+    for row in ws[f"{col_letter}10:{col_letter}{end_row}"]:
+        for cell in row:
+            cell.alignment = Alignment(wrap_text=True)
 
     return
 
