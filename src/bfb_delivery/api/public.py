@@ -4,7 +4,6 @@ This allows separation of API from implementation. It also allows a simplified p
 separate from a more complex internal API with more options for power users.
 """
 
-from logging import warning
 from pathlib import Path
 
 from typeguard import typechecked
@@ -110,8 +109,6 @@ def format_combined_routes(
 
     If `output_dir` is specified, will create the directory if it doesn't exist.
 
-    NOTE: This function is still under construction.
-
     See :doc:`format_combined_routes` for more information.
 
     Args:
@@ -126,7 +123,6 @@ def format_combined_routes(
     Returns:
         The path to the formatted table.
     """
-    warning("This function is still under construction.")
     return internal.format_combined_routes(
         input_path=input_path,
         output_dir=output_dir,
