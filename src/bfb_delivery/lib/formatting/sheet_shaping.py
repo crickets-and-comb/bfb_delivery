@@ -14,6 +14,7 @@ from typeguard import typechecked
 
 from bfb_delivery.lib.constants import (
     BOX_TYPE_COLOR_MAP,
+    COLUMN_NAME_MAP,
     COMBINED_ROUTES_COLUMNS,
     FILE_DATE_FORMAT,
     FORMATTED_ROUTES_COLUMNS,
@@ -28,7 +29,7 @@ from bfb_delivery.lib.formatting.data_cleaning import (
     format_and_validate_data,
     format_column_names,
 )
-from bfb_delivery.utils import get_phone_number
+from bfb_delivery.utils import get_phone_number, map_columns
 
 # Silences warning for in-place operations on copied df slices.
 pd.options.mode.copy_on_write = True
@@ -50,6 +51,7 @@ def split_chunked_route(
 
     chunked_sheet: pd.DataFrame = pd.read_excel(input_path)
     chunked_sheet.columns = format_column_names(columns=chunked_sheet.columns.to_list())
+    map_columns(df=chunked_sheet, column_name_map=COLUMN_NAME_MAP, invert_map=False)
     format_and_validate_data(df=chunked_sheet, columns=SPLIT_ROUTE_COLUMNS + [Columns.DRIVER])
     chunked_sheet.sort_values(by=[Columns.DRIVER, Columns.STOP_NO], inplace=True)
     # TODO: Validate columns? (Use Pandera?)
@@ -112,6 +114,7 @@ def combine_route_tables(
     with pd.ExcelWriter(output_path) as writer:
         for path in sorted(paths):
             route_df = pd.read_csv(path)
+            map_columns(df=route_df, column_name_map=COLUMN_NAME_MAP, invert_map=True)
             route_df.sort_values(by=[Columns.STOP_NO], inplace=True)
             driver_name = path.stem
             route_df[COMBINED_ROUTES_COLUMNS].to_excel(

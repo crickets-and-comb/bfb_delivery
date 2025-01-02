@@ -72,6 +72,7 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
         Columns.NOTES: _format_notes,
         Columns.ORDER_COUNT: _format_and_validate_order_count,
         Columns.PHONE: _format_and_validate_phone,
+        Columns.PRODUCT_TYPE: _format_and_validate_product_type,
         Columns.STOP_NO: _format_and_validate_stop_no,
     }
     for column in columns:
@@ -103,7 +104,21 @@ def _format_and_validate_address(df: pd.DataFrame) -> None:
 @typechecked
 def _format_and_validate_box_type(df: pd.DataFrame) -> None:
     """Format the box type column."""
-    _format_and_validate_names(df=df, column=Columns.BOX_TYPE)
+    _format_and_validate_product_or_box_type(df=df, column=Columns.BOX_TYPE)
+    return
+
+
+@typechecked
+def _format_and_validate_product_type(df: pd.DataFrame) -> None:
+    """Format the box type column."""
+    _format_and_validate_product_or_box_type(df=df, column=Columns.PRODUCT_TYPE)
+    return
+
+
+@typechecked
+def _format_and_validate_product_or_box_type(df: pd.DataFrame, column: str) -> None:
+    """Format the box type column."""
+    _format_and_validate_names(df=df, column=column)
     # TODO: What about multiple box types for one stop?
     # Split and format each value separately, then rejoin?
     # TODO: Validate: make enum.StrEnum?

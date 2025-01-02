@@ -2,9 +2,10 @@
 
 from contextlib import AbstractContextManager, nullcontext
 
+import pandas as pd
 import pytest
 
-from bfb_delivery.utils import get_phone_number
+from bfb_delivery.utils import get_phone_number, map_columns
 
 
 @pytest.mark.parametrize(
@@ -71,3 +72,21 @@ def test_get_phone_number(
     with expected_warning:
         returned_phone_number = get_phone_number(**kwargs)
     assert returned_phone_number == expected
+
+
+@pytest.mark.parametrize("invert_map", [False, True])
+def test_map_columns(invert_map: bool) -> None:
+    """Test that the columns are mapped correctly."""
+    df = pd.DataFrame(
+        {
+            "Box Type": ["BASIC", "GF", "LA"],
+            "Box Count": [1, 2, 3],
+            "Driver": ["John", "Jane", "Jim"],
+        }
+    )
+    column_name_map = {"Box Type": "Product Type"}
+    map_columns(df, column_name_map, invert_map=invert_map)
+    if not invert_map:
+        assert df.columns.to_list() == ["Product Type", "Box Count", "Driver"]
+    else:
+        assert df.columns.to_list() == ["Box Type", "Box Count", "Driver"]

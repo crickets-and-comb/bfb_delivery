@@ -32,6 +32,7 @@ BOX_TYPE_COLOR_MAP: Final[dict[str, str]] = {
 }
 
 
+# TODO: Make StrEnum.
 class Columns:
     """Column name constants."""
 
@@ -45,7 +46,11 @@ class Columns:
     NOTES: Final[str] = "Notes"
     ORDER_COUNT: Final[str] = "Order Count"
     PHONE: Final[str] = "Phone"
+    PRODUCT_TYPE: Final[str] = "Product Type"
     STOP_NO: Final[str] = "Stop #"
+
+
+COLUMN_NAME_MAP: Final[dict[str, str]] = {Columns.BOX_TYPE: Columns.PRODUCT_TYPE}
 
 
 COMBINED_ROUTES_COLUMNS: Final[list[str]] = [
@@ -85,6 +90,6 @@ SPLIT_ROUTE_COLUMNS: Final[list[str]] = [
     Columns.EMAIL,
     Columns.NOTES,
     Columns.ORDER_COUNT,
-    Columns.BOX_TYPE,
+    Columns.PRODUCT_TYPE,
     Columns.NEIGHBORHOOD,
 ]
