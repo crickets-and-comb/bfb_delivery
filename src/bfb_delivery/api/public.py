@@ -29,7 +29,8 @@ def split_chunked_route(
 
     Reads a route spreadsheet at `input_path`.
     Writes `n_books` Excel workbooks with each sheet containing the stops for a single driver.
-    Writes adjacent to the original workbook unless `output_dir` specified.
+    Writes adjacent to the original workbook unless `output_dir` specified. If specified, will
+    create the directory if it doesn't exist.
 
     See :doc:`split_chunked_route` for more information.
 
