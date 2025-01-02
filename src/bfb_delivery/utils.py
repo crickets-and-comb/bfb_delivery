@@ -9,7 +9,7 @@ import pandas as pd
 from typeguard import typechecked
 
 
-# TODO: Typecheck.
+@typechecked
 def get_phone_number(key: str, config_path: str = "config.ini") -> str:
     """Get the phone number from the config file.
 
