@@ -108,6 +108,8 @@ def format_combined_routes(
     This is used after combining the driver route CSVs into a single workbook
     using :py:func:`bfb_delivery.api.public.combine_route_tables`.
 
+    If `output_dir` is specified, will create the directory if it doesn't exist.
+
     NOTE: This function is still under construction.
 
     See :doc:`format_combined_routes` for more information.

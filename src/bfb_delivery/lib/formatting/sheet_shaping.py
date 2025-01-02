@@ -142,6 +142,8 @@ def format_combined_routes(
     output_path = Path(output_dir) / output_filename
     date = date if date else datetime.now().strftime(MANIFEST_DATE_FORMAT)
 
+    output_dir.mkdir(parents=True, exist_ok=True)
+
     wb = Workbook()
     wb.remove(wb["Sheet"])
     with pd.ExcelFile(input_path) as xls:
