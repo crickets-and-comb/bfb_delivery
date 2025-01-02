@@ -32,6 +32,8 @@ def split_chunked_route(
     Writes adjacent to the original workbook unless `output_dir` specified. If specified, will
     create the directory if it doesn't exist.
 
+    Note: Renames "Box Type" column name to "Product Type", per Circuit API.
+
     See :doc:`split_chunked_route` for more information.
 
     Args:
@@ -65,6 +67,8 @@ def combine_route_tables(
 
     This is used after optimizing and exporting the routes to individual CSVs. It prepares the
     worksheets to be formatted with :py:func:`bfb_delivery.api.public.format_combined_routes`.
+
+    Note: Changes "Product Type" column name back to "Box Type".
 
     See :doc:`combine_route_tables` for more information.
 
