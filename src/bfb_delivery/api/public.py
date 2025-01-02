@@ -68,6 +68,8 @@ def combine_route_tables(
     This is used after optimizing and exporting the routes to individual CSVs. It prepares the
     worksheets to be formatted with :py:func:`bfb_delivery.api.public.format_combined_routes`.
 
+    If `output_dir` is specified, will create the directory if it doesn't exist.
+
     Note: Changes "Product Type" column name back to "Box Type".
 
     See :doc:`combine_route_tables` for more information.
