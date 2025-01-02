@@ -25,6 +25,7 @@ def format_column_names(columns: list[str]) -> list[str]:
         The cleaned column names.
     """
     columns = [column.strip() for column in columns]
+    columns = [column.title() for column in columns]
     # TODO: Other column cleaning? (e.g., remove special characters, set casing)
     # TODO: Validate? Use general constant list?
     # TODO: Make column names StrEnum? Or just make sure they are in the constants list?
