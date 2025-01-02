@@ -99,7 +99,7 @@ def format_combined_routes(
     input_path: Path | str,
     output_dir: Path | str = "",
     output_filename: str = "",
-    date: str = "Dummy date",
+    date: str = "",
 ) -> Path:
     """Formats the combined routes table into driver manifests to print.
 

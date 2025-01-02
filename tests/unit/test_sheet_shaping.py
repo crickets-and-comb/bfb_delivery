@@ -595,11 +595,7 @@ class TestFormatCombinedRoutes:
 
     @pytest.mark.parametrize(
         "date, expected_date",
-        [
-            ("", datetime.now().strftime(MANIFEST_DATE_FORMAT)),
-            (None, "Dummy date"),
-            ("Dummy date", "Dummy date"),
-        ],
+        [("", datetime.now().strftime(MANIFEST_DATE_FORMAT)), ("Dummy date", "Dummy date")],
     )
     def test_all_drivers_have_a_sheet(
         self, mock_combined_routes: Path, date: str | None, expected_date: str
