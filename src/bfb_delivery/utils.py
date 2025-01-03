@@ -5,7 +5,11 @@ import os
 import warnings
 from pathlib import Path
 
+import pandas as pd
+from typeguard import typechecked
 
+
+@typechecked
 def get_phone_number(key: str, config_path: str = "config.ini") -> str:
     """Get the phone number from the config file.
 
@@ -47,3 +51,20 @@ def get_phone_number(key: str, config_path: str = "config.ini") -> str:
         )
 
     return str(phone_number)
+
+
+@typechecked
+def map_columns(df: pd.DataFrame, column_name_map: dict[str, str], invert_map: bool) -> None:
+    """Map column names in a DataFrame.
+
+    Operates in place.
+
+    Args:
+        df: The DataFrame to map.
+        column_name_map: The mapping of column names.
+        invert_map: Whether to invert the mapping.
+    """
+    if invert_map:
+        column_name_map = {v: k for k, v in column_name_map.items()}
+
+    df.rename(columns=column_name_map, inplace=True)

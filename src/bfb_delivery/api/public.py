@@ -4,20 +4,20 @@ This allows separation of API from implementation. It also allows a simplified p
 separate from a more complex internal API with more options for power users.
 """
 
-from logging import warning
 from pathlib import Path
 
 from typeguard import typechecked
 
 from bfb_delivery.api import internal
+from bfb_delivery.lib.constants import Defaults
 
 
 @typechecked
 def split_chunked_route(
     input_path: Path | str,
-    output_dir: Path | str = "",
-    output_filename: str = "",
-    n_books: int = 4,
+    output_dir: Path | str = Defaults.SPLIT_CHUNKED_ROUTE["output_dir"],
+    output_filename: str = Defaults.SPLIT_CHUNKED_ROUTE["output_filename"],
+    n_books: int = Defaults.SPLIT_CHUNKED_ROUTE["n_books"],
 ) -> list[Path]:
     """Split route sheet into n workbooks with sheets by driver.
 
@@ -29,7 +29,10 @@ def split_chunked_route(
 
     Reads a route spreadsheet at `input_path`.
     Writes `n_books` Excel workbooks with each sheet containing the stops for a single driver.
-    Writes adjacent to the original workbook unless `output_dir` specified.
+    Writes adjacent to the original workbook unless `output_dir` specified. If specified, will
+    create the directory if it doesn't exist.
+
+    Note: Renames "Box Type" column name to "Product Type", per Circuit API.
 
     See :doc:`split_chunked_route` for more information.
 
@@ -58,12 +61,18 @@ def split_chunked_route(
 
 @typechecked
 def combine_route_tables(
-    input_dir: Path | str = "", output_dir: Path | str = "", output_filename: str = ""
+    input_dir: Path | str,
+    output_dir: Path | str = Defaults.COMBINE_ROUTE_TABLES["output_dir"],
+    output_filename: str = Defaults.COMBINE_ROUTE_TABLES["output_filename"],
 ) -> Path:
     """Combines the driver route CSVs into a single workbook.
 
     This is used after optimizing and exporting the routes to individual CSVs. It prepares the
     worksheets to be formatted with :py:func:`bfb_delivery.api.public.format_combined_routes`.
+
+    If `output_dir` is specified, will create the directory if it doesn't exist.
+
+    Note: Changes "Product Type" column name back to "Box Type".
 
     See :doc:`combine_route_tables` for more information.
 
@@ -85,14 +94,12 @@ def combine_route_tables(
     )
 
 
-# TODO: Update docs. (What until done, though.)
-# TODO: Set default to empty string once usage confirmed with users.
 @typechecked
 def format_combined_routes(
     input_path: Path | str,
-    output_dir: Path | str = "",
-    output_filename: str = "",
-    date: str = "Dummy date",
+    output_dir: Path | str = Defaults.FORMAT_COMBINED_ROUTES["output_dir"],
+    output_filename: str = Defaults.FORMAT_COMBINED_ROUTES["output_filename"],
+    date: str = Defaults.FORMAT_COMBINED_ROUTES["date"],
 ) -> Path:
     """Formats the combined routes table into driver manifests to print.
 
@@ -101,7 +108,7 @@ def format_combined_routes(
     This is used after combining the driver route CSVs into a single workbook
     using :py:func:`bfb_delivery.api.public.combine_route_tables`.
 
-    NOTE: This function is still under construction.
+    If `output_dir` is specified, will create the directory if it doesn't exist.
 
     See :doc:`format_combined_routes` for more information.
 
@@ -117,7 +124,6 @@ def format_combined_routes(
     Returns:
         The path to the formatted table.
     """
-    warning("This function is still under construction.")
     return internal.format_combined_routes(
         input_path=input_path,
         output_dir=output_dir,

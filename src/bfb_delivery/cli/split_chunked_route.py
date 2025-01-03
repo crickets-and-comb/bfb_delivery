@@ -4,9 +4,9 @@ import click
 from typeguard import typechecked
 
 from bfb_delivery import split_chunked_route
+from bfb_delivery.lib.constants import Defaults
 
 
-# TODO: Can we set the defaults as constants to sync with public?
 @click.command()
 @click.option(
     "--input_path",
@@ -18,7 +18,7 @@ from bfb_delivery import split_chunked_route
     "--output_dir",
     type=str,
     required=False,
-    default="",
+    default=Defaults.SPLIT_CHUNKED_ROUTE["output_dir"],
     help=(
         "Directory to save the output workbook. Empty string (default) saves to "
         "the input `input_path` directory."
@@ -28,7 +28,7 @@ from bfb_delivery import split_chunked_route
     "--output_filename",
     type=str,
     required=False,
-    default="",
+    default=Defaults.SPLIT_CHUNKED_ROUTE["output_filename"],
     help=(
         "Name of the output workbook. Empty string (default) sets filename to "
         '"split_workbook_{date}_{i of n_books}.xlsx".'
@@ -38,7 +38,7 @@ from bfb_delivery import split_chunked_route
     "--n_books",
     type=int,
     required=False,
-    default=4,
+    default=Defaults.SPLIT_CHUNKED_ROUTE["n_books"],
     help="Number of workbooks to split into. Default is 4.",
 )
 @typechecked

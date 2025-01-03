@@ -159,7 +159,7 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 8,
             ),
         ],
-    )
+    ).rename(columns={Columns.PRODUCT_TYPE: Columns.BOX_TYPE})
     raw_chunked_sheet.to_excel(fp, index=False)
 
     return fp
@@ -273,6 +273,7 @@ class TestSplitChunkedRoute:
         driver_sheets = _get_driver_sheets(output_paths=output_paths)
         split_data = pd.concat(driver_sheets, ignore_index=True)
 
+        split_data.rename(columns={Columns.PRODUCT_TYPE: Columns.BOX_TYPE}, inplace=True)
         cols = split_data.columns.to_list()
         full_data = full_data[cols].sort_values(by=cols).reset_index(drop=True)
         split_data = split_data.sort_values(by=cols).reset_index(drop=True)
@@ -386,9 +387,9 @@ class TestCombineRouteTables:
         output_dir = tmp_path / "mock_route_tables"
         output_dir.mkdir()
 
-        # TODO: Why do we need to add a column. Shouldn't it be in the constant?
         output_cols = [Columns.STOP_NO] + SPLIT_ROUTE_COLUMNS
         chunked_df = pd.read_excel(mock_chunked_sheet_raw)
+        chunked_df.rename(columns={Columns.BOX_TYPE: Columns.PRODUCT_TYPE}, inplace=True)
         for driver in chunked_df[Columns.DRIVER].unique():
             output_path = output_dir / f"{driver}.csv"
             driver_df = chunked_df[chunked_df[Columns.DRIVER] == driver]
@@ -459,9 +460,8 @@ class TestCombineRouteTables:
         """Test that the input data is all covered in the combined workbook."""
         mock_table_paths = list(mock_route_tables.glob("*"))
         full_input_data = pd.concat(
-            [pd.read_csv(path)[COMBINED_ROUTES_COLUMNS] for path in mock_table_paths],
-            ignore_index=True,
-        )
+            [pd.read_csv(path) for path in mock_table_paths], ignore_index=True
+        ).rename(columns={Columns.PRODUCT_TYPE: Columns.BOX_TYPE})[COMBINED_ROUTES_COLUMNS]
         driver_sheets = _get_driver_sheets(output_paths=[basic_combined_routes])
         combined_output_data = pd.concat(driver_sheets, ignore_index=True)
 
@@ -595,11 +595,7 @@ class TestFormatCombinedRoutes:
 
     @pytest.mark.parametrize(
         "date, expected_date",
-        [
-            ("", datetime.now().strftime(MANIFEST_DATE_FORMAT)),
-            (None, "Dummy date"),
-            ("Dummy date", "Dummy date"),
-        ],
+        [("", datetime.now().strftime(MANIFEST_DATE_FORMAT)), ("Dummy date", "Dummy date")],
     )
     def test_all_drivers_have_a_sheet(
         self, mock_combined_routes: Path, date: str | None, expected_date: str
@@ -743,11 +739,10 @@ class TestFormatCombinedRoutes:
             assert ws["A7"].value == f"Neighborhoods: {neighborhoods.upper()}"
             assert ws["E3"].value == BoxType.BASIC
             assert ws["F3"].value == agg_dict["box_counts"][BoxType.BASIC]
-            # TODO: Alphabetize box types rows.
-            assert ws["E4"].value == BoxType.LA
-            assert ws["F4"].value == agg_dict["box_counts"][BoxType.LA]
-            assert ws["E5"].value == BoxType.GF
-            assert ws["F5"].value == agg_dict["box_counts"][BoxType.GF]
+            assert ws["E4"].value == BoxType.GF
+            assert ws["F4"].value == agg_dict["box_counts"][BoxType.GF]
+            assert ws["E5"].value == BoxType.LA
+            assert ws["F5"].value == agg_dict["box_counts"][BoxType.LA]
             assert ws["E6"].value == BoxType.VEGAN
             assert ws["F6"].value == agg_dict["box_counts"][BoxType.VEGAN]
             assert ws["E7"].value == "TOTAL BOX COUNT="

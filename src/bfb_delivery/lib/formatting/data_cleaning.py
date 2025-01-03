@@ -25,8 +25,9 @@ def format_column_names(columns: list[str]) -> list[str]:
         The cleaned column names.
     """
     columns = [column.strip() for column in columns]
+    columns = [column.title() for column in columns]
     # TODO: Other column cleaning? (e.g., remove special characters, set casing)
-    # TODO: Validate? Use general constant list?
+    # TODO: Validate? Use general constant list? (Or, just use Pandera?)
     # TODO: Make column names StrEnum? Or just make sure they are in the constants list?
     return columns
 
@@ -53,7 +54,7 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
         raise ValueError(f"Columns not found in DataFrame: {missing_columns}.")
 
     # TODO: Pre-Validate:
-    # ints actually integers and not something that gets cast to an int (beautfulsoup?)
+    # ints actually integers and not something that gets cast to an int
 
     # TODO: FutureWarning: Setting an item of incompatible dtype is deprecated and will
     # raise an error in a future version of pandas. Value '' has dtype incompatible with
@@ -72,6 +73,7 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
         Columns.NOTES: _format_notes,
         Columns.ORDER_COUNT: _format_and_validate_order_count,
         Columns.PHONE: _format_and_validate_phone,
+        Columns.PRODUCT_TYPE: _format_and_validate_product_type,
         Columns.STOP_NO: _format_and_validate_stop_no,
     }
     for column in columns:
@@ -103,7 +105,21 @@ def _format_and_validate_address(df: pd.DataFrame) -> None:
 @typechecked
 def _format_and_validate_box_type(df: pd.DataFrame) -> None:
     """Format the box type column."""
-    _format_and_validate_names(df=df, column=Columns.BOX_TYPE)
+    _format_and_validate_product_or_box_type(df=df, column=Columns.BOX_TYPE)
+    return
+
+
+@typechecked
+def _format_and_validate_product_type(df: pd.DataFrame) -> None:
+    """Format the box type column."""
+    _format_and_validate_product_or_box_type(df=df, column=Columns.PRODUCT_TYPE)
+    return
+
+
+@typechecked
+def _format_and_validate_product_or_box_type(df: pd.DataFrame, column: str) -> None:
+    """Format the box type column."""
+    _format_and_validate_names(df=df, column=column)
     # TODO: What about multiple box types for one stop?
     # Split and format each value separately, then rejoin?
     # TODO: Validate: make enum.StrEnum?

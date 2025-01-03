@@ -13,7 +13,7 @@ class BoxType(StrEnum):
     VEGAN = "VEGAN"
 
 
-class CellColors:
+class CellColors:  # TODO: Use accessible palette.
     """Colors for spreadsheet formatting."""
 
     BASIC: Final[str] = "00FFCC00"  # Orange
@@ -32,20 +32,25 @@ BOX_TYPE_COLOR_MAP: Final[dict[str, str]] = {
 }
 
 
+# TODO: Make StrEnum.
 class Columns:
     """Column name constants."""
 
     ADDRESS: Final[str] = "Address"
     BOX_TYPE: Final[str] = "Box Type"
     BOX_COUNT: Final[str] = "Box Count"
-    DRIVER: Final[str] = "Driver"  # TODO: Accept any case of columns?
+    DRIVER: Final[str] = "Driver"
     EMAIL: Final[str] = "Email"
     NAME: Final[str] = "Name"
     NEIGHBORHOOD: Final[str] = "Neighborhood"
     NOTES: Final[str] = "Notes"
     ORDER_COUNT: Final[str] = "Order Count"
     PHONE: Final[str] = "Phone"
+    PRODUCT_TYPE: Final[str] = "Product Type"
     STOP_NO: Final[str] = "Stop #"
+
+
+COLUMN_NAME_MAP: Final[dict[str, str]] = {Columns.BOX_TYPE: Columns.PRODUCT_TYPE}
 
 
 COMBINED_ROUTES_COLUMNS: Final[list[str]] = [
@@ -58,6 +63,23 @@ COMBINED_ROUTES_COLUMNS: Final[list[str]] = [
     Columns.BOX_TYPE,
     Columns.NEIGHBORHOOD,
 ]
+
+
+class Defaults:
+    """Default values. E.g., for syncing public API with CLI."""
+
+    COMBINE_ROUTE_TABLES: Final[dict[str, str]] = {"output_dir": "", "output_filename": ""}
+    FORMAT_COMBINED_ROUTES: Final[dict[str, str]] = {
+        "output_dir": "",
+        "output_filename": "",
+        "date": "",
+    }
+    SPLIT_CHUNKED_ROUTE: Final[dict[str, str | int]] = {
+        "output_dir": "",
+        "output_filename": "",
+        "n_books": 4,
+    }
+
 
 FILE_DATE_FORMAT: Final[str] = "%Y%m%d"
 
@@ -85,6 +107,6 @@ SPLIT_ROUTE_COLUMNS: Final[list[str]] = [
     Columns.EMAIL,
     Columns.NOTES,
     Columns.ORDER_COUNT,
-    Columns.BOX_TYPE,
+    Columns.PRODUCT_TYPE,
     Columns.NEIGHBORHOOD,
 ]

@@ -2,7 +2,7 @@
 Split Chunked Route Sheet into Multiple Files
 =============================================
 
-Once you have a large route sheet labeled by driver, you need to split it into multiple files and sheets to then upload each driver's route to Circuit for final optimization. This splitting task can be done by using the :code:`split_chunked_route` tool.
+Once you have a large single-route sheet labeled by driver, representing individual driver routes, you need to split it into multiple files and sheets to then upload each driver's route to Circuit for final optimization. This splitting task can be done by using the :code:`split_chunked_route` tool.
 
 This tool replaces the manual task of splitting the single route grouped by driver into individual Excel worksheets for each driver, grouped into a handful of workbooks for each staff member to upload to Circuit.
 
@@ -14,6 +14,10 @@ Usage
 -----
 
 You pass the filepath of the large route sheet to :code:`split_chunked_route`, along with any other optional arguments, and it will create workbook files split up for each staff member working on the route, with each sheet containing the deliveries for a single driver. The tool then returns the filepaths to those files so you can upload them to Circuit.
+
+.. note::
+
+    This will change the "Box Type" column name to "Product Type" to match the Circuit API.
 
 You must at least pass :code:`input_path` to :code:`split_chunked_route`:
 

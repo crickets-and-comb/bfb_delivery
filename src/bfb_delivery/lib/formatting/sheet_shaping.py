@@ -14,6 +14,7 @@ from typeguard import typechecked
 
 from bfb_delivery.lib.constants import (
     BOX_TYPE_COLOR_MAP,
+    COLUMN_NAME_MAP,
     COMBINED_ROUTES_COLUMNS,
     FILE_DATE_FORMAT,
     FORMATTED_ROUTES_COLUMNS,
@@ -28,7 +29,7 @@ from bfb_delivery.lib.formatting.data_cleaning import (
     format_and_validate_data,
     format_column_names,
 )
-from bfb_delivery.utils import get_phone_number
+from bfb_delivery.utils import get_phone_number, map_columns
 
 # Silences warning for in-place operations on copied df slices.
 pd.options.mode.copy_on_write = True
@@ -50,6 +51,7 @@ def split_chunked_route(
 
     chunked_sheet: pd.DataFrame = pd.read_excel(input_path)
     chunked_sheet.columns = format_column_names(columns=chunked_sheet.columns.to_list())
+    map_columns(df=chunked_sheet, column_name_map=COLUMN_NAME_MAP, invert_map=False)
     format_and_validate_data(df=chunked_sheet, columns=SPLIT_ROUTE_COLUMNS + [Columns.DRIVER])
     chunked_sheet.sort_values(by=[Columns.DRIVER, Columns.STOP_NO], inplace=True)
     # TODO: Validate columns? (Use Pandera?)
@@ -90,7 +92,6 @@ def split_chunked_route(
     return split_workbook_paths
 
 
-# TODO: Get real input tables to verify this works.
 # (Should match structure of split_chunked_route outputs.)
 @typechecked
 def combine_route_tables(
@@ -112,6 +113,7 @@ def combine_route_tables(
     with pd.ExcelWriter(output_path) as writer:
         for path in sorted(paths):
             route_df = pd.read_csv(path)
+            map_columns(df=route_df, column_name_map=COLUMN_NAME_MAP, invert_map=True)
             route_df.sort_values(by=[Columns.STOP_NO], inplace=True)
             driver_name = path.stem
             route_df[COMBINED_ROUTES_COLUMNS].to_excel(
@@ -138,6 +140,8 @@ def format_combined_routes(
     )
     output_path = Path(output_dir) / output_filename
     date = date if date else datetime.now().strftime(MANIFEST_DATE_FORMAT)
+
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     wb = Workbook()
     wb.remove(wb["Sheet"])
@@ -174,7 +178,6 @@ def format_combined_routes(
                 driver_name=driver_name,
             )
 
-    # TODO: Write a test that at least checks that the sheets are not empty.
     # Can check cell values, though. (Maye read dataframe from start row?)
     wb.save(output_path)
 
@@ -319,20 +322,6 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
         ],
         [
             {
-                "value": "LA",
-                "fill": PatternFill(
-                    start_color=CellColors.LA, end_color=CellColors.LA, fill_type="solid"
-                ),
-                "border": thin_border,
-            },
-            {
-                "value": agg_dict["box_counts"].get("LA", 0),
-                "fill": None,
-                "border": thin_border,
-            },
-        ],
-        [
-            {
                 "value": "GF",
                 "fill": PatternFill(
                     start_color=CellColors.GF, end_color=CellColors.GF, fill_type="solid"
@@ -341,6 +330,20 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
             },
             {
                 "value": agg_dict["box_counts"].get("GF", 0),
+                "fill": None,
+                "border": thin_border,
+            },
+        ],
+        [
+            {
+                "value": "LA",
+                "fill": PatternFill(
+                    start_color=CellColors.LA, end_color=CellColors.LA, fill_type="solid"
+                ),
+                "border": thin_border,
+            },
+            {
+                "value": agg_dict["box_counts"].get("LA", 0),
                 "fill": None,
                 "border": thin_border,
             },
