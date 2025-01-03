@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="bfb_delivery.api package" href="bfb_delivery.api.html" /><link rel="prev" title="bfb_delivery" href="modules.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>bfb_delivery package - bfb_delivery 0.3.0 documentation</title>
+        <title>bfb_delivery package - bfb_delivery 0.3.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.3.0 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.3.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.3.0 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.3.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -327,7 +327,14 @@
 <li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Columns.NOTES"><code class="docutils literal notranslate"><span class="pre">Columns.NOTES</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Columns.ORDER_COUNT"><code class="docutils literal notranslate"><span class="pre">Columns.ORDER_COUNT</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Columns.PHONE"><code class="docutils literal notranslate"><span class="pre">Columns.PHONE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Columns.PRODUCT_TYPE"><code class="docutils literal notranslate"><span class="pre">Columns.PRODUCT_TYPE</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Columns.STOP_NO"><code class="docutils literal notranslate"><span class="pre">Columns.STOP_NO</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Defaults"><code class="docutils literal notranslate"><span class="pre">Defaults</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Defaults.COMBINE_ROUTE_TABLES"><code class="docutils literal notranslate"><span class="pre">Defaults.COMBINE_ROUTE_TABLES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Defaults.FORMAT_COMBINED_ROUTES"><code class="docutils literal notranslate"><span class="pre">Defaults.FORMAT_COMBINED_ROUTES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Defaults.SPLIT_CHUNKED_ROUTE"><code class="docutils literal notranslate"><span class="pre">Defaults.SPLIT_CHUNKED_ROUTE</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -360,6 +367,25 @@
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The phone number.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bfb_delivery.utils.map_columns">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.utils.</span></span><span class="sig-name descname"><span class="pre">map_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_name_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invert_map</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.utils.map_columns" title="Link to this definition">¶</a></dt>
+<dd><p>Map column names in a DataFrame.</p>
+<p>Operates in place.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></span>) – The DataFrame to map.</p></li>
+<li><p><strong>column_name_map</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>) – The mapping of column names.</p></li>
+<li><p><strong>invert_map</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to invert the mapping.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -431,6 +457,7 @@
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-bfb_delivery.utils">bfb_delivery.utils module</a><ul>
 <li><a class="reference internal" href="#bfb_delivery.utils.get_phone_number"><code class="docutils literal notranslate"><span class="pre">get_phone_number()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.utils.map_columns"><code class="docutils literal notranslate"><span class="pre">map_columns()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-bfb_delivery">Module contents</a></li>
@@ -445,7 +472,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=e259d695"></script>
+</div><script src="_static/documentation_options.js?v=4621528c"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

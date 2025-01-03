@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="bfb_delivery.cli package" href="bfb_delivery.cli.html" /><link rel="prev" title="bfb_delivery package" href="bfb_delivery.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>bfb_delivery.api package - bfb_delivery 0.3.0 documentation</title>
+        <title>bfb_delivery.api package - bfb_delivery 0.3.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.3.0 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.3.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.3.0 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.3.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -309,10 +309,12 @@ power users and developers who may want to use an existing DB session or somethi
 separate from a more complex internal API with more options for power users.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="bfb_delivery.api.public.combine_route_tables">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.api.public.</span></span><span class="sig-name descname"><span class="pre">combine_route_tables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.api.public.combine_route_tables" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.api.public.</span></span><span class="sig-name descname"><span class="pre">combine_route_tables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.api.public.combine_route_tables" title="Link to this definition">¶</a></dt>
 <dd><p>Combines the driver route CSVs into a single workbook.</p>
 <p>This is used after optimizing and exporting the routes to individual CSVs. It prepares the
 worksheets to be formatted with <a class="reference internal" href="#bfb_delivery.api.public.format_combined_routes" title="bfb_delivery.api.public.format_combined_routes"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.format_combined_routes()</span></code></a>.</p>
+<p>If <cite>output_dir</cite> is specified, will create the directory if it doesn’t exist.</p>
+<p>Note: Changes “Product Type” column name back to “Box Type”.</p>
 <p>See <a class="reference internal" href="combine_route_tables.html"><span class="doc">Combine Driver Route Tables into a Single Workbook</span></a> for more information.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -338,12 +340,12 @@ Empty string (default) will name the file “combined_routes_{date}.xlsx”.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bfb_delivery.api.public.format_combined_routes">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.api.public.</span></span><span class="sig-name descname"><span class="pre">format_combined_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Dummy</span> <span class="pre">date'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.api.public.format_combined_routes" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.api.public.</span></span><span class="sig-name descname"><span class="pre">format_combined_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.api.public.format_combined_routes" title="Link to this definition">¶</a></dt>
 <dd><p>Formats the combined routes table into driver manifests to print.</p>
 <p>Adds headers and aggregate data. Color codes box types.</p>
 <p>This is used after combining the driver route CSVs into a single workbook
 using <a class="reference internal" href="#bfb_delivery.api.public.combine_route_tables" title="bfb_delivery.api.public.combine_route_tables"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.combine_route_tables()</span></code></a>.</p>
-<p>NOTE: This function is still under construction.</p>
+<p>If <cite>output_dir</cite> is specified, will create the directory if it doesn’t exist.</p>
 <p>See <a class="reference internal" href="format_combined_routes.html"><span class="doc">Format Manifests</span></a> for more information.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -377,7 +379,9 @@ This process follows the “chunking” process in the route generation, where r
 are split into smaller “chunks” by driver (i.e., each stop is labeled with a driver).</p>
 <p>Reads a route spreadsheet at <cite>input_path</cite>.
 Writes <cite>n_books</cite> Excel workbooks with each sheet containing the stops for a single driver.
-Writes adjacent to the original workbook unless <cite>output_dir</cite> specified.</p>
+Writes adjacent to the original workbook unless <cite>output_dir</cite> specified. If specified, will
+create the directory if it doesn’t exist.</p>
+<p>Note: Renames “Box Type” column name to “Product Type”, per Circuit API.</p>
 <p>See <a class="reference internal" href="split_chunked_route.html"><span class="doc">Split Chunked Route Sheet into Multiple Files</span></a> for more information.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -493,7 +497,7 @@ Empty string sets filename to “split_workbook_{date}_{i of n_books}.xlsx”.</
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=e259d695"></script>
+</div><script src="_static/documentation_options.js?v=4621528c"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

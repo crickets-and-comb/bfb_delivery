@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Combine Driver Route Tables into a Single Workbook" href="combine_route_tables.html" /><link rel="prev" title="Getting Started" href="getting_started.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Split Chunked Route Sheet into Multiple Files - bfb_delivery 0.3.0 documentation</title>
+        <title>Split Chunked Route Sheet into Multiple Files - bfb_delivery 0.3.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.3.0 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.3.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.3.0 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.3.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -259,13 +259,17 @@
         <article role="main" id="furo-main-content">
           <section id="split-chunked-route-sheet-into-multiple-files">
 <h1>Split Chunked Route Sheet into Multiple Files<a class="headerlink" href="#split-chunked-route-sheet-into-multiple-files" title="Link to this heading">¶</a></h1>
-<p>Once you have a large route sheet labeled by driver, you need to split it into multiple files and sheets to then upload each driver’s route to Circuit for final optimization. This splitting task can be done by using the <code class="code docutils literal notranslate"><span class="pre">split_chunked_route</span></code> tool.</p>
+<p>Once you have a large single-route sheet labeled by driver, representing individual driver routes, you need to split it into multiple files and sheets to then upload each driver’s route to Circuit for final optimization. This splitting task can be done by using the <code class="code docutils literal notranslate"><span class="pre">split_chunked_route</span></code> tool.</p>
 <p>This tool replaces the manual task of splitting the single route grouped by driver into individual Excel worksheets for each driver, grouped into a handful of workbooks for each staff member to upload to Circuit.</p>
 <p>Python API documentation at <a class="reference internal" href="bfb_delivery.api.html#bfb_delivery.api.public.split_chunked_route" title="bfb_delivery.api.public.split_chunked_route"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.split_chunked_route()</span></code></a>.</p>
 <p>CLI documentation at <a class="reference internal" href="CLI.html"><span class="doc">CLI</span></a>.</p>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
 <p>You pass the filepath of the large route sheet to <code class="code docutils literal notranslate"><span class="pre">split_chunked_route</span></code>, along with any other optional arguments, and it will create workbook files split up for each staff member working on the route, with each sheet containing the deliveries for a single driver. The tool then returns the filepaths to those files so you can upload them to Circuit.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This will change the “Box Type” column name to “Product Type” to match the Circuit API.</p>
+</div>
 <p>You must at least pass <code class="code docutils literal notranslate"><span class="pre">input_path</span></code> to <code class="code docutils literal notranslate"><span class="pre">split_chunked_route</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bfb_delivery</span> <span class="kn">import</span> <span class="n">split_chunked_route</span>
 
@@ -390,7 +394,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=e259d695"></script>
+</div><script src="_static/documentation_options.js?v=4621528c"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

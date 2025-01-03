@@ -17,6 +17,10 @@ Usage
 
 You pass the directory containing the optimized route tables to :code:`combine_route_tables`, along with any other optional arguments, and it will create a single workbook file with all the optimized routes combined. The tool then returns the filepath to that file so you can continue to work with it as needed (formatting and printing, see :doc:`format_combined_routes </format_combined_routes>`).
 
+.. note::
+
+    This will change the "Product Type" column name, per Circuit API, back to "Box Type" per food bank staff preferences.
+
 You must at least pass :code:`input_dir` to :code:`combine_route_tables`:
 
 .. code:: python
