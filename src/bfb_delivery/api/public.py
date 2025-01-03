@@ -9,14 +9,15 @@ from pathlib import Path
 from typeguard import typechecked
 
 from bfb_delivery.api import internal
+from bfb_delivery.lib.constants import Defaults
 
 
 @typechecked
 def split_chunked_route(
     input_path: Path | str,
-    output_dir: Path | str = "",
-    output_filename: str = "",
-    n_books: int = 4,
+    output_dir: Path | str = Defaults.SPLIT_CHUNKED_ROUTE["output_dir"],
+    output_filename: str = Defaults.SPLIT_CHUNKED_ROUTE["output_filename"],
+    n_books: int = Defaults.SPLIT_CHUNKED_ROUTE["n_books"],
 ) -> list[Path]:
     """Split route sheet into n workbooks with sheets by driver.
 
@@ -60,7 +61,9 @@ def split_chunked_route(
 
 @typechecked
 def combine_route_tables(
-    input_dir: Path | str = "", output_dir: Path | str = "", output_filename: str = ""
+    input_dir: Path | str,
+    output_dir: Path | str = Defaults.COMBINE_ROUTE_TABLES["output_dir"],
+    output_filename: str = Defaults.COMBINE_ROUTE_TABLES["output_filename"],
 ) -> Path:
     """Combines the driver route CSVs into a single workbook.
 
@@ -91,14 +94,13 @@ def combine_route_tables(
     )
 
 
-# TODO: Update docs. (What until done, though.)
 # TODO: Set default to empty string once usage confirmed with users.
 @typechecked
 def format_combined_routes(
     input_path: Path | str,
-    output_dir: Path | str = "",
-    output_filename: str = "",
-    date: str = "",
+    output_dir: Path | str = Defaults.FORMAT_COMBINED_ROUTES["output_dir"],
+    output_filename: str = Defaults.FORMAT_COMBINED_ROUTES["output_filename"],
+    date: str = Defaults.FORMAT_COMBINED_ROUTES["date"],
 ) -> Path:
     """Formats the combined routes table into driver manifests to print.
 

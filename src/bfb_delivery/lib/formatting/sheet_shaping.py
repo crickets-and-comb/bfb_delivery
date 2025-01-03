@@ -92,7 +92,6 @@ def split_chunked_route(
     return split_workbook_paths
 
 
-# TODO: Get real input tables to verify this works.
 # (Should match structure of split_chunked_route outputs.)
 @typechecked
 def combine_route_tables(
@@ -179,7 +178,6 @@ def format_combined_routes(
                 driver_name=driver_name,
             )
 
-    # TODO: Write a test that at least checks that the sheets are not empty.
     # Can check cell values, though. (Maye read dataframe from start row?)
     wb.save(output_path)
 

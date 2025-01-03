@@ -30,6 +30,7 @@ class TestFormatColumnNames:
         # TODO: Int column names? Is that possible?
         columns = ["  Name  ", Columns.ADDRESS, "  Phone  "]
         expected = [Columns.NAME, Columns.ADDRESS, Columns.PHONE]
+        # TODO: Rewrite to adjust df in place.
         assert format_column_names(columns=columns) == expected
 
 
@@ -40,7 +41,7 @@ class TestFormatAndValidateData:
     @pytest.mark.usefixtures("mock_is_valid_number")
     @pytest.mark.parametrize(
         "column_name, expected_values",
-        [  # TODO: Pull this out into a class-scoped fixture df. Useful input to next tests.
+        [
             (
                 Columns.DRIVER,
                 [
@@ -136,7 +137,6 @@ class TestFormatAndValidateData:
     )
     def test_format_data(self, column_name: str, expected_values: list) -> None:
         """Test formatting and validating data."""
-        # TODO: Pull this out into a class-scoped fixture to avoid repeated calls.
         columns = [
             Columns.DRIVER,
             Columns.STOP_NO,

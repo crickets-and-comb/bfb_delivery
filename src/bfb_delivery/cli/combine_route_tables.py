@@ -4,6 +4,7 @@ import click
 from typeguard import typechecked
 
 from bfb_delivery import combine_route_tables
+from bfb_delivery.lib.constants import Defaults
 
 
 # TODO: Can we set the defaults as constants to sync with public?
@@ -18,7 +19,7 @@ from bfb_delivery import combine_route_tables
     "--output_dir",
     type=str,
     required=False,
-    default="",
+    default=Defaults.COMBINE_ROUTE_TABLES["output_dir"],
     help=(
         "The directory to write the output workbook to. Empty string (default) saves "
         "to the first input path's parent directory."
@@ -28,7 +29,7 @@ from bfb_delivery import combine_route_tables
     "--output_filename",
     type=str,
     required=False,
-    default="",
+    default=Defaults.COMBINE_ROUTE_TABLES["output_filename"],
     help=(
         "The name of the output workbook. Empty string (default) will name the file "
         '"combined_routes_{date}.xlsx".'

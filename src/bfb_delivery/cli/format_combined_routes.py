@@ -4,6 +4,7 @@ import click
 from typeguard import typechecked
 
 from bfb_delivery import format_combined_routes
+from bfb_delivery.lib.constants import Defaults
 
 
 # TODO: Can we set the defaults as constants to sync with public?
@@ -13,7 +14,7 @@ from bfb_delivery import format_combined_routes
     "--output_dir",
     type=str,
     required=False,
-    default="",
+    default=Defaults.FORMAT_COMBINED_ROUTES["output_dir"],
     help=(
         "The directory to write the formatted table to. Empty string (default) saves "
         "to the input path's parent directory."
@@ -23,7 +24,7 @@ from bfb_delivery import format_combined_routes
     "--output_filename",
     type=str,
     required=False,
-    default="",
+    default=Defaults.FORMAT_COMBINED_ROUTES["output_filename"],
     help=(
         "The name of the formatted workbook. Empty string (default) will name the file "
         '"formatted_routes_{date}.xlsx".'
@@ -33,7 +34,7 @@ from bfb_delivery import format_combined_routes
     "--date",
     type=str,
     required=False,
-    default="Dummy date",
+    default=Defaults.FORMAT_COMBINED_ROUTES["date"],
     help=(
         "The date to use in driver manifests. Empty string (default) will use today's date "
         "as {MM.DD}'"
