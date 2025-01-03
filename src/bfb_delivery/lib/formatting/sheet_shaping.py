@@ -324,20 +324,6 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
         ],
         [
             {
-                "value": "LA",
-                "fill": PatternFill(
-                    start_color=CellColors.LA, end_color=CellColors.LA, fill_type="solid"
-                ),
-                "border": thin_border,
-            },
-            {
-                "value": agg_dict["box_counts"].get("LA", 0),
-                "fill": None,
-                "border": thin_border,
-            },
-        ],
-        [
-            {
                 "value": "GF",
                 "fill": PatternFill(
                     start_color=CellColors.GF, end_color=CellColors.GF, fill_type="solid"
@@ -346,6 +332,20 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
             },
             {
                 "value": agg_dict["box_counts"].get("GF", 0),
+                "fill": None,
+                "border": thin_border,
+            },
+        ],
+        [
+            {
+                "value": "LA",
+                "fill": PatternFill(
+                    start_color=CellColors.LA, end_color=CellColors.LA, fill_type="solid"
+                ),
+                "border": thin_border,
+            },
+            {
+                "value": agg_dict["box_counts"].get("LA", 0),
                 "fill": None,
                 "border": thin_border,
             },
