@@ -739,11 +739,10 @@ class TestFormatCombinedRoutes:
             assert ws["A7"].value == f"Neighborhoods: {neighborhoods.upper()}"
             assert ws["E3"].value == BoxType.BASIC
             assert ws["F3"].value == agg_dict["box_counts"][BoxType.BASIC]
-            # TODO: Alphabetize box types rows.
-            assert ws["E4"].value == BoxType.LA
-            assert ws["F4"].value == agg_dict["box_counts"][BoxType.LA]
             assert ws["E5"].value == BoxType.GF
             assert ws["F5"].value == agg_dict["box_counts"][BoxType.GF]
+            assert ws["E4"].value == BoxType.LA
+            assert ws["F4"].value == agg_dict["box_counts"][BoxType.LA]
             assert ws["E6"].value == BoxType.VEGAN
             assert ws["F6"].value == agg_dict["box_counts"][BoxType.VEGAN]
             assert ws["E7"].value == "TOTAL BOX COUNT="
