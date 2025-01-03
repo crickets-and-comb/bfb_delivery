@@ -7,7 +7,6 @@ from bfb_delivery import combine_route_tables
 from bfb_delivery.lib.constants import Defaults
 
 
-# TODO: Can we set the defaults as constants to sync with public?
 @click.command()
 @click.option(
     "--input_dir",

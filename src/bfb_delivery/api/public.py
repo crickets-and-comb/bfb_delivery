@@ -94,7 +94,6 @@ def combine_route_tables(
     )
 
 
-# TODO: Set default to empty string once usage confirmed with users.
 @typechecked
 def format_combined_routes(
     input_path: Path | str,

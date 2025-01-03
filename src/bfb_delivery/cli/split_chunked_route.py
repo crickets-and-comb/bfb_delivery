@@ -7,7 +7,6 @@ from bfb_delivery import split_chunked_route
 from bfb_delivery.lib.constants import Defaults
 
 
-# TODO: Can we set the defaults as constants to sync with public?
 @click.command()
 @click.option(
     "--input_path",
