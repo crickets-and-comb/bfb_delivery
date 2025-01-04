@@ -405,8 +405,7 @@ class TestSplitChunkedRoute:
         ]
 
         result = subprocess.run(["split_chunked_route"] + arg_list, capture_output=True)
-        return_code = result.returncode
-        assert return_code == 0
+        assert result.returncode == 0
 
         for i in range(n_books):
             expected_filename = (
@@ -532,8 +531,7 @@ class TestCombineRouteTables:
         ]
 
         result = subprocess.run(["combine_route_tables"] + arg_list, capture_output=True)
-        return_code = result.returncode
-        assert return_code == 0
+        assert result.returncode == 0
 
         expected_output_filename = (
             f"combined_routes_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
@@ -630,8 +628,7 @@ class TestFormatCombinedRoutes:
         ]
 
         result = subprocess.run(["format_combined_routes"] + arg_list, capture_output=True)
-        return_code = result.returncode
-        assert return_code == 0
+        assert result.returncode == 0
 
         expected_output_filename = (
             f"formatted_routes_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
@@ -915,8 +912,7 @@ class TestCreateManifests:
         ]
 
         result = subprocess.run(["create_manifests"] + arg_list, capture_output=True)
-        return_code = result.returncode
-        assert return_code == 0
+        assert result.returncode == 0
 
         expected_output_filename = (
             f"final_manifests_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
