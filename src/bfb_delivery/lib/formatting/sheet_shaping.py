@@ -92,7 +92,31 @@ def split_chunked_route(
     return split_workbook_paths
 
 
-# (Should match structure of split_chunked_route outputs.)
+@typechecked
+def create_manifests(
+    input_dir: Path | str, output_dir: Path | str, output_filename: str, date: str
+) -> Path:
+    """See public docstring for :py:func:`bfb_delivery.api.public.create_manifests`."""
+    output_filename = (
+        f"final_manifests_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
+        if output_filename == ""
+        else output_filename
+    )
+
+    combined_route_workbook_path = combine_route_tables(
+        input_dir=input_dir, output_dir=output_dir, output_filename=""
+    )
+
+    formatted_manifest_path = format_combined_routes(
+        input_path=combined_route_workbook_path,
+        output_dir=output_dir,
+        output_filename=output_filename,
+        date=date,
+    )
+
+    return formatted_manifest_path
+
+
 @typechecked
 def combine_route_tables(
     input_dir: Path | str, output_dir: Path | str, output_filename: str
@@ -125,10 +149,7 @@ def combine_route_tables(
 
 @typechecked
 def format_combined_routes(
-    input_path: Path | str,
-    output_dir: Path | str = "",
-    output_filename: str = "",
-    date: str = "Dummy date",
+    input_path: Path | str, output_dir: Path | str, output_filename: str, date: str
 ) -> Path:
     """See public docstring: :py:func:`bfb_delivery.api.public.format_combined_routes`."""
     input_path = Path(input_path)
@@ -197,6 +218,8 @@ def _aggregate_route_data(df: pd.DataFrame) -> dict:
     df = df.copy()
     df[Columns.BOX_TYPE] = df[Columns.BOX_TYPE].str.upper().str.strip()
     agg_dict = {
+        # TODO: Loop through enum.
+        # And remove the get with default 0 in TestCreateManifests::test_agg_cells.
         "box_counts": df.groupby(Columns.BOX_TYPE)[Columns.ORDER_COUNT].sum().to_dict(),
         "total_box_count": df[Columns.ORDER_COUNT].sum(),
         "protein_box_count": df[df[Columns.BOX_TYPE].isin(PROTEIN_BOX_TYPES)][

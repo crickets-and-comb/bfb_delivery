@@ -6,6 +6,10 @@ After you've combined your optimized routes into a single workbook, using :code:
 
 This tool replaces the Excel macro previously used, as well as some manual steps afterward. The output is ready to print.
 
+.. note::
+
+    :code:`create_manifests` wraps this tool and :code:`combine_route_tables` into one tool. You can still use them if you wish, but you can instead use :code:`create_manifests`. See :doc:`create_manifests </create_manifests>` and :doc:`combine_route_tables </combine_route_tables>`.
+
 Python API documentation at :py:func:`bfb_delivery.api.public.format_combined_routes`.
 
 CLI documentation at :doc:`CLI </CLI>`.
@@ -103,4 +107,3 @@ The default is today's date as ``MM.DD``. But, you can pass a specific date with
     combine_route_tables --input_path path/to/combined_workbook.xlsx --date "1971.01.27"
 
 It doesn't have to be a date; it can be any text you want. Also, it doesn't affect the date in the filename.
-

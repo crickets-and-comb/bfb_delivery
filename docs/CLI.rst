@@ -10,6 +10,15 @@ See also :doc:`split_chunked_route </split_chunked_route>` for the full document
    :prog: split_chunked_route
    :nested: full
 
+create_manifests
+----------------
+
+See also :doc:`create_manifests </create_manifests>` for the full documentation.
+
+.. click:: bfb_delivery.cli.create_manifests:main
+   :prog: create_manifests
+   :nested: full
+
 combine_route_tables
 --------------------
 
