@@ -1,5 +1,6 @@
 """Unit tests for sheet_shaping.py."""
 
+import subprocess
 from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
@@ -7,7 +8,6 @@ from typing import Final
 
 import pandas as pd
 import pytest
-from click.testing import CliRunner
 from openpyxl import Workbook, load_workbook
 
 from bfb_delivery import (
@@ -16,10 +16,6 @@ from bfb_delivery import (
     format_combined_routes,
     split_chunked_route,
 )
-from bfb_delivery.cli import combine_route_tables as combine_route_tables_cli
-from bfb_delivery.cli import create_manifests as create_manifests_cli
-from bfb_delivery.cli import format_combined_routes as format_combined_routes_cli
-from bfb_delivery.cli import split_chunked_route as split_chunked_route_cli
 from bfb_delivery.lib.constants import (
     BOX_TYPE_COLOR_MAP,
     COMBINED_ROUTES_COLUMNS,
@@ -392,7 +388,6 @@ class TestSplitChunkedRoute:
         output_dir: str,
         output_filename: str,
         n_books: int,
-        cli_runner: CliRunner,
         mock_chunked_sheet_raw: Path,
         module_tmp_dir: Path,
     ) -> None:
@@ -409,8 +404,9 @@ class TestSplitChunkedRoute:
             str(n_books),
         ]
 
-        result = cli_runner.invoke(split_chunked_route_cli.main, arg_list)
-        assert result.exit_code == 0
+        result = subprocess.run(["split_chunked_route"] + arg_list, capture_output=True)
+        return_code = result.returncode
+        assert return_code == 0
 
         for i in range(n_books):
             expected_filename = (
@@ -521,7 +517,6 @@ class TestCombineRouteTables:
         self,
         output_dir: str,
         output_filename: str,
-        cli_runner: CliRunner,
         mock_route_tables: Path,
         module_tmp_dir: Path,
     ) -> None:
@@ -536,8 +531,9 @@ class TestCombineRouteTables:
             output_filename,
         ]
 
-        result = cli_runner.invoke(combine_route_tables_cli.main, arg_list)
-        assert result.exit_code == 0
+        result = subprocess.run(["combine_route_tables"] + arg_list, capture_output=True)
+        return_code = result.returncode
+        assert return_code == 0
 
         expected_output_filename = (
             f"combined_routes_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
@@ -619,7 +615,6 @@ class TestFormatCombinedRoutes:
         self,
         output_dir: str,
         output_filename: str,
-        cli_runner: CliRunner,
         mock_combined_routes: Path,
         module_tmp_dir: Path,
     ) -> None:
@@ -634,8 +629,9 @@ class TestFormatCombinedRoutes:
             output_filename,
         ]
 
-        result = cli_runner.invoke(format_combined_routes_cli.main, arg_list)
-        assert result.exit_code == 0
+        result = subprocess.run(["format_combined_routes"] + arg_list, capture_output=True)
+        return_code = result.returncode
+        assert return_code == 0
 
         expected_output_filename = (
             f"formatted_routes_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
