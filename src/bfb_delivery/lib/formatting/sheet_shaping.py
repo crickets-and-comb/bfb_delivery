@@ -22,6 +22,7 @@ from bfb_delivery.lib.constants import (
     NOTES_COLUMN_WIDTH,
     PROTEIN_BOX_TYPES,
     SPLIT_ROUTE_COLUMNS,
+    BoxType,
     CellColors,
     Columns,
 )
@@ -92,7 +93,31 @@ def split_chunked_route(
     return split_workbook_paths
 
 
-# (Should match structure of split_chunked_route outputs.)
+@typechecked
+def create_manifests(
+    input_dir: Path | str, output_dir: Path | str, output_filename: str, date: str
+) -> Path:
+    """See public docstring for :py:func:`bfb_delivery.api.public.create_manifests`."""
+    output_filename = (
+        f"final_manifests_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
+        if output_filename == ""
+        else output_filename
+    )
+
+    combined_route_workbook_path = combine_route_tables(
+        input_dir=input_dir, output_dir=output_dir, output_filename=""
+    )
+
+    formatted_manifest_path = format_combined_routes(
+        input_path=combined_route_workbook_path,
+        output_dir=output_dir,
+        output_filename=output_filename,
+        date=date,
+    )
+
+    return formatted_manifest_path
+
+
 @typechecked
 def combine_route_tables(
     input_dir: Path | str, output_dir: Path | str, output_filename: str
@@ -125,10 +150,7 @@ def combine_route_tables(
 
 @typechecked
 def format_combined_routes(
-    input_path: Path | str,
-    output_dir: Path | str = "",
-    output_filename: str = "",
-    date: str = "Dummy date",
+    input_path: Path | str, output_dir: Path | str, output_filename: str, date: str
 ) -> Path:
     """See public docstring: :py:func:`bfb_delivery.api.public.format_combined_routes`."""
     input_path = Path(input_path)
@@ -195,7 +217,13 @@ def _aggregate_route_data(df: pd.DataFrame) -> dict:
         Dictionary of aggregated data.
     """
     df = df.copy()
+
     df[Columns.BOX_TYPE] = df[Columns.BOX_TYPE].str.upper().str.strip()
+    box_types = df[Columns.BOX_TYPE].unique()
+    extra_box_types = set(box_types) - set(BoxType)
+    if extra_box_types:
+        raise ValueError(f"Invalid box type in route data: {extra_box_types}")
+
     agg_dict = {
         "box_counts": df.groupby(Columns.BOX_TYPE)[Columns.ORDER_COUNT].sum().to_dict(),
         "total_box_count": df[Columns.ORDER_COUNT].sum(),
@@ -204,6 +232,10 @@ def _aggregate_route_data(df: pd.DataFrame) -> dict:
         ].sum(),
         "neighborhoods": df[Columns.NEIGHBORHOOD].unique().tolist(),
     }
+
+    for box_type in BoxType:
+        if box_type.value not in agg_dict["box_counts"]:
+            agg_dict["box_counts"][box_type] = 0
 
     return agg_dict
 

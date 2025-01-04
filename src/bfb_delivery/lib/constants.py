@@ -69,6 +69,11 @@ class Defaults:
     """Default values. E.g., for syncing public API with CLI."""
 
     COMBINE_ROUTE_TABLES: Final[dict[str, str]] = {"output_dir": "", "output_filename": ""}
+    CREATE_MANIFESTS: Final[dict[str, str]] = {
+        "output_dir": "",
+        "output_filename": "",
+        "date": "",
+    }
     FORMAT_COMBINED_ROUTES: Final[dict[str, str]] = {
         "output_dir": "",
         "output_filename": "",

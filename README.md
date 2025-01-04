@@ -4,33 +4,37 @@
 
 This set of tools cuts some cruft around creating delivery route manifests. It's made from the `reference_package` template repo: https://github.com/crickets-and-comb/reference_package. See the docs: https://crickets-and-comb.github.io/bfb_delivery/.
 
-The plan is to continue to build this package out to take on more of the tasks food bank staff do manually to plan the delivery routes.
+The plan is to continue to build this package out to take on more of the tasks food-bank staff do manually to plan the delivery routes.
 
-They currently use Circuit (https://getcircuit.com), but there are some tedious tasks to prepare the data for Circuit and then to process the data after using Circuit. They currently upload all the stops they need to Circuit to produce a single huge route, then they manually chunk up the route by driver according to how many boxes a driver can carry and what is a sensible set of stops, and finally they upload those smaller routes to Circuit again to optimize them. They spend several hours each week on the manual pieces of this, the chunking alone taking about four hours.
+They use Circuit (https://getcircuit.com) to create optimized routes from lists of addresses, but there are some tedious tasks to prepare the data for Circuit and then to format the optimized routes into manifests for printing. They upload all the stops they need to Circuit to produce a single huge route, then they manually "chunk" the route by driver (assign stops to drivers according to how many boxes a driver can carry, what is a sensible set of stops, per-driver constraints, etc.), then they upload those smaller routes to Circuit again to optimize them, and then they combine the output CSVs into a single Excel workbook with a worksheet for each route, and finally they format the sheets into printable manifests. They spend several hours each week on the manual pieces of this, the chunking alone taking about four hours.
 
-At this point, this package will do most of that short of uploading and downloading from Circuit. That functionality is on the way.
+At this point, the `bfb_delivery` package will do everything but allocate deliveries to drivers (chunk up the route) and interface with Circuit. That functionality is on the way.
 
 ## What it does so far
 
 1. Splits a spreadsheet of delivery stops labeled by driver into n workbooks (1 per staff member working on the route generation), one workbook sheet per driver. This allows staff to split the task of submitting unique driver routes to Circuit. The tool for this is called `split_chunked_route`. See below and/or docs for usage.
 
-2. Combines route CSVs into a single workbook with a sheet for each route. The tool for this is called `combine_route_tables`.
-
-3. Formats the routes workbook into driver manifests to print, with `format_combined_routes`.
+2. Combines route CSVs into a single workbook and formats the sheets into printable manifests. The tool for this is called `create_manifests`.
 
 See docs for usage: https://crickets-and-comb.github.io/bfb_delivery/.
 
 ## Dev plan
 
-Without replacing Circuit, there are some processes that can be further automated:
+We have no intention or desire to replace Circuit. In addition to optimizing routes, Circuit pushes routes to an app drivers can use. But, there are some processes outside of that to further automate/support:
 
-- Chunking by driver: This may be the most challenging piece, I'm only a little confident I can solve this well enough to justify using my solution. So, I will save it for after I've cleared some of the low-hanging fruit. My first plan of attack is to try using k-nearest neighbors. But, there are additional constraints to consider per driver. It may not be possible to encode all of them, but knocking out some of them may help cut down time.
+- Chunking by driver: This may be the most challenging piece. I'm only a little confident I can solve this well enough to justify using my solution. So, I will save it for after I've cleared the low-hanging fruit. My first plan of attack is to try using k-nearest neighbors (KNN) to group stops into potential routes.
 
-- Wrapping the sheet combining and formatting into a single tool. This is simple and forthcoming. But, I am pausing to allow users to adopt the two-step method and provide feedback, discover bugs, etc. If one part of it breaks, they can at least still use the other part.
+- Implementing a mapping tool to check routes will be helpful in both dev and production. This would be essential to removing the first upload to Circuit to make a long dummy route, if we're able to build a sufficient a chunking solution.
 
-- Uploading and exporting can be done via the Circuit API, which would enable more of the steps to be wrapped into a single ETL pipeline.
+- There are additional constraints to consider per driver. It may not be possible to encode all of them, but knocking out some of them may help cut down time, and doing this before chunking will better define the problem and add some validations.
 
-The plan of attack is to start with the low-hanging fruit of data formatting before moving onto the bigger problem of chunking. Integrating with the Circuit API may come before or after the chunking solution, depending on how complicated each proves.
+- The Circuit API likely supports uploading, optimizing, and exporting, which would enable wrapping more of the steps into a single ETL pipeline. But, we'll need to look more closely at the user workflow to see how and when that might be useful.
+
+- DB: There's no plan to develop, host, and support a DB. We're using Excel, CSVs, etc. to keep close to users' knowledge and skill bases, and existing workflow and resources. A DB would be especially useful for encoding driver restrictions etc., but a simple spreadsheet should suffice. If we did start using a DB, however, we'd need to create CRUD interfaces to it.
+
+- GUI: There's no real plan to develop a GUI, but it might be a good portfolio project to try out Vercel or something.
+
+The plan of attack has been to start with the low-hanging fruit of ETL before moving onto the bigger problem of chunking. Integrating with the Circuit API will likely come next if users think it would be useful.
 
 ## Structure
 
@@ -91,9 +95,11 @@ See other options in the help menu:
     $ split_chunked_route --help
 
 CLI tools (see docs for more information):
-- combine_route_tables
-- split_chunked_route
 
+- split_chunked_route
+- create_manifests
+- combine_route_tables
+- format_combined_routes
 
 
 ## Dev

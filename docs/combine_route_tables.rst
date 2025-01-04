@@ -4,9 +4,13 @@ Combine Driver Route Tables into a Single Workbook
 
 After you have optimized each driver's route in Circuit, you will need to combine the optimized routes back into a single workbook to create the driver manifest. This combining task can be done by using the :code:`combine_route_tables` tool.
 
-This tools tool replaces the manual task of copying each driver's optimized route into a single workbook. It will combine all the optimized routes into a single workbook, with each driver's route on a separate sheet.
+This tool replaces the manual task of copying each driver's optimized route into a single workbook. It will combine all the optimized routes into a single workbook, with each driver's route on a separate sheet.
 
 (After this step you'll pass the combined workbook to :code:`format_combined_routes` to create the printable manifest. See :doc:`format_combined_routes </format_combined_routes>`.)
+
+.. note::
+
+    :code:`create_manifests` wraps this tool and :code:`format_combined_routes` into one tool. You can still use them if you wish, but you can instead use :code:`create_manifests`. See :doc:`create_manifests </create_manifests>` and :doc:`format_combined_routes </format_combined_routes>`.
 
 Python API documentation at :py:func:`bfb_delivery.api.public.combine_route_tables`.
 
@@ -16,6 +20,10 @@ Usage
 -----
 
 You pass the directory containing the optimized route tables to :code:`combine_route_tables`, along with any other optional arguments, and it will create a single workbook file with all the optimized routes combined. The tool then returns the filepath to that file so you can continue to work with it as needed (formatting and printing, see :doc:`format_combined_routes </format_combined_routes>`).
+
+.. note::
+
+    The route CSVs from Circuit should be in a single directory, with no other CSVs in it.
 
 .. note::
 

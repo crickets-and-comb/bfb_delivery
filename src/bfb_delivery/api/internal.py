@@ -26,6 +26,18 @@ def split_chunked_route(
 
 
 @typechecked
+def create_manifests(
+    input_dir: Path | str, output_dir: Path | str, output_filename: str, date: str
+) -> Path:
+    """See public docstring for :py:func:`bfb_delivery.api.public.create_manifests`."""
+    formatted_manifest_path = sheet_shaping.create_manifests(
+        input_dir=input_dir, output_dir=output_dir, output_filename=output_filename, date=date
+    )
+
+    return formatted_manifest_path
+
+
+@typechecked
 def combine_route_tables(
     input_dir: Path | str, output_dir: Path | str, output_filename: str
 ) -> Path:

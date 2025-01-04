@@ -60,6 +60,49 @@ def split_chunked_route(
 
 
 @typechecked
+def create_manifests(
+    input_dir: Path | str,
+    output_dir: Path | str = Defaults.CREATE_MANIFESTS["output_dir"],
+    output_filename: str = Defaults.CREATE_MANIFESTS["output_filename"],
+    date: str = Defaults.CREATE_MANIFESTS["date"],
+) -> Path:
+    """From Circuit route CSVs, creates driver manifest workbook ready to print.
+
+    This is used after optimizing and exporting the routes to individual CSVs. Reads in
+    driver route CSVs from `input_dir` and creates a formatted workbook with driver
+    manifests ready to print, with headers, aggregate data, and color-coded box types. Each
+    driver's route is a separate sheet in the workbook.
+
+    The workbook is saved to `output_dir` with the name `output_filename`. Will create
+    `output_dir` if it doesn't exist.
+
+    The date is used in the manifest headers and sheet names, not in the filename.
+
+    Just wraps :py:func:`bfb_delivery.api.public.combine_route_tables` and
+    :py:func:`bfb_delivery.api.public.format_combined_routes`. Creates an intermediate output
+    workbook with all routes combined, then formats it.
+
+    See :doc:`create_manifests` for more information.
+
+    Args:
+        input_dir: The directory containing the driver route CSVs.
+        output_dir: The directory to write the formatted manifest workbook to.
+            Empty string saves to the input `input_dir` directory.
+        output_filename: The name of the output workbook.
+            Empty string sets filename to "final_manifests_{date}.xlsx".
+        date: The date to use in the driver manifests.
+
+    Returns:
+        Path to the formatted manifest workbook.
+    """
+    formatted_manifest_path = internal.create_manifests(
+        input_dir=input_dir, output_dir=output_dir, output_filename=output_filename, date=date
+    )
+
+    return formatted_manifest_path
+
+
+@typechecked
 def combine_route_tables(
     input_dir: Path | str,
     output_dir: Path | str = Defaults.COMBINE_ROUTE_TABLES["output_dir"],

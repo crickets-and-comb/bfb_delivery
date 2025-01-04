@@ -9,7 +9,12 @@ import click
 import pandas as pd
 from typeguard import typechecked
 
-from bfb_delivery import combine_route_tables, format_combined_routes, split_chunked_route
+from bfb_delivery import (
+    combine_route_tables,
+    create_manifests,
+    format_combined_routes,
+    split_chunked_route,
+)
 from bfb_delivery.lib.constants import Columns
 
 OUTPUT_DIRS: Final[dict[str, str]] = {
@@ -17,6 +22,7 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
     "CIRCUIT_TABLES_DIR": ".test_data/circuit_tables",
     "COMBINED_TABLES_DIR": ".test_data/combined_tables",
     "FORMATTED_TABLES_DIR": ".test_data/formatted_tables",
+    "MANIFESTS_DIR": ".test_data/manifests",
 }
 
 
@@ -63,9 +69,16 @@ def main(mock_raw_chunked_sheet_path: str) -> None:
     click.echo(f"Combined workbook saved to: {combined_path}")
 
     formatted_path = format_combined_routes(
-        input_path=combined_path, output_dir=OUTPUT_DIRS["FORMATTED_TABLES_DIR"], date=""
+        input_path=combined_path, output_dir=OUTPUT_DIRS["FORMATTED_TABLES_DIR"]
     )
     click.echo(f"Formatted workbook saved to: {formatted_path}")
+
+    final_manifests_path = create_manifests(
+        input_dir=OUTPUT_DIRS["CIRCUIT_TABLES_DIR"], output_dir=OUTPUT_DIRS["MANIFESTS_DIR"]
+    )
+    click.echo(
+        f"Manifests workbook (same as formatted workbook) saved to: {final_manifests_path}"
+    )
 
 
 @typechecked
