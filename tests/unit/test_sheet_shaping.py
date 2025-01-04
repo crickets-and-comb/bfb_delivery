@@ -1,5 +1,6 @@
 """Unit tests for sheet_shaping.py."""
 
+import subprocess
 from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
@@ -325,12 +326,14 @@ class TestSplitChunkedRoute:
         ):
             _ = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
 
+    @pytest.mark.parametrize("use_entrypoint", [True, False])
     @pytest.mark.parametrize(
         "output_dir, output_filename, n_books",
         [("", "", 4), ("output", "", 3), ("", "output_filename.xlsx", 1)],
     )
     def test_cli(
         self,
+        use_entrypoint: bool,
         output_dir: str,
         output_filename: str,
         n_books: int,
@@ -351,8 +354,13 @@ class TestSplitChunkedRoute:
             str(n_books),
         ]
 
-        result = cli_runner.invoke(split_chunked_route_cli.main, arg_list)
-        assert result.exit_code == 0
+        if use_entrypoint:
+            result = subprocess.run(["split_chunked_route"] + arg_list, capture_output=True)
+            return_code = result.returncode
+        else:
+            result = cli_runner.invoke(split_chunked_route_cli.main, arg_list)
+            return_code = result.exit_code
+        assert return_code == 0
 
         for i in range(n_books):
             expected_filename = (
@@ -474,10 +482,12 @@ class TestCombineRouteTables:
 
         pd.testing.assert_frame_equal(full_input_data, combined_output_data)
 
+    @pytest.mark.parametrize("use_entrypoint", [True, False])
     @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
     def test_cli(
         self,
+        use_entrypoint: bool,
         output_dir: str,
         output_filename: str,
         cli_runner: CliRunner,
@@ -495,8 +505,13 @@ class TestCombineRouteTables:
             output_filename,
         ]
 
-        result = cli_runner.invoke(combine_route_tables_cli.main, arg_list)
-        assert result.exit_code == 0
+        if use_entrypoint:
+            result = subprocess.run(["combine_route_tables"] + arg_list, capture_output=True)
+            return_code = result.returncode
+        else:
+            result = cli_runner.invoke(combine_route_tables_cli.main, arg_list)
+            return_code = result.exit_code
+        assert return_code == 0
 
         expected_output_filename = (
             f"combined_routes_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
@@ -610,10 +625,12 @@ class TestFormatCombinedRoutes:
         workbook = pd.ExcelFile(output_path)
         assert set(workbook.sheet_names) == sheet_names
 
+    @pytest.mark.parametrize("use_entrypoint", [True, False])
     @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
     def test_cli(
         self,
+        use_entrypoint: bool,
         output_dir: str,
         output_filename: str,
         cli_runner: CliRunner,
@@ -631,8 +648,15 @@ class TestFormatCombinedRoutes:
             output_filename,
         ]
 
-        result = cli_runner.invoke(format_combined_routes_cli.main, arg_list)
-        assert result.exit_code == 0
+        if use_entrypoint:
+            result = subprocess.run(
+                ["format_combined_routes"] + arg_list, capture_output=True
+            )
+            return_code = result.returncode
+        else:
+            result = cli_runner.invoke(format_combined_routes_cli.main, arg_list)
+            return_code = result.exit_code
+        assert return_code == 0
 
         expected_output_filename = (
             f"formatted_routes_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
