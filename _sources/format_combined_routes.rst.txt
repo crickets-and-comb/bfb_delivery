@@ -32,13 +32,13 @@ You must at least pass :code:`input_path` to :code:`format_combined_routes`:
 
     from bfb_delivery import format_combined_routes
 
-    combine_route_tables(input_path="path/to/combined_workbook.xlsx")
+    format_route_table(input_path="path/to/combined_workbook.xlsx")
 
 Or, use the CLI:
 
 .. code:: bash
 
-    combine_route_tables --input_path path/to/combined_workbook.xlsx
+    format_route_table --input_path path/to/combined_workbook.xlsx
 
 
 The function will return the filepath to the formatted manifest workbook, which you can then open, review, and print. If you're using the CLI, the filepath will be printed to the console.
@@ -59,14 +59,14 @@ Use the optional argument :code:`output_dir` to specify the filepath where the c
 
 .. code:: python
 
-    combine_route_tables(
+    format_route_table(
         input_path="path/to/combined_workbook.xlsx",
         output_dir="path/to/output_dir/",
     )
 
 .. code:: bash
 
-    combine_route_tables --input_path path/to/combined_workbook.xlsx --output_dir path/to/output_dir
+    format_route_table --input_path path/to/combined_workbook.xlsx --output_dir path/to/output_dir
 
 Output filename
 ~~~~~~~~~~~~~~~
@@ -75,14 +75,14 @@ Choose the filename with :code:`output_name`. The default filename will be :code
 
 .. code:: python
 
-    combine_route_tables(
+    format_route_table(
         input_path="path/to/combined_workbook.xlsx",
         output_name="manifests.xlsx",
     )
 
 .. code:: bash
 
-    combine_route_tables --input_path path/to/combined_workbook.xlsx --output_name manifests.xlsx
+    format_route_table --input_path path/to/combined_workbook.xlsx --output_name manifests.xlsx
 
 Manifest date
 ~~~~~~~~~~~~~
@@ -93,14 +93,14 @@ The default is today's date as ``MM.DD``. But, you can pass a specific date with
 
 .. code:: python
 
-    combine_route_tables(
+    format_route_table(
         input_path="path/to/combined_workbook.xlsx",
         date="1971.01.27",
     )
 
 .. code:: bash
 
-    combine_route_tables --input_path path/to/combined_workbook.xlsx --date "1971.01.27"
+    format_route_table --input_path path/to/combined_workbook.xlsx --date "1971.01.27"
 
 It doesn't have to be a date; it can be any text you want. Also, it doesn't affect the date in the filename.
 
