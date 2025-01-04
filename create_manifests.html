@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Create Printable Manifests from Optimized Routes" href="create_manifests.html" /><link rel="prev" title="Getting Started" href="getting_started.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="CLI" href="CLI.html" /><link rel="prev" title="Split Chunked Route Sheet into Multiple Files" href="split_chunked_route.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Split Chunked Route Sheet into Multiple Files - bfb_delivery 0.4.0 documentation</title>
+        <title>Create Printable Manifests from Optimized Routes - bfb_delivery 0.4.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -200,8 +200,8 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Split Chunked Route Sheet into Multiple Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="create_manifests.html">Create Printable Manifests from Optimized Routes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Create Printable Manifests from Optimized Routes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -236,7 +236,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="_sources/split_chunked_route.rst.txt" title="View this page">
+  <a class="muted-link" href="_sources/create_manifests.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -256,62 +256,79 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="split-chunked-route-sheet-into-multiple-files">
-<h1>Split Chunked Route Sheet into Multiple Files<a class="headerlink" href="#split-chunked-route-sheet-into-multiple-files" title="Link to this heading">¶</a></h1>
-<p>Once you have a large single-route sheet labeled by driver, representing individual driver routes, you need to split it into multiple files and sheets to then upload each driver’s route to Circuit for final optimization. This splitting task can be done by using the <code class="code docutils literal notranslate"><span class="pre">split_chunked_route</span></code> tool.</p>
-<p>This tool replaces the manual task of splitting the single route grouped by driver into individual Excel worksheets for each driver, grouped into a handful of workbooks for each staff member to upload to Circuit.</p>
-<p>Python API documentation at <a class="reference internal" href="bfb_delivery.api.html#bfb_delivery.api.public.split_chunked_route" title="bfb_delivery.api.public.split_chunked_route"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.split_chunked_route()</span></code></a>.</p>
+          <section id="create-printable-manifests-from-optimized-routes">
+<h1>Create Printable Manifests from Optimized Routes<a class="headerlink" href="#create-printable-manifests-from-optimized-routes" title="Link to this heading">¶</a></h1>
+<p>After you have optimized each driver’s route in Circuit, you will need to combine the optimized routes back into a single workbook of driver manifest sheets ready to print. You can do this with the <code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code> tool.</p>
+<p>This tool replaces the manual task of copying each driver’s optimized route into a single workbook, running an Excel macro, and finishing up with some manual steps. It will combine all the optimized routes into a single workbook, with each driver’s route on a separate sheet, and format the sheets into manifests ready to print.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This wraps the two other tools <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> and <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code> into one tool. You can still use them if you wish, but you can instead use this tool. For instance, say you’ve found a bug when using <code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code>. You could try running <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> then passing its output to <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code>. For whichever of those steps fails you can revert to using your old method, but you can still ostensibly use the tool for the other piece that didn’t fail (e.g., <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> ran fine, but <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code> threw an error, so you reverted to using the Excel macro and manually formatting). See <a class="reference internal" href="combine_route_tables.html"><span class="doc">combine_route_tables</span></a> and <a class="reference internal" href="format_combined_routes.html"><span class="doc">format_combined_routes</span></a>.</p>
+</div>
+<p>Python API documentation at <a class="reference internal" href="bfb_delivery.api.html#bfb_delivery.api.public.create_manifests" title="bfb_delivery.api.public.create_manifests"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.create_manifests()</span></code></a>.</p>
 <p>CLI documentation at <a class="reference internal" href="CLI.html"><span class="doc">CLI</span></a>.</p>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
-<p>You pass the filepath of the large route sheet to <code class="code docutils literal notranslate"><span class="pre">split_chunked_route</span></code>, along with any other optional arguments, and it will create workbook files split up for each staff member working on the route, with each sheet containing the deliveries for a single driver. The tool then returns the filepaths to those files so you can upload them to Circuit.</p>
+<p>You pass the directory containing the optimized route tables to <code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code>, along with any other optional arguments, and it will create a single workbook file with all the optimized routes formatted and ready to print. The tool then returns the filepath to that file.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This will change the “Box Type” column name to “Product Type” to match the Circuit API.</p>
+<p>The route CSVs from Circuit should be in a single directory, with no other CSVs in it.</p>
 </div>
-<p>You must at least pass <code class="code docutils literal notranslate"><span class="pre">input_path</span></code> to <code class="code docutils literal notranslate"><span class="pre">split_chunked_route</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bfb_delivery</span> <span class="kn">import</span> <span class="n">split_chunked_route</span>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This will change the “Product Type” column name, per Circuit API, back to “Box Type” per food bank staff preferences.</p>
+</div>
+<p>You must at least pass <code class="code docutils literal notranslate"><span class="pre">input_dir</span></code> to <code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bfb_delivery</span> <span class="kn">import</span> <span class="n">create_manifests</span>
 
-<span class="n">split_chunked_route</span><span class="p">(</span><span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/input.xlsx&quot;</span><span class="p">)</span>
+<span class="n">create_manifests</span><span class="p">(</span><span class="n">input_dir</span><span class="o">=</span><span class="s2">&quot;path/to/input/&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Or, use the command-line-interface:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>split_chunked_route<span class="w"> </span>--input_path<span class="w"> </span>path/to/input.xlsx
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests<span class="w"> </span>--input_dir<span class="w"> </span>path/to/input/
 </pre></div>
 </div>
-<p>The function will return a list of filepaths to the split files, which you can then upload to Circuit. If you’re using the CLI, the filepaths will be printed to the console.</p>
+<p>The function will return the filepath to the combined file. If you’re using the CLI, the filepath will be printed to the console.</p>
 <section id="optional-arguments">
 <h3>Optional arguments<a class="headerlink" href="#optional-arguments" title="Link to this heading">¶</a></h3>
-<p>You can specify a few things about the split files.</p>
-<section id="number-of-workbooks">
-<h4>Number of workbooks<a class="headerlink" href="#number-of-workbooks" title="Link to this heading">¶</a></h4>
-<p>You can optionally specify how many workbooks you want to split the route into by passing the argument <code class="code docutils literal notranslate"><span class="pre">n_books</span></code>. The default is 4, meaning the route will be split into 4 workbooks, each with a unique set of driver routes, for 4 staff members to upload.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">split_chunked_route</span><span class="p">(</span><span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/input.xlsx&quot;</span><span class="p">,</span> <span class="n">n_books</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>split_chunked_route<span class="w"> </span>--input_path<span class="w"> </span>path/to/input.xlsx<span class="w"> </span>--n_books<span class="w"> </span><span class="m">3</span>
-</pre></div>
-</div>
-</section>
+<p>You can use optional arguments specify a few things about the manifest workbook.</p>
 <section id="output-directory">
 <h4>Output directory<a class="headerlink" href="#output-directory" title="Link to this heading">¶</a></h4>
-<p>Use the optional argument <code class="code docutils literal notranslate"><span class="pre">output_dir</span></code> to specify the directory where the split files will be saved:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">split_chunked_route</span><span class="p">(</span><span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/input.xlsx&quot;</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;path/to/output&quot;</span><span class="p">)</span>
+<p>Use the optional argument <code class="code docutils literal notranslate"><span class="pre">output_dir</span></code> to specify the directory where the workbook file will be saved:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">create_manifests</span><span class="p">(</span><span class="n">input_dir</span><span class="o">=</span><span class="s2">&quot;path/to/input/&quot;</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;path/to/output_dir/&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>split_chunked_route<span class="w"> </span>--input_path<span class="w"> </span>path/to/input.xlsx<span class="w"> </span>--output_dir<span class="w"> </span>path/to/output
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests<span class="w"> </span>--input_dir<span class="w"> </span>path/to/input/<span class="w"> </span>--output_dir<span class="w"> </span>path/to/output_dir/
 </pre></div>
 </div>
 </section>
 <section id="output-filename">
 <h4>Output filename<a class="headerlink" href="#output-filename" title="Link to this heading">¶</a></h4>
-<p>Use <code class="code docutils literal notranslate"><span class="pre">output_name</span></code> to choose a standard filename. The default filenames will be <code class="code docutils literal notranslate"><span class="pre">split_workbook_{today's</span> <span class="pre">date}_{i</span> <span class="pre">of</span> <span class="pre">n</span> <span class="pre">workbooks}.xlsx</span></code> (e.g., <code class="code docutils literal notranslate"><span class="pre">split_workbook_19991231_1_of_3.xlsx</span></code>). But, you can pass a preferred name that will be used instead, with just the workbook number appended to it. So, passing <code class="code docutils literal notranslate"><span class="pre">output_name</span></code> as <code class="code docutils literal notranslate"><span class="pre">driver_routes</span></code> will result in files named <code class="code docutils literal notranslate"><span class="pre">driver_routes_1.xlsx</span></code>, <code class="code docutils literal notranslate"><span class="pre">driver_routes_2.xlsx</span></code>, etc.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">split_chunked_route</span><span class="p">(</span><span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/input.xlsx&quot;</span><span class="p">,</span> <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;driver_routes&quot;</span><span class="p">)</span>
+<p>Choose the filename with <code class="code docutils literal notranslate"><span class="pre">output_name</span></code>. The default filename will be <code class="code docutils literal notranslate"><span class="pre">final_manifests_{today's</span> <span class="pre">date}.xlsx</span></code> (e.g., <code class="code docutils literal notranslate"><span class="pre">final_manifests_19991231.xlsx</span></code>). But, you can pass a preferred name instead:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">create_manifests</span><span class="p">(</span><span class="n">input_dir</span><span class="o">=</span><span class="s2">&quot;path/to/input/&quot;</span><span class="p">,</span> <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;all_routes.xlsx&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>split_chunked_route<span class="w"> </span>--input_path<span class="w"> </span>path/to/input.xlsx<span class="w"> </span>--output_name<span class="w"> </span>driver_routes
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests<span class="w"> </span>--input_dir<span class="w"> </span>path/to/input/<span class="w"> </span>--output_name<span class="w"> </span>all_routes.xlsx
 </pre></div>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can use both <cite>output_dir</cite> and <cite>output_name</cite> together to specify the directory and filename of the output workbook.</p>
+</div>
+</section>
+<section id="manifest-date">
+<h4>Manifest date<a class="headerlink" href="#manifest-date" title="Link to this heading">¶</a></h4>
+<p>A date is prepended to the driver’s name in the manifest worksheets, and it’s also used in the date field in the worksheets.</p>
+<p>The default is today’s date as <code class="docutils literal notranslate"><span class="pre">MM.DD</span></code>. But, you can pass a specific date with <code class="code docutils literal notranslate"><span class="pre">date</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">create_manifests</span><span class="p">(</span>
+    <span class="n">input_dir</span><span class="o">=</span><span class="s2">&quot;path/to/input/&quot;</span><span class="p">,</span>
+    <span class="n">date</span><span class="o">=</span><span class="s2">&quot;1971.01.27&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests<span class="w"> </span>--input_dir<span class="w"> </span>path/to/input/<span class="w"> </span>--date<span class="w"> </span><span class="s2">&quot;1971.01.27&quot;</span>
+</pre></div>
+</div>
+<p>It doesn’t have to be a date; it can be any text you want. Also, it doesn’t affect the date in the filename.</p>
 </section>
 </section>
 </section>
@@ -322,23 +339,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="create_manifests.html">
+          <a class="next-page" href="CLI.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Create Printable Manifests from Optimized Routes</div>
+                <div class="title">CLI</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="getting_started.html">
+          <a class="prev-page" href="split_chunked_route.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Getting Started</div>
+                <div class="title">Split Chunked Route Sheet into Multiple Files</div>
                 
               </div>
             </a>
@@ -372,12 +389,12 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Split Chunked Route Sheet into Multiple Files</a><ul>
+<li><a class="reference internal" href="#">Create Printable Manifests from Optimized Routes</a><ul>
 <li><a class="reference internal" href="#usage">Usage</a><ul>
 <li><a class="reference internal" href="#optional-arguments">Optional arguments</a><ul>
-<li><a class="reference internal" href="#number-of-workbooks">Number of workbooks</a></li>
 <li><a class="reference internal" href="#output-directory">Output directory</a></li>
 <li><a class="reference internal" href="#output-filename">Output filename</a></li>
+<li><a class="reference internal" href="#manifest-date">Manifest date</a></li>
 </ul>
 </li>
 </ul>

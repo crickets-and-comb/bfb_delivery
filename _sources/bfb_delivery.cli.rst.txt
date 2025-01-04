@@ -12,6 +12,14 @@ bfb\_delivery.cli.combine\_route\_tables module
    :undoc-members:
    :show-inheritance:
 
+bfb\_delivery.cli.create\_manifests module
+------------------------------------------
+
+.. automodule:: bfb_delivery.cli.create_manifests
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bfb\_delivery.cli.format\_combined\_routes module
 -------------------------------------------------
 

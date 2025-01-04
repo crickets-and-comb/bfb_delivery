@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="CLI" href="CLI.html" /><link rel="prev" title="Combine Driver Route Tables into a Single Workbook" href="combine_route_tables.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Format Manifests - bfb_delivery 0.3.2 documentation</title>
+        <title>Format Manifests - bfb_delivery 0.4.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.3.2 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.4.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.3.2 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.4.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -198,11 +198,10 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul class="current">
+  <ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="combine_route_tables.html">Combine Driver Route Tables into a Single Workbook</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Format Manifests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="create_manifests.html">Create Printable Manifests from Optimized Routes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -261,6 +260,10 @@
 <h1>Format Manifests<a class="headerlink" href="#format-manifests" title="Link to this heading">¶</a></h1>
 <p>After you’ve combined your optimized routes into a single workbook, using <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> (see <a class="reference internal" href="combine_route_tables.html"><span class="doc">combine_route_tables</span></a>), you’ll need to format the combined routes into printable manifests for the drivers. This can be done using the <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code> tool.</p>
 <p>This tool replaces the Excel macro previously used, as well as some manual steps afterward. The output is ready to print.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code> wraps this tool and <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> into one tool. You can still use them if you wish, but you can instead use <code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code>. See <a class="reference internal" href="create_manifests.html"><span class="doc">create_manifests</span></a> and <a class="reference internal" href="combine_route_tables.html"><span class="doc">combine_route_tables</span></a>.</p>
+</div>
 <p>Python API documentation at <a class="reference internal" href="bfb_delivery.api.html#bfb_delivery.api.public.format_combined_routes" title="bfb_delivery.api.public.format_combined_routes"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.format_combined_routes()</span></code></a>.</p>
 <p>CLI documentation at <a class="reference internal" href="CLI.html"><span class="doc">CLI</span></a>.</p>
 <section id="setup">
@@ -343,26 +346,8 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="CLI.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">CLI</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="combine_route_tables.html">
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-              <div class="page-info">
-                <div class="context">
-                  <span>Previous</span>
-                </div>
-                
-                <div class="title">Combine Driver Route Tables into a Single Workbook</div>
-                
-              </div>
-            </a>
+          
+          
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -415,7 +400,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=71d9d8e6"></script>
+</div><script src="_static/documentation_options.js?v=6c02275b"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

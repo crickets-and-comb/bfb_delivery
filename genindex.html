@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#" /><link rel="search" title="Search" href="search.html" />
 
-    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 --><title>Index - bfb_delivery 0.3.2 documentation</title>
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 --><title>Index - bfb_delivery 0.4.0 documentation</title>
 <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.3.2 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.4.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.3.2 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.4.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -199,8 +199,7 @@
   <ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="combine_route_tables.html">Combine Driver Route Tables into a Single Workbook</a></li>
-<li class="toctree-l1"><a class="reference internal" href="format_combined_routes.html">Format Manifests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="create_manifests.html">Create Printable Manifests from Optimized Routes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -262,6 +261,8 @@
     --date
 
         <ul>
+          <li><a href="CLI.html#cmdoption-create_manifests-date">create_manifests command line option</a>
+</li>
           <li><a href="CLI.html#cmdoption-format_combined_routes-date">format_combined_routes command line option</a>
 </li>
         </ul></li>
@@ -270,6 +271,8 @@
 
         <ul>
           <li><a href="CLI.html#cmdoption-combine_route_tables-input_dir">combine_route_tables command line option</a>
+</li>
+          <li><a href="CLI.html#cmdoption-create_manifests-input_dir">create_manifests command line option</a>
 </li>
         </ul></li>
         <li>
@@ -296,6 +299,8 @@
         <ul>
           <li><a href="CLI.html#cmdoption-combine_route_tables-output_dir">combine_route_tables command line option</a>
 </li>
+          <li><a href="CLI.html#cmdoption-create_manifests-output_dir">create_manifests command line option</a>
+</li>
           <li><a href="CLI.html#cmdoption-format_combined_routes-output_dir">format_combined_routes command line option</a>
 </li>
           <li><a href="CLI.html#cmdoption-split_chunked_route-output_dir">split_chunked_route command line option</a>
@@ -306,6 +311,8 @@
 
         <ul>
           <li><a href="CLI.html#cmdoption-combine_route_tables-output_filename">combine_route_tables command line option</a>
+</li>
+          <li><a href="CLI.html#cmdoption-create_manifests-output_filename">create_manifests command line option</a>
 </li>
           <li><a href="CLI.html#cmdoption-format_combined_routes-output_filename">format_combined_routes command line option</a>
 </li>
@@ -376,6 +383,13 @@
 
         <ul>
           <li><a href="bfb_delivery.cli.html#module-bfb_delivery.cli.combine_route_tables">module</a>
+</li>
+        </ul></li>
+        <li>
+    bfb_delivery.cli.create_manifests
+
+        <ul>
+          <li><a href="bfb_delivery.cli.html#module-bfb_delivery.cli.create_manifests">module</a>
 </li>
         </ul></li>
         <li>
@@ -467,14 +481,37 @@
           <li><a href="CLI.html#cmdoption-combine_route_tables-output_filename">--output_filename</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="bfb_delivery.api.html#bfb_delivery.api.internal.combine_route_tables">combine_route_tables() (in module bfb_delivery.api.internal)</a>
 
         <ul>
           <li><a href="bfb_delivery.api.html#bfb_delivery.api.public.combine_route_tables">(in module bfb_delivery.api.public)</a>
 </li>
           <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping.combine_route_tables">(in module bfb_delivery.lib.formatting.sheet_shaping)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Defaults.CREATE_MANIFESTS">CREATE_MANIFESTS (bfb_delivery.lib.constants.Defaults attribute)</a>
+</li>
+        <li>
+    create_manifests command line option
+
+        <ul>
+          <li><a href="CLI.html#cmdoption-create_manifests-date">--date</a>
+</li>
+          <li><a href="CLI.html#cmdoption-create_manifests-input_dir">--input_dir</a>
+</li>
+          <li><a href="CLI.html#cmdoption-create_manifests-output_dir">--output_dir</a>
+</li>
+          <li><a href="CLI.html#cmdoption-create_manifests-output_filename">--output_filename</a>
+</li>
+        </ul></li>
+        <li><a href="bfb_delivery.api.html#bfb_delivery.api.internal.create_manifests">create_manifests() (in module bfb_delivery.api.internal)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.api.html#bfb_delivery.api.public.create_manifests">(in module bfb_delivery.api.public)</a>
+</li>
+          <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping.create_manifests">(in module bfb_delivery.lib.formatting.sheet_shaping)</a>
 </li>
         </ul></li>
     </ul></td>
@@ -605,6 +642,8 @@
           <li><a href="bfb_delivery.cli.html#module-bfb_delivery.cli">bfb_delivery.cli</a>
 </li>
           <li><a href="bfb_delivery.cli.html#module-bfb_delivery.cli.combine_route_tables">bfb_delivery.cli.combine_route_tables</a>
+</li>
+          <li><a href="bfb_delivery.cli.html#module-bfb_delivery.cli.create_manifests">bfb_delivery.cli.create_manifests</a>
 </li>
           <li><a href="bfb_delivery.cli.html#module-bfb_delivery.cli.format_combined_routes">bfb_delivery.cli.format_combined_routes</a>
 </li>
@@ -748,7 +787,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=71d9d8e6"></script>
+</div><script src="_static/documentation_options.js?v=6c02275b"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>
