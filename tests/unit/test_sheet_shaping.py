@@ -1,7 +1,9 @@
 """Unit tests for sheet_shaping.py."""
 
+import re
 import subprocess
 from collections.abc import Iterator
+from contextlib import AbstractContextManager, nullcontext
 from datetime import datetime
 from pathlib import Path
 from typing import Final
@@ -1015,17 +1017,16 @@ class TestCreateManifests:
             input_df.rename(columns={Columns.PRODUCT_TYPE: Columns.BOX_TYPE}, inplace=True)
             agg_dict = _aggregate_route_data(df=input_df)
 
-            # TODO: Undo using get with default 0 once fixed in _aggregate_route_data.
             neighborhoods = ", ".join(agg_dict["neighborhoods"])
             assert ws["A7"].value == f"Neighborhoods: {neighborhoods.upper()}"
             assert ws["E3"].value == BoxType.BASIC
-            assert ws["F3"].value == agg_dict["box_counts"].get(BoxType.BASIC, 0)
+            assert ws["F3"].value == agg_dict["box_counts"][BoxType.BASIC]
             assert ws["E4"].value == BoxType.GF
-            assert ws["F4"].value == agg_dict["box_counts"].get(BoxType.GF, 0)
+            assert ws["F4"].value == agg_dict["box_counts"][BoxType.GF]
             assert ws["E5"].value == BoxType.LA
-            assert ws["F5"].value == agg_dict["box_counts"].get(BoxType.LA, 0)
+            assert ws["F5"].value == agg_dict["box_counts"][BoxType.LA]
             assert ws["E6"].value == BoxType.VEGAN
-            assert ws["F6"].value == agg_dict["box_counts"].get(BoxType.VEGAN, 0)
+            assert ws["F6"].value == agg_dict["box_counts"][BoxType.VEGAN]
             assert ws["E7"].value == "TOTAL BOX COUNT="
             assert ws["F7"].value == agg_dict["total_box_count"]
             assert ws["E8"].value == "PROTEIN COUNT="
@@ -1111,24 +1112,90 @@ class TestCreateManifests:
                 assert cell.alignment.horizontal == "left"
 
 
-def test_aggregate_route_data() -> None:
+@pytest.mark.parametrize(
+    "route_df, expected_agg_dict, error_context",
+    [
+        (
+            pd.DataFrame(
+                {
+                    Columns.BOX_TYPE: ["BASIC", "GF", "LA", "BASIC", "GF", "LA", "Vegan"],
+                    Columns.ORDER_COUNT: [1, 1, 1, 2, 1, 1, 2],
+                    Columns.NEIGHBORHOOD: [
+                        "YORK",
+                        "YORK",
+                        "YORK",
+                        "PUGET",
+                        "YORK",
+                        "YORK",
+                        "PUGET",
+                    ],
+                }
+            ),
+            {
+                "box_counts": {"BASIC": 3, "GF": 2, "LA": 2, "VEGAN": 2},
+                "total_box_count": 9,
+                "protein_box_count": 7,
+                "neighborhoods": ["YORK", "PUGET"],
+            },
+            nullcontext(),
+        ),
+        (
+            pd.DataFrame(
+                {
+                    Columns.BOX_TYPE: ["BASIC", "GF", "LA", "BASIC", "GF", "LA"],
+                    Columns.ORDER_COUNT: [1, 1, 1, 2, 1, 1],
+                    Columns.NEIGHBORHOOD: ["YORK", "YORK", "YORK", "PUGET", "YORK", "YORK"],
+                }
+            ),
+            {
+                "box_counts": {"BASIC": 3, "GF": 2, "LA": 2, "VEGAN": 0},
+                "total_box_count": 7,
+                "protein_box_count": 7,
+                "neighborhoods": ["YORK", "PUGET"],
+            },
+            nullcontext(),
+        ),
+        (
+            pd.DataFrame(
+                {
+                    Columns.BOX_TYPE: [
+                        "BASIC",
+                        "GF",
+                        "LA",
+                        "BASIC",
+                        "GF",
+                        "LA",
+                        "Vegan",
+                        "bad box type",
+                    ],
+                    Columns.ORDER_COUNT: [1, 1, 1, 2, 1, 1, 2, 1],
+                    Columns.NEIGHBORHOOD: [
+                        "YORK",
+                        "YORK",
+                        "YORK",
+                        "PUGET",
+                        "YORK",
+                        "YORK",
+                        "PUGET",
+                        "PUGET",
+                    ],
+                }
+            ),
+            {},
+            pytest.raises(
+                ValueError,
+                match=re.escape("Invalid box type in route data: {'BAD BOX TYPE'}"),
+            ),
+        ),
+    ],
+)
+def test_aggregate_route_data(
+    route_df: pd.DataFrame, expected_agg_dict: dict, error_context: AbstractContextManager
+) -> None:
     """Test that a route's data is aggregated correctly."""
-    route_df = pd.DataFrame(
-        {
-            Columns.BOX_TYPE: ["BASIC", "GF", "LA", "BASIC", "GF", "LA", "Vegan"],
-            Columns.ORDER_COUNT: [1, 1, 1, 2, 1, 1, 2],
-            Columns.NEIGHBORHOOD: ["YORK", "YORK", "YORK", "PUGET", "YORK", "YORK", "PUGET"],
-        }
-    )
-    expected_agg_dict = agg_dict = {
-        "box_counts": {"BASIC": 3, "GF": 2, "LA": 2, "VEGAN": 2},
-        "total_box_count": 9,
-        "protein_box_count": 7,
-        "neighborhoods": ["YORK", "PUGET"],
-    }
-
-    agg_dict = _aggregate_route_data(df=route_df)
-    assert agg_dict == expected_agg_dict
+    with error_context:
+        agg_dict = _aggregate_route_data(df=route_df)
+        assert agg_dict == expected_agg_dict
 
 
 def _get_driver_sheets(output_paths: list[Path]) -> list[pd.DataFrame]:

@@ -22,6 +22,7 @@ from bfb_delivery.lib.constants import (
     NOTES_COLUMN_WIDTH,
     PROTEIN_BOX_TYPES,
     SPLIT_ROUTE_COLUMNS,
+    BoxType,
     CellColors,
     Columns,
 )
@@ -216,10 +217,14 @@ def _aggregate_route_data(df: pd.DataFrame) -> dict:
         Dictionary of aggregated data.
     """
     df = df.copy()
+
     df[Columns.BOX_TYPE] = df[Columns.BOX_TYPE].str.upper().str.strip()
+    box_types = df[Columns.BOX_TYPE].unique()
+    extra_box_types = set(box_types) - set(BoxType)
+    if extra_box_types:
+        raise ValueError(f"Invalid box type in route data: {extra_box_types}")
+
     agg_dict = {
-        # TODO: Loop through enum.
-        # And remove the get with default 0 in TestCreateManifests::test_agg_cells.
         "box_counts": df.groupby(Columns.BOX_TYPE)[Columns.ORDER_COUNT].sum().to_dict(),
         "total_box_count": df[Columns.ORDER_COUNT].sum(),
         "protein_box_count": df[df[Columns.BOX_TYPE].isin(PROTEIN_BOX_TYPES)][
@@ -227,6 +232,10 @@ def _aggregate_route_data(df: pd.DataFrame) -> dict:
         ].sum(),
         "neighborhoods": df[Columns.NEIGHBORHOOD].unique().tolist(),
     }
+
+    for box_type in BoxType:
+        if box_type.value not in agg_dict["box_counts"]:
+            agg_dict["box_counts"][box_type] = 0
 
     return agg_dict
 
