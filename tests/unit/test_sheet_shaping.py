@@ -8,13 +8,9 @@ from typing import Final
 
 import pandas as pd
 import pytest
-from click.testing import CliRunner
 from openpyxl import Workbook, load_workbook
 
 from bfb_delivery import combine_route_tables, format_combined_routes, split_chunked_route
-from bfb_delivery.cli import combine_route_tables as combine_route_tables_cli
-from bfb_delivery.cli import format_combined_routes as format_combined_routes_cli
-from bfb_delivery.cli import split_chunked_route as split_chunked_route_cli
 from bfb_delivery.lib.constants import (
     BOX_TYPE_COLOR_MAP,
     COMBINED_ROUTES_COLUMNS,
@@ -326,18 +322,15 @@ class TestSplitChunkedRoute:
         ):
             _ = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
 
-    @pytest.mark.parametrize("use_entrypoint", [True, False])
     @pytest.mark.parametrize(
         "output_dir, output_filename, n_books",
         [("", "", 4), ("output", "", 3), ("", "output_filename.xlsx", 1)],
     )
     def test_cli(
         self,
-        use_entrypoint: bool,
         output_dir: str,
         output_filename: str,
         n_books: int,
-        cli_runner: CliRunner,
         mock_chunked_sheet_raw: Path,
         module_tmp_dir: Path,
     ) -> None:
@@ -354,12 +347,8 @@ class TestSplitChunkedRoute:
             str(n_books),
         ]
 
-        if use_entrypoint:
-            result = subprocess.run(["split_chunked_route"] + arg_list, capture_output=True)
-            return_code = result.returncode
-        else:
-            result = cli_runner.invoke(split_chunked_route_cli.main, arg_list)
-            return_code = result.exit_code
+        result = subprocess.run(["split_chunked_route"] + arg_list, capture_output=True)
+        return_code = result.returncode
         assert return_code == 0
 
         for i in range(n_books):
@@ -482,15 +471,12 @@ class TestCombineRouteTables:
 
         pd.testing.assert_frame_equal(full_input_data, combined_output_data)
 
-    @pytest.mark.parametrize("use_entrypoint", [True, False])
     @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
     def test_cli(
         self,
-        use_entrypoint: bool,
         output_dir: str,
         output_filename: str,
-        cli_runner: CliRunner,
         mock_route_tables: Path,
         module_tmp_dir: Path,
     ) -> None:
@@ -505,12 +491,8 @@ class TestCombineRouteTables:
             output_filename,
         ]
 
-        if use_entrypoint:
-            result = subprocess.run(["combine_route_tables"] + arg_list, capture_output=True)
-            return_code = result.returncode
-        else:
-            result = cli_runner.invoke(combine_route_tables_cli.main, arg_list)
-            return_code = result.exit_code
+        result = subprocess.run(["combine_route_tables"] + arg_list, capture_output=True)
+        return_code = result.returncode
         assert return_code == 0
 
         expected_output_filename = (
@@ -625,15 +607,12 @@ class TestFormatCombinedRoutes:
         workbook = pd.ExcelFile(output_path)
         assert set(workbook.sheet_names) == sheet_names
 
-    @pytest.mark.parametrize("use_entrypoint", [True, False])
     @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
     def test_cli(
         self,
-        use_entrypoint: bool,
         output_dir: str,
         output_filename: str,
-        cli_runner: CliRunner,
         mock_combined_routes: Path,
         module_tmp_dir: Path,
     ) -> None:
@@ -648,14 +627,8 @@ class TestFormatCombinedRoutes:
             output_filename,
         ]
 
-        if use_entrypoint:
-            result = subprocess.run(
-                ["format_combined_routes"] + arg_list, capture_output=True
-            )
-            return_code = result.returncode
-        else:
-            result = cli_runner.invoke(format_combined_routes_cli.main, arg_list)
-            return_code = result.exit_code
+        result = subprocess.run(["format_combined_routes"] + arg_list, capture_output=True)
+        return_code = result.returncode
         assert return_code == 0
 
         expected_output_filename = (
