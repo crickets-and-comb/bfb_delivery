@@ -900,7 +900,6 @@ class TestCreateManifests:
         self,
         output_dir: str,
         output_filename: str,
-        cli_runner: CliRunner,
         mock_route_tables: Path,
         module_tmp_dir: Path,
     ) -> None:
@@ -915,8 +914,9 @@ class TestCreateManifests:
             output_filename,
         ]
 
-        result = cli_runner.invoke(create_manifests_cli.main, arg_list)
-        assert result.exit_code == 0
+        result = subprocess.run(["create_manifests"] + arg_list, capture_output=True)
+        return_code = result.returncode
+        assert return_code == 0
 
         expected_output_filename = (
             f"final_manifests_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
