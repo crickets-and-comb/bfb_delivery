@@ -17,8 +17,7 @@ Contents
    :maxdepth: 3
 
    getting_started
-   split_chunked_route
-   create_manifests
+   workflow
    CLI
    modules
    developers
