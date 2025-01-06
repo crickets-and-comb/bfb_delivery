@@ -3,11 +3,11 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="CLI" href="CLI.html" /><link rel="prev" title="Split Chunked Route Sheet into Multiple Files" href="split_chunked_route.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Create Printable Manifests from Optimized Routes - bfb_delivery 0.4.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+        <title>Create Printable Manifests from Optimized Routes - bfb_delivery 0.4.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
     
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.4.0 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.4.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.4.0 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.4.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -198,10 +198,9 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul class="current">
+  <ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Create Printable Manifests from Optimized Routes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow.html">The Delivery-Planning Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -262,7 +261,7 @@
 <p>This tool replaces the manual task of copying each driver’s optimized route into a single workbook, running an Excel macro, and finishing up with some manual steps. It will combine all the optimized routes into a single workbook, with each driver’s route on a separate sheet, and format the sheets into manifests ready to print.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This wraps the two other tools <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> and <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code> into one tool. You can still use them if you wish, but you can instead use this tool. For instance, say you’ve found a bug when using <code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code>. You could try running <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> then passing its output to <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code>. For whichever of those steps fails you can revert to using your old method, but you can still ostensibly use the tool for the other piece that didn’t fail (e.g., <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> ran fine, but <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code> threw an error, so you reverted to using the Excel macro and manually formatting). See <a class="reference internal" href="combine_route_tables.html"><span class="doc">combine_route_tables</span></a> and <a class="reference internal" href="format_combined_routes.html"><span class="doc">format_combined_routes</span></a>.</p>
+<p>This wraps the two other tools <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> and <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code> into one tool. You can still use them if you wish, but you can instead use this tool. For instance, say you’ve found a bug when using <code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code>. You could try running <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> then passing its output to <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code>. For whichever of those steps fails you can revert to using your old method, but you can still ostensibly use the tool for the other piece that didn’t fail (e.g., <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> ran fine, but <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code> threw an error, so you reverted to using the Excel macro and manually formatting). See <a class="reference internal" href="combine_route_tables.html"><span class="doc">Combine Driver Route Tables into a Single Workbook</span></a> and <a class="reference internal" href="format_combined_routes.html"><span class="doc">Format Manifests</span></a>.</p>
 </div>
 <p>Python API documentation at <a class="reference internal" href="bfb_delivery.api.html#bfb_delivery.api.public.create_manifests" title="bfb_delivery.api.public.create_manifests"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.create_manifests()</span></code></a>.</p>
 <p>CLI documentation at <a class="reference internal" href="CLI.html"><span class="doc">CLI</span></a>.</p>
@@ -278,7 +277,7 @@
 <p>This will change the “Product Type” column name, per Circuit API, back to “Box Type” per food bank staff preferences.</p>
 </div>
 <p>You must at least pass <code class="code docutils literal notranslate"><span class="pre">input_dir</span></code> to <code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bfb_delivery</span> <span class="kn">import</span> <span class="n">create_manifests</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfb_delivery</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_manifests</span>
 
 <span class="n">create_manifests</span><span class="p">(</span><span class="n">input_dir</span><span class="o">=</span><span class="s2">&quot;path/to/input/&quot;</span><span class="p">)</span>
 </pre></div>
@@ -339,26 +338,8 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="CLI.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">CLI</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="split_chunked_route.html">
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-              <div class="page-info">
-                <div class="context">
-                  <span>Previous</span>
-                </div>
-                
-                <div class="title">Split Chunked Route Sheet into Multiple Files</div>
-                
-              </div>
-            </a>
+          
+          
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -410,7 +391,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=6c02275b"></script>
+</div><script src="_static/documentation_options.js?v=c87aa342"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

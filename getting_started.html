@@ -3,11 +3,11 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Split Chunked Route Sheet into Multiple Files" href="split_chunked_route.html" /><link rel="prev" title="BFB Delivery: A Cruft Cutter" href="index.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="The Delivery-Planning Workflow" href="workflow.html" /><link rel="prev" title="BFB Delivery: A Cruft Cutter" href="index.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Getting Started - bfb_delivery 0.4.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+        <title>Getting Started - bfb_delivery 0.4.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
     
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.4.0 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.4.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.4.0 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.4.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -200,8 +200,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="create_manifests.html">Create Printable Manifests from Optimized Routes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow.html">The Delivery-Planning Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -323,7 +322,7 @@
 <h3>Library<a class="headerlink" href="#library" title="Link to this heading">¶</a></h3>
 <p>You are likely only going to use the CLI, but here are some guidelines for using the library.</p>
 <p>Avoid calling library functions directly and stick to the public API:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bfb_delivery</span> <span class="kn">import</span> <span class="n">split_chunked_route</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfb_delivery</span><span class="w"> </span><span class="kn">import</span> <span class="n">split_chunked_route</span>
 <span class="c1"># These are okay too:</span>
 <span class="c1"># from bfb_delivery.api import split_chunked_route</span>
 <span class="c1"># from bfb_delivery.api.public import split_chunked_route</span>
@@ -332,13 +331,13 @@
 </pre></div>
 </div>
 <p>If you’re a power user or just want to feel like one, you can use the internal API:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bfb_delivery.api.internal</span> <span class="kn">import</span> <span class="n">split_chunked_route</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfb_delivery.api.internal</span><span class="w"> </span><span class="kn">import</span> <span class="n">split_chunked_route</span>
 
 <span class="n">split_chunked_route</span><span class="p">(</span><span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/input.xlsx&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Nothing is stopping you from importing from <code class="code docutils literal notranslate"><span class="pre">lib</span></code> directly, but you should avoid it – unless you like to tell people, “Danger is my middle name.” Here’s a taste of danger:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bfb_delivery.lib.formatting.sheet_shaping</span> <span class="kn">import</span> <span class="n">split_chunked_route</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfb_delivery.lib.formatting.sheet_shaping</span><span class="w"> </span><span class="kn">import</span> <span class="n">split_chunked_route</span>
 
 <span class="n">split_chunked_route</span><span class="p">(</span><span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/input.xlsx&quot;</span><span class="p">)</span>
 </pre></div>
@@ -347,27 +346,7 @@
 </section>
 <section id="your-workflow">
 <h2>Your workflow<a class="headerlink" href="#your-workflow" title="Link to this heading">¶</a></h2>
-<p>Once you’re set up, and you have a master list of chunked routes you want to split up and optimize in Circuit, you can begin using this tool. Here’s the workflow.</p>
-<p>First, open your terminal (e.g., Anaconda Command Prompt), navigate to the correct directory (the one containing your <code class="docutils literal notranslate"><span class="pre">config.ini</span></code> file defined above), and activate your env:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>path/to/bfb_delivery/dir
-conda<span class="w"> </span>activate<span class="w"> </span>my_bfb_delivery_env_name
-</pre></div>
-</div>
-<p>Then, run the <code class="code docutils literal notranslate"><span class="pre">split_chunked_route</span></code> to split the chunked worksheet into individual driver worksheets divided into workbooks that staff can upload to Circuit:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>split_chunked_route<span class="w"> </span>--input_path<span class="w"> </span>path/to/input.xlsx
-</pre></div>
-</div>
-<p>The paths to the workbooks will print to the console.</p>
-<p>Next, upload the workbooks to Circuit and optimize the routes. Once you have the optimized routes saved as CSVs in a single directory (without other CSVs in it), run <code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code> to combine the driver workbooks into a single workbook ready to print:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests<span class="w"> </span>--input_dir<span class="w"> </span>path/to/input/
-</pre></div>
-</div>
-<p>The path to the combined workbook will print to the console.</p>
-<p>Finally, print the manifests for your drivers.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>There are additional options to specify the output directory, number of workbooks to split into, etc. See <a class="reference internal" href="split_chunked_route.html"><span class="doc">split_chunked_route</span></a> and <a class="reference internal" href="create_manifests.html"><span class="doc">create_manifests</span></a> for more information.</p>
-</div>
+<p>Once you’re set up, and you have a master list of chunked routes you want to split up and optimize in Circuit, you can begin using this tool. See <a class="reference internal" href="workflow.html"><span class="doc">The Delivery-Planning Workflow</span></a> for how you can use the tools in this package to streamline your delivery route manifest creation process.</p>
 </section>
 </section>
 
@@ -376,12 +355,12 @@ conda<span class="w"> </span>activate<span class="w"> </span>my_bfb_delivery_env
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="split_chunked_route.html">
+          <a class="next-page" href="workflow.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Split Chunked Route Sheet into Multiple Files</div>
+                <div class="title">The Delivery-Planning Workflow</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -454,7 +433,7 @@ conda<span class="w"> </span>activate<span class="w"> </span>my_bfb_delivery_env
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=6c02275b"></script>
+</div><script src="_static/documentation_options.js?v=c87aa342"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>
