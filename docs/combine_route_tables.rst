@@ -6,20 +6,20 @@ After you have optimized each driver's route in Circuit, you will need to combin
 
 This tool replaces the manual task of copying each driver's optimized route into a single workbook. It will combine all the optimized routes into a single workbook, with each driver's route on a separate sheet.
 
-(After this step you'll pass the combined workbook to :code:`format_combined_routes` to create the printable manifest. See :doc:`format_combined_routes </format_combined_routes>`.)
+(After this step you'll pass the combined workbook to :code:`format_combined_routes` to create the printable manifest. See :doc:`format_combined_routes`.)
 
 .. note::
 
-    :code:`create_manifests` wraps this tool and :code:`format_combined_routes` into one tool. You can still use them if you wish, but you can instead use :code:`create_manifests`. See :doc:`create_manifests </create_manifests>` and :doc:`format_combined_routes </format_combined_routes>`.
+    :code:`create_manifests` wraps this tool and :code:`format_combined_routes` into one tool. You can still use them if you wish, but you can instead use :code:`create_manifests`. See :doc:`create_manifests` and :doc:`format_combined_routes`.
 
 Python API documentation at :py:func:`bfb_delivery.api.public.combine_route_tables`.
 
-CLI documentation at :doc:`CLI </CLI>`.
+CLI documentation at :doc:`CLI`.
 
 Usage
 -----
 
-You pass the directory containing the optimized route tables to :code:`combine_route_tables`, along with any other optional arguments, and it will create a single workbook file with all the optimized routes combined. The tool then returns the filepath to that file so you can continue to work with it as needed (formatting and printing, see :doc:`format_combined_routes </format_combined_routes>`).
+You pass the directory containing the optimized route tables to :code:`combine_route_tables`, along with any other optional arguments, and it will create a single workbook file with all the optimized routes combined. The tool then returns the filepath to that file so you can continue to work with it as needed (formatting and printing, see :doc:`format_combined_routes`).
 
 .. note::
 
@@ -43,7 +43,7 @@ Or, use the command-line-interface:
 
     combine_route_tables --input_dir path/to/input/
 
-The function will return the filepath to the combined file, which you can then open and review before you pass to :code:`format_combined_routes` to format the manifests for printing (see :doc:`format_combined_routes </format_combined_routes>`). If you're using the CLI, the filepath will be printed to the console.
+The function will return the filepath to the combined file, which you can then open and review before you pass to :code:`format_combined_routes` to format the manifests for printing (see :doc:`format_combined_routes`). If you're using the CLI, the filepath will be printed to the console.
 
 .. note::
     

@@ -82,7 +82,7 @@ You can use the command-line-interface (CLI) if you have this package installed 
 
     split_chunked_route --input_path path/to/input.xlsx
 
-See :doc:`CLI </CLI>` for more information.
+See :doc:`CLI` for more information.
 
 Library
 ^^^^^^^
@@ -120,4 +120,4 @@ Nothing is stopping you from importing from :code:`lib` directly, but you should
 Your workflow
 -------------
 
-Once you're set up, and you have a master list of chunked routes you want to split up and optimize in Circuit, you can begin using this tool. See :doc:`workflow </workflow>` for how you can use the tools in this package to streamline your delivery route manifest creation process.
+Once you're set up, and you have a master list of chunked routes you want to split up and optimize in Circuit, you can begin using this tool. See :doc:`workflow` for how you can use the tools in this package to streamline your delivery route manifest creation process.

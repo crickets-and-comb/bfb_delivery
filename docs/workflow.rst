@@ -26,7 +26,7 @@ First, open your terminal (e.g., Anaconda Command Prompt), navigate to the corre
     cd path/to/bfb_delivery/dir
     conda activate my_bfb_delivery_env_name
 
-See :doc:`getting_started </getting_started>` for more information.
+See :doc:`getting_started` for more information.
 
 Split the chunked route
 -----------------------
@@ -39,7 +39,7 @@ Then, run the :code:`split_chunked_route` to split the chunked worksheet into in
 
 The paths to the workbooks will print to the console.
 
-See :doc:`split_chunked_route </split_chunked_route>` for more information, e.g. how to set the number of workbooks.
+See :doc:`split_chunked_route` for more information, e.g. for how to set the number of workbooks.
 
 Upload and optimize routes
 --------------------------
@@ -69,7 +69,7 @@ The path to the combined and formatted workbook will print to the console.
 
     You should only put the CSVs you want to include in the manifest in the directory. The tool will combine all CSVs in the directory into a single workbook.
 
-See :doc:`create_manifests </create_manifests>` for more information, e.g. how to set the date used in the manifest.
+See :doc:`create_manifests` for more information, e.g. for how to set the date used in the manifest.
 
 Review and print manifests
 --------------------------
