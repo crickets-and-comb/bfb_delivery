@@ -82,7 +82,7 @@ You can use the command-line-interface (CLI) if you have this package installed 
 
     split_chunked_route --input_path path/to/input.xlsx
 
-See :doc:`CLI </CLI>` for more information.
+See :doc:`CLI` for more information.
 
 Library
 ^^^^^^^
@@ -120,33 +120,4 @@ Nothing is stopping you from importing from :code:`lib` directly, but you should
 Your workflow
 -------------
 
-Once you're set up, and you have a master list of chunked routes you want to split up and optimize in Circuit, you can begin using this tool. Here's the workflow.
-
-First, open your terminal (e.g., Anaconda Command Prompt), navigate to the correct directory (the one containing your ``config.ini`` file defined above), and activate your env:
-
-.. code:: bash
-
-    cd path/to/bfb_delivery/dir
-    conda activate my_bfb_delivery_env_name
-
-Then, run the :code:`split_chunked_route` to split the chunked worksheet into individual driver worksheets divided into workbooks that staff can upload to Circuit:
-
-.. code:: bash
-
-    split_chunked_route --input_path path/to/input.xlsx
-
-The paths to the workbooks will print to the console.
-
-Next, upload the workbooks to Circuit and optimize the routes. Once you have the optimized routes saved as CSVs in a single directory (without other CSVs in it), run :code:`create_manifests` to combine the driver workbooks into a single workbook ready to print:
-
-.. code:: bash
-
-    create_manifests --input_dir path/to/input/
-
-The path to the combined workbook will print to the console.
-
-Finally, print the manifests for your drivers.
-
-.. note::
-
-    There are additional options to specify the output directory, number of workbooks to split into, etc. See :doc:`split_chunked_route </split_chunked_route>` and :doc:`create_manifests </create_manifests>` for more information.
+Once you're set up, and you have a master list of chunked routes you want to split up and optimize in Circuit, you can begin using this tool. See :doc:`workflow` for how you can use the tools in this package to streamline your delivery route manifest creation process.

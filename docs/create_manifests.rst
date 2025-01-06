@@ -8,11 +8,11 @@ This tool replaces the manual task of copying each driver's optimized route into
 
 .. note::
 
-    This wraps the two other tools :code:`combine_route_tables` and :code:`format_combined_routes` into one tool. You can still use them if you wish, but you can instead use this tool. For instance, say you've found a bug when using :code:`create_manifests`. You could try running :code:`combine_route_tables` then passing its output to :code:`format_combined_routes`. For whichever of those steps fails you can revert to using your old method, but you can still ostensibly use the tool for the other piece that didn't fail (e.g., :code:`combine_route_tables` ran fine, but :code:`format_combined_routes` threw an error, so you reverted to using the Excel macro and manually formatting). See :doc:`combine_route_tables </combine_route_tables>` and :doc:`format_combined_routes </format_combined_routes>`.
+    This wraps the two other tools :code:`combine_route_tables` and :code:`format_combined_routes` into one tool. You can still use them if you wish, but you can instead use this tool. For instance, say you've found a bug when using :code:`create_manifests`. You could try running :code:`combine_route_tables` then passing its output to :code:`format_combined_routes`. For whichever of those steps fails you can revert to using your old method, but you can still ostensibly use the tool for the other piece that didn't fail (e.g., :code:`combine_route_tables` ran fine, but :code:`format_combined_routes` threw an error, so you reverted to using the Excel macro and manually formatting). See :doc:`combine_route_tables` and :doc:`format_combined_routes`.
 
 Python API documentation at :py:func:`bfb_delivery.api.public.create_manifests`.
 
-CLI documentation at :doc:`CLI </CLI>`.
+CLI documentation at :doc:`CLI`.
 
 Usage
 -----

@@ -8,7 +8,7 @@ This tool replaces the manual task of splitting the single route grouped by driv
 
 Python API documentation at :py:func:`bfb_delivery.api.public.split_chunked_route`.
 
-CLI documentation at :doc:`CLI </CLI>`.
+CLI documentation at :doc:`CLI`.
 
 Usage
 -----

@@ -18,6 +18,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_autodoc_typehints",
     "sphinx_click",
+    "sphinxcontrib.mermaid",
 ]
 html_theme = "furo"
 html_context = {"version": version, "display_version": True}
