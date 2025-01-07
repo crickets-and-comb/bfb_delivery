@@ -236,6 +236,9 @@ def _format_and_validate_phone(df: pd.DataFrame) -> None:
         )
         for number in validation_df["formatted_numbers"].to_list()
     ]
+    validation_df["formatted_numbers"] = validation_df["formatted_numbers"].str.replace(
+        "+1 ", ""
+    )
 
     df[Columns.PHONE] = validation_df["formatted_numbers"]
 
