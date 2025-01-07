@@ -42,6 +42,9 @@ DRIVERS: Final[list[str]] = ["Driver One", "Driver Two", "Driver Three", "Driver
 BOX_TYPES: Final[list[str]] = ["Basic", "GF", "Vegan", "LA"]
 MANIFEST_DATE: Final[str] = "1.1"
 NEIGHBORHOODS: Final[list[str]] = ["York", "Puget", "Samish", "Sehome", "South Hill"]
+TEST_DATE: Final[str] = (datetime.now() + pd.DateOffset(weekday=4)).strftime(
+    MANIFEST_DATE_FORMAT
+)
 
 
 @pytest.fixture(scope="module")
@@ -594,8 +597,7 @@ class TestFormatCombinedRoutes:
         assert output_path.name == expected_output_filename
 
     @pytest.mark.parametrize(
-        "date, expected_date",
-        [("", datetime.now().strftime(MANIFEST_DATE_FORMAT)), ("Dummy date", "Dummy date")],
+        "date, expected_date", [("", TEST_DATE), ("Dummy date", "Dummy date")]
     )
     def test_all_drivers_have_a_sheet(
         self, mock_combined_routes: Path, date: str | None, expected_date: str
@@ -878,8 +880,7 @@ class TestCreateManifests:
         assert output_path.name == expected_output_filename
 
     @pytest.mark.parametrize(
-        "date, expected_date",
-        [("", datetime.now().strftime(MANIFEST_DATE_FORMAT)), ("Dummy date", "Dummy date")],
+        "date, expected_date", [("", TEST_DATE), ("Dummy date", "Dummy date")]
     )
     def test_all_drivers_have_a_sheet(
         self, mock_route_tables: Path, date: str | None, expected_date: str
@@ -893,6 +894,29 @@ class TestCreateManifests:
         output_path = create_manifests(**kwargs)
         workbook = pd.ExcelFile(output_path)
         assert set(workbook.sheet_names) == sheet_names
+
+    def test_sheetname_date_is_friday(self, mock_route_tables: Path) -> None:
+        """Test that default date added is Friday."""
+        output_path = create_manifests(input_dir=mock_route_tables)
+        workbook = pd.ExcelFile(output_path)
+        this_year = datetime.now().year.__str__()
+        for sheet_name in workbook.sheet_names:
+            sheet_date = datetime.strptime(
+                str(sheet_name).split(" ")[0] + "." + this_year, MANIFEST_DATE_FORMAT + ".%Y"
+            )
+            assert sheet_date.weekday() == 4
+
+    def test_date_field_is_friday(self, mock_route_tables: Path) -> None:
+        """Test that default date added is Friday."""
+        output_path = create_manifests(input_dir=mock_route_tables)
+        workbook = load_workbook(output_path)
+        this_year = datetime.now().year.__str__()
+        for sheet_name in workbook.sheetnames:
+            ws = workbook[sheet_name]
+            field_date = datetime.strptime(
+                ws["A3"].value.split(" ")[1] + "." + this_year, MANIFEST_DATE_FORMAT + ".%Y"
+            )
+            assert field_date.weekday() == 4
 
     @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])

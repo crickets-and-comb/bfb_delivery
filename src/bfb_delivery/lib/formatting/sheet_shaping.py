@@ -161,7 +161,8 @@ def format_combined_routes(
         else output_filename
     )
     output_path = Path(output_dir) / output_filename
-    date = date if date else datetime.now().strftime(MANIFEST_DATE_FORMAT)
+    friday = datetime.now() + pd.DateOffset(weekday=4)
+    date = date if date else friday.strftime(MANIFEST_DATE_FORMAT)
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
