@@ -200,31 +200,31 @@ def _format_and_validate_phone(df: pd.DataFrame) -> None:
     _format_string(df=df, column=Columns.PHONE)
     df[Columns.PHONE] = df[Columns.PHONE].apply(lambda x: x[:-2] if x.endswith(".0") else x)
 
-    validation_df = df.copy()
-    validation_df["formatted_numbers"] = validation_df[Columns.PHONE].apply(
+    formatting_df = df.copy()
+    formatting_df["formatted_numbers"] = formatting_df[Columns.PHONE].apply(
         lambda number: "+" + number if (len(number) > 0 and number[0] != "+") else number
     )
-    validation_df["formatted_numbers"] = [
+    formatting_df["formatted_numbers"] = [
         phonenumbers.parse(number) if len(number) > 0 else number
-        for number in validation_df["formatted_numbers"].to_list()
+        for number in formatting_df["formatted_numbers"].to_list()
     ]
 
-    validation_df["is_valid"] = validation_df["formatted_numbers"].apply(
+    formatting_df["is_valid"] = formatting_df["formatted_numbers"].apply(
         lambda number: (
             phonenumbers.is_valid_number(number)
             if isinstance(number, phonenumbers.phonenumber.PhoneNumber)
             else True
         )
     )
-    if not validation_df["is_valid"].all():
-        invalid_numbers = validation_df[~validation_df["is_valid"]]
+    if not formatting_df["is_valid"].all():
+        invalid_numbers = formatting_df[~formatting_df["is_valid"]]
         warnings.warn(
             message=f"Invalid phone numbers found: {invalid_numbers[df.columns.to_list()]}",
             stacklevel=2,
         )
 
     # TODO: Use phonenumbers.format_by_pattern to achieve (555) 555-5555 if desired.
-    validation_df["formatted_numbers"] = [
+    formatting_df["formatted_numbers"] = [
         (
             str(
                 phonenumbers.format_number(
@@ -234,13 +234,13 @@ def _format_and_validate_phone(df: pd.DataFrame) -> None:
             if isinstance(number, phonenumbers.phonenumber.PhoneNumber)
             else number
         )
-        for number in validation_df["formatted_numbers"].to_list()
+        for number in formatting_df["formatted_numbers"].to_list()
     ]
-    validation_df["formatted_numbers"] = validation_df["formatted_numbers"].str.replace(
+    formatting_df["formatted_numbers"] = formatting_df["formatted_numbers"].str.replace(
         "+1 ", ""
     )
 
-    df[Columns.PHONE] = validation_df["formatted_numbers"]
+    df[Columns.PHONE] = formatting_df["formatted_numbers"]
 
     return
 
