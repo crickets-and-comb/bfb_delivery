@@ -113,5 +113,4 @@ SPLIT_ROUTE_COLUMNS: Final[list[str]] = [
     Columns.NOTES,
     Columns.ORDER_COUNT,
     Columns.PRODUCT_TYPE,
-    Columns.NEIGHBORHOOD,
 ]
