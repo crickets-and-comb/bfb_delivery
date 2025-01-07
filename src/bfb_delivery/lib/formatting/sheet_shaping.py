@@ -57,7 +57,7 @@ def split_chunked_route(
     chunked_sheet.sort_values(by=[Columns.DRIVER, Columns.STOP_NO], inplace=True)
     # TODO: Validate columns? (Use Pandera?)
 
-    drivers = chunked_sheet[Columns.DRIVER].unique()
+    drivers = sorted(list(chunked_sheet[Columns.DRIVER].unique()))
     driver_count = len(drivers)
     if driver_count < n_books:
         raise ValueError(
