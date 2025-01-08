@@ -74,7 +74,7 @@ def split_chunked_route(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     split_workbook_paths: list[Path] = []
-    driver_sets = [drivers[i::n_books] for i in range(n_books)]
+    driver_sets = _get_driver_sets(drivers=drivers, n_books=n_books)
     for i, driver_set in enumerate(driver_sets):
         i_file_name = f"{base_output_filename.split('.')[0]}_{i + 1}.xlsx"
         split_workbook_path: Path = output_dir / i_file_name
@@ -205,6 +205,74 @@ def format_combined_routes(
     wb.save(output_path)
 
     return output_path.resolve()
+
+
+@typechecked
+def _get_driver_sets(drivers: list[str], n_books: int) -> list[list[str]]:
+    """Split drivers into n_books sets."""
+    drivers = sorted(drivers)
+    driver_sets = _split_driver_list(drivers=drivers, n_books=n_books)
+    driver_sets = _group_numbered_drivers(driver_sets=driver_sets)
+    driver_sets = [sorted(driver_set) for driver_set in driver_sets]
+
+    return driver_sets
+
+
+@typechecked
+def _split_driver_list(drivers: list[str], n_books: int) -> list[list[str]]:
+    """Split drivers into n_books sets, in order passed."""
+    driver_sets = []
+
+    len_drivers = len(drivers)
+    start_idx = 0
+    inc = len_drivers // n_books
+    remainder = len_drivers % n_books
+
+    while start_idx < len_drivers:
+        end_idx = start_idx + inc
+        if remainder > 0:
+            end_idx += 1
+            remainder -= 1
+        end_idx = end_idx if end_idx < len_drivers else len_drivers
+
+        driver_sets.append(drivers[start_idx:end_idx])
+        start_idx = end_idx
+
+    return driver_sets
+
+
+@typechecked
+def _group_numbered_drivers(driver_sets: list[list[str]]) -> list[list[str]]:
+    """Merge drivers with numbers into a single set."""
+    driver_sets_updated = driver_sets.copy()
+
+    updated = True
+    while updated:
+        driver_sets_copy = driver_sets_updated.copy()
+        for i, driver_set in enumerate(driver_sets_updated):
+            driver_set_i = driver_set.copy()
+            numbered_drivers = [d for d in driver_set if "#" in d]
+
+            for d in numbered_drivers:
+                driver_name = d.split("#")[0].strip()
+
+                i_plus_1 = i + 1
+                if i_plus_1 < len(driver_sets_updated):
+                    for j, driver_set_j in enumerate(
+                        driver_sets_updated[i_plus_1:], start=i_plus_1
+                    ):
+                        matching_drivers = [d for d in driver_set_j if driver_name in d]
+                        driver_set_i += matching_drivers
+                        driver_sets_updated[j] = [
+                            d for d in driver_set_j if d not in matching_drivers
+                        ]
+            driver_sets_updated[i] = driver_set_i
+
+        updated = driver_sets_copy != driver_sets_updated
+
+    driver_sets_updated = [driver_set for driver_set in driver_sets_updated if driver_set]
+
+    return driver_sets_updated
 
 
 @typechecked

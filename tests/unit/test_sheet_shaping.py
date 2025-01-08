@@ -35,10 +35,22 @@ from bfb_delivery.lib.formatting.data_cleaning import (
     _format_and_validate_name,
     _format_and_validate_phone,
 )
-from bfb_delivery.lib.formatting.sheet_shaping import _aggregate_route_data
+from bfb_delivery.lib.formatting.sheet_shaping import (
+    _aggregate_route_data,
+    _get_driver_sets,
+    _group_numbered_drivers,
+)
 
 N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
-DRIVERS: Final[list[str]] = ["Driver One", "Driver Two", "Driver Three", "Driver Four"]
+DRIVERS: Final[list[str]] = [
+    "Driver A",
+    "Driver B",
+    "Driver C",
+    "Driver D #1",
+    "Driver D #2",
+    "Driver E",
+    "Driver F",
+]
 BOX_TYPES: Final[list[str]] = ["Basic", "GF", "Vegan", "LA"]
 MANIFEST_DATE: Final[str] = "1.1"
 NEIGHBORHOODS: Final[list[str]] = ["York", "Puget", "Samish", "Sehome", "South Hill"]
@@ -75,7 +87,7 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 "1",
                 "Basic",
                 "York",
-                "Driver One",
+                "Driver A",
                 2,
                 1,
             ),
@@ -88,7 +100,7 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 "1",
                 "GF",
                 "Puget",
-                "Driver One",
+                "Driver A",
                 None,
                 2,
             ),
@@ -101,7 +113,7 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 "1",
                 "Vegan",
                 "Puget",
-                "Driver Two",
+                "Driver B",
                 2,
                 3,
             ),
@@ -114,7 +126,7 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 "1",
                 "LA",
                 "Puget",
-                "Driver Two",
+                "Driver B",
                 None,
                 4,
             ),
@@ -127,8 +139,8 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 "1",
                 "Basic",
                 "Samish",
-                "Driver Three",
-                2,
+                "Driver C",
+                1,
                 5,
             ),
             (
@@ -140,8 +152,8 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 "1",
                 "GF",
                 "Sehome",
-                "Driver Three",
-                None,
+                "Driver D #1",
+                1,
                 6,
             ),
             (
@@ -153,8 +165,8 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 "1",
                 "Vegan",
                 "Samish",
-                "Driver Three",
-                None,
+                "Driver D #2",
+                2,
                 7,
             ),
             (
@@ -166,9 +178,61 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 "1",
                 "LA",
                 "South Hill",
-                "Driver Four",
-                1,
+                "Driver D #2",
+                None,
                 8,
+            ),
+            (
+                "Recipient Nine",
+                "2122 Cedar St",
+                "555-555-2223",
+                "Recipient9@email.com",
+                "Notes for Recipient Nine.",
+                "1",
+                "Basic",
+                "South Hill",
+                "Driver E",
+                2,
+                9,
+            ),
+            (
+                "Recipient Ten",
+                "2122 Cedar St",
+                "555-555-2223",
+                "Recipient10@email.com",
+                "Notes for Recipient Ten.",
+                "1",
+                "LA",
+                "South Hill",
+                "Driver E",
+                None,
+                10,
+            ),
+            (
+                "Recipient Eleven",
+                "2346 Ash St",
+                "555-555-2345",
+                "Recipient11@email.com",
+                "Notes for Recipient Eleven.",
+                "1",
+                "Basic",
+                "Eldridge",
+                "Driver F",
+                2,
+                11,
+            ),
+            (
+                "Recipient Twelve",
+                "2122 Cedar St",
+                "555-555-2223",
+                "Recipient12@email.com",
+                "Notes for Recipient Twelve.",
+                "1",
+                "Basic",
+                "Eldridge",
+                "Driver F",
+                None,
+                12,
             ),
         ],
     ).rename(columns={Columns.PRODUCT_TYPE: Columns.BOX_TYPE})
@@ -326,6 +390,25 @@ class TestSplitChunkedRoute:
                 driver for sublist in driver_sets_sans_i for driver in sublist
             ]
             assert len(set(driver_set).intersection(set(driver_sets_sans_i))) == 0
+
+    @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
+    def test_numbered_drivers_grouped(
+        self, n_books: int, mock_chunked_sheet_raw: Path
+    ) -> None:
+        """Test that the numbered drivers are in the same workbook together."""
+        output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
+        driver_d_sheets_found = False
+        for output_path in output_paths:
+            sheet_names = pd.ExcelFile(output_path).sheet_names
+            driver_d_sheets = [
+                sheet_name for sheet_name in sheet_names if "DRIVER D" in str(sheet_name)
+            ]
+            assert len(driver_d_sheets) == 2 or len(driver_d_sheets) == 0
+
+            if driver_d_sheets:
+                driver_d_sheets_found = True
+
+        assert driver_d_sheets_found
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_complete_contents(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
@@ -1221,6 +1304,80 @@ def test_aggregate_route_data(
     with error_context:
         agg_dict = _aggregate_route_data(df=route_df)
         assert agg_dict == expected_agg_dict
+
+
+@pytest.mark.parametrize(
+    "driver_sets, expected_driver_sets",
+    [
+        (
+            [["Driver A", "Driver B"], ["Driver C", "Driver D"]],
+            [["Driver A", "Driver B"], ["Driver C", "Driver D"]],
+        ),
+        (
+            [["Driver A", "Driver B #1"], ["Driver B #2", "Driver C"]],
+            [["Driver A", "Driver B #1", "Driver B #2"], ["Driver C"]],
+        ),
+        (
+            [["Driver A #1", "Driver B"], ["Driver A #2", "Driver C"]],
+            [["Driver A #1", "Driver B", "Driver A #2"], ["Driver C"]],
+        ),
+        (
+            [
+                ["Driver A", "Driver B #1"],
+                ["Driver C", "Driver D"],
+                ["Driver B #2", "Driver E"],
+            ],
+            [
+                ["Driver A", "Driver B #1", "Driver B #2"],
+                ["Driver C", "Driver D"],
+                ["Driver E"],
+            ],
+        ),
+    ],
+)
+def test_group_numbered_drivers(
+    driver_sets: list[list[str]], expected_driver_sets: list[list[str]]
+) -> None:
+    """Test that numbered drivers are grouped correctly."""
+    returned_driver_sets = _group_numbered_drivers(driver_sets=driver_sets)
+    assert sorted(returned_driver_sets) == sorted(expected_driver_sets)
+
+
+@pytest.mark.parametrize(
+    "drivers, n_books, expected_driver_sets",
+    [
+        (
+            ["Driver A", "Driver B", "Driver C", "Driver D"],
+            2,
+            [["Driver A", "Driver B"], ["Driver C", "Driver D"]],
+        ),
+        (
+            ["Driver A", "Driver B #1", "Driver B #2", "Driver C"],
+            2,
+            [["Driver A", "Driver B #1", "Driver B #2"], ["Driver C"]],
+        ),
+        (
+            ["Driver A", "Driver B #1", "Driver C", "Driver B #2"],
+            2,
+            [["Driver A", "Driver B #1", "Driver B #2"], ["Driver C"]],
+        ),
+        (
+            ["Driver A", "Driver B #1", "Driver C", "Driver D", "Driver B #2", "Driver E"],
+            3,
+            [
+                ["Driver A", "Driver B #1", "Driver B #2"],
+                ["Driver C"],
+                ["Driver D", "Driver E"],
+            ],
+        ),
+    ],
+)
+def test_get_driver_sets_group_numbered(
+    drivers: list[str], n_books: int, expected_driver_sets: list[list[str]]
+) -> None:
+    """Test that numbered drivers are grouped correctly."""
+    returned_driver_sets = _get_driver_sets(drivers=drivers, n_books=n_books)
+    assert returned_driver_sets == expected_driver_sets
 
 
 def _get_driver_sheets(output_paths: list[Path]) -> list[pd.DataFrame]:
