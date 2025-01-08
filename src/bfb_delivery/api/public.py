@@ -15,9 +15,9 @@ from bfb_delivery.lib.constants import Defaults
 @typechecked
 def split_chunked_route(
     input_path: Path | str,
-    output_dir: Path | str = Defaults.SPLIT_CHUNKED_ROUTE["output_dir"],
-    output_filename: str = Defaults.SPLIT_CHUNKED_ROUTE["output_filename"],
-    n_books: int = Defaults.SPLIT_CHUNKED_ROUTE["n_books"],
+    output_dir: Path | str = str(Defaults.SPLIT_CHUNKED_ROUTE["output_dir"]),
+    output_filename: str = str(Defaults.SPLIT_CHUNKED_ROUTE["output_filename"]),
+    n_books: int = int(Defaults.SPLIT_CHUNKED_ROUTE["n_books"]),
 ) -> list[Path]:
     """Split route sheet into n workbooks with sheets by driver.
 
