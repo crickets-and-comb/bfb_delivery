@@ -5,7 +5,10 @@ from typing import Final
 
 
 class BookOneDrivers(StrEnum):
-    """Drivers for the first book."""
+    """Drivers for the first book.
+    
+    This is only an enum so it appears in docs.
+    """
 
     YMCA = "YMCA"
 
