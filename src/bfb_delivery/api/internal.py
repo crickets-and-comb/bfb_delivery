@@ -14,7 +14,11 @@ from bfb_delivery.lib.formatting import sheet_shaping
 
 @typechecked
 def split_chunked_route(
-    input_path: Path | str, output_dir: Path | str, output_filename: str, n_books: int
+    input_path: Path | str,
+    output_dir: Path | str,
+    output_filename: str,
+    n_books: int,
+    book_one_drivers_file: str,
 ) -> list[Path]:
     """See public docstring: :py:func:`bfb_delivery.api.public.split_chunked_route`."""
     return sheet_shaping.split_chunked_route(
@@ -22,6 +26,7 @@ def split_chunked_route(
         output_dir=output_dir,
         output_filename=output_filename,
         n_books=n_books,
+        book_one_drivers_file=book_one_drivers_file,
     )
 
 

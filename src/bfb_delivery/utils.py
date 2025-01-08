@@ -8,6 +8,25 @@ from pathlib import Path
 import pandas as pd
 from typeguard import typechecked
 
+from bfb_delivery.lib.constants import BOOK_ONE_DRIVERS, Columns
+
+
+@typechecked
+def get_book_one_drivers(file_path: str) -> list[str]:
+    """Get the drivers from the book-one driver's file, or the constant if no path.
+
+    Args:
+        file_path: Path to the book-one driver's file. If empty, uses a constant list.
+
+    Returns:
+        The drivers to include in book one of split chunked routes.
+    """
+    sheet_one_drivers = BOOK_ONE_DRIVERS.copy()
+    if file_path:
+        sheet_one_drivers = pd.read_csv(file_path)[Columns.DRIVER].astype(dtype=str).tolist()
+
+    return sheet_one_drivers
+
 
 @typechecked
 def get_phone_number(key: str, config_path: str = "config.ini") -> str:

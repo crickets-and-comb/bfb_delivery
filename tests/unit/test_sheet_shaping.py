@@ -7,6 +7,7 @@ from contextlib import AbstractContextManager, nullcontext
 from datetime import datetime
 from pathlib import Path
 from typing import Final
+from unittest.mock import patch
 
 import pandas as pd
 import pytest
@@ -41,7 +42,7 @@ from bfb_delivery.lib.formatting.sheet_shaping import (
     _group_numbered_drivers,
 )
 
-N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
+BOX_TYPES: Final[list[str]] = ["Basic", "GF", "Vegan", "LA"]
 DRIVERS: Final[list[str]] = [
     "Driver A",
     "Driver B",
@@ -51,8 +52,8 @@ DRIVERS: Final[list[str]] = [
     "Driver E",
     "Driver F",
 ]
-BOX_TYPES: Final[list[str]] = ["Basic", "GF", "Vegan", "LA"]
 MANIFEST_DATE: Final[str] = "1.1"
+N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
 NEIGHBORHOODS: Final[list[str]] = ["York", "Puget", "Samish", "Sehome", "South Hill"]
 TEST_DATE: Final[str] = (datetime.now() + pd.DateOffset(weekday=4)).strftime(
     MANIFEST_DATE_FORMAT
@@ -410,7 +411,72 @@ class TestSplitChunkedRoute:
 
         assert driver_d_sheets_found
 
-    @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
+    @pytest.mark.parametrize("n_books", [1, 2, 3])
+    @pytest.mark.parametrize(
+        "test_book_one_drivers, exclude_drivers",
+        [
+            (["DRIVER A", "DRIVER B"], []),
+            (["DRIVER F"], []),
+            ([], []),
+            (
+                ["DRIVER A", "DRIVER B", "not a driver in the data"],
+                ["not a driver in the data"],
+            ),
+        ],
+    )
+    @pytest.mark.parametrize("book_one_drivers_file", ["", "dummy_book_one_drivers.csv"])
+    def test_book_one_drivers(
+        self,
+        n_books: int,
+        mock_chunked_sheet_raw: Path,
+        test_book_one_drivers: list[str],
+        exclude_drivers: list[str],
+        book_one_drivers_file: str,
+        tmp_path: Path,
+    ) -> None:
+        """Test that book-one drivers are in book one."""
+        mock_constant_context = (
+            patch("bfb_delivery.utils.BOOK_ONE_DRIVERS", new=test_book_one_drivers)
+            if not book_one_drivers_file
+            else nullcontext()
+        )
+        book_one_drivers_file_path = (
+            str(tmp_path / book_one_drivers_file)
+            if book_one_drivers_file
+            else book_one_drivers_file
+        )
+        if book_one_drivers_file_path:
+            with open(book_one_drivers_file_path, "w") as f:
+                f.write(f"{Columns.DRIVER}\n")
+                for driver in test_book_one_drivers:
+                    f.write(f"{driver}\n")
+
+        mock_chunked_sheet_raw_df = pd.read_excel(mock_chunked_sheet_raw)
+        alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        mock_chunked_sheet_raw_df[Columns.DRIVER] = [
+            f"Driver {alphabet[i]}" for i in range(len(mock_chunked_sheet_raw_df))
+        ]
+        new_mock_chunked_sheet_raw_path = tmp_path / "new_mock_chunked_sheet_raw.xlsx"
+        mock_chunked_sheet_raw_df.to_excel(new_mock_chunked_sheet_raw_path, index=False)
+
+        with mock_constant_context:
+            output_paths = split_chunked_route(
+                input_path=new_mock_chunked_sheet_raw_path,
+                n_books=n_books,
+                book_one_drivers_file=book_one_drivers_file_path,
+            )
+        book_one = pd.ExcelFile(output_paths[0])
+        book_one_drivers = [str(sheet_name) for sheet_name in book_one.sheet_names]
+
+        missing_drivers = (
+            set(test_book_one_drivers) - set(book_one_drivers) - set(exclude_drivers)
+        )
+        assert len(missing_drivers) == 0
+
+        misincluded_drivers = set(book_one_drivers).intersection(set(exclude_drivers))
+        assert len(misincluded_drivers) == 0
+
+    @pytest.mark.parametrize("n_books", [1, 2, 3])
     def test_complete_contents(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
         """Test that the input data is all covered in the split workbooks."""
         output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
@@ -1376,7 +1442,9 @@ def test_get_driver_sets_group_numbered(
     drivers: list[str], n_books: int, expected_driver_sets: list[list[str]]
 ) -> None:
     """Test that numbered drivers are grouped correctly."""
-    returned_driver_sets = _get_driver_sets(drivers=drivers, n_books=n_books)
+    returned_driver_sets = _get_driver_sets(
+        drivers=drivers, n_books=n_books, book_one_drivers_file=""
+    )
     assert returned_driver_sets == expected_driver_sets
 
 

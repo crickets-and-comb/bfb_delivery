@@ -3,6 +3,8 @@
 from enum import StrEnum
 from typing import Final
 
+BOOK_ONE_DRIVERS: Final[list[str]] = ["YMCA"]
+
 
 class BoxType(StrEnum):
     """Box types for the delivery service."""
@@ -83,6 +85,7 @@ class Defaults:
         "output_dir": "",
         "output_filename": "",
         "n_books": 4,
+        "book_one_drivers_file": "",
     }
 
 

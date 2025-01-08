@@ -30,7 +30,7 @@ from bfb_delivery.lib.formatting.data_cleaning import (
     format_and_validate_data,
     format_column_names,
 )
-from bfb_delivery.utils import get_phone_number, map_columns
+from bfb_delivery.utils import get_book_one_drivers, get_phone_number, map_columns
 
 # Silences warning for in-place operations on copied df slices.
 pd.options.mode.copy_on_write = True
@@ -42,7 +42,11 @@ pd.options.mode.copy_on_write = True
 # TODO: Switch to or allow CSVs instead of Excel files.
 @typechecked
 def split_chunked_route(
-    input_path: Path | str, output_dir: Path | str, output_filename: str, n_books: int
+    input_path: Path | str,
+    output_dir: Path | str,
+    output_filename: str,
+    n_books: int,
+    book_one_drivers_file: str,
 ) -> list[Path]:
     """See public docstring: :py:func:`bfb_delivery.api.public.split_chunked_route`."""
     if n_books <= 0:
@@ -57,7 +61,7 @@ def split_chunked_route(
     chunked_sheet.sort_values(by=[Columns.DRIVER, Columns.STOP_NO], inplace=True)
     # TODO: Validate columns? (Use Pandera?)
 
-    drivers = sorted(list(chunked_sheet[Columns.DRIVER].unique()))
+    drivers = list(chunked_sheet[Columns.DRIVER].unique())
     driver_count = len(drivers)
     if driver_count < n_books:
         raise ValueError(
@@ -74,7 +78,9 @@ def split_chunked_route(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     split_workbook_paths: list[Path] = []
-    driver_sets = _get_driver_sets(drivers=drivers, n_books=n_books)
+    driver_sets = _get_driver_sets(
+        drivers=drivers, n_books=n_books, book_one_drivers_file=book_one_drivers_file
+    )
     for i, driver_set in enumerate(driver_sets):
         i_file_name = f"{base_output_filename.split('.')[0]}_{i + 1}.xlsx"
         split_workbook_path: Path = output_dir / i_file_name
@@ -208,14 +214,32 @@ def format_combined_routes(
 
 
 @typechecked
-def _get_driver_sets(drivers: list[str], n_books: int) -> list[list[str]]:
+def _get_driver_sets(
+    drivers: list[str], n_books: int, book_one_drivers_file: str
+) -> list[list[str]]:
     """Split drivers into n_books sets."""
     drivers = sorted(drivers)
+    drivers = _move_book_one_drivers_to_front(
+        drivers=drivers, book_one_drivers_file=book_one_drivers_file
+    )
     driver_sets = _split_driver_list(drivers=drivers, n_books=n_books)
     driver_sets = _group_numbered_drivers(driver_sets=driver_sets)
     driver_sets = [sorted(driver_set) for driver_set in driver_sets]
 
     return driver_sets
+
+
+@typechecked
+def _move_book_one_drivers_to_front(
+    drivers: list[str], book_one_drivers_file: str
+) -> list[str]:
+    """Move book one drivers to the front of the list."""
+    book_one_drivers = get_book_one_drivers(file_path=book_one_drivers_file)
+    drivers = [d for d in book_one_drivers if d in drivers] + [
+        d for d in drivers if d not in book_one_drivers
+    ]
+
+    return drivers
 
 
 @typechecked

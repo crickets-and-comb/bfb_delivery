@@ -78,3 +78,35 @@ Use :code:`output_name` to choose a standard filename. The default filenames wil
 .. code:: bash
 
     split_chunked_route --input_path path/to/input.xlsx --output_name driver_routes
+
+
+Book-one drivers
+~~~~~~~~~~~~~~~~
+
+By default, the first workbook will include the drivers listed in the constant :py:data:`bfb_delivery.lib.constants.BOOK_ONE_DRIVERS`.
+
+Use :code:`book_one_drivers_file` to specify a CSV file of drivers that should be in the first workbook instead. This is useful if you need to change the drivers that need to be in the first workbook but the update hasn't been released yet.
+
+The CSV should be a single column with the header "Driver", like this:
+
+.. code:: csv
+
+    Driver
+    Alice S
+    Bob T
+    Charlie U
+
+.. code:: python
+
+    split_chunked_route(
+        input_path="path/to/input.xlsx",
+        book_one_drivers_file="path/to/book_one_drivers.csv"
+    )
+
+.. code:: bash
+
+    split_chunked_route --input_path path/to/input.xlsx --book_one_drivers_file path/to/book_one_drivers.csv
+
+.. note::
+
+    This argument and the default won't work correctly if you have too many drivers for the first workbook. The tool simply bumps those drivers to the top of the list and then splits all drivers evenly between workbooks. For example, if you have 100 drivers, 4 workbooks to make, and 30 book-one drivers, only the first 25 of those book-one drivers will go to book one, and the remaining 5 will go to book two. If this is a problem, please request a fix.

@@ -18,6 +18,7 @@ def split_chunked_route(
     output_dir: Path | str = Defaults.SPLIT_CHUNKED_ROUTE["output_dir"],
     output_filename: str = Defaults.SPLIT_CHUNKED_ROUTE["output_filename"],
     n_books: int = Defaults.SPLIT_CHUNKED_ROUTE["n_books"],
+    book_one_drivers_file: str = Defaults.SPLIT_CHUNKED_ROUTE["book_one_drivers_file"],
 ) -> list[Path]:
     """Split route sheet into n workbooks with sheets by driver.
 
@@ -43,6 +44,8 @@ def split_chunked_route(
         output_filename: Name of the output workbook.
             Empty string sets filename to "split_workbook_{date}_{i of n_books}.xlsx".
         n_books: Number of workbooks to split into.
+        book_one_drivers_file: Path to the book-one driver's file. If empty (default), uses
+            a constant list.
 
     Returns:
         Paths to the split chunked route workbooks.
@@ -56,6 +59,7 @@ def split_chunked_route(
         output_dir=output_dir,
         output_filename=output_filename,
         n_books=n_books,
+        book_one_drivers_file=book_one_drivers_file,
     )
 
 
