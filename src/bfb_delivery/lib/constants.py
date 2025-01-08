@@ -3,7 +3,11 @@
 from enum import StrEnum
 from typing import Final
 
-BOOK_ONE_DRIVERS: Final[list[str]] = ["YMCA"]
+
+class BookOneDrivers(StrEnum):
+    """Drivers for the first book."""
+
+    YMCA = "YMCA"
 
 
 class BoxType(StrEnum):

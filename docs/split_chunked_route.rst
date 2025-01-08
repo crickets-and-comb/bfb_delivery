@@ -83,7 +83,7 @@ Use :code:`output_name` to choose a standard filename. The default filenames wil
 Book-one drivers
 ~~~~~~~~~~~~~~~~
 
-By default, the first workbook will include the drivers listed in the constant :py:data:`bfb_delivery.lib.constants.BOOK_ONE_DRIVERS`.
+By default, the first workbook will include the drivers listed in the constant :py:data:`bfb_delivery.lib.constants.BookOneDrivers`.
 
 Use :code:`book_one_drivers_file` to specify a CSV file of drivers that should be in the first workbook instead. This is useful if you need to change the drivers that need to be in the first workbook but the update hasn't been released yet.
 

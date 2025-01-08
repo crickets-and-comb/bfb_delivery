@@ -5,6 +5,7 @@ import subprocess
 from collections.abc import Iterator
 from contextlib import AbstractContextManager, nullcontext
 from datetime import datetime
+from enum import StrEnum
 from pathlib import Path
 from typing import Final
 from unittest.mock import patch
@@ -435,8 +436,17 @@ class TestSplitChunkedRoute:
         tmp_path: Path,
     ) -> None:
         """Test that book-one drivers are in book one."""
+        if test_book_one_drivers:
+            TestBookOneDrivers = StrEnum(
+                "TestBookOneDrivers", {driver: driver for driver in test_book_one_drivers}
+            )
+        else:
+
+            class TestBookOneDrivers(StrEnum):
+                pass
+
         mock_constant_context = (
-            patch("bfb_delivery.utils.BOOK_ONE_DRIVERS", new=test_book_one_drivers)
+            patch("bfb_delivery.utils.BookOneDrivers", new=TestBookOneDrivers)
             if not book_one_drivers_file
             else nullcontext()
         )
