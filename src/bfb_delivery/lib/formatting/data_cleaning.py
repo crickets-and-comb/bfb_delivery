@@ -167,7 +167,7 @@ def _format_and_validate_email(df: pd.DataFrame) -> None:
 @typechecked
 def _format_and_validate_name(df: pd.DataFrame) -> None:
     """Format the name column."""
-    _format_and_validate_names_title(df=df, column=Columns.NAME)
+    _format_and_validate_names_base(df=df, column=Columns.NAME)
     return
 
 

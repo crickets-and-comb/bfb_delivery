@@ -62,7 +62,7 @@ class TestFormatAndValidateData:
                 [
                     "Alice",
                     "Bob",
-                    "Charlie Bucket",
+                    "Charlie MacBucket",
                     "David & Jonathan",
                     "Eve",
                     "Frank",
@@ -179,7 +179,7 @@ class TestFormatAndValidateData:
                 (
                     "Boaty McBoatface",  # Test real name.
                     3.0,  # Test cast float.
-                    "Charlie Bucket",  # Test real name.
+                    "Charlie MacBucket",  # Test real name.
                     "789 Oak St",
                     "13605559012",  # Without +.
                     # TODO: File issue with email_validator.
