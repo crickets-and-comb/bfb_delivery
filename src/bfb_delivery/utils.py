@@ -28,6 +28,7 @@ def get_book_one_drivers(file_path: str) -> list[str]:
     return sheet_one_drivers
 
 
+# TODO: Validate the extra notes doesn't have dupes.
 @typechecked
 def get_extra_notes(file_path: str) -> pd.DataFrame:
     """Get the extra notes from the file, or the constant if no path.

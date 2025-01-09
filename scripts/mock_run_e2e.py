@@ -23,6 +23,7 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
     "COMBINED_TABLES_DIR": ".test_data/combined_tables",
     "FORMATTED_TABLES_DIR": ".test_data/formatted_tables",
     "MANIFESTS_DIR": ".test_data/manifests",
+    "EXTRA_NOTES_DIR": ".test_data/extra_notes",
 }
 
 
@@ -47,6 +48,8 @@ def main(mock_raw_chunked_sheet_path: str) -> None:
         shutil.rmtree(output_dir, ignore_errors=True)
         Path(output_dir).mkdir(parents=True)
 
+    extra_notes_file = _make_extra_notes()
+
     split_chunked_sheet_paths = split_chunked_route(
         input_path=mock_raw_chunked_sheet_path,
         output_dir=OUTPUT_DIRS["SPLIT_CHUNKED_DIR"],
@@ -70,16 +73,270 @@ def main(mock_raw_chunked_sheet_path: str) -> None:
     click.echo(f"Combined workbook saved to: {combined_path}")
 
     formatted_path = format_combined_routes(
-        input_path=combined_path, output_dir=OUTPUT_DIRS["FORMATTED_TABLES_DIR"]
+        input_path=combined_path,
+        output_dir=OUTPUT_DIRS["FORMATTED_TABLES_DIR"],
+        extra_notes_file=extra_notes_file,
     )
     click.echo(f"Formatted workbook saved to: {formatted_path}")
 
     final_manifests_path = create_manifests(
-        input_dir=OUTPUT_DIRS["CIRCUIT_TABLES_DIR"], output_dir=OUTPUT_DIRS["MANIFESTS_DIR"]
+        input_dir=OUTPUT_DIRS["CIRCUIT_TABLES_DIR"],
+        output_dir=OUTPUT_DIRS["MANIFESTS_DIR"],
+        extra_notes_file=extra_notes_file,
     )
     click.echo(
         f"Manifests workbook (same as formatted workbook) saved to: {final_manifests_path}"
     )
+
+
+@typechecked
+def _make_extra_notes() -> str:
+    """Make the extra notes file."""
+    extra_notes_file_path = OUTPUT_DIRS["EXTRA_NOTES_DIR"] + "/extra_notes.xlsx"
+
+    extra_notes_df = pd.DataFrame(
+        columns=["tag", "note"],
+        data=[
+            (
+                "Varsity Village*",
+                (
+                    "Varsity Village note. "
+                    "This is a dummy note. It is really long and should be so that we can "
+                    "test out column width and word wrapping. It should be long enough to "
+                    "wrap around to the next line. And, it should be long enough to wrap "
+                    "around to the next line. And, it should be long enough to wrap around "
+                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
+                    "is long enough. Further, hopefully, this is long enough. Additionally, "
+                    "it will help test out word wrapping merged cells."
+                ),
+            ),
+            (
+                "Tullwood Apartments*",
+                (
+                    "Tullwood Apartments note. "
+                    "This is a dummy note. It is really long and should be so that we can "
+                    "test out column width and word wrapping. It should be long enough to "
+                    "wrap around to the next line. And, it should be long enough to wrap "
+                    "around to the next line. And, it should be long enough to wrap around "
+                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
+                    "is long enough. Further, hopefully, this is long enough. Additionally, "
+                    "it will help test out word wrapping merged cells."
+                ),
+            ),
+            (
+                "Regency Park Apartments*",
+                (
+                    "Regency Park Apartments note. "
+                    "This is a dummy note. It is really long and should be so that we can "
+                    "test out column width and word wrapping. It should be long enough to "
+                    "wrap around to the next line. And, it should be long enough to wrap "
+                    "around to the next line. And, it should be long enough to wrap around "
+                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
+                    "is long enough. Further, hopefully, this is long enough. Additionally, "
+                    "it will help test out word wrapping merged cells."
+                ),
+            ),
+            (
+                "Evergreen Ridge Apartments*",
+                (
+                    "Evergreen Ridge Apartments note. "
+                    "This is a dummy note. It is really long and should be so that we can "
+                    "test out column width and word wrapping. It should be long enough to "
+                    "wrap around to the next line. And, it should be long enough to wrap "
+                    "around to the next line. And, it should be long enough to wrap around "
+                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
+                    "is long enough. Further, hopefully, this is long enough. Additionally, "
+                    "it will help test out word wrapping merged cells."
+                ),
+            ),
+            (
+                "Trailview Apartments*",
+                (
+                    "Trailview Apartments note. "
+                    "This is a dummy note. It is really long and should be so that we can "
+                    "test out column width and word wrapping. It should be long enough to "
+                    "wrap around to the next line. And, it should be long enough to wrap "
+                    "around to the next line. And, it should be long enough to wrap around "
+                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
+                    "is long enough. Further, hopefully, this is long enough. Additionally, "
+                    "it will help test out word wrapping merged cells."
+                ),
+            ),
+            (
+                "Gardenview Village*",
+                (
+                    "Gardenview Village note. "
+                    "This is a dummy note. It is really long and should be so that we can "
+                    "test out column width and word wrapping. It should be long enough to "
+                    "wrap around to the next line. And, it should be long enough to wrap "
+                    "around to the next line. And, it should be long enough to wrap around "
+                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
+                    "is long enough. Further, hopefully, this is long enough. Additionally, "
+                    "it will help test out word wrapping merged cells."
+                ),
+            ),
+            (
+                "Eleanor Apartments*",
+                (
+                    "Eleanor Apartments note. "
+                    "This is a dummy note. It is really long and should be so that we can "
+                    "test out column width and word wrapping. It should be long enough to "
+                    "wrap around to the next line. And, it should be long enough to wrap "
+                    "around to the next line. And, it should be long enough to wrap around "
+                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
+                    "is long enough. Further, hopefully, this is long enough. Additionally, "
+                    "it will help test out word wrapping merged cells."
+                ),
+            ),
+            (
+                "Walton Place*",
+                (
+                    "Walton Place note. "
+                    "This is a dummy note. It is really long and should be so that we can "
+                    "test out column width and word wrapping. It should be long enough to "
+                    "wrap around to the next line. And, it should be long enough to wrap "
+                    "around to the next line. And, it should be long enough to wrap around "
+                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
+                    "is long enough. Further, hopefully, this is long enough. Additionally, "
+                    "it will help test out word wrapping merged cells."
+                ),
+            ),
+            (
+                "Washington Square Apartments*",
+                (
+                    "Washington Square Apartments note. "
+                    "This is a dummy note. It is really long and should be so that we can "
+                    "test out column width and word wrapping. It should be long enough to "
+                    "wrap around to the next line. And, it should be long enough to wrap "
+                    "around to the next line. And, it should be long enough to wrap around "
+                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
+                    "is long enough. Further, hopefully, this is long enough. Additionally, "
+                    "it will help test out word wrapping merged cells."
+                ),
+            ),
+            (
+                "Sterling Senior Apartments*",
+                (
+                    "Sterling Senior Apartments note. "
+                    "This is a dummy note. It is really long and should be so that we can "
+                    "test out column width and word wrapping. It should be long enough to "
+                    "wrap around to the next line. And, it should be long enough to wrap "
+                    "around to the next line. And, it should be long enough to wrap around "
+                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
+                    "is long enough. Further, hopefully, this is long enough. Additionally, "
+                    "it will help test out word wrapping merged cells."
+                ),
+            ),
+            (
+                "Heart House*",
+                (
+                    "Heart House note. "
+                    "This is a dummy note. It is really long and should be so that we can "
+                    "test out column width and word wrapping. It should be long enough to "
+                    "wrap around to the next line. And, it should be long enough to wrap "
+                    "around to the next line. And, it should be long enough to wrap around "
+                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
+                    "is long enough. Further, hopefully, this is long enough. Additionally, "
+                    "it will help test out word wrapping merged cells."
+                ),
+            ),
+            (
+                "Park Ridge Apartments*",
+                (
+                    "Park Ridge Apartments note. "
+                    "This is a dummy note. It is really long and should be so that we can "
+                    "test out column width and word wrapping. It should be long enough to "
+                    "wrap around to the next line. And, it should be long enough to wrap "
+                    "around to the next line. And, it should be long enough to wrap around "
+                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
+                    "is long enough. Further, hopefully, this is long enough. Additionally, "
+                    "it will help test out word wrapping merged cells."
+                ),
+            ),
+            (
+                "Woodrose Apartments*",
+                (
+                    "Woodrose Apartments note. "
+                    "This is a dummy note. It is really long and should be so that we can "
+                    "test out column width and word wrapping. It should be long enough to "
+                    "wrap around to the next line. And, it should be long enough to wrap "
+                    "around to the next line. And, it should be long enough to wrap around "
+                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
+                    "is long enough. Further, hopefully, this is long enough. Additionally, "
+                    "it will help test out word wrapping merged cells."
+                ),
+            ),
+            (
+                "Deer Run Terrace Apartments*",
+                (
+                    "Deer Run Terrace Apartments note. "
+                    "This is a dummy note. It is really long and should be so that we can "
+                    "test out column width and word wrapping. It should be long enough to "
+                    "wrap around to the next line. And, it should be long enough to wrap "
+                    "around to the next line. And, it should be long enough to wrap around "
+                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
+                    "is long enough. Further, hopefully, this is long enough. Additionally, "
+                    "it will help test out word wrapping merged cells."
+                ),
+            ),
+            (
+                "Cascade Meadows Apartments*",
+                (
+                    "Cascade Meadows Apartments note. "
+                    "This is a dummy note. It is really long and should be so that we can "
+                    "test out column width and word wrapping. It should be long enough to "
+                    "wrap around to the next line. And, it should be long enough to wrap "
+                    "around to the next line. And, it should be long enough to wrap around "
+                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
+                    "is long enough. Further, hopefully, this is long enough. Additionally, "
+                    "it will help test out word wrapping merged cells."
+                ),
+            ),
+            (
+                "Washington Grocery Building*",
+                (
+                    "Washington Grocery Building note. "
+                    "This is a dummy note. It is really long and should be so that we can "
+                    "test out column width and word wrapping. It should be long enough to "
+                    "wrap around to the next line. And, it should be long enough to wrap "
+                    "around to the next line. And, it should be long enough to wrap around "
+                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
+                    "is long enough. Further, hopefully, this is long enough. Additionally, "
+                    "it will help test out word wrapping merged cells."
+                ),
+            ),
+            (
+                "Laurel Village*",
+                (
+                    "Laurel Village note. "
+                    "This is a dummy note. It is really long and should be so that we can "
+                    "test out column width and word wrapping. It should be long enough to "
+                    "wrap around to the next line. And, it should be long enough to wrap "
+                    "around to the next line. And, it should be long enough to wrap around "
+                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
+                    "is long enough. Further, hopefully, this is long enough. Additionally, "
+                    "it will help test out word wrapping merged cells."
+                ),
+            ),
+            (
+                "Laurel Forest Apartments*",
+                (
+                    "Laurel Forest Apartments note. "
+                    "This is a dummy note. It is really long and should be so that we can "
+                    "test out column width and word wrapping. It should be long enough to "
+                    "wrap around to the next line. And, it should be long enough to wrap "
+                    "around to the next line. And, it should be long enough to wrap around "
+                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
+                    "is long enough. Further, hopefully, this is long enough. Additionally, "
+                    "it will help test out word wrapping merged cells."
+                ),
+            ),
+        ],
+    )
+
+    extra_notes_df.to_csv(extra_notes_file_path, index=False)
+
+    return extra_notes_file_path
 
 
 @typechecked
