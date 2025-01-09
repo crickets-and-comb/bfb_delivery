@@ -12,7 +12,7 @@ class BookOneDrivers(StrEnum):
     This is only an enum so it appears in docs.
     """
 
-    YMCA = "YMCA"
+    DUMMY = "Dummy"
 
 
 class BoxType(StrEnum):
