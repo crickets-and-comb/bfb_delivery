@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="CLI" href="CLI.html" /><link rel="prev" title="Split Chunked Route Sheet into Multiple Files" href="split_chunked_route.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Create Printable Manifests from Optimized Routes - bfb_delivery 0.4.1 documentation</title>
+        <title>Create Printable Manifests from Optimized Routes - bfb_delivery 0.4.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.4.1 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.4.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.4.1 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.4.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -198,9 +198,11 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul>
+  <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow.html">The Delivery-Planning Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Create Printable Manifests from Optimized Routes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -329,7 +331,34 @@
 </div>
 <p>It doesn’t have to be a date; it can be any text you want. Also, it doesn’t affect the date in the filename.</p>
 </section>
+<section id="supplying-extra-notes">
+<h4>Supplying extra notes<a class="headerlink" href="#supplying-extra-notes" title="Link to this heading">¶</a></h4>
+<p>Use the optional argument <code class="code docutils literal notranslate"><span class="pre">extra_notes_file</span></code> to specify a CSV file with extra notes to include in the manifest. The CSV file should have two columns: <code class="code docutils literal notranslate"><span class="pre">tag</span></code> and <code class="code docutils literal notranslate"><span class="pre">note</span></code>. The tag is the text (usually asterisked) that appears in the standard notes field for a delivery. The note is then added to the bottom of the manifest with the tag. For example:</p>
+<div class="highlight-csv notranslate"><div class="highlight"><pre><span></span>tag,note
+Cedarwood Apartments special instructions *,Please call the recipient when you arrive.
+</pre></div>
+</div>
+<p>This file will put the note “Please call the recipient when you arrive.” at the bottom of the manifest (once) if a stop has a note that contains the text “Cedarwood Apartments special instructions *”.</p>
+<p>If <code class="code docutils literal notranslate"><span class="pre">extra_notes_file</span></code> is not provided, the tool will use the constant notes in the codebase: <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes" title="bfb_delivery.lib.constants.ExtraNotes"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.ExtraNotes</span></code></a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">create_manifests</span><span class="p">(</span>
+    <span class="n">input_dir</span><span class="o">=</span><span class="s2">&quot;path/to/combined_workbook.xlsx&quot;</span><span class="p">,</span>
+    <span class="n">extra_notes_file</span><span class="o">=</span><span class="s2">&quot;path/to/extra_notes.csv&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests<span class="w"> </span>--input_dir<span class="w"> </span>path/to/combined_workbook.xlsx<span class="w"> </span>--extra_notes_file<span class="w"> </span>path/to/extra_notes.csv
+</pre></div>
+</div>
 </section>
+</section>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="workflow.html"><span class="doc">The Delivery-Planning Workflow</span></a></p>
+<p><a class="reference internal" href="combine_route_tables.html"><span class="doc">Combine Driver Route Tables into a Single Workbook</span></a></p>
+<p><a class="reference internal" href="format_combined_routes.html"><span class="doc">Format Manifests</span></a></p>
+<p><a class="reference internal" href="CLI.html"><span class="doc">CLI</span></a></p>
+<p><a class="reference internal" href="bfb_delivery.api.html"><span class="doc">bfb_delivery.api package</span></a></p>
 </section>
 </section>
 
@@ -338,8 +367,26 @@
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="CLI.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">CLI</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="split_chunked_route.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Split Chunked Route Sheet into Multiple Files</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -376,10 +423,12 @@
 <li><a class="reference internal" href="#output-directory">Output directory</a></li>
 <li><a class="reference internal" href="#output-filename">Output filename</a></li>
 <li><a class="reference internal" href="#manifest-date">Manifest date</a></li>
+<li><a class="reference internal" href="#supplying-extra-notes">Supplying extra notes</a></li>
 </ul>
 </li>
 </ul>
 </li>
+<li><a class="reference internal" href="#see-also">See Also</a></li>
 </ul>
 </li>
 </ul>
@@ -391,7 +440,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=c87aa342"></script>
+</div><script src="_static/documentation_options.js?v=ff822928"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

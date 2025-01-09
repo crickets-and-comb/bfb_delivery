@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="bfb_delivery.cli package" href="bfb_delivery.cli.html" /><link rel="prev" title="bfb_delivery package" href="bfb_delivery.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>bfb_delivery.api package - bfb_delivery 0.4.1 documentation</title>
+        <title>bfb_delivery.api package - bfb_delivery 0.4.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.4.1 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.4.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.4.1 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.4.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -201,6 +201,8 @@
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow.html">The Delivery-Planning Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="create_manifests.html">Create Printable Manifests from Optimized Routes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -279,7 +281,7 @@ power users and developers who may want to use an existing DB session or somethi
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bfb_delivery.api.internal.create_manifests">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.api.internal.</span></span><span class="sig-name descname"><span class="pre">create_manifests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.api.internal.create_manifests" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.api.internal.</span></span><span class="sig-name descname"><span class="pre">create_manifests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_notes_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.api.internal.create_manifests" title="Link to this definition">¶</a></dt>
 <dd><p>See public docstring for <a class="reference internal" href="#bfb_delivery.api.public.create_manifests" title="bfb_delivery.api.public.create_manifests"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.create_manifests()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -290,7 +292,7 @@ power users and developers who may want to use an existing DB session or somethi
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bfb_delivery.api.internal.format_combined_routes">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.api.internal.</span></span><span class="sig-name descname"><span class="pre">format_combined_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Dummy</span> <span class="pre">date'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.api.internal.format_combined_routes" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.api.internal.</span></span><span class="sig-name descname"><span class="pre">format_combined_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_notes_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.api.internal.format_combined_routes" title="Link to this definition">¶</a></dt>
 <dd><p>See public docstring: <a class="reference internal" href="#bfb_delivery.api.public.format_combined_routes" title="bfb_delivery.api.public.format_combined_routes"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.format_combined_routes()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -301,7 +303,7 @@ power users and developers who may want to use an existing DB session or somethi
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bfb_delivery.api.internal.split_chunked_route">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.api.internal.</span></span><span class="sig-name descname"><span class="pre">split_chunked_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_books</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.api.internal.split_chunked_route" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.api.internal.</span></span><span class="sig-name descname"><span class="pre">split_chunked_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_books</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">book_one_drivers_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.api.internal.split_chunked_route" title="Link to this definition">¶</a></dt>
 <dd><p>See public docstring: <a class="reference internal" href="#bfb_delivery.api.public.split_chunked_route" title="bfb_delivery.api.public.split_chunked_route"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.split_chunked_route()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -349,7 +351,7 @@ Empty string (default) will name the file “combined_routes_{date}.xlsx”.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bfb_delivery.api.public.create_manifests">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.api.public.</span></span><span class="sig-name descname"><span class="pre">create_manifests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.api.public.create_manifests" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.api.public.</span></span><span class="sig-name descname"><span class="pre">create_manifests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_notes_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.api.public.create_manifests" title="Link to this definition">¶</a></dt>
 <dd><p>From Circuit route CSVs, creates driver manifest workbook ready to print.</p>
 <p>This is used after optimizing and exporting the routes to individual CSVs. Reads in
 driver route CSVs from <cite>input_dir</cite> and creates a formatted workbook with driver
@@ -371,6 +373,8 @@ Empty string saves to the input <cite>input_dir</cite> directory.</p></li>
 <li><p><strong>output_filename</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The name of the output workbook.
 Empty string sets filename to “final_manifests_{date}.xlsx”.</p></li>
 <li><p><strong>date</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The date to use in the driver manifests.</p></li>
+<li><p><strong>extra_notes_file</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Path to the extra notes file. If empty (default), uses a constant
+DataFrame. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes" title="bfb_delivery.lib.constants.ExtraNotes"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.ExtraNotes</span></code></a>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -384,7 +388,7 @@ Empty string sets filename to “final_manifests_{date}.xlsx”.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bfb_delivery.api.public.format_combined_routes">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.api.public.</span></span><span class="sig-name descname"><span class="pre">format_combined_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.api.public.format_combined_routes" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.api.public.</span></span><span class="sig-name descname"><span class="pre">format_combined_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_notes_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.api.public.format_combined_routes" title="Link to this definition">¶</a></dt>
 <dd><p>Formats the combined routes table into driver manifests to print.</p>
 <p>Adds headers and aggregate data. Color codes box types.</p>
 <p>This is used after combining the driver route CSVs into a single workbook
@@ -401,6 +405,8 @@ Empty string (default) saves to the input path’s parent directory.</p></li>
 Empty string (default) will name the file “formatted_routes_{date}.xlsx”.</p></li>
 <li><p><strong>date</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The date to use in driver manifests. Empty string (default) will use today’s
 date as {MM.DD}.</p></li>
+<li><p><strong>extra_notes_file</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The path to the extra notes file. If empty (default), uses a
+constant DataFrame. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes" title="bfb_delivery.lib.constants.ExtraNotes"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.ExtraNotes</span></code></a>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -414,7 +420,7 @@ date as {MM.DD}.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bfb_delivery.api.public.split_chunked_route">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.api.public.</span></span><span class="sig-name descname"><span class="pre">split_chunked_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_books</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.api.public.split_chunked_route" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.api.public.</span></span><span class="sig-name descname"><span class="pre">split_chunked_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_books</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">book_one_drivers_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.api.public.split_chunked_route" title="Link to this definition">¶</a></dt>
 <dd><p>Split route sheet into n workbooks with sheets by driver.</p>
 <p>Sheets by driver allows splitting routes by driver on Circuit upload.
 Multiple workbooks allows team to split the uploads among members, so one person
@@ -436,6 +442,8 @@ Empty string saves to the input <cite>input_path</cite> directory.</p></li>
 <li><p><strong>output_filename</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Name of the output workbook.
 Empty string sets filename to “split_workbook_{date}_{i of n_books}.xlsx”.</p></li>
 <li><p><strong>n_books</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Number of workbooks to split into.</p></li>
+<li><p><strong>book_one_drivers_file</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Path to the book-one driver’s file. If empty (default), uses
+a constant list. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.BookOneDrivers" title="bfb_delivery.lib.constants.BookOneDrivers"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.BookOneDrivers</span></code></a>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -543,7 +551,7 @@ Empty string sets filename to “split_workbook_{date}_{i of n_books}.xlsx”.</
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=c87aa342"></script>
+</div><script src="_static/documentation_options.js?v=ff822928"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

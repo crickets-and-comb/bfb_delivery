@@ -97,3 +97,43 @@ The default is today's date as ``MM.DD``. But, you can pass a specific date with
     create_manifests --input_dir path/to/input/ --date "1971.01.27"
 
 It doesn't have to be a date; it can be any text you want. Also, it doesn't affect the date in the filename.
+
+
+Supplying extra notes
+~~~~~~~~~~~~~~~~~~~~~
+
+Use the optional argument :code:`extra_notes_file` to specify a CSV file with extra notes to include in the manifest. The CSV file should have two columns: :code:`tag` and :code:`note`. The tag is the text (usually asterisked) that appears in the standard notes field for a delivery. The note is then added to the bottom of the manifest with the tag. For example:
+
+.. code:: csv
+
+    tag,note
+    Cedarwood Apartments special instructions *,Please call the recipient when you arrive.
+
+This file will put the note "Please call the recipient when you arrive." at the bottom of the manifest (once) if a stop has a note that contains the text "Cedarwood Apartments special instructions \*".
+
+If :code:`extra_notes_file` is not provided, the tool will use the constant notes in the codebase: :py:data:`bfb_delivery.lib.constants.ExtraNotes`
+
+.. code:: python
+
+    create_manifests(
+        input_dir="path/to/combined_workbook.xlsx",
+        extra_notes_file="path/to/extra_notes.csv",
+    )
+
+.. code:: bash
+
+    create_manifests --input_dir path/to/combined_workbook.xlsx --extra_notes_file path/to/extra_notes.csv
+
+
+See Also
+--------
+
+:doc:`workflow`
+
+:doc:`combine_route_tables`
+
+:doc:`format_combined_routes`
+
+:doc:`CLI`
+
+:doc:`bfb_delivery.api`

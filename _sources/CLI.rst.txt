@@ -1,3 +1,4 @@
+===
 CLI
 ===
 
@@ -36,3 +37,11 @@ See also :doc:`format_combined_routes` for the full documentation.
 .. click:: bfb_delivery.cli.format_combined_routes:main
    :prog: format_combined_routes
    :nested: full
+
+
+See Also
+--------
+
+:doc:`bfb_delivery.cli`
+
+:doc:`bfb_delivery.api`

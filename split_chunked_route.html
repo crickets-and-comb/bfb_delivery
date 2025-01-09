@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Create Printable Manifests from Optimized Routes" href="create_manifests.html" /><link rel="prev" title="The Delivery-Planning Workflow" href="workflow.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Split Chunked Route Sheet into Multiple Files - bfb_delivery 0.4.1 documentation</title>
+        <title>Split Chunked Route Sheet into Multiple Files - bfb_delivery 0.4.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.4.1 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.4.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.4.1 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.4.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -198,9 +198,11 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul>
+  <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow.html">The Delivery-Planning Workflow</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Split Chunked Route Sheet into Multiple Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="create_manifests.html">Create Printable Manifests from Optimized Routes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -312,7 +314,38 @@
 </pre></div>
 </div>
 </section>
+<section id="book-one-drivers">
+<h4>Book-one drivers<a class="headerlink" href="#book-one-drivers" title="Link to this heading">¶</a></h4>
+<p>By default, the first workbook will include the drivers listed in the constant <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.BookOneDrivers" title="bfb_delivery.lib.constants.BookOneDrivers"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.BookOneDrivers</span></code></a>.</p>
+<p>Use <code class="code docutils literal notranslate"><span class="pre">book_one_drivers_file</span></code> to specify a CSV file of drivers that should be in the first workbook instead. This is useful if you need to change the drivers that need to be in the first workbook but the update hasn’t been released yet.</p>
+<p>The CSV should be a single column with the header “Driver”, like this:</p>
+<div class="highlight-csv notranslate"><div class="highlight"><pre><span></span>Driver
+Alice S
+Bob T
+Charlie U
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">split_chunked_route</span><span class="p">(</span>
+    <span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/input.xlsx&quot;</span><span class="p">,</span>
+    <span class="n">book_one_drivers_file</span><span class="o">=</span><span class="s2">&quot;path/to/book_one_drivers.csv&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>split_chunked_route<span class="w"> </span>--input_path<span class="w"> </span>path/to/input.xlsx<span class="w"> </span>--book_one_drivers_file<span class="w"> </span>path/to/book_one_drivers.csv
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This argument and the default won’t work correctly if you have too many drivers for the first workbook. The tool simply bumps those drivers to the top of the list and then splits all drivers evenly between workbooks. For example, if you have 100 drivers, 4 workbooks to make, and 30 book-one drivers, only the first 25 of those book-one drivers will go to book one, and the remaining 5 will go to book two. If this is a problem, please request a fix.</p>
+</div>
 </section>
+</section>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="workflow.html"><span class="doc">The Delivery-Planning Workflow</span></a></p>
+<p><a class="reference internal" href="CLI.html"><span class="doc">CLI</span></a></p>
+<p><a class="reference internal" href="bfb_delivery.api.html"><span class="doc">bfb_delivery.api package</span></a></p>
 </section>
 </section>
 
@@ -321,8 +354,26 @@
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="create_manifests.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Create Printable Manifests from Optimized Routes</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="workflow.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">The Delivery-Planning Workflow</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -359,10 +410,12 @@
 <li><a class="reference internal" href="#number-of-workbooks">Number of workbooks</a></li>
 <li><a class="reference internal" href="#output-directory">Output directory</a></li>
 <li><a class="reference internal" href="#output-filename">Output filename</a></li>
+<li><a class="reference internal" href="#book-one-drivers">Book-one drivers</a></li>
 </ul>
 </li>
 </ul>
 </li>
+<li><a class="reference internal" href="#see-also">See Also</a></li>
 </ul>
 </li>
 </ul>
@@ -374,7 +427,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=c87aa342"></script>
+</div><script src="_static/documentation_options.js?v=ff822928"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

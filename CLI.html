@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="bfb_delivery" href="modules.html" /><link rel="prev" title="The Delivery-Planning Workflow" href="workflow.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="bfb_delivery" href="modules.html" /><link rel="prev" title="Create Printable Manifests from Optimized Routes" href="create_manifests.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>CLI - bfb_delivery 0.4.1 documentation</title>
+        <title>CLI - bfb_delivery 0.4.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.4.1 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.4.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.4.1 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.4.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -201,6 +201,8 @@
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow.html">The Delivery-Planning Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="create_manifests.html">Create Printable Manifests from Optimized Routes</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">CLI</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -291,6 +293,12 @@
 <dd><p>Number of workbooks to split into. Default is 4.</p>
 </dd></dl>
 
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-split_chunked_route-book_one_drivers_file">
+<span class="sig-name descname"><span class="pre">--book_one_drivers_file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;book_one_drivers_file&gt;</span></span><a class="headerlink" href="#cmdoption-split_chunked_route-book_one_drivers_file" title="Link to this definition">¶</a></dt>
+<dd><p>Path to the book-one driver’s file. If empty (default), uses a constant list. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.BookOneDrivers" title="bfb_delivery.lib.constants.BookOneDrivers"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.BookOneDrivers</span></code></a>.</p>
+</dd></dl>
+
 </section>
 </section>
 <section id="create-manifests">
@@ -325,6 +333,12 @@
 <dt class="sig sig-object std" id="cmdoption-create_manifests-date">
 <span class="sig-name descname"><span class="pre">--date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;date&gt;</span></span><a class="headerlink" href="#cmdoption-create_manifests-date" title="Link to this definition">¶</a></dt>
 <dd><p>The date to use in driver manifests. Empty string (default) will use today’s date as {MM.DD}’</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-create_manifests-extra_notes_file">
+<span class="sig-name descname"><span class="pre">--extra_notes_file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;extra_notes_file&gt;</span></span><a class="headerlink" href="#cmdoption-create_manifests-extra_notes_file" title="Link to this definition">¶</a></dt>
+<dd><p>The path to the extra notes file. If empty (default), uses a constant DataFrame. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes" title="bfb_delivery.lib.constants.ExtraNotes"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.ExtraNotes</span></code></a>.</p>
 </dd></dl>
 
 </section>
@@ -393,7 +407,18 @@
 <dd><p>The date to use in driver manifests. Empty string (default) will use today’s date as {MM.DD}’</p>
 </dd></dl>
 
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-format_combined_routes-extra_notes_file">
+<span class="sig-name descname"><span class="pre">--extra_notes_file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;extra_notes_file&gt;</span></span><a class="headerlink" href="#cmdoption-format_combined_routes-extra_notes_file" title="Link to this definition">¶</a></dt>
+<dd><p>The path to the extra notes file. If empty (default), uses a constant DataFrame. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes" title="bfb_delivery.lib.constants.ExtraNotes"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.ExtraNotes</span></code></a>.</p>
+</dd></dl>
+
 </section>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="bfb_delivery.cli.html"><span class="doc">bfb_delivery.cli package</span></a></p>
+<p><a class="reference internal" href="bfb_delivery.api.html"><span class="doc">bfb_delivery.api package</span></a></p>
 </section>
 </section>
 
@@ -411,14 +436,14 @@
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="workflow.html">
+          <a class="prev-page" href="create_manifests.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">The Delivery-Planning Workflow</div>
+                <div class="title">Create Printable Manifests from Optimized Routes</div>
                 
               </div>
             </a>
@@ -469,6 +494,7 @@
 <li><a class="reference internal" href="#format-combined-routes">format_combined_routes</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#see-also">See Also</a></li>
 </ul>
 </li>
 </ul>
@@ -480,7 +506,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=c87aa342"></script>
+</div><script src="_static/documentation_options.js?v=ff822928"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

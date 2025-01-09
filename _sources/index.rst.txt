@@ -2,9 +2,9 @@
 BFB Delivery: A Cruft Cutter
 ============================
 
-Library and CLI for Bellingham Food Bank Delivery. See also the GitHub repository: https://github.com/crickets-and-comb/bfb_delivery
+Library and CLI for Bellingham Food Bank Delivery.
 
-So far, you can use this package to cut some cruft around creating delivery route manifests. You can:
+So far, you can use this package to cut some cruft around creating delivery route manifests:
 
     1. Split a driver-labeled route spreadsheet into individual driver spreadsheets. See :doc:`split_chunked_route` for more information.
     2. Create printable manifests. See :doc:`create_manifests` for more information.
@@ -18,6 +18,8 @@ Contents
 
    getting_started
    workflow
+   split_chunked_route
+   create_manifests
    CLI
    modules
    developers
@@ -33,4 +35,9 @@ Run the following to install the package:
 
 See :doc:`getting_started` for more information.
 
-See also https://pypi.org/project/bfb-delivery/.
+See Also
+--------
+
+`BFB Delivery GitHub repository <https://github.com/crickets-and-comb/bfb_delivery/>`_
+
+`bfb-delivery PyPi distribution <https://pypi.org/project/bfb-delivery/>`_
