@@ -109,9 +109,6 @@ def mock_route_tables(
                 output_paths.append(output_path)
                 df = pd.read_excel(xls, sheet_name)
                 df[Columns.STOP_NO] = [i + 1 for i in range(len(df))]
-                # TODO: Undo this once we add neighborhood column back.
-                if Columns.NEIGHBORHOOD not in df.columns:
-                    df[Columns.NEIGHBORHOOD] = "Mock Neighborhood"
                 df.to_csv(output_path, index=False)
 
     return output_paths

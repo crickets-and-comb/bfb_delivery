@@ -36,6 +36,7 @@ from bfb_delivery.lib.constants import (
 from bfb_delivery.lib.formatting.data_cleaning import (
     _format_and_validate_box_type,
     _format_and_validate_name,
+    _format_and_validate_neighborhood,
     _format_and_validate_phone,
 )
 from bfb_delivery.lib.formatting.sheet_shaping import (
@@ -74,13 +75,7 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
     """Save mock chunked route sheet and get path."""
     fp: Path = module_tmp_dir / "mock_chunked_sheet_raw.xlsx"
     raw_chunked_sheet = pd.DataFrame(
-        columns=SPLIT_ROUTE_COLUMNS
-        + [  # noqa: W503
-            Columns.NEIGHBORHOOD,
-            Columns.DRIVER,
-            Columns.BOX_COUNT,
-            Columns.STOP_NO,
-        ],
+        columns=SPLIT_ROUTE_COLUMNS + [Columns.DRIVER, Columns.BOX_COUNT, Columns.STOP_NO],
         data=[
             (
                 "Recipient One",
@@ -251,7 +246,7 @@ def mock_route_tables(tmp_path: Path, mock_chunked_sheet_raw: Path) -> Path:
     output_dir = tmp_path / "mock_route_tables"
     output_dir.mkdir()
 
-    output_cols = [Columns.STOP_NO] + SPLIT_ROUTE_COLUMNS + [Columns.NEIGHBORHOOD]
+    output_cols = [Columns.STOP_NO] + SPLIT_ROUTE_COLUMNS
     chunked_df = pd.read_excel(mock_chunked_sheet_raw)
     chunked_df.rename(columns={Columns.BOX_TYPE: Columns.PRODUCT_TYPE}, inplace=True)
     for driver in chunked_df[Columns.DRIVER].unique():
@@ -551,6 +546,10 @@ class TestSplitChunkedRoute:
         box_type_df = full_data[[Columns.BOX_TYPE]].copy()
         _format_and_validate_box_type(df=box_type_df)
         assert box_type_df[Columns.BOX_TYPE].equals(split_data[Columns.BOX_TYPE])
+
+        neighborhood_df = full_data[[Columns.NEIGHBORHOOD]].copy()
+        _format_and_validate_neighborhood(df=neighborhood_df)
+        assert neighborhood_df[Columns.NEIGHBORHOOD].equals(split_data[Columns.NEIGHBORHOOD])
 
     @pytest.mark.parametrize("n_books", [0, -1])
     def test_invalid_n_books(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
