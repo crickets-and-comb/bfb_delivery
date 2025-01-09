@@ -119,7 +119,7 @@ def _format_and_validate_product_type(df: pd.DataFrame) -> None:
 @typechecked
 def _format_and_validate_product_or_box_type(df: pd.DataFrame, column: str) -> None:
     """Format the box type column."""
-    _format_and_validate_names(df=df, column=column)
+    _format_and_validate_names_to_upper(df=df, column=column)
     # TODO: What about multiple box types for one stop?
     # Split and format each value separately, then rejoin?
     # TODO: Validate: make enum.StrEnum?
@@ -129,7 +129,7 @@ def _format_and_validate_product_or_box_type(df: pd.DataFrame, column: str) -> N
 @typechecked
 def _format_and_validate_driver(df: pd.DataFrame) -> None:
     """Format the driver column."""
-    _format_and_validate_names(df=df, column=Columns.DRIVER)
+    _format_and_validate_names_title(df=df, column=Columns.DRIVER)
     return
 
 
@@ -167,14 +167,14 @@ def _format_and_validate_email(df: pd.DataFrame) -> None:
 @typechecked
 def _format_and_validate_name(df: pd.DataFrame) -> None:
     """Format the name column."""
-    _format_and_validate_names(df=df, column=Columns.NAME)
+    _format_and_validate_names_title(df=df, column=Columns.NAME)
     return
 
 
 @typechecked
 def _format_and_validate_neighborhood(df: pd.DataFrame) -> None:
     """Format the neighborhood column."""
-    _format_and_validate_names(df=df, column=Columns.NEIGHBORHOOD)
+    _format_and_validate_names_to_upper(df=df, column=Columns.NEIGHBORHOOD)
     # TODO: Validate: make enum.StrEnum?
     return
 
@@ -251,12 +251,26 @@ def _format_and_validate_stop_no(df: pd.DataFrame) -> None:
 
 
 @typechecked
-def _format_and_validate_names(df: pd.DataFrame, column: str) -> None:
+def _format_and_validate_names_to_upper(df: pd.DataFrame, column: str) -> None:
+    """Format a column with names."""
+    _format_and_validate_names_base(df=df, column=column)
+    df[column] = df[column].apply(lambda name: name.upper())
+    return
+
+
+@typechecked
+def _format_and_validate_names_title(df: pd.DataFrame, column: str) -> None:
+    """Format a column with names."""
+    _format_and_validate_names_base(df=df, column=column)
+    df[column] = df[column].apply(lambda name: name.title())
+    return
+
+
+@typechecked
+def _format_and_validate_names_base(df: pd.DataFrame, column: str) -> None:
     """Format a column with names."""
     _format_string(df=df, column=column)
     _validate_col_not_empty(df=df, column=column)
-    # Could use nameparser or str.title(), but neither handles all cases. Some other package?
-    df[column] = df[column].apply(lambda name: name.upper())
     return
 
 

@@ -426,7 +426,7 @@ class TestSplitChunkedRoute:
         for output_path in output_paths:
             sheet_names = pd.ExcelFile(output_path).sheet_names
             driver_d_sheets = [
-                sheet_name for sheet_name in sheet_names if "DRIVER D" in str(sheet_name)
+                sheet_name for sheet_name in sheet_names if "Driver D" in str(sheet_name)
             ]
             assert len(driver_d_sheets) == 2 or len(driver_d_sheets) == 0
 
@@ -439,11 +439,11 @@ class TestSplitChunkedRoute:
     @pytest.mark.parametrize(
         "test_book_one_drivers, exclude_drivers",
         [
-            (["DRIVER A", "DRIVER B"], []),
-            (["DRIVER F"], []),
+            (["Driver A", "Driver B"], []),
+            (["Driver F"], []),
             ([], []),
             (
-                ["DRIVER A", "DRIVER B", "not a driver in the data"],
+                ["Driver A", "Driver B", "not a driver in the data"],
                 ["not a driver in the data"],
             ),
         ],
