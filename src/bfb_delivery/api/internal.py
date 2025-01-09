@@ -32,11 +32,19 @@ def split_chunked_route(
 
 @typechecked
 def create_manifests(
-    input_dir: Path | str, output_dir: Path | str, output_filename: str, date: str
+    input_dir: Path | str,
+    output_dir: Path | str,
+    output_filename: str,
+    date: str,
+    extra_notes_file: str,
 ) -> Path:
     """See public docstring for :py:func:`bfb_delivery.api.public.create_manifests`."""
     formatted_manifest_path = sheet_shaping.create_manifests(
-        input_dir=input_dir, output_dir=output_dir, output_filename=output_filename, date=date
+        input_dir=input_dir,
+        output_dir=output_dir,
+        output_filename=output_filename,
+        date=date,
+        extra_notes_file=extra_notes_file,
     )
 
     return formatted_manifest_path
@@ -52,12 +60,14 @@ def combine_route_tables(
     )
 
 
+# TODO: Remove defaults.
 @typechecked
 def format_combined_routes(
     input_path: Path | str,
     output_dir: Path | str = "",
     output_filename: str = "",
     date: str = "Dummy date",
+    extra_notes_file: str = "",
 ) -> Path:
     """See public docstring: :py:func:`bfb_delivery.api.public.format_combined_routes`."""
     return sheet_shaping.format_combined_routes(
@@ -65,4 +75,5 @@ def format_combined_routes(
         output_dir=output_dir,
         output_filename=output_filename,
         date=date,
+        extra_notes_file=extra_notes_file,
     )

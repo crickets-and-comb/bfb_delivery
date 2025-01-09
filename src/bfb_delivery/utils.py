@@ -8,7 +8,7 @@ from pathlib import Path
 import pandas as pd
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import BookOneDrivers, Columns
+from bfb_delivery.lib.constants import BookOneDrivers, Columns, ExtraNotes
 
 
 @typechecked
@@ -26,6 +26,26 @@ def get_book_one_drivers(file_path: str) -> list[str]:
         sheet_one_drivers = pd.read_csv(file_path)[Columns.DRIVER].astype(dtype=str).tolist()
 
     return sheet_one_drivers
+
+
+@typechecked
+def get_extra_notes(file_path: str) -> pd.DataFrame:
+    """Get the extra notes from the file, or the constant if no path.
+
+    Args:
+        file_path: Path to the extra notes file. If empty, uses a constant DataFrame.
+
+    Returns:
+        The extra notes to include in the combined routes.
+    """
+    extra_notes_df: pd.DataFrame
+    if file_path:
+        extra_notes_df = pd.read_csv(file_path)
+    else:
+        extra_notes = ExtraNotes()
+        extra_notes_df = extra_notes.df
+
+    return extra_notes_df
 
 
 @typechecked

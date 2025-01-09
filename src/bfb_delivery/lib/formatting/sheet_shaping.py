@@ -4,6 +4,7 @@ import math
 import warnings
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 from openpyxl import Workbook
@@ -30,7 +31,12 @@ from bfb_delivery.lib.formatting.data_cleaning import (
     format_and_validate_data,
     format_column_names,
 )
-from bfb_delivery.utils import get_book_one_drivers, get_phone_number, map_columns
+from bfb_delivery.utils import (
+    get_book_one_drivers,
+    get_extra_notes,
+    get_phone_number,
+    map_columns,
+)
 
 # Silences warning for in-place operations on copied df slices.
 pd.options.mode.copy_on_write = True
@@ -101,7 +107,11 @@ def split_chunked_route(
 
 @typechecked
 def create_manifests(
-    input_dir: Path | str, output_dir: Path | str, output_filename: str, date: str
+    input_dir: Path | str,
+    output_dir: Path | str,
+    output_filename: str,
+    date: str,
+    extra_notes_file: str,
 ) -> Path:
     """See public docstring for :py:func:`bfb_delivery.api.public.create_manifests`."""
     output_filename = (
@@ -119,6 +129,7 @@ def create_manifests(
         output_dir=output_dir,
         output_filename=output_filename,
         date=date,
+        extra_notes_file=extra_notes_file,
     )
 
     return formatted_manifest_path
@@ -156,7 +167,11 @@ def combine_route_tables(
 
 @typechecked
 def format_combined_routes(
-    input_path: Path | str, output_dir: Path | str, output_filename: str, date: str
+    input_path: Path | str,
+    output_dir: Path | str,
+    output_filename: str,
+    date: str,
+    extra_notes_file: str,
 ) -> Path:
     """See public docstring: :py:func:`bfb_delivery.api.public.format_combined_routes`."""
     input_path = Path(input_path)
@@ -171,6 +186,8 @@ def format_combined_routes(
     date = date if date else friday.strftime(MANIFEST_DATE_FORMAT)
 
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    extra_notes_df = get_extra_notes(file_path=extra_notes_file)
 
     wb = Workbook()
     wb.remove(wb["Sheet"])
@@ -192,7 +209,7 @@ def format_combined_routes(
             # Also, may not make the most sense in order of apt number. Ask team.
             route_df.sort_values(by=[Columns.STOP_NO], inplace=True)
 
-            agg_dict = _aggregate_route_data(df=route_df)
+            agg_dict = _aggregate_route_data(df=route_df, extra_notes_df=extra_notes_df)
             # TODO: !! What happens when there are more than one order for a stop? Two rows?
             # (Since order count column is dropped in manifest)
             # Oh wait, they're all 1s, so is that just a way for them to count them with sum?
@@ -300,11 +317,12 @@ def _group_numbered_drivers(driver_sets: list[list[str]]) -> list[list[str]]:
 
 
 @typechecked
-def _aggregate_route_data(df: pd.DataFrame) -> dict:
+def _aggregate_route_data(df: pd.DataFrame, extra_notes_df: pd.DataFrame) -> dict[str, Any]:
     """Aggregate data for a single route.
 
     Args:
         df: The route data to aggregate.
+        extra_notes_df: Extra notes to include in the manifest if tagged.
 
     Returns:
         Dictionary of aggregated data.
@@ -317,6 +335,15 @@ def _aggregate_route_data(df: pd.DataFrame) -> dict:
     if extra_box_types:
         raise ValueError(f"Invalid box type in route data: {extra_box_types}")
 
+    extra_notes_list = []
+    used_tags = []
+    for _, row in extra_notes_df.iterrows():
+        for notes in df[Columns.NOTES]:
+            if row["tag"].upper() in notes.upper() and row["tag"] not in used_tags:
+                used_tags.append(row["tag"])
+                note = "* " + row["tag"].replace("*", "").strip() + ": " + row["note"]
+                extra_notes_list.append(note)
+
     agg_dict = {
         "box_counts": df.groupby(Columns.BOX_TYPE)[Columns.ORDER_COUNT].sum().to_dict(),
         "total_box_count": df[Columns.ORDER_COUNT].sum(),
@@ -324,11 +351,12 @@ def _aggregate_route_data(df: pd.DataFrame) -> dict:
             Columns.ORDER_COUNT
         ].sum(),
         "neighborhoods": df[Columns.NEIGHBORHOOD].unique().tolist(),
+        "extra_notes": extra_notes_list,
     }
 
     for box_type in BoxType:
         if box_type.value not in agg_dict["box_counts"]:
-            agg_dict["box_counts"][box_type] = 0
+            agg_dict["box_counts"][box_type.value] = 0
 
     return agg_dict
 
@@ -346,6 +374,7 @@ def _make_manifest_sheet(
     _auto_adjust_column_widths(ws=ws, df_start_row=df_start_row)
     _word_wrap_notes_column(ws=ws)
     _merge_and_wrap_neighborhoods(ws=ws, neighborhoods_row_number=neighborhoods_row_number)
+    _append_extra_notes(ws=ws, extra_notes=agg_dict["extra_notes"])
 
     # TODO: Set print_area (Use calculate_dimensions)
     # TODO: set_printer_settings(paper_size, orientation)
@@ -623,5 +652,16 @@ def _merge_and_wrap_neighborhoods(ws: Worksheet, neighborhoods_row_number: int) 
             lines += line_length / merged_width
 
         ws.row_dimensions[neighborhoods_row_number].height = max(15, math.ceil(lines) * 15)
+
+    return
+
+
+@typechecked
+def _append_extra_notes(ws: Worksheet, extra_notes: list[str]) -> None:
+    """Append extra notes to the worksheet."""
+    start_row = ws.max_row + 2
+    for i, note in enumerate(extra_notes, start=start_row):
+        cell = ws.cell(row=i, column=5, value=note)
+        cell.alignment = Alignment(wrap_text=True, horizontal="left")
 
     return

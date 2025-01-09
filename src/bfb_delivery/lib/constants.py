@@ -3,10 +3,12 @@
 from enum import StrEnum
 from typing import Final
 
+import pandas as pd
+
 
 class BookOneDrivers(StrEnum):
     """Drivers for the first book.
-    
+
     This is only an enum so it appears in docs.
     """
 
@@ -82,11 +84,13 @@ class Defaults:
         "output_dir": "",
         "output_filename": "",
         "date": "",
+        "extra_notes_file": "",
     }
     FORMAT_COMBINED_ROUTES: Final[dict[str, str]] = {
         "output_dir": "",
         "output_filename": "",
         "date": "",
+        "extra_notes_file": CREATE_MANIFESTS["extra_notes_file"],
     }
     SPLIT_CHUNKED_ROUTE: Final[dict[str, str | int]] = {
         "output_dir": "",
@@ -94,6 +98,34 @@ class Defaults:
         "n_books": 4,
         "book_one_drivers_file": "",
     }
+
+
+class ExtraNotes:
+    """Extra notes for the combined routes.
+
+    Is a class so it appears in docs.
+    """
+
+    notes: Final[list[tuple[str, str]]] = [
+        (
+            "Dummy note tag*",
+            (
+                "This is a dummy note. It is really long and should be so that we can "
+                "test out column width and word wrapping. It should be long enough to wrap "
+                "around to the next line. And, it should be long enough to wrap around to "
+                "the next line. And, it should be long enough to wrap around to the next "
+                "line. Hopefully, this is long enough. Also, hopefully, this is long "
+                "enough. Further, hopefully, this is long enough. Additionally, it will "
+                "help test out word wrapping merged cells."
+            ),
+        )
+    ]
+
+    df: Final[pd.DataFrame]
+
+    def __init__(self) -> None:
+        """Initialize the extra notes df."""
+        self.df = pd.DataFrame(columns=["tag", "note"], data=self.notes)
 
 
 FILE_DATE_FORMAT: Final[str] = "%Y%m%d"

@@ -1,5 +1,6 @@
 """Unit tests for sheet_shaping.py."""
 
+import glob
 import re
 import subprocess
 from collections.abc import Iterator
@@ -42,6 +43,7 @@ from bfb_delivery.lib.formatting.sheet_shaping import (
     _get_driver_sets,
     _group_numbered_drivers,
 )
+from bfb_delivery.utils import get_extra_notes
 
 BOX_TYPES: Final[list[str]] = ["Basic", "GF", "Vegan", "LA"]
 DRIVERS: Final[list[str]] = [
@@ -293,6 +295,32 @@ def mock_combined_routes_ExcelFile(mock_combined_routes: Path) -> Iterator[pd.Ex
     """Mock the combined routes table ExcelFile."""
     with pd.ExcelFile(mock_combined_routes) as xls:
         yield xls
+
+
+@pytest.fixture()
+def mock_extra_notes_df() -> pd.DataFrame:
+    """Mock the extra notes DataFrame."""
+    extra_notes_df = pd.DataFrame(
+        columns=["tag", "note"],
+        data=[
+            (
+                "Test extra notes tag 1 *",
+                (
+                    "Test extra notes note 1. "
+                    "This is a dummy note. It is really long and should be so that we can "
+                    "test out column width and word wrapping. It should be long enough to "
+                    "wrap around to the next line. And, it should be long enough to wrap "
+                    "around to the next line. And, it should be long enough to wrap around "
+                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
+                    "is long enough. Further, hopefully, this is long enough. Additionally, "
+                    "it will help test out word wrapping merged cells."
+                ),
+            ),
+            ("Test extra notes tag 2 *", "Test extra notes note 2"),
+            ("Test extra notes tag 3 *", "Test extra notes note 3"),
+        ],
+    )
+    return extra_notes_df
 
 
 # TODO: Can upload multiple CSVs to Circuit instead of Excel file with multiple sheets?
@@ -893,7 +921,9 @@ class TestFormatCombinedRoutes:
             manifest_sheet_name = f"{MANIFEST_DATE} {sheet_name}"
             ws = basic_manifest_workbook[manifest_sheet_name]
 
-            agg_dict = _aggregate_route_data(df=input_df)
+            agg_dict = _aggregate_route_data(
+                df=input_df, extra_notes_df=get_extra_notes(file_path="")
+            )
 
             neighborhoods = ", ".join(agg_dict["neighborhoods"])
             assert ws["A7"].value == f"Neighborhoods: {neighborhoods.upper()}"
@@ -988,6 +1018,58 @@ class TestFormatCombinedRoutes:
             ]
             for cell in left_aligned_cells:
                 assert cell.alignment.horizontal == "left"
+
+    @pytest.mark.parametrize("extra_notes_file", ["", "dummy_extra_notes.csv"])
+    def test_extra_notes(
+        self,
+        extra_notes_file: str,
+        mock_combined_routes: Path,
+        mock_extra_notes_df: pd.DataFrame,
+    ) -> None:
+        """Test that extra notes are added to the manifest."""
+        mock_extra_notes_context, extra_notes_file = _get_extra_notes(
+            extra_notes_file=extra_notes_file,
+            extra_notes_dir=str(mock_combined_routes.parent),
+            extra_notes_df=mock_extra_notes_df,
+        )
+
+        new_mock_combined_routes_path = (
+            mock_combined_routes.parent / "new_mock_combined_routes.xlsx"
+        )
+        mock_combined_routes_file = pd.ExcelFile(mock_combined_routes)
+
+        first_sheet_name = str(mock_combined_routes_file.sheet_names[0])
+        first_df = mock_combined_routes_file.parse(sheet_name=first_sheet_name)
+        second_sheet_name = str(mock_combined_routes_file.sheet_names[1])
+        second_df = mock_combined_routes_file.parse(sheet_name=second_sheet_name)
+        first_df, second_df = _set_extra_notes(
+            first_df=first_df, second_df=second_df, extra_notes_df=mock_extra_notes_df
+        )
+
+        with pd.ExcelWriter(new_mock_combined_routes_path) as writer:
+            first_df.to_excel(writer, sheet_name=first_sheet_name, index=False)
+            second_df.to_excel(writer, sheet_name=second_sheet_name, index=False)
+            for sheet_name in mock_combined_routes_file.sheet_names[2:]:
+                df = mock_combined_routes_file.parse(sheet_name=sheet_name)
+                df.to_excel(writer, sheet_name=str(sheet_name), index=False)
+
+        dummy_date = "Dummy date"
+        with mock_extra_notes_context:
+            manifests_path = format_combined_routes(
+                input_path=new_mock_combined_routes_path,
+                extra_notes_file=extra_notes_file,
+                date=dummy_date,
+            )
+
+        _assert_extra_notes(
+            manifests_path=manifests_path,
+            dummy_date=dummy_date,
+            first_driver_name=first_sheet_name,
+            second_driver_name=second_sheet_name,
+            extra_notes_df=mock_extra_notes_df,
+            first_df=first_df,
+            second_df=second_df,
+        )
 
 
 class TestCreateManifests:
@@ -1199,7 +1281,9 @@ class TestCreateManifests:
             ws = basic_manifest_workbook[sheet_name]
 
             input_df.rename(columns={Columns.PRODUCT_TYPE: Columns.BOX_TYPE}, inplace=True)
-            agg_dict = _aggregate_route_data(df=input_df)
+            agg_dict = _aggregate_route_data(
+                df=input_df, extra_notes_df=get_extra_notes(file_path="")
+            )
 
             neighborhoods = ", ".join(agg_dict["neighborhoods"])
             assert ws["A7"].value == f"Neighborhoods: {neighborhoods.upper()}"
@@ -1295,9 +1379,118 @@ class TestCreateManifests:
             for cell in left_aligned_cells:
                 assert cell.alignment.horizontal == "left"
 
+    @pytest.mark.parametrize("extra_notes_file", ["", "dummy_extra_notes.csv"])
+    def test_extra_notes(
+        self,
+        extra_notes_file: str,
+        mock_route_tables: Path,
+        mock_extra_notes_df: pd.DataFrame,
+    ) -> None:
+        """Test that extra notes are added to the manifest."""
+        mock_extra_notes_context, extra_notes_file = _get_extra_notes(
+            extra_notes_file=extra_notes_file,
+            extra_notes_dir=str(mock_route_tables.parent),
+            extra_notes_df=mock_extra_notes_df,
+        )
+
+        mock_route_tables_names = glob.glob(str(mock_route_tables / "*.csv"))
+        first_driver_name = Path(mock_route_tables_names[0]).stem
+        first_df = pd.read_csv(mock_route_tables_names[0])
+        first_df = pd.concat([first_df] * 5, ignore_index=True)
+        first_df[Columns.STOP_NO] = range(1, len(first_df) + 1)
+        second_driver_name = Path(mock_route_tables_names[1]).stem
+        second_df = pd.read_csv(mock_route_tables_names[1])
+        first_df, second_df = _set_extra_notes(
+            first_df=first_df, second_df=second_df, extra_notes_df=mock_extra_notes_df
+        )
+        first_df.to_csv(mock_route_tables_names[0], index=False)
+        second_df.to_csv(mock_route_tables_names[1], index=False)
+
+        dummy_date = "Dummy date"
+        with mock_extra_notes_context:
+            manifests_path = create_manifests(
+                input_dir=mock_route_tables,
+                extra_notes_file=extra_notes_file,
+                date=dummy_date,
+            )
+
+        _assert_extra_notes(
+            manifests_path=manifests_path,
+            dummy_date=dummy_date,
+            first_driver_name=first_driver_name,
+            second_driver_name=second_driver_name,
+            extra_notes_df=mock_extra_notes_df,
+            first_df=first_df,
+            second_df=second_df,
+        )
+
+
+def _get_extra_notes(
+    extra_notes_file: str, extra_notes_dir: str, extra_notes_df: pd.DataFrame
+) -> tuple[AbstractContextManager, str]:
+    mock_extra_notes_context = nullcontext()
+    if extra_notes_file:
+        extra_notes_file = f"{extra_notes_dir}/{extra_notes_file}"
+        extra_notes_df.to_csv(extra_notes_file, index=False)
+    else:
+
+        class TestExtraNotes:
+            df: Final[pd.DataFrame] = extra_notes_df
+
+        mock_extra_notes_context = patch("bfb_delivery.utils.ExtraNotes", new=TestExtraNotes)
+
+    return mock_extra_notes_context, extra_notes_file
+
+
+def _set_extra_notes(
+    first_df: pd.DataFrame, second_df: pd.DataFrame, extra_notes_df: pd.DataFrame
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    first_df[Columns.NOTES] = [
+        extra_notes_df["tag"].iloc[0],
+        extra_notes_df["tag"].iloc[1],
+        extra_notes_df["tag"].iloc[1],
+    ] + first_df[Columns.NOTES].to_list()[3:]
+
+    second_df[Columns.NOTES] = [extra_notes_df["tag"].iloc[2]] + second_df[
+        Columns.NOTES
+    ].to_list()[1:]
+
+    return first_df, second_df
+
+
+def _assert_extra_notes(
+    manifests_path: Path,
+    dummy_date: str,
+    first_driver_name: str,
+    second_driver_name: str,
+    extra_notes_df: pd.DataFrame,
+    first_df: pd.DataFrame,
+    second_df: pd.DataFrame,
+) -> None:
+    manifests_workbook = load_workbook(manifests_path)
+    first_ws = manifests_workbook[f"{dummy_date} {first_driver_name}"]
+    second_ws = manifests_workbook[f"{dummy_date} {second_driver_name}"]
+    start_first_notes = 11 + len(first_df)
+    start_second_notes = 11 + len(second_df)
+
+    assert first_ws[f"E{start_first_notes}"].value.startswith(
+        "* " + extra_notes_df["tag"].iloc[0].replace("*", "").strip() + ": "
+    )
+    assert extra_notes_df["note"].iloc[0] in first_ws[f"E{start_first_notes}"].value
+    assert first_ws[f"E{start_first_notes + 1}"].value.startswith(
+        "* " + extra_notes_df["tag"].iloc[1].replace("*", "").strip() + ": "
+    )
+    assert extra_notes_df["note"].iloc[1] in first_ws[f"E{start_first_notes + 1}"].value
+    assert second_ws[f"E{start_second_notes}"].value.startswith(
+        "* " + extra_notes_df["tag"].iloc[2].replace("*", "").strip() + ": "
+    )
+    assert extra_notes_df["note"].iloc[2] in second_ws[f"E{start_second_notes}"].value
+
+    return
+
 
 @pytest.mark.parametrize(
-    "route_df, expected_agg_dict, error_context",
+    "route_df, extra_notes_df, expected_agg_dict, error_context",
     [
         (
             pd.DataFrame(
@@ -1313,13 +1506,16 @@ class TestCreateManifests:
                         "YORK",
                         "PUGET",
                     ],
+                    Columns.NOTES: ["", "", "", "", "", "", ""],
                 }
             ),
+            pd.DataFrame(columns=["tag", "note"]),
             {
                 "box_counts": {"BASIC": 3, "GF": 2, "LA": 2, "VEGAN": 2},
                 "total_box_count": 9,
                 "protein_box_count": 7,
                 "neighborhoods": ["YORK", "PUGET"],
+                "extra_notes": [],
             },
             nullcontext(),
         ),
@@ -1329,13 +1525,16 @@ class TestCreateManifests:
                     Columns.BOX_TYPE: ["BASIC", "GF", "LA", "BASIC", "GF", "LA"],
                     Columns.ORDER_COUNT: [1, 1, 1, 2, 1, 1],
                     Columns.NEIGHBORHOOD: ["YORK", "YORK", "YORK", "PUGET", "YORK", "YORK"],
+                    Columns.NOTES: ["Test tag * asfgasfg", "", "", "", "", ""],
                 }
             ),
+            pd.DataFrame(columns=["tag", "note"], data=[("Test tag *", "Test note.")]),
             {
                 "box_counts": {"BASIC": 3, "GF": 2, "LA": 2, "VEGAN": 0},
                 "total_box_count": 7,
                 "protein_box_count": 7,
                 "neighborhoods": ["YORK", "PUGET"],
+                "extra_notes": ["* Test tag: Test note."],
             },
             nullcontext(),
         ),
@@ -1365,6 +1564,7 @@ class TestCreateManifests:
                     ],
                 }
             ),
+            pd.DataFrame(columns=["tag", "note"]),
             {},
             pytest.raises(
                 ValueError,
@@ -1374,11 +1574,14 @@ class TestCreateManifests:
     ],
 )
 def test_aggregate_route_data(
-    route_df: pd.DataFrame, expected_agg_dict: dict, error_context: AbstractContextManager
+    route_df: pd.DataFrame,
+    extra_notes_df: pd.DataFrame,
+    expected_agg_dict: dict,
+    error_context: AbstractContextManager,
 ) -> None:
     """Test that a route's data is aggregated correctly."""
     with error_context:
-        agg_dict = _aggregate_route_data(df=route_df)
+        agg_dict = _aggregate_route_data(df=route_df, extra_notes_df=extra_notes_df)
         assert agg_dict == expected_agg_dict
 
 

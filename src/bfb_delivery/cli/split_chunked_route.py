@@ -46,7 +46,10 @@ from bfb_delivery.lib.constants import Defaults
     type=str,
     required=False,
     default=Defaults.SPLIT_CHUNKED_ROUTE["book_one_drivers_file"],
-    help="Path to the book-one driver's file. If empty (default), uses the constant list.",
+    help=(
+        "Path to the book-one driver's file. If empty (default), uses a constant list. "
+        "See :py:data:`bfb_delivery.lib.constants.BookOneDrivers`."
+    ),
 )
 @typechecked
 def main(
