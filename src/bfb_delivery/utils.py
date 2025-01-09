@@ -28,7 +28,6 @@ def get_book_one_drivers(file_path: str) -> list[str]:
     return sheet_one_drivers
 
 
-# TODO: Validate the extra notes doesn't have dupes.
 @typechecked
 def get_extra_notes(file_path: str) -> pd.DataFrame:
     """Get the extra notes from the file, or the constant if no path.
@@ -45,6 +44,12 @@ def get_extra_notes(file_path: str) -> pd.DataFrame:
     else:
         extra_notes = ExtraNotes()
         extra_notes_df = extra_notes.df
+
+    validation_sr = extra_notes_df["tag"]
+    validation_sr = validation_sr.apply(lambda x: str(x).replace("*", "").strip())
+    duplicated_tags = validation_sr[validation_sr.duplicated()].to_list()
+    if duplicated_tags:
+        raise ValueError(f"Extra notes has duplicated tags: {duplicated_tags}")
 
     return extra_notes_df
 
