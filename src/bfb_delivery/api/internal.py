@@ -64,10 +64,10 @@ def combine_route_tables(
 @typechecked
 def format_combined_routes(
     input_path: Path | str,
-    output_dir: Path | str = "",
-    output_filename: str = "",
-    date: str = "Dummy date",
-    extra_notes_file: str = "",
+    output_dir: Path | str,
+    output_filename: str,
+    date: str,
+    extra_notes_file: str,
 ) -> Path:
     """See public docstring: :py:func:`bfb_delivery.api.public.format_combined_routes`."""
     return sheet_shaping.format_combined_routes(
