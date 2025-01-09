@@ -39,14 +39,27 @@ from bfb_delivery.lib.constants import Defaults
         "as {MM.DD}'"
     ),
 )
+@click.option(
+    "--extra_notes_file",
+    type=str,
+    required=False,
+    default=Defaults.FORMAT_COMBINED_ROUTES["extra_notes_file"],
+    help=(
+        "The path to the extra notes file. If empty (default), uses a constant DataFrame. "
+        "See :py:data:`bfb_delivery.lib.constants.ExtraNotes`."
+    ),
+)
 @typechecked
-def main(input_path: str, output_dir: str, output_filename: str, date: str) -> str:
+def main(
+    input_path: str, output_dir: str, output_filename: str, date: str, extra_notes_file: str
+) -> str:
     """See public docstring: :py:func:`bfb_delivery.api.public.format_combined_routes`."""
     path = format_combined_routes(
         input_path=input_path,
         output_dir=output_dir,
         output_filename=output_filename,
         date=date,
+        extra_notes_file=extra_notes_file,
     )
     path = str(path)
     click.echo(f"Formatted driver manifest saved to: {path}")

@@ -14,7 +14,11 @@ from bfb_delivery.lib.formatting import sheet_shaping
 
 @typechecked
 def split_chunked_route(
-    input_path: Path | str, output_dir: Path | str, output_filename: str, n_books: int
+    input_path: Path | str,
+    output_dir: Path | str,
+    output_filename: str,
+    n_books: int,
+    book_one_drivers_file: str,
 ) -> list[Path]:
     """See public docstring: :py:func:`bfb_delivery.api.public.split_chunked_route`."""
     return sheet_shaping.split_chunked_route(
@@ -22,16 +26,25 @@ def split_chunked_route(
         output_dir=output_dir,
         output_filename=output_filename,
         n_books=n_books,
+        book_one_drivers_file=book_one_drivers_file,
     )
 
 
 @typechecked
 def create_manifests(
-    input_dir: Path | str, output_dir: Path | str, output_filename: str, date: str
+    input_dir: Path | str,
+    output_dir: Path | str,
+    output_filename: str,
+    date: str,
+    extra_notes_file: str,
 ) -> Path:
     """See public docstring for :py:func:`bfb_delivery.api.public.create_manifests`."""
     formatted_manifest_path = sheet_shaping.create_manifests(
-        input_dir=input_dir, output_dir=output_dir, output_filename=output_filename, date=date
+        input_dir=input_dir,
+        output_dir=output_dir,
+        output_filename=output_filename,
+        date=date,
+        extra_notes_file=extra_notes_file,
     )
 
     return formatted_manifest_path
@@ -47,12 +60,14 @@ def combine_route_tables(
     )
 
 
+# TODO: Remove defaults.
 @typechecked
 def format_combined_routes(
     input_path: Path | str,
-    output_dir: Path | str = "",
-    output_filename: str = "",
-    date: str = "Dummy date",
+    output_dir: Path | str,
+    output_filename: str,
+    date: str,
+    extra_notes_file: str,
 ) -> Path:
     """See public docstring: :py:func:`bfb_delivery.api.public.format_combined_routes`."""
     return sheet_shaping.format_combined_routes(
@@ -60,4 +75,5 @@ def format_combined_routes(
         output_dir=output_dir,
         output_filename=output_filename,
         date=date,
+        extra_notes_file=extra_notes_file,
     )

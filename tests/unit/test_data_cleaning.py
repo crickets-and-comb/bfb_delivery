@@ -45,30 +45,30 @@ class TestFormatAndValidateData:
             (
                 Columns.DRIVER,
                 [
-                    "DRIVER",
-                    "DRIVER",
-                    "BOATY MCBOATFACE",
-                    "TIM #2",
-                    "DRIVER",
-                    "DRIVER",
-                    "DRIVER",
-                    "DRIVER",
-                    "DRIVER",
+                    "Driver",
+                    "Driver",
+                    "Boaty Mcboatface",
+                    "Tim #2",
+                    "Driver",
+                    "Driver",
+                    "Driver",
+                    "Driver",
+                    "Driver",
                 ],
             ),
             (Columns.STOP_NO, [1, 2, 3, 4, 5, 6, 7, 8, 9]),
             (
                 Columns.NAME,
                 [
-                    "ALICE",
-                    "BOB",
-                    "CHARLIE BUCKET",
-                    "DAVID & JONATHAN",
-                    "EVE",
-                    "FRANK",
-                    "GINA",
-                    "HANK",
-                    "IVY",
+                    "Alice",
+                    "Bob",
+                    "Charlie MacBucket",
+                    "David & Jonathan",
+                    "Eve",
+                    "Frank",
+                    "Gina",
+                    "Hank",
+                    "Ivy",
                 ],
             ),
             (
@@ -179,7 +179,7 @@ class TestFormatAndValidateData:
                 (
                     "Boaty McBoatface",  # Test real name.
                     3.0,  # Test cast float.
-                    "Charlie Bucket",  # Test real name.
+                    "Charlie MacBucket",  # Test real name.
                     "789 Oak St",
                     "13605559012",  # Without +.
                     # TODO: File issue with email_validator.

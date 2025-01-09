@@ -41,14 +41,31 @@ from bfb_delivery.lib.constants import Defaults
     default=Defaults.SPLIT_CHUNKED_ROUTE["n_books"],
     help="Number of workbooks to split into. Default is 4.",
 )
+@click.option(
+    "--book_one_drivers_file",
+    type=str,
+    required=False,
+    default=Defaults.SPLIT_CHUNKED_ROUTE["book_one_drivers_file"],
+    help=(
+        "Path to the book-one driver's file. If empty (default), uses a constant list. "
+        "See :py:data:`bfb_delivery.lib.constants.BookOneDrivers`."
+    ),
+)
 @typechecked
-def main(input_path: str, output_dir: str, output_filename: str, n_books: int) -> list[str]:
+def main(
+    input_path: str,
+    output_dir: str,
+    output_filename: str,
+    n_books: int,
+    book_one_drivers_file: str,
+) -> list[str]:
     """See public docstring: :py:func:`bfb_delivery.api.public.split_chunked_route`."""
     paths = split_chunked_route(
         input_path=input_path,
         output_dir=output_dir,
         output_filename=output_filename,
         n_books=n_books,
+        book_one_drivers_file=book_one_drivers_file,
     )
     return_paths = [str(path) for path in paths]
     click.echo(f"Split workbook(s) saved to: {return_paths}")

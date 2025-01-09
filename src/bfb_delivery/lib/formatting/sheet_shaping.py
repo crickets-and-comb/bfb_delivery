@@ -4,6 +4,7 @@ import math
 import warnings
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 from openpyxl import Workbook
@@ -30,7 +31,12 @@ from bfb_delivery.lib.formatting.data_cleaning import (
     format_and_validate_data,
     format_column_names,
 )
-from bfb_delivery.utils import get_phone_number, map_columns
+from bfb_delivery.utils import (
+    get_book_one_drivers,
+    get_extra_notes,
+    get_phone_number,
+    map_columns,
+)
 
 # Silences warning for in-place operations on copied df slices.
 pd.options.mode.copy_on_write = True
@@ -42,7 +48,11 @@ pd.options.mode.copy_on_write = True
 # TODO: Switch to or allow CSVs instead of Excel files.
 @typechecked
 def split_chunked_route(
-    input_path: Path | str, output_dir: Path | str, output_filename: str, n_books: int
+    input_path: Path | str,
+    output_dir: Path | str,
+    output_filename: str,
+    n_books: int,
+    book_one_drivers_file: str,
 ) -> list[Path]:
     """See public docstring: :py:func:`bfb_delivery.api.public.split_chunked_route`."""
     if n_books <= 0:
@@ -57,7 +67,7 @@ def split_chunked_route(
     chunked_sheet.sort_values(by=[Columns.DRIVER, Columns.STOP_NO], inplace=True)
     # TODO: Validate columns? (Use Pandera?)
 
-    drivers = chunked_sheet[Columns.DRIVER].unique()
+    drivers = list(chunked_sheet[Columns.DRIVER].unique())
     driver_count = len(drivers)
     if driver_count < n_books:
         raise ValueError(
@@ -74,7 +84,9 @@ def split_chunked_route(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     split_workbook_paths: list[Path] = []
-    driver_sets = [drivers[i::n_books] for i in range(n_books)]
+    driver_sets = _get_driver_sets(
+        drivers=drivers, n_books=n_books, book_one_drivers_file=book_one_drivers_file
+    )
     for i, driver_set in enumerate(driver_sets):
         i_file_name = f"{base_output_filename.split('.')[0]}_{i + 1}.xlsx"
         split_workbook_path: Path = output_dir / i_file_name
@@ -95,7 +107,11 @@ def split_chunked_route(
 
 @typechecked
 def create_manifests(
-    input_dir: Path | str, output_dir: Path | str, output_filename: str, date: str
+    input_dir: Path | str,
+    output_dir: Path | str,
+    output_filename: str,
+    date: str,
+    extra_notes_file: str,
 ) -> Path:
     """See public docstring for :py:func:`bfb_delivery.api.public.create_manifests`."""
     output_filename = (
@@ -113,6 +129,7 @@ def create_manifests(
         output_dir=output_dir,
         output_filename=output_filename,
         date=date,
+        extra_notes_file=extra_notes_file,
     )
 
     return formatted_manifest_path
@@ -150,7 +167,11 @@ def combine_route_tables(
 
 @typechecked
 def format_combined_routes(
-    input_path: Path | str, output_dir: Path | str, output_filename: str, date: str
+    input_path: Path | str,
+    output_dir: Path | str,
+    output_filename: str,
+    date: str,
+    extra_notes_file: str,
 ) -> Path:
     """See public docstring: :py:func:`bfb_delivery.api.public.format_combined_routes`."""
     input_path = Path(input_path)
@@ -161,9 +182,12 @@ def format_combined_routes(
         else output_filename
     )
     output_path = Path(output_dir) / output_filename
-    date = date if date else datetime.now().strftime(MANIFEST_DATE_FORMAT)
+    friday = datetime.now() + pd.DateOffset(weekday=4)
+    date = date if date else friday.strftime(MANIFEST_DATE_FORMAT)
 
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    extra_notes_df = get_extra_notes(file_path=extra_notes_file)
 
     wb = Workbook()
     wb.remove(wb["Sheet"])
@@ -185,7 +209,7 @@ def format_combined_routes(
             # Also, may not make the most sense in order of apt number. Ask team.
             route_df.sort_values(by=[Columns.STOP_NO], inplace=True)
 
-            agg_dict = _aggregate_route_data(df=route_df)
+            agg_dict = _aggregate_route_data(df=route_df, extra_notes_df=extra_notes_df)
             # TODO: !! What happens when there are more than one order for a stop? Two rows?
             # (Since order count column is dropped in manifest)
             # Oh wait, they're all 1s, so is that just a way for them to count them with sum?
@@ -207,11 +231,98 @@ def format_combined_routes(
 
 
 @typechecked
-def _aggregate_route_data(df: pd.DataFrame) -> dict:
+def _get_driver_sets(
+    drivers: list[str], n_books: int, book_one_drivers_file: str
+) -> list[list[str]]:
+    """Split drivers into n_books sets."""
+    drivers = sorted(drivers)
+    drivers = _move_book_one_drivers_to_front(
+        drivers=drivers, book_one_drivers_file=book_one_drivers_file
+    )
+    driver_sets = _split_driver_list(drivers=drivers, n_books=n_books)
+    driver_sets = _group_numbered_drivers(driver_sets=driver_sets)
+    driver_sets = [sorted(driver_set) for driver_set in driver_sets]
+
+    return driver_sets
+
+
+@typechecked
+def _move_book_one_drivers_to_front(
+    drivers: list[str], book_one_drivers_file: str
+) -> list[str]:
+    """Move book one drivers to the front of the list."""
+    book_one_drivers = get_book_one_drivers(file_path=book_one_drivers_file)
+    drivers = [d for d in book_one_drivers if d in drivers] + [
+        d for d in drivers if d not in book_one_drivers
+    ]
+
+    return drivers
+
+
+@typechecked
+def _split_driver_list(drivers: list[str], n_books: int) -> list[list[str]]:
+    """Split drivers into n_books sets, in order passed."""
+    driver_sets = []
+
+    len_drivers = len(drivers)
+    start_idx = 0
+    inc = len_drivers // n_books
+    remainder = len_drivers % n_books
+
+    while start_idx < len_drivers:
+        end_idx = start_idx + inc
+        if remainder > 0:
+            end_idx += 1
+            remainder -= 1
+        end_idx = end_idx if end_idx < len_drivers else len_drivers
+
+        driver_sets.append(drivers[start_idx:end_idx])
+        start_idx = end_idx
+
+    return driver_sets
+
+
+@typechecked
+def _group_numbered_drivers(driver_sets: list[list[str]]) -> list[list[str]]:
+    """Merge drivers with numbers into a single set."""
+    driver_sets_updated = driver_sets.copy()
+
+    updated = True
+    while updated:
+        driver_sets_copy = driver_sets_updated.copy()
+        for i, driver_set in enumerate(driver_sets_updated):
+            driver_set_i = driver_set.copy()
+            numbered_drivers = [d for d in driver_set if "#" in d]
+
+            for d in numbered_drivers:
+                driver_name = d.split("#")[0].strip()
+
+                i_plus_1 = i + 1
+                if i_plus_1 < len(driver_sets_updated):
+                    for j, driver_set_j in enumerate(
+                        driver_sets_updated[i_plus_1:], start=i_plus_1
+                    ):
+                        matching_drivers = [d for d in driver_set_j if driver_name in d]
+                        driver_set_i += matching_drivers
+                        driver_sets_updated[j] = [
+                            d for d in driver_set_j if d not in matching_drivers
+                        ]
+            driver_sets_updated[i] = driver_set_i
+
+        updated = driver_sets_copy != driver_sets_updated
+
+    driver_sets_updated = [driver_set for driver_set in driver_sets_updated if driver_set]
+
+    return driver_sets_updated
+
+
+@typechecked
+def _aggregate_route_data(df: pd.DataFrame, extra_notes_df: pd.DataFrame) -> dict[str, Any]:
     """Aggregate data for a single route.
 
     Args:
         df: The route data to aggregate.
+        extra_notes_df: Extra notes to include in the manifest if tagged.
 
     Returns:
         Dictionary of aggregated data.
@@ -224,6 +335,15 @@ def _aggregate_route_data(df: pd.DataFrame) -> dict:
     if extra_box_types:
         raise ValueError(f"Invalid box type in route data: {extra_box_types}")
 
+    extra_notes_list = []
+    used_tags = []
+    for _, row in extra_notes_df.iterrows():
+        for notes in df[Columns.NOTES]:
+            if row["tag"].upper() in notes.upper() and row["tag"] not in used_tags:
+                used_tags.append(row["tag"])
+                note = "* " + row["tag"].replace("*", "").strip() + ": " + row["note"]
+                extra_notes_list.append(note)
+
     agg_dict = {
         "box_counts": df.groupby(Columns.BOX_TYPE)[Columns.ORDER_COUNT].sum().to_dict(),
         "total_box_count": df[Columns.ORDER_COUNT].sum(),
@@ -231,11 +351,12 @@ def _aggregate_route_data(df: pd.DataFrame) -> dict:
             Columns.ORDER_COUNT
         ].sum(),
         "neighborhoods": df[Columns.NEIGHBORHOOD].unique().tolist(),
+        "extra_notes": extra_notes_list,
     }
 
     for box_type in BoxType:
         if box_type.value not in agg_dict["box_counts"]:
-            agg_dict["box_counts"][box_type] = 0
+            agg_dict["box_counts"][box_type.value] = 0
 
     return agg_dict
 
@@ -253,6 +374,7 @@ def _make_manifest_sheet(
     _auto_adjust_column_widths(ws=ws, df_start_row=df_start_row)
     _word_wrap_notes_column(ws=ws)
     _merge_and_wrap_neighborhoods(ws=ws, neighborhoods_row_number=neighborhoods_row_number)
+    _append_extra_notes(ws=ws, extra_notes=agg_dict["extra_notes"])
 
     # TODO: Set print_area (Use calculate_dimensions)
     # TODO: set_printer_settings(paper_size, orientation)
@@ -530,5 +652,16 @@ def _merge_and_wrap_neighborhoods(ws: Worksheet, neighborhoods_row_number: int) 
             lines += line_length / merged_width
 
         ws.row_dimensions[neighborhoods_row_number].height = max(15, math.ceil(lines) * 15)
+
+    return
+
+
+@typechecked
+def _append_extra_notes(ws: Worksheet, extra_notes: list[str]) -> None:
+    """Append extra notes to the worksheet."""
+    start_row = ws.max_row + 2
+    for i, note in enumerate(extra_notes, start=start_row):
+        cell = ws.cell(row=i, column=5, value=note)
+        cell.alignment = Alignment(wrap_text=True, horizontal="left")
 
     return

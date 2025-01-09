@@ -8,6 +8,51 @@ from pathlib import Path
 import pandas as pd
 from typeguard import typechecked
 
+from bfb_delivery.lib.constants import BookOneDrivers, Columns, ExtraNotes
+
+
+@typechecked
+def get_book_one_drivers(file_path: str) -> list[str]:
+    """Get the drivers from the book-one driver's file, or the constant if no path.
+
+    Args:
+        file_path: Path to the book-one driver's file. If empty, uses a constant list.
+
+    Returns:
+        The drivers to include in book one of split chunked routes.
+    """
+    sheet_one_drivers = [d.value for d in BookOneDrivers]
+    if file_path:
+        sheet_one_drivers = pd.read_csv(file_path)[Columns.DRIVER].astype(dtype=str).tolist()
+
+    return sheet_one_drivers
+
+
+@typechecked
+def get_extra_notes(file_path: str) -> pd.DataFrame:
+    """Get the extra notes from the file, or the constant if no path.
+
+    Args:
+        file_path: Path to the extra notes file. If empty, uses a constant DataFrame.
+
+    Returns:
+        The extra notes to include in the combined routes.
+    """
+    extra_notes_df: pd.DataFrame
+    if file_path:
+        extra_notes_df = pd.read_csv(file_path)
+    else:
+        extra_notes = ExtraNotes()
+        extra_notes_df = extra_notes.df
+
+    validation_sr = extra_notes_df["tag"]
+    validation_sr = validation_sr.apply(lambda x: str(x).replace("*", "").strip())
+    duplicated_tags = validation_sr[validation_sr.duplicated()].to_list()
+    if duplicated_tags:
+        raise ValueError(f"Extra notes has duplicated tags: {duplicated_tags}")
+
+    return extra_notes_df
+
 
 @typechecked
 def get_phone_number(key: str, config_path: str = "config.ini") -> str:

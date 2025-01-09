@@ -1,12 +1,15 @@
 """Unit tests for sheet_shaping.py."""
 
+import glob
 import re
 import subprocess
 from collections.abc import Iterator
 from contextlib import AbstractContextManager, nullcontext
 from datetime import datetime
+from enum import StrEnum
 from pathlib import Path
 from typing import Final
+from unittest.mock import patch
 
 import pandas as pd
 import pytest
@@ -36,13 +39,29 @@ from bfb_delivery.lib.formatting.data_cleaning import (
     _format_and_validate_neighborhood,
     _format_and_validate_phone,
 )
-from bfb_delivery.lib.formatting.sheet_shaping import _aggregate_route_data
+from bfb_delivery.lib.formatting.sheet_shaping import (
+    _aggregate_route_data,
+    _get_driver_sets,
+    _group_numbered_drivers,
+)
+from bfb_delivery.utils import get_extra_notes
 
-N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
-DRIVERS: Final[list[str]] = ["Driver One", "Driver Two", "Driver Three", "Driver Four"]
 BOX_TYPES: Final[list[str]] = ["Basic", "GF", "Vegan", "LA"]
+DRIVERS: Final[list[str]] = [
+    "Driver A",
+    "Driver B",
+    "Driver C",
+    "Driver D #1",
+    "Driver D #2",
+    "Driver E",
+    "Driver F",
+]
 MANIFEST_DATE: Final[str] = "1.1"
+N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
 NEIGHBORHOODS: Final[list[str]] = ["York", "Puget", "Samish", "Sehome", "South Hill"]
+TEST_DATE: Final[str] = (datetime.now() + pd.DateOffset(weekday=4)).strftime(
+    MANIFEST_DATE_FORMAT
+)
 
 
 @pytest.fixture(scope="module")
@@ -67,7 +86,7 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 "1",
                 "Basic",
                 "York",
-                "Driver One",
+                "Driver A",
                 2,
                 1,
             ),
@@ -80,7 +99,7 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 "1",
                 "GF",
                 "Puget",
-                "Driver One",
+                "Driver A",
                 None,
                 2,
             ),
@@ -93,7 +112,7 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 "1",
                 "Vegan",
                 "Puget",
-                "Driver Two",
+                "Driver B",
                 2,
                 3,
             ),
@@ -106,7 +125,7 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 "1",
                 "LA",
                 "Puget",
-                "Driver Two",
+                "Driver B",
                 None,
                 4,
             ),
@@ -119,8 +138,8 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 "1",
                 "Basic",
                 "Samish",
-                "Driver Three",
-                2,
+                "Driver C",
+                1,
                 5,
             ),
             (
@@ -132,8 +151,8 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 "1",
                 "GF",
                 "Sehome",
-                "Driver Three",
-                None,
+                "Driver D #1",
+                1,
                 6,
             ),
             (
@@ -145,8 +164,8 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 "1",
                 "Vegan",
                 "Samish",
-                "Driver Three",
-                None,
+                "Driver D #2",
+                2,
                 7,
             ),
             (
@@ -158,9 +177,61 @@ def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
                 "1",
                 "LA",
                 "South Hill",
-                "Driver Four",
-                1,
+                "Driver D #2",
+                None,
                 8,
+            ),
+            (
+                "Recipient Nine",
+                "2122 Cedar St",
+                "555-555-2223",
+                "Recipient9@email.com",
+                "Notes for Recipient Nine.",
+                "1",
+                "Basic",
+                "South Hill",
+                "Driver E",
+                2,
+                9,
+            ),
+            (
+                "Recipient Ten",
+                "2122 Cedar St",
+                "555-555-2223",
+                "Recipient10@email.com",
+                "Notes for Recipient Ten.",
+                "1",
+                "LA",
+                "South Hill",
+                "Driver E",
+                None,
+                10,
+            ),
+            (
+                "Recipient Eleven",
+                "2346 Ash St",
+                "555-555-2345",
+                "Recipient11@email.com",
+                "Notes for Recipient Eleven.",
+                "1",
+                "Basic",
+                "Eldridge",
+                "Driver F",
+                2,
+                11,
+            ),
+            (
+                "Recipient Twelve",
+                "2122 Cedar St",
+                "555-555-2223",
+                "Recipient12@email.com",
+                "Notes for Recipient Twelve.",
+                "1",
+                "Basic",
+                "Eldridge",
+                "Driver F",
+                None,
+                12,
             ),
         ],
     ).rename(columns={Columns.PRODUCT_TYPE: Columns.BOX_TYPE})
@@ -219,6 +290,32 @@ def mock_combined_routes_ExcelFile(mock_combined_routes: Path) -> Iterator[pd.Ex
     """Mock the combined routes table ExcelFile."""
     with pd.ExcelFile(mock_combined_routes) as xls:
         yield xls
+
+
+@pytest.fixture()
+def mock_extra_notes_df() -> pd.DataFrame:
+    """Mock the extra notes DataFrame."""
+    extra_notes_df = pd.DataFrame(
+        columns=["tag", "note"],
+        data=[
+            (
+                "Test extra notes tag 1 *",
+                (
+                    "Test extra notes note 1. "
+                    "This is a dummy note. It is really long and should be so that we can "
+                    "test out column width and word wrapping. It should be long enough to "
+                    "wrap around to the next line. And, it should be long enough to wrap "
+                    "around to the next line. And, it should be long enough to wrap around "
+                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
+                    "is long enough. Further, hopefully, this is long enough. Additionally, "
+                    "it will help test out word wrapping merged cells."
+                ),
+            ),
+            ("Test extra notes tag 2 *", "Test extra notes note 2"),
+            ("Test extra notes tag 3 *", "Test extra notes note 3"),
+        ],
+    )
+    return extra_notes_df
 
 
 # TODO: Can upload multiple CSVs to Circuit instead of Excel file with multiple sheets?
@@ -320,6 +417,99 @@ class TestSplitChunkedRoute:
             assert len(set(driver_set).intersection(set(driver_sets_sans_i))) == 0
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
+    def test_numbered_drivers_grouped(
+        self, n_books: int, mock_chunked_sheet_raw: Path
+    ) -> None:
+        """Test that the numbered drivers are in the same workbook together."""
+        output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
+        driver_d_sheets_found = False
+        for output_path in output_paths:
+            sheet_names = pd.ExcelFile(output_path).sheet_names
+            driver_d_sheets = [
+                sheet_name for sheet_name in sheet_names if "Driver D" in str(sheet_name)
+            ]
+            assert len(driver_d_sheets) == 2 or len(driver_d_sheets) == 0
+
+            if driver_d_sheets:
+                driver_d_sheets_found = True
+
+        assert driver_d_sheets_found
+
+    @pytest.mark.parametrize("n_books", [1, 2, 3])
+    @pytest.mark.parametrize(
+        "test_book_one_drivers, exclude_drivers",
+        [
+            (["Driver A", "Driver B"], []),
+            (["Driver F"], []),
+            ([], []),
+            (
+                ["Driver A", "Driver B", "not a driver in the data"],
+                ["not a driver in the data"],
+            ),
+        ],
+    )
+    @pytest.mark.parametrize("book_one_drivers_file", ["", "dummy_book_one_drivers.csv"])
+    def test_book_one_drivers(
+        self,
+        n_books: int,
+        mock_chunked_sheet_raw: Path,
+        test_book_one_drivers: list[str],
+        exclude_drivers: list[str],
+        book_one_drivers_file: str,
+        tmp_path: Path,
+    ) -> None:
+        """Test that book-one drivers are in book one."""
+        if test_book_one_drivers:
+            TestBookOneDrivers = StrEnum(
+                "TestBookOneDrivers", {driver: driver for driver in test_book_one_drivers}
+            )
+        else:
+
+            class TestBookOneDrivers(StrEnum):
+                pass
+
+        mock_constant_context = (
+            patch("bfb_delivery.utils.BookOneDrivers", new=TestBookOneDrivers)
+            if not book_one_drivers_file
+            else nullcontext()
+        )
+        book_one_drivers_file_path = (
+            str(tmp_path / book_one_drivers_file)
+            if book_one_drivers_file
+            else book_one_drivers_file
+        )
+        if book_one_drivers_file_path:
+            with open(book_one_drivers_file_path, "w") as f:
+                f.write(f"{Columns.DRIVER}\n")
+                for driver in test_book_one_drivers:
+                    f.write(f"{driver}\n")
+
+        mock_chunked_sheet_raw_df = pd.read_excel(mock_chunked_sheet_raw)
+        alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        mock_chunked_sheet_raw_df[Columns.DRIVER] = [
+            f"Driver {alphabet[i]}" for i in range(len(mock_chunked_sheet_raw_df))
+        ]
+        new_mock_chunked_sheet_raw_path = tmp_path / "new_mock_chunked_sheet_raw.xlsx"
+        mock_chunked_sheet_raw_df.to_excel(new_mock_chunked_sheet_raw_path, index=False)
+
+        with mock_constant_context:
+            output_paths = split_chunked_route(
+                input_path=new_mock_chunked_sheet_raw_path,
+                n_books=n_books,
+                book_one_drivers_file=book_one_drivers_file_path,
+            )
+        book_one = pd.ExcelFile(output_paths[0])
+        book_one_drivers = [str(sheet_name) for sheet_name in book_one.sheet_names]
+
+        missing_drivers = (
+            set(test_book_one_drivers) - set(book_one_drivers) - set(exclude_drivers)
+        )
+        assert len(missing_drivers) == 0
+
+        misincluded_drivers = set(book_one_drivers).intersection(set(exclude_drivers))
+        assert len(misincluded_drivers) == 0
+
+    @pytest.mark.parametrize("n_books", [1, 2, 3])
     def test_complete_contents(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
         """Test that the input data is all covered in the split workbooks."""
         output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
@@ -593,8 +783,7 @@ class TestFormatCombinedRoutes:
         assert output_path.name == expected_output_filename
 
     @pytest.mark.parametrize(
-        "date, expected_date",
-        [("", datetime.now().strftime(MANIFEST_DATE_FORMAT)), ("Dummy date", "Dummy date")],
+        "date, expected_date", [("", TEST_DATE), ("Dummy date", "Dummy date")]
     )
     def test_all_drivers_have_a_sheet(
         self, mock_combined_routes: Path, date: str | None, expected_date: str
@@ -731,7 +920,9 @@ class TestFormatCombinedRoutes:
             manifest_sheet_name = f"{MANIFEST_DATE} {sheet_name}"
             ws = basic_manifest_workbook[manifest_sheet_name]
 
-            agg_dict = _aggregate_route_data(df=input_df)
+            agg_dict = _aggregate_route_data(
+                df=input_df, extra_notes_df=get_extra_notes(file_path="")
+            )
 
             neighborhoods = ", ".join(agg_dict["neighborhoods"])
             assert ws["A7"].value == f"Neighborhoods: {neighborhoods.upper()}"
@@ -827,6 +1018,58 @@ class TestFormatCombinedRoutes:
             for cell in left_aligned_cells:
                 assert cell.alignment.horizontal == "left"
 
+    @pytest.mark.parametrize("extra_notes_file", ["", "dummy_extra_notes.csv"])
+    def test_extra_notes(
+        self,
+        extra_notes_file: str,
+        mock_combined_routes: Path,
+        mock_extra_notes_df: pd.DataFrame,
+    ) -> None:
+        """Test that extra notes are added to the manifest."""
+        mock_extra_notes_context, extra_notes_file = _get_extra_notes(
+            extra_notes_file=extra_notes_file,
+            extra_notes_dir=str(mock_combined_routes.parent),
+            extra_notes_df=mock_extra_notes_df,
+        )
+
+        new_mock_combined_routes_path = (
+            mock_combined_routes.parent / "new_mock_combined_routes.xlsx"
+        )
+        mock_combined_routes_file = pd.ExcelFile(mock_combined_routes)
+
+        first_sheet_name = str(mock_combined_routes_file.sheet_names[0])
+        first_df = mock_combined_routes_file.parse(sheet_name=first_sheet_name)
+        second_sheet_name = str(mock_combined_routes_file.sheet_names[1])
+        second_df = mock_combined_routes_file.parse(sheet_name=second_sheet_name)
+        first_df, second_df = _set_extra_notes(
+            first_df=first_df, second_df=second_df, extra_notes_df=mock_extra_notes_df
+        )
+
+        with pd.ExcelWriter(new_mock_combined_routes_path) as writer:
+            first_df.to_excel(writer, sheet_name=first_sheet_name, index=False)
+            second_df.to_excel(writer, sheet_name=second_sheet_name, index=False)
+            for sheet_name in mock_combined_routes_file.sheet_names[2:]:
+                df = mock_combined_routes_file.parse(sheet_name=sheet_name)
+                df.to_excel(writer, sheet_name=str(sheet_name), index=False)
+
+        dummy_date = "Dummy date"
+        with mock_extra_notes_context:
+            manifests_path = format_combined_routes(
+                input_path=new_mock_combined_routes_path,
+                extra_notes_file=extra_notes_file,
+                date=dummy_date,
+            )
+
+        _assert_extra_notes(
+            manifests_path=manifests_path,
+            dummy_date=dummy_date,
+            first_driver_name=first_sheet_name,
+            second_driver_name=second_sheet_name,
+            extra_notes_df=mock_extra_notes_df,
+            first_df=first_df,
+            second_df=second_df,
+        )
+
 
 class TestCreateManifests:
     """create_manifests formats the route tables CSVs."""
@@ -877,8 +1120,7 @@ class TestCreateManifests:
         assert output_path.name == expected_output_filename
 
     @pytest.mark.parametrize(
-        "date, expected_date",
-        [("", datetime.now().strftime(MANIFEST_DATE_FORMAT)), ("Dummy date", "Dummy date")],
+        "date, expected_date", [("", TEST_DATE), ("Dummy date", "Dummy date")]
     )
     def test_all_drivers_have_a_sheet(
         self, mock_route_tables: Path, date: str | None, expected_date: str
@@ -892,6 +1134,29 @@ class TestCreateManifests:
         output_path = create_manifests(**kwargs)
         workbook = pd.ExcelFile(output_path)
         assert set(workbook.sheet_names) == sheet_names
+
+    def test_sheetname_date_is_friday(self, mock_route_tables: Path) -> None:
+        """Test that default date added is Friday."""
+        output_path = create_manifests(input_dir=mock_route_tables)
+        workbook = pd.ExcelFile(output_path)
+        this_year = datetime.now().year.__str__()
+        for sheet_name in workbook.sheet_names:
+            sheet_date = datetime.strptime(
+                str(sheet_name).split(" ")[0] + "." + this_year, MANIFEST_DATE_FORMAT + ".%Y"
+            )
+            assert sheet_date.weekday() == 4
+
+    def test_date_field_is_friday(self, mock_route_tables: Path) -> None:
+        """Test that default date added is Friday."""
+        output_path = create_manifests(input_dir=mock_route_tables)
+        workbook = load_workbook(output_path)
+        this_year = datetime.now().year.__str__()
+        for sheet_name in workbook.sheetnames:
+            ws = workbook[sheet_name]
+            field_date = datetime.strptime(
+                ws["A3"].value.split(" ")[1] + "." + this_year, MANIFEST_DATE_FORMAT + ".%Y"
+            )
+            assert field_date.weekday() == 4
 
     @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
@@ -1015,7 +1280,9 @@ class TestCreateManifests:
             ws = basic_manifest_workbook[sheet_name]
 
             input_df.rename(columns={Columns.PRODUCT_TYPE: Columns.BOX_TYPE}, inplace=True)
-            agg_dict = _aggregate_route_data(df=input_df)
+            agg_dict = _aggregate_route_data(
+                df=input_df, extra_notes_df=get_extra_notes(file_path="")
+            )
 
             neighborhoods = ", ".join(agg_dict["neighborhoods"])
             assert ws["A7"].value == f"Neighborhoods: {neighborhoods.upper()}"
@@ -1111,9 +1378,118 @@ class TestCreateManifests:
             for cell in left_aligned_cells:
                 assert cell.alignment.horizontal == "left"
 
+    @pytest.mark.parametrize("extra_notes_file", ["", "dummy_extra_notes.csv"])
+    def test_extra_notes(
+        self,
+        extra_notes_file: str,
+        mock_route_tables: Path,
+        mock_extra_notes_df: pd.DataFrame,
+    ) -> None:
+        """Test that extra notes are added to the manifest."""
+        mock_extra_notes_context, extra_notes_file = _get_extra_notes(
+            extra_notes_file=extra_notes_file,
+            extra_notes_dir=str(mock_route_tables.parent),
+            extra_notes_df=mock_extra_notes_df,
+        )
+
+        mock_route_tables_names = glob.glob(str(mock_route_tables / "*.csv"))
+        first_driver_name = Path(mock_route_tables_names[0]).stem
+        first_df = pd.read_csv(mock_route_tables_names[0])
+        first_df = pd.concat([first_df] * 5, ignore_index=True)
+        first_df[Columns.STOP_NO] = range(1, len(first_df) + 1)
+        second_driver_name = Path(mock_route_tables_names[1]).stem
+        second_df = pd.read_csv(mock_route_tables_names[1])
+        first_df, second_df = _set_extra_notes(
+            first_df=first_df, second_df=second_df, extra_notes_df=mock_extra_notes_df
+        )
+        first_df.to_csv(mock_route_tables_names[0], index=False)
+        second_df.to_csv(mock_route_tables_names[1], index=False)
+
+        dummy_date = "Dummy date"
+        with mock_extra_notes_context:
+            manifests_path = create_manifests(
+                input_dir=mock_route_tables,
+                extra_notes_file=extra_notes_file,
+                date=dummy_date,
+            )
+
+        _assert_extra_notes(
+            manifests_path=manifests_path,
+            dummy_date=dummy_date,
+            first_driver_name=first_driver_name,
+            second_driver_name=second_driver_name,
+            extra_notes_df=mock_extra_notes_df,
+            first_df=first_df,
+            second_df=second_df,
+        )
+
+
+def _get_extra_notes(
+    extra_notes_file: str, extra_notes_dir: str, extra_notes_df: pd.DataFrame
+) -> tuple[AbstractContextManager, str]:
+    mock_extra_notes_context = nullcontext()
+    if extra_notes_file:
+        extra_notes_file = f"{extra_notes_dir}/{extra_notes_file}"
+        extra_notes_df.to_csv(extra_notes_file, index=False)
+    else:
+
+        class TestExtraNotes:
+            df: Final[pd.DataFrame] = extra_notes_df
+
+        mock_extra_notes_context = patch("bfb_delivery.utils.ExtraNotes", new=TestExtraNotes)
+
+    return mock_extra_notes_context, extra_notes_file
+
+
+def _set_extra_notes(
+    first_df: pd.DataFrame, second_df: pd.DataFrame, extra_notes_df: pd.DataFrame
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    first_df[Columns.NOTES] = [
+        extra_notes_df["tag"].iloc[0],
+        extra_notes_df["tag"].iloc[1],
+        extra_notes_df["tag"].iloc[1],
+    ] + first_df[Columns.NOTES].to_list()[3:]
+
+    second_df[Columns.NOTES] = [extra_notes_df["tag"].iloc[2]] + second_df[
+        Columns.NOTES
+    ].to_list()[1:]
+
+    return first_df, second_df
+
+
+def _assert_extra_notes(
+    manifests_path: Path,
+    dummy_date: str,
+    first_driver_name: str,
+    second_driver_name: str,
+    extra_notes_df: pd.DataFrame,
+    first_df: pd.DataFrame,
+    second_df: pd.DataFrame,
+) -> None:
+    manifests_workbook = load_workbook(manifests_path)
+    first_ws = manifests_workbook[f"{dummy_date} {first_driver_name}"]
+    second_ws = manifests_workbook[f"{dummy_date} {second_driver_name}"]
+    start_first_notes = 11 + len(first_df)
+    start_second_notes = 11 + len(second_df)
+
+    assert first_ws[f"E{start_first_notes}"].value.startswith(
+        "* " + extra_notes_df["tag"].iloc[0].replace("*", "").strip() + ": "
+    )
+    assert extra_notes_df["note"].iloc[0] in first_ws[f"E{start_first_notes}"].value
+    assert first_ws[f"E{start_first_notes + 1}"].value.startswith(
+        "* " + extra_notes_df["tag"].iloc[1].replace("*", "").strip() + ": "
+    )
+    assert extra_notes_df["note"].iloc[1] in first_ws[f"E{start_first_notes + 1}"].value
+    assert second_ws[f"E{start_second_notes}"].value.startswith(
+        "* " + extra_notes_df["tag"].iloc[2].replace("*", "").strip() + ": "
+    )
+    assert extra_notes_df["note"].iloc[2] in second_ws[f"E{start_second_notes}"].value
+
+    return
+
 
 @pytest.mark.parametrize(
-    "route_df, expected_agg_dict, error_context",
+    "route_df, extra_notes_df, expected_agg_dict, error_context",
     [
         (
             pd.DataFrame(
@@ -1129,13 +1505,16 @@ class TestCreateManifests:
                         "YORK",
                         "PUGET",
                     ],
+                    Columns.NOTES: ["", "", "", "", "", "", ""],
                 }
             ),
+            pd.DataFrame(columns=["tag", "note"]),
             {
                 "box_counts": {"BASIC": 3, "GF": 2, "LA": 2, "VEGAN": 2},
                 "total_box_count": 9,
                 "protein_box_count": 7,
                 "neighborhoods": ["YORK", "PUGET"],
+                "extra_notes": [],
             },
             nullcontext(),
         ),
@@ -1145,13 +1524,16 @@ class TestCreateManifests:
                     Columns.BOX_TYPE: ["BASIC", "GF", "LA", "BASIC", "GF", "LA"],
                     Columns.ORDER_COUNT: [1, 1, 1, 2, 1, 1],
                     Columns.NEIGHBORHOOD: ["YORK", "YORK", "YORK", "PUGET", "YORK", "YORK"],
+                    Columns.NOTES: ["Test tag * asfgasfg", "", "", "", "", ""],
                 }
             ),
+            pd.DataFrame(columns=["tag", "note"], data=[("Test tag *", "Test note.")]),
             {
                 "box_counts": {"BASIC": 3, "GF": 2, "LA": 2, "VEGAN": 0},
                 "total_box_count": 7,
                 "protein_box_count": 7,
                 "neighborhoods": ["YORK", "PUGET"],
+                "extra_notes": ["* Test tag: Test note."],
             },
             nullcontext(),
         ),
@@ -1181,6 +1563,7 @@ class TestCreateManifests:
                     ],
                 }
             ),
+            pd.DataFrame(columns=["tag", "note"]),
             {},
             pytest.raises(
                 ValueError,
@@ -1190,12 +1573,91 @@ class TestCreateManifests:
     ],
 )
 def test_aggregate_route_data(
-    route_df: pd.DataFrame, expected_agg_dict: dict, error_context: AbstractContextManager
+    route_df: pd.DataFrame,
+    extra_notes_df: pd.DataFrame,
+    expected_agg_dict: dict,
+    error_context: AbstractContextManager,
 ) -> None:
     """Test that a route's data is aggregated correctly."""
     with error_context:
-        agg_dict = _aggregate_route_data(df=route_df)
+        agg_dict = _aggregate_route_data(df=route_df, extra_notes_df=extra_notes_df)
         assert agg_dict == expected_agg_dict
+
+
+@pytest.mark.parametrize(
+    "driver_sets, expected_driver_sets",
+    [
+        (
+            [["Driver A", "Driver B"], ["Driver C", "Driver D"]],
+            [["Driver A", "Driver B"], ["Driver C", "Driver D"]],
+        ),
+        (
+            [["Driver A", "Driver B #1"], ["Driver B #2", "Driver C"]],
+            [["Driver A", "Driver B #1", "Driver B #2"], ["Driver C"]],
+        ),
+        (
+            [["Driver A #1", "Driver B"], ["Driver A #2", "Driver C"]],
+            [["Driver A #1", "Driver B", "Driver A #2"], ["Driver C"]],
+        ),
+        (
+            [
+                ["Driver A", "Driver B #1"],
+                ["Driver C", "Driver D"],
+                ["Driver B #2", "Driver E"],
+            ],
+            [
+                ["Driver A", "Driver B #1", "Driver B #2"],
+                ["Driver C", "Driver D"],
+                ["Driver E"],
+            ],
+        ),
+    ],
+)
+def test_group_numbered_drivers(
+    driver_sets: list[list[str]], expected_driver_sets: list[list[str]]
+) -> None:
+    """Test that numbered drivers are grouped correctly."""
+    returned_driver_sets = _group_numbered_drivers(driver_sets=driver_sets)
+    assert sorted(returned_driver_sets) == sorted(expected_driver_sets)
+
+
+@pytest.mark.parametrize(
+    "drivers, n_books, expected_driver_sets",
+    [
+        (
+            ["Driver A", "Driver B", "Driver C", "Driver D"],
+            2,
+            [["Driver A", "Driver B"], ["Driver C", "Driver D"]],
+        ),
+        (
+            ["Driver A", "Driver B #1", "Driver B #2", "Driver C"],
+            2,
+            [["Driver A", "Driver B #1", "Driver B #2"], ["Driver C"]],
+        ),
+        (
+            ["Driver A", "Driver B #1", "Driver C", "Driver B #2"],
+            2,
+            [["Driver A", "Driver B #1", "Driver B #2"], ["Driver C"]],
+        ),
+        (
+            ["Driver A", "Driver B #1", "Driver C", "Driver D", "Driver B #2", "Driver E"],
+            3,
+            [
+                ["Driver A", "Driver B #1", "Driver B #2"],
+                ["Driver C"],
+                ["Driver D", "Driver E"],
+            ],
+        ),
+    ],
+)
+def test_get_driver_sets_group_numbered(
+    drivers: list[str], n_books: int, expected_driver_sets: list[list[str]]
+) -> None:
+    """Test that numbered drivers are grouped correctly."""
+    returned_driver_sets = _get_driver_sets(
+        drivers=drivers, n_books=n_books, book_one_drivers_file=""
+    )
+    assert returned_driver_sets == expected_driver_sets
 
 
 def _get_driver_sheets(output_paths: list[Path]) -> list[pd.DataFrame]:
