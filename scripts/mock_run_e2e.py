@@ -48,7 +48,8 @@ def main(mock_raw_chunked_sheet_path: str) -> None:
         shutil.rmtree(output_dir, ignore_errors=True)
         Path(output_dir).mkdir(parents=True)
 
-    extra_notes_file = _make_extra_notes()
+    # extra_notes_file = _make_extra_notes()
+    extra_notes_file = ""
 
     split_chunked_sheet_paths = split_chunked_route(
         input_path=mock_raw_chunked_sheet_path,
