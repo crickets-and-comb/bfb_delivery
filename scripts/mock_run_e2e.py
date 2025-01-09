@@ -18,11 +18,11 @@ from bfb_delivery import (
 from bfb_delivery.lib.constants import Columns
 
 OUTPUT_DIRS: Final[dict[str, str]] = {
-    "SPLIT_CHUNKED_DIR": ".test_data/split_chunked",
-    "CIRCUIT_TABLES_DIR": ".test_data/circuit_tables",
-    "COMBINED_TABLES_DIR": ".test_data/combined_tables",
-    "FORMATTED_TABLES_DIR": ".test_data/formatted_tables",
-    "MANIFESTS_DIR": ".test_data/manifests",
+    "SPLIT_CHUNKED_DIR": "bfb_delivery/.test_data/split_chunked",
+    "CIRCUIT_TABLES_DIR": "bfb_delivery/.test_data/circuit_tables",
+    "COMBINED_TABLES_DIR": "bfb_delivery/.test_data/combined_tables",
+    "FORMATTED_TABLES_DIR": "bfb_delivery/.test_data/formatted_tables",
+    "MANIFESTS_DIR": "bfb_delivery/.test_data/manifests",
 }
 
 
@@ -30,7 +30,8 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
 @click.option(
     "--mock_raw_chunked_sheet_path",
     type=str,
-    required=True,
+    required=False,
+    default="bfb_delivery/.test_data/reference/master_chunked.xlsx",
     help="Path to the raw chunked route sheet that this function reads in and splits up.",
 )
 def main(mock_raw_chunked_sheet_path: str) -> None:
@@ -108,6 +109,9 @@ def mock_route_tables(
                 output_paths.append(output_path)
                 df = pd.read_excel(xls, sheet_name)
                 df[Columns.STOP_NO] = [i + 1 for i in range(len(df))]
+                # TODO: Undo this once we add neighborhood column back.
+                if Columns.NEIGHBORHOOD not in df.columns:
+                    df[Columns.NEIGHBORHOOD] = "Mock Neighborhood"
                 df.to_csv(output_path, index=False)
 
     return output_paths
