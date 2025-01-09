@@ -18,11 +18,11 @@ from bfb_delivery import (
 from bfb_delivery.lib.constants import Columns
 
 OUTPUT_DIRS: Final[dict[str, str]] = {
-    "SPLIT_CHUNKED_DIR": "bfb_delivery/.test_data/split_chunked",
-    "CIRCUIT_TABLES_DIR": "bfb_delivery/.test_data/circuit_tables",
-    "COMBINED_TABLES_DIR": "bfb_delivery/.test_data/combined_tables",
-    "FORMATTED_TABLES_DIR": "bfb_delivery/.test_data/formatted_tables",
-    "MANIFESTS_DIR": "bfb_delivery/.test_data/manifests",
+    "SPLIT_CHUNKED_DIR": ".test_data/split_chunked",
+    "CIRCUIT_TABLES_DIR": ".test_data/circuit_tables",
+    "COMBINED_TABLES_DIR": ".test_data/combined_tables",
+    "FORMATTED_TABLES_DIR": ".test_data/formatted_tables",
+    "MANIFESTS_DIR": ".test_data/manifests",
 }
 
 
@@ -31,7 +31,7 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
     "--mock_raw_chunked_sheet_path",
     type=str,
     required=False,
-    default="bfb_delivery/.test_data/reference/master_chunked.xlsx",
+    default=".test_data/reference/master_chunked.xlsx",
     help="Path to the raw chunked route sheet that this function reads in and splits up.",
 )
 def main(mock_raw_chunked_sheet_path: str) -> None:
