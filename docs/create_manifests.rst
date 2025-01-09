@@ -123,3 +123,17 @@ If :code:`extra_notes_file` is not provided, the tool will use the constant note
 .. code:: bash
 
     create_manifests --input_dir path/to/combined_workbook.xlsx --extra_notes_file path/to/extra_notes.csv
+
+
+See Also
+--------
+
+:doc:`workflow`
+
+:doc:`combine_route_tables`
+
+:doc:`format_combined_routes`
+
+:doc:`CLI`
+
+:doc:`bfb_delivery.api`
