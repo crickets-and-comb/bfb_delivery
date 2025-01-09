@@ -18,6 +18,8 @@ Contents
 
    getting_started
    workflow
+   split_chunked_route
+   create_manifests
    CLI
    modules
    developers
