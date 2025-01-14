@@ -52,6 +52,15 @@ The function will return the filepath to the combined file, which you can then o
 Optional arguments
 ^^^^^^^^^^^^^^^^^^
 
+You can specify a few things about the combined workbook. Use `--help` to see all the optional arguments in the CLI.
+
+.. code:: bash
+
+    combine_route_tables --help
+
+Output directory
+~~~~~~~~~~~~~~~~
+
 Use the optional argument :code:`output_dir` to specify the directory where the workbook file will be saved:
 
 .. code:: python
@@ -61,6 +70,9 @@ Use the optional argument :code:`output_dir` to specify the directory where the 
 .. code:: bash
 
     combine_route_tables --input_dir path/to/input/ --output_dir path/to/output_dir/
+
+Output filename
+~~~~~~~~~~~~~~~
 
 Choose the filename with :code:`output_name`. The default filename will be :code:`combined_routes_{today's date}.xlsx` (e.g., :code:`combined_routes_19991231.xlsx`). But, you can pass a preferred name that will be used instead:
 

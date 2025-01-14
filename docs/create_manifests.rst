@@ -46,7 +46,11 @@ The function will return the filepath to the combined file. If you're using the 
 Optional arguments
 ^^^^^^^^^^^^^^^^^^
 
-You can use optional arguments specify a few things about the manifest workbook.
+You can use optional arguments specify a few things about the manifest workbook. Use `--help` to see all the optional arguments in the CLI.
+
+.. code:: bash
+
+    create_manifests --help
 
 Output directory
 ~~~~~~~~~~~~~~~~

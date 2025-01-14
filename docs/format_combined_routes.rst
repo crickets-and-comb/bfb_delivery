@@ -54,7 +54,11 @@ The function will return the filepath to the formatted manifest workbook, which 
 Optional arguments
 ^^^^^^^^^^^^^^^^^^
 
-You can specify a few things about the formatted manifest workbook.
+You can specify a few things about the formatted manifest workbook. Use `--help` to see all the optional arguments in the CLI.
+
+.. code:: bash
+
+    format_route_table --help
 
 Output directory
 ~~~~~~~~~~~~~~~~
