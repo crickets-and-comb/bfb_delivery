@@ -92,7 +92,7 @@ def create_manifests(
     Args:
         input_dir: The directory containing the driver route CSVs.
         output_dir: The directory to write the formatted manifest workbook to.
-            Empty string saves to the input `input_dir` directory.
+            Empty string (default) saves to the `input_dir` directory.
         output_filename: The name of the output workbook.
             Empty string sets filename to "final_manifests_{date}.xlsx".
         date: The date to use in the driver manifests.
@@ -133,7 +133,7 @@ def combine_route_tables(
     Args:
         input_dir: The directory containing the driver route CSVs.
         output_dir: The directory to write the output workbook to.
-            Empty string (default) saves to the first input path's parent directory.
+            Empty string (default) saves to the `input_dir` directory.
         output_filename: The name of the output workbook.
             Empty string (default) will name the file "combined_routes_{date}.xlsx".
 
@@ -188,6 +188,3 @@ def format_combined_routes(
         date=date,
         extra_notes_file=extra_notes_file,
     )
-
-
-# TODO: Wrap format and combine functions in a single function.
