@@ -10,10 +10,10 @@ Once you're set up (see :doc:`getting_started`), and you have a master list of c
    graph TD;
        get_long_route[Route all stops with Circuit.] --> chunk["Chunk" stops by driver.];
        chunk --> activate_env[Activate your env.];
-       activate_env --> split_chunked_route[Use **bfb_delivery.split_chunked_route** to create the workbook for upload to Circuit.];
+       activate_env --> split_chunked_route[Use **split_chunked_route** to create the workbook for upload to Circuit.];
        split_chunked_route --> upload[Upload workbooks to Circuit, and download the optimized route CSVs.];
        upload --> move_CSV[Move all the CSVs to a single directory.];
-       move_CSV --> make_manifests[Use **bfb_delivery.create_manifests** to create the manifests.];
+       move_CSV --> make_manifests[Use **create_manifests** to create the manifests.];
        make_manifests --> print[Review and print the manifests for your drivers.];
 
 Activate your env
