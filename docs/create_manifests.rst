@@ -27,7 +27,9 @@ You pass the directory containing the optimized route tables to :code:`create_ma
 
     This will change the "Product Type" column name, per Circuit API, back to "Box Type" per food bank staff preferences.
 
-You must at least pass :code:`input_dir` to :code:`create_manifests`:
+You must at least pass :code:`input_dir` to :code:`create_manifests`.
+
+In Python:
 
 .. code:: python
 
@@ -35,7 +37,7 @@ You must at least pass :code:`input_dir` to :code:`create_manifests`:
 
     create_manifests(input_dir="path/to/input/")
 
-Or, use the command-line-interface:
+With CLI:
 
 .. code:: bash
 
@@ -55,11 +57,15 @@ You can use optional arguments specify a few things about the manifest workbook.
 Output directory
 ~~~~~~~~~~~~~~~~
 
-Use the optional argument :code:`output_dir` to specify the directory where the workbook file will be saved:
+Use the optional argument :code:`output_dir` to specify the directory where the workbook file will be saved.
+
+In Python:
 
 .. code:: python
 
     create_manifests(input_dir="path/to/input/", output_dir="path/to/output_dir/")
+
+With CLI:
 
 .. code:: bash
 
@@ -68,11 +74,15 @@ Use the optional argument :code:`output_dir` to specify the directory where the 
 Output filename
 ~~~~~~~~~~~~~~~
 
-Choose the filename with :code:`output_name`. The default filename will be :code:`final_manifests_{today's date}.xlsx` (e.g., :code:`final_manifests_19991231.xlsx`). But, you can pass a preferred name instead:
+Choose the filename with :code:`output_name`. The default filename will be :code:`final_manifests_{today's date}.xlsx` (e.g., :code:`final_manifests_19991231.xlsx`). But, you can pass a preferred name instead.
+
+In Python:
 
 .. code:: python
 
     create_manifests(input_dir="path/to/input/", output_name="all_routes.xlsx")
+
+With CLI:
 
 .. code:: bash
 
@@ -87,7 +97,9 @@ Manifest date
 
 A date is prepended to the driver's name in the manifest worksheets, and it's also used in the date field in the worksheets.
 
-The default is today's date as ``MM.DD``. But, you can pass a specific date with :code:`date`:
+The default is today's date as ``MM.DD``. But, you can pass a specific date with :code:`date`.
+
+In Python:
 
 .. code:: python
 
@@ -95,6 +107,8 @@ The default is today's date as ``MM.DD``. But, you can pass a specific date with
         input_dir="path/to/input/",
         date="1971.01.27",
     )
+
+With CLI:
 
 .. code:: bash
 
@@ -115,7 +129,9 @@ Use the optional argument :code:`extra_notes_file` to specify a CSV file with ex
 
 This file will put the note "Please call the recipient when you arrive." at the bottom of the manifest (once) if a stop has a note that contains the text "Cedarwood Apartments special instructions \*".
 
-If :code:`extra_notes_file` is not provided, the tool will use the constant notes in the codebase: :py:data:`bfb_delivery.lib.constants.ExtraNotes`
+If :code:`extra_notes_file` is not provided, the tool will use the constant notes in the codebase: :py:data:`bfb_delivery.lib.constants.ExtraNotes`.
+
+In Python:
 
 .. code:: python
 
@@ -123,6 +139,8 @@ If :code:`extra_notes_file` is not provided, the tool will use the constant note
         input_dir="path/to/combined_workbook.xlsx",
         extra_notes_file="path/to/extra_notes.csv",
     )
+
+With CLI:
 
 .. code:: bash
 
