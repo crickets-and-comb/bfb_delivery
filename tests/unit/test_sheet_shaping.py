@@ -44,7 +44,7 @@ from bfb_delivery.lib.formatting.sheet_shaping import (
     _get_driver_sets,
     _group_numbered_drivers,
 )
-from bfb_delivery.utils import get_extra_notes
+from bfb_delivery.lib.utils import get_extra_notes
 
 BOX_TYPES: Final[list[str]] = ["Basic", "GF", "Vegan", "LA"]
 DRIVERS: Final[list[str]] = [
@@ -469,7 +469,7 @@ class TestSplitChunkedRoute:
                 pass
 
         mock_constant_context = (
-            patch("bfb_delivery.utils.BookOneDrivers", new=TestBookOneDrivers)
+            patch("bfb_delivery.lib.utils.BookOneDrivers", new=TestBookOneDrivers)
             if not book_one_drivers_file
             else nullcontext()
         )
@@ -1436,7 +1436,9 @@ def _get_extra_notes(
         class TestExtraNotes:
             df: Final[pd.DataFrame] = extra_notes_df
 
-        mock_extra_notes_context = patch("bfb_delivery.utils.ExtraNotes", new=TestExtraNotes)
+        mock_extra_notes_context = patch(
+            "bfb_delivery.lib.utils.ExtraNotes", new=TestExtraNotes
+        )
 
     return mock_extra_notes_context, extra_notes_file
 
