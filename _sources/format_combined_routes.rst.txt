@@ -30,7 +30,9 @@ Usage
 
 When you ran :code:`combine_route_tables`, you received a single workbook with all the optimized routes combined. Now, you can pass that file to :code:`format_combined_routes`, along with any other optional arguments, to create printable manifests for your drivers. If you ran the CLI, the filepath to the combined file was printed to the console. If you used the Python API, the function will return the filepath to the formatted file.
 
-You must at least pass :code:`input_path` to :code:`format_combined_routes`:
+You must at least pass :code:`input_path` to :code:`format_combined_routes`.
+
+In Python:
 
 .. code:: python
 
@@ -38,7 +40,7 @@ You must at least pass :code:`input_path` to :code:`format_combined_routes`:
 
     format_route_table(input_path="path/to/combined_workbook.xlsx")
 
-Or, use the CLI:
+With CLI:
 
 .. code:: bash
 
@@ -54,12 +56,18 @@ The function will return the filepath to the formatted manifest workbook, which 
 Optional arguments
 ^^^^^^^^^^^^^^^^^^
 
-You can specify a few things about the formatted manifest workbook.
+You can specify a few things about the formatted manifest workbook. Use `--help` to see all the optional arguments in the CLI.
+
+.. code:: bash
+
+    format_route_table --help
 
 Output directory
 ~~~~~~~~~~~~~~~~
 
-Use the optional argument :code:`output_dir` to specify the filepath where the combined file will be saved:
+Use the optional argument :code:`output_dir` to specify the filepath where the combined file will be saved.
+
+In Python:
 
 .. code:: python
 
@@ -68,6 +76,8 @@ Use the optional argument :code:`output_dir` to specify the filepath where the c
         output_dir="path/to/output_dir/",
     )
 
+With CLI:
+
 .. code:: bash
 
     format_route_table --input_path path/to/combined_workbook.xlsx --output_dir path/to/output_dir
@@ -75,7 +85,9 @@ Use the optional argument :code:`output_dir` to specify the filepath where the c
 Output filename
 ~~~~~~~~~~~~~~~
 
-Choose the filename with :code:`output_name`. The default filename will be :code:`combined_routes_{today's date}.xlsx` (e.g., :code:`combined_routes_19991231.xlsx`). But, you can pass a preferred name that will be used instead:
+Choose the filename with :code:`output_name`. The default filename will be :code:`combined_routes_{today's date}.xlsx` (e.g., :code:`combined_routes_19991231.xlsx`). But, you can pass a preferred name that will be used instead.
+
+In Python:
 
 .. code:: python
 
@@ -83,6 +95,8 @@ Choose the filename with :code:`output_name`. The default filename will be :code
         input_path="path/to/combined_workbook.xlsx",
         output_name="manifests.xlsx",
     )
+
+With CLI:
 
 .. code:: bash
 
@@ -93,7 +107,9 @@ Manifest date
 
 A date is prepended to the driver's name in the manifest worksheets, and it's also used in the date field in the worksheets.
 
-The default is today's date as ``MM.DD``. But, you can pass a specific date with :code:`date`:
+The default is today's date as ``MM.DD``. But, you can pass a specific date with :code:`date`.
+
+In Python:
 
 .. code:: python
 
@@ -101,6 +117,8 @@ The default is today's date as ``MM.DD``. But, you can pass a specific date with
         input_path="path/to/combined_workbook.xlsx",
         date="1971.01.27",
     )
+
+With CLI:
 
 .. code:: bash
 
@@ -117,11 +135,13 @@ Use the optional argument :code:`extra_notes_file` to specify a CSV file with ex
 .. code:: csv
 
     tag,note
-    Cedarwood Apartments special instructions *,Please call the recipient when you arrive.
+    Cedarwood Apartments*,Please call the recipient when you arrive.
 
 This file will put the note "Please call the recipient when you arrive." at the bottom of the manifest (once) if a stop has a note that contains the text "Cedarwood Apartments special instructions \*".
 
-If :code:`extra_notes_file` is not provided, the tool will use the constant notes in the codebase: :py:data:`bfb_delivery.lib.constants.ExtraNotes`
+If :code:`extra_notes_file` is not provided, the tool will use the constant notes in the codebase: :py:data:`bfb_delivery.lib.constants.ExtraNotes`.
+
+In Python:
 
 .. code:: python
 
@@ -129,6 +149,8 @@ If :code:`extra_notes_file` is not provided, the tool will use the constant note
         input_path="path/to/combined_workbook.xlsx",
         extra_notes_file="path/to/extra_notes.csv",
     )
+
+With CLI:
 
 .. code:: bash
 

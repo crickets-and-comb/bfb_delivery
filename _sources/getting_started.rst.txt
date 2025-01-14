@@ -82,7 +82,11 @@ You can use the command-line-interface (CLI) if you have this package installed 
 
     split_chunked_route --input_path path/to/input.xlsx
 
-See :doc:`CLI` for more information.
+See :doc:`CLI` for more information about each tool. Each tool has a `--help` flag to see all the optional arguments in the CLI:
+
+.. code:: bash
+
+    split_chunked_route --help
 
 Library
 ^^^^^^^

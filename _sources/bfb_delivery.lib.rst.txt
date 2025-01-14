@@ -20,6 +20,14 @@ bfb\_delivery.lib.constants module
    :undoc-members:
    :show-inheritance:
 
+bfb\_delivery.lib.utils module
+------------------------------
+
+.. automodule:: bfb_delivery.lib.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

@@ -11,17 +11,6 @@ Subpackages
    bfb_delivery.cli
    bfb_delivery.lib
 
-Submodules
-----------
-
-bfb\_delivery.utils module
---------------------------
-
-.. automodule:: bfb_delivery.utils
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Module contents
 ---------------
 
