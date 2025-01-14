@@ -29,7 +29,9 @@ You pass the directory containing the optimized route tables to :code:`combine_r
 
     This will change the "Product Type" column name, per Circuit API, back to "Box Type" per food bank staff preferences.
 
-You must at least pass :code:`input_dir` to :code:`combine_route_tables`:
+You must at least pass :code:`input_dir` to :code:`combine_route_tables`.
+
+In Python:
 
 .. code:: python
 
@@ -37,7 +39,7 @@ You must at least pass :code:`input_dir` to :code:`combine_route_tables`:
 
     combine_route_tables(input_dir="path/to/input/")
 
-Or, use the command-line-interface:
+With CLI:
 
 .. code:: bash
 
@@ -52,21 +54,41 @@ The function will return the filepath to the combined file, which you can then o
 Optional arguments
 ^^^^^^^^^^^^^^^^^^
 
-Use the optional argument :code:`output_dir` to specify the directory where the workbook file will be saved:
+You can specify a few things about the combined workbook. Use `--help` to see all the optional arguments in the CLI.
+
+.. code:: bash
+
+    combine_route_tables --help
+
+Output directory
+~~~~~~~~~~~~~~~~
+
+Use the optional argument :code:`output_dir` to specify the directory where the workbook file will be saved.
+
+In Python:
 
 .. code:: python
 
     combine_route_tables(input_dir="path/to/input/", output_dir="path/to/output_dir/")
 
+With CLI:
+
 .. code:: bash
 
     combine_route_tables --input_dir path/to/input/ --output_dir path/to/output_dir/
 
-Choose the filename with :code:`output_name`. The default filename will be :code:`combined_routes_{today's date}.xlsx` (e.g., :code:`combined_routes_19991231.xlsx`). But, you can pass a preferred name that will be used instead:
+Output filename
+~~~~~~~~~~~~~~~
+
+Choose the filename with :code:`output_name`. The default filename will be :code:`combined_routes_{today's date}.xlsx` (e.g., :code:`combined_routes_19991231.xlsx`). But, you can pass a preferred name that will be used instead.
+
+In Python:
 
 .. code:: python
 
     combine_route_tables(input_dir="path/to/input/", output_name="all_routes.xlsx")
+
+With CLI:
 
 .. code:: bash
 

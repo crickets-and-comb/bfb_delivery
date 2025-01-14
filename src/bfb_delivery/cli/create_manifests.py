@@ -21,7 +21,7 @@ from bfb_delivery.lib.constants import Defaults
     default=Defaults.CREATE_MANIFESTS["output_dir"],
     help=(
         "The directory to write the output workbook to. Empty string (default) saves "
-        "to the first input path's parent directory."
+        "to the `input_dir` directory."
     ),
 )
 @click.option(

@@ -2,6 +2,12 @@
 CLI
 ===
 
+Each tool includes a `--help` flag to see all the optional arguments in the CLI. For example:
+
+.. code:: bash
+
+    split_chunked_route --help
+
 split_chunked_route
 -------------------
 

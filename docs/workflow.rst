@@ -10,10 +10,10 @@ Once you're set up (see :doc:`getting_started`), and you have a master list of c
    graph TD;
        get_long_route[Route all stops with Circuit.] --> chunk["Chunk" stops by driver.];
        chunk --> activate_env[Activate your env.];
-       activate_env --> split_chunked_route[Use **bfb_delivery.split_chunked_route** to create the workbook for upload to Circuit.];
+       activate_env --> split_chunked_route[Use **split_chunked_route** to create the workbook for upload to Circuit.];
        split_chunked_route --> upload[Upload workbooks to Circuit, and download the optimized route CSVs.];
        upload --> move_CSV[Move all the CSVs to a single directory.];
-       move_CSV --> make_manifests[Use **bfb_delivery.create_manifests** to create the manifests.];
+       move_CSV --> make_manifests[Use **create_manifests** to create the manifests.];
        make_manifests --> print[Review and print the manifests for your drivers.];
 
 Activate your env
@@ -39,7 +39,11 @@ Then, run the :code:`split_chunked_route` to split the chunked worksheet into in
 
 The paths to the workbooks will print to the console.
 
-See :doc:`split_chunked_route` for more information, e.g. for how to set the number of workbooks.
+See :doc:`split_chunked_route` for more information, e.g. how to set the number of workbooks.  Use `--help` to see all the optional arguments in the CLI.
+
+.. code:: bash
+
+    split_chunked_route --help
 
 Upload and optimize routes
 --------------------------
@@ -69,7 +73,11 @@ The path to the combined and formatted workbook will print to the console.
 
     You should only put the CSVs you want to include in the manifest in the directory. The tool will combine all CSVs in the directory into a single workbook.
 
-See :doc:`create_manifests` for more information, e.g. for how to set the date used in the manifest.
+See :doc:`create_manifests` for more information, e.g. how to set the date used in the manifest. Use `--help` to see all the optional arguments in the CLI.
+
+.. code:: bash
+
+    create_manifests --help
 
 Review and print manifests
 --------------------------

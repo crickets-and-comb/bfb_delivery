@@ -19,7 +19,9 @@ You pass the filepath of the large route sheet to :code:`split_chunked_route`, a
 
     This will change the "Box Type" column name to "Product Type" to match the Circuit API.
 
-You must at least pass :code:`input_path` to :code:`split_chunked_route`:
+You must at least pass :code:`input_path` to :code:`split_chunked_route`.
+
+In Python:
 
 .. code:: python
 
@@ -27,7 +29,7 @@ You must at least pass :code:`input_path` to :code:`split_chunked_route`:
 
     split_chunked_route(input_path="path/to/input.xlsx")
 
-Or, use the command-line-interface:
+With CLI:
 
 .. code:: bash
 
@@ -45,9 +47,13 @@ Number of workbooks
 
 You can optionally specify how many workbooks you want to split the route into by passing the argument :code:`n_books`. The default is 4, meaning the route will be split into 4 workbooks, each with a unique set of driver routes, for 4 staff members to upload.
 
+In Python:
+
 .. code:: python
 
     split_chunked_route(input_path="path/to/input.xlsx", n_books=3)
+
+With CLI:
 
 .. code:: bash
 
@@ -56,11 +62,15 @@ You can optionally specify how many workbooks you want to split the route into b
 Output directory
 ~~~~~~~~~~~~~~~~
 
-Use the optional argument :code:`output_dir` to specify the directory where the split files will be saved:
+Use the optional argument :code:`output_dir` to specify the directory where the split files will be saved.
+
+In Python:
 
 .. code:: python
 
     split_chunked_route(input_path="path/to/input.xlsx", output_dir="path/to/output")
+
+With CLI:
 
 .. code:: bash
 
@@ -71,9 +81,13 @@ Output filename
 
 Use :code:`output_name` to choose a standard filename. The default filenames will be :code:`split_workbook_{today's date}_{i of n workbooks}.xlsx` (e.g., :code:`split_workbook_19991231_1_of_3.xlsx`). But, you can pass a preferred name that will be used instead, with just the workbook number appended to it. So, passing :code:`output_name` as :code:`driver_routes` will result in files named :code:`driver_routes_1.xlsx`, :code:`driver_routes_2.xlsx`, etc.
 
+In Python:
+
 .. code:: python
 
     split_chunked_route(input_path="path/to/input.xlsx", output_name="driver_routes")
+
+With CLI:
 
 .. code:: bash
 
@@ -96,12 +110,18 @@ The CSV should be a single column with the header "Driver", like this:
     Bob T
     Charlie U
 
+Then, you call the function with the path to the CSV file.
+
+In Python:
+
 .. code:: python
 
     split_chunked_route(
         input_path="path/to/input.xlsx",
         book_one_drivers_file="path/to/book_one_drivers.csv"
     )
+
+With CLI:
 
 .. code:: bash
 
