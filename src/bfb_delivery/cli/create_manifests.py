@@ -31,7 +31,7 @@ from bfb_delivery.lib.constants import Defaults
     default=Defaults.CREATE_MANIFESTS["output_filename"],
     help=(
         "The name of the output workbook. Empty string (default) will name the file "
-        '"formatted_routes_{date}.xlsx".'
+        '"final_manifests_{date}.xlsx".'
     ),
 )
 @click.option(
@@ -54,5 +54,5 @@ def main(input_dir: str, output_dir: str, output_filename: str, extra_notes_file
         extra_notes_file=extra_notes_file,
     )
     path = str(path)
-    click.echo(f"Formatted workbook saved to: {path}")
+    click.echo(f"Final manifests saved to: {path}")
     return path
