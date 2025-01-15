@@ -208,9 +208,12 @@ def format_combined_routes(
             # Oh wait, they're all 1s, so is that just a way for them to count them with sum?
             # If that's so, ignore it or validate always a 1?
 
-            ws = wb.create_sheet(title=str(sheet_name), index=sheet_idx)
             _make_manifest_sheet(
-                ws=ws, agg_dict=agg_dict, route_df=route_df, sheet_name=str(sheet_name)
+                wb=wb,
+                agg_dict=agg_dict,
+                route_df=route_df,
+                sheet_name=str(sheet_name),
+                sheet_idx=sheet_idx,
             )
 
     # Can check cell values, though. (Maye read dataframe from start row?)
@@ -352,9 +355,10 @@ def _aggregate_route_data(df: pd.DataFrame, extra_notes_df: pd.DataFrame) -> dic
 
 @typechecked
 def _make_manifest_sheet(
-    ws: Worksheet, agg_dict: dict, route_df: pd.DataFrame, sheet_name: str
+    wb: Workbook, agg_dict: dict, route_df: pd.DataFrame, sheet_name: str, sheet_idx: int
 ) -> None:
     """Create a manifest sheet."""
+    ws = wb.create_sheet(title=str(sheet_name), index=sheet_idx)
     _add_header_row(ws=ws)
     neighborhoods_row_number = _add_aggregate_block(
         ws=ws, agg_dict=agg_dict, sheet_name=sheet_name
