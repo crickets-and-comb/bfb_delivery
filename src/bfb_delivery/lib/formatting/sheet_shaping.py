@@ -443,6 +443,39 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, sheet_name: str) -> int:
     alignment_right = Alignment(horizontal="right")
     bold_font = Font(bold=True)
 
+    left_block = _get_left_block(date=date, driver_name=driver_name, agg_dict=agg_dict)
+
+    right_block = _get_right_block(thin_border=thin_border, agg_dict=agg_dict)
+
+    start_row = ws.max_row + 1
+    neighborhoods_row_number = 0
+    for i, (left_row, right_row) in enumerate(
+        zip(left_block, right_block, strict=True), start=start_row
+    ):
+        for col_idx, cell_definition in enumerate(left_row, start=1):
+            cell = ws.cell(row=i, column=col_idx, value=cell_definition["value"])
+            cell.font = bold_font
+            cell.alignment = alignment_left
+            if cell_definition["value"] and cell_definition["value"].startswith(
+                "Neighborhoods"
+            ):
+                neighborhoods_row_number = i
+
+        for col_idx, cell_definition in enumerate(right_row, start=5):
+            cell = ws.cell(row=i, column=col_idx, value=cell_definition["value"])
+            cell.font = bold_font
+            cell.alignment = alignment_right
+            if isinstance(cell_definition["fill"], PatternFill):
+                cell.fill = cell_definition["fill"]
+            if isinstance(cell_definition["border"], Border):
+                cell.border = cell_definition["border"]
+
+    return neighborhoods_row_number
+
+
+def _get_left_block(
+    date: str, driver_name: str, agg_dict: dict
+) -> list[list[dict[str, None]] | list[dict[str, str]]]:
     left_block = [
         [{"value": None}],
         [{"value": f"Date: {date}"}],
@@ -453,6 +486,10 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, sheet_name: str) -> int:
         [{"value": None}],
     ]
 
+    return left_block
+
+
+def _get_right_block(thin_border: Border, agg_dict: dict) -> list[list[dict]]:
     right_block = [
         [{"value": None, "fill": None, "border": None}],
         [
@@ -525,30 +562,7 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, sheet_name: str) -> int:
         ],
     ]
 
-    start_row = ws.max_row + 1
-    neighborhoods_row_number = 0
-    for i, (left_row, right_row) in enumerate(
-        zip(left_block, right_block, strict=True), start=start_row
-    ):
-        for col_idx, cell_definition in enumerate(left_row, start=1):
-            cell = ws.cell(row=i, column=col_idx, value=cell_definition["value"])
-            cell.font = bold_font
-            cell.alignment = alignment_left
-            if cell_definition["value"] and cell_definition["value"].startswith(
-                "Neighborhoods"
-            ):
-                neighborhoods_row_number = i
-
-        for col_idx, cell_definition in enumerate(right_row, start=5):
-            cell = ws.cell(row=i, column=col_idx, value=cell_definition["value"])
-            cell.font = bold_font
-            cell.alignment = alignment_right
-            if isinstance(cell_definition["fill"], PatternFill):
-                cell.fill = cell_definition["fill"]
-            if isinstance(cell_definition["border"], Border):
-                cell.border = cell_definition["border"]
-
-    return neighborhoods_row_number
+    return right_block
 
 
 @typechecked
