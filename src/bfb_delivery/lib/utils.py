@@ -3,6 +3,7 @@
 import configparser
 import os
 import warnings
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -52,6 +53,13 @@ def get_extra_notes(file_path: str) -> pd.DataFrame:
         raise ValueError(f"Extra notes has duplicated tags: {duplicated_tags}")
 
     return extra_notes_df
+
+
+@typechecked
+def get_friday(fmt: str) -> str:
+    """Get the soonest Friday."""
+    friday = datetime.now() + pd.DateOffset(weekday=4)
+    return friday.strftime(fmt)
 
 
 @typechecked

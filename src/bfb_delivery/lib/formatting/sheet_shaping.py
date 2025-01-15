@@ -35,6 +35,7 @@ from bfb_delivery.lib.formatting.data_cleaning import (
 from bfb_delivery.lib.utils import (
     get_book_one_drivers,
     get_extra_notes,
+    get_friday,
     get_phone_number,
     map_columns,
 )
@@ -61,9 +62,7 @@ def split_chunked_route(
         raise ValueError("n_books must be greater than 0.")
     # TODO: Make this accept input_path only as Path? Or only as str to simplify?
     input_path = Path(input_path)
-
-    friday = datetime.now() + pd.DateOffset(weekday=4)
-    date = date if date else friday.strftime(MANIFEST_DATE_FORMAT)
+    date = date if date else get_friday(fmt=MANIFEST_DATE_FORMAT)
 
     chunked_sheet: pd.DataFrame = pd.read_excel(input_path)
     chunked_sheet.columns = format_column_names(columns=chunked_sheet.columns.to_list())
