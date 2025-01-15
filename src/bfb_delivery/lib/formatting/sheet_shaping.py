@@ -444,7 +444,6 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, sheet_name: str) -> int:
     bold_font = Font(bold=True)
 
     left_block = _get_left_block(date=date, driver_name=driver_name, agg_dict=agg_dict)
-
     right_block = _get_right_block(thin_border=thin_border, agg_dict=agg_dict)
 
     start_row = ws.max_row + 1
