@@ -210,7 +210,7 @@ def format_combined_routes(
 
             ws = wb.create_sheet(title=str(sheet_name), index=sheet_idx)
             _make_manifest_sheet(
-                ws=ws, agg_dict=agg_dict, route_df=route_df, sheet_name=sheet_name
+                ws=ws, agg_dict=agg_dict, route_df=route_df, sheet_name=str(sheet_name)
             )
 
     # Can check cell values, though. (Maye read dataframe from start row?)
