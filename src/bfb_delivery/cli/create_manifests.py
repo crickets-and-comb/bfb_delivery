@@ -35,16 +35,6 @@ from bfb_delivery.lib.constants import Defaults
     ),
 )
 @click.option(
-    "--date",
-    type=str,
-    required=False,
-    default=Defaults.CREATE_MANIFESTS["date"],
-    help=(
-        "The date to use in driver manifests. Empty string (default) will use today's date "
-        "as {MM.DD}'"
-    ),
-)
-@click.option(
     "--extra_notes_file",
     type=str,
     required=False,
@@ -55,15 +45,12 @@ from bfb_delivery.lib.constants import Defaults
     ),
 )
 @typechecked
-def main(
-    input_dir: str, output_dir: str, output_filename: str, date: str, extra_notes_file: str
-) -> str:
+def main(input_dir: str, output_dir: str, output_filename: str, extra_notes_file: str) -> str:
     """See public docstring: :py:func:`bfb_delivery.api.public.combine_route_tables`."""
     path = create_manifests(
         input_dir=input_dir,
         output_dir=output_dir,
         output_filename=output_filename,
-        date=date,
         extra_notes_file=extra_notes_file,
     )
     path = str(path)

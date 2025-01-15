@@ -14,6 +14,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 from typeguard import typechecked
 
 from bfb_delivery.lib.constants import (
+    ADDRESS_COLUMN_WIDTH,
     BOX_TYPE_COLOR_MAP,
     COLUMN_NAME_MAP,
     COMBINED_ROUTES_COLUMNS,
@@ -53,12 +54,16 @@ def split_chunked_route(
     output_filename: str,
     n_books: int,
     book_one_drivers_file: str,
+    date: str,
 ) -> list[Path]:
     """See public docstring: :py:func:`bfb_delivery.api.public.split_chunked_route`."""
     if n_books <= 0:
         raise ValueError("n_books must be greater than 0.")
     # TODO: Make this accept input_path only as Path? Or only as str to simplify?
     input_path = Path(input_path)
+
+    friday = datetime.now() + pd.DateOffset(weekday=4)
+    date = date if date else friday.strftime(MANIFEST_DATE_FORMAT)
 
     chunked_sheet: pd.DataFrame = pd.read_excel(input_path)
     chunked_sheet.columns = format_column_names(columns=chunked_sheet.columns.to_list())
@@ -97,7 +102,7 @@ def split_chunked_route(
             driver_set_df.sort_values(by=[Columns.DRIVER, Columns.STOP_NO], inplace=True)
             for driver_name, data in driver_set_df.groupby(Columns.DRIVER):
                 data[SPLIT_ROUTE_COLUMNS].to_excel(
-                    writer, sheet_name=str(driver_name), index=False
+                    writer, sheet_name=f"{date} {driver_name}", index=False
                 )
 
     split_workbook_paths = [path.resolve() for path in split_workbook_paths]
@@ -107,11 +112,7 @@ def split_chunked_route(
 
 @typechecked
 def create_manifests(
-    input_dir: Path | str,
-    output_dir: Path | str,
-    output_filename: str,
-    date: str,
-    extra_notes_file: str,
+    input_dir: Path | str, output_dir: Path | str, output_filename: str, extra_notes_file: str
 ) -> Path:
     """See public docstring for :py:func:`bfb_delivery.api.public.create_manifests`."""
     output_filename = (
@@ -128,7 +129,6 @@ def create_manifests(
         input_path=combined_route_workbook_path,
         output_dir=output_dir,
         output_filename=output_filename,
-        date=date,
         extra_notes_file=extra_notes_file,
     )
 
@@ -157,9 +157,8 @@ def combine_route_tables(
             route_df = pd.read_csv(path)
             map_columns(df=route_df, column_name_map=COLUMN_NAME_MAP, invert_map=True)
             route_df.sort_values(by=[Columns.STOP_NO], inplace=True)
-            driver_name = path.stem
             route_df[COMBINED_ROUTES_COLUMNS].to_excel(
-                writer, sheet_name=driver_name, index=False
+                writer, sheet_name=path.stem, index=False
             )
 
     return output_path.resolve()
@@ -170,7 +169,6 @@ def format_combined_routes(
     input_path: Path | str,
     output_dir: Path | str,
     output_filename: str,
-    date: str,
     extra_notes_file: str,
 ) -> Path:
     """See public docstring: :py:func:`bfb_delivery.api.public.format_combined_routes`."""
@@ -182,8 +180,6 @@ def format_combined_routes(
         else output_filename
     )
     output_path = Path(output_dir) / output_filename
-    friday = datetime.now() + pd.DateOffset(weekday=4)
-    date = date if date else friday.strftime(MANIFEST_DATE_FORMAT)
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -194,9 +190,7 @@ def format_combined_routes(
     with pd.ExcelFile(input_path) as xls:
         for sheet_idx, sheet_name in enumerate(sorted(xls.sheet_names)):
 
-            driver_name = str(sheet_name)
-            new_sheet_name = f"{date} {driver_name}"
-            route_df = pd.read_excel(xls, driver_name)
+            route_df = pd.read_excel(xls, sheet_name)
 
             # TODO: Use Pandera?
             route_df.columns = format_column_names(columns=route_df.columns.to_list())
@@ -215,13 +209,12 @@ def format_combined_routes(
             # Oh wait, they're all 1s, so is that just a way for them to count them with sum?
             # If that's so, ignore it or validate always a 1?
 
-            ws = wb.create_sheet(title=new_sheet_name, index=sheet_idx)
             _make_manifest_sheet(
-                ws=ws,
+                wb=wb,
                 agg_dict=agg_dict,
                 route_df=route_df,
-                date=date,
-                driver_name=driver_name,
+                sheet_name=str(sheet_name),
+                sheet_idx=sheet_idx,
             )
 
     # Can check cell values, though. (Maye read dataframe from start row?)
@@ -363,16 +356,17 @@ def _aggregate_route_data(df: pd.DataFrame, extra_notes_df: pd.DataFrame) -> dic
 
 @typechecked
 def _make_manifest_sheet(
-    ws: Worksheet, agg_dict: dict, route_df: pd.DataFrame, date: str, driver_name: str
+    wb: Workbook, agg_dict: dict, route_df: pd.DataFrame, sheet_name: str, sheet_idx: int
 ) -> None:
     """Create a manifest sheet."""
+    ws = wb.create_sheet(title=str(sheet_name), index=sheet_idx)
     _add_header_row(ws=ws)
     neighborhoods_row_number = _add_aggregate_block(
-        ws=ws, agg_dict=agg_dict, date=date, driver_name=driver_name
+        ws=ws, agg_dict=agg_dict, sheet_name=sheet_name
     )
     df_start_row = _write_data_to_sheet(ws=ws, df=route_df)
     _auto_adjust_column_widths(ws=ws, df_start_row=df_start_row)
-    _word_wrap_notes_column(ws=ws)
+    _word_wrap_columns(ws=ws)
     _merge_and_wrap_neighborhoods(ws=ws, neighborhoods_row_number=neighborhoods_row_number)
     _append_extra_notes(ws=ws, extra_notes=agg_dict["extra_notes"])
 
@@ -433,8 +427,11 @@ def _add_header_row(ws: Worksheet) -> None:
 
 
 @typechecked
-def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: str) -> int:
+def _add_aggregate_block(ws: Worksheet, agg_dict: dict, sheet_name: str) -> int:
     """Append left and right aggregation blocks to the worksheet row by row."""
+    date = str(sheet_name).split(" ")[0]
+    driver_name = " ".join(str(sheet_name).split(" ")[1:])
+
     # TODO: Yeah, let's use an enum for box types since the manifest is a contract.
     thin_border = Border(
         left=Side(style="thin"),
@@ -446,6 +443,38 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
     alignment_right = Alignment(horizontal="right")
     bold_font = Font(bold=True)
 
+    left_block = _get_left_block(date=date, driver_name=driver_name, agg_dict=agg_dict)
+    right_block = _get_right_block(thin_border=thin_border, agg_dict=agg_dict)
+
+    start_row = ws.max_row + 1
+    neighborhoods_row_number = 0
+    for i, (left_row, right_row) in enumerate(
+        zip(left_block, right_block, strict=True), start=start_row
+    ):
+        for col_idx, cell_definition in enumerate(left_row, start=1):
+            cell = ws.cell(row=i, column=col_idx, value=cell_definition["value"])
+            cell.font = bold_font
+            cell.alignment = alignment_left
+            if cell_definition["value"] and cell_definition["value"].startswith(
+                "Neighborhoods"
+            ):
+                neighborhoods_row_number = i
+
+        for col_idx, cell_definition in enumerate(right_row, start=5):
+            cell = ws.cell(row=i, column=col_idx, value=cell_definition["value"])
+            cell.font = bold_font
+            cell.alignment = alignment_right
+            if isinstance(cell_definition["fill"], PatternFill):
+                cell.fill = cell_definition["fill"]
+            if isinstance(cell_definition["border"], Border):
+                cell.border = cell_definition["border"]
+
+    return neighborhoods_row_number
+
+
+def _get_left_block(
+    date: str, driver_name: str, agg_dict: dict
+) -> list[list[dict[str, None]] | list[dict[str, str]]]:
     left_block = [
         [{"value": None}],
         [{"value": f"Date: {date}"}],
@@ -456,6 +485,10 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
         [{"value": None}],
     ]
 
+    return left_block
+
+
+def _get_right_block(thin_border: Border, agg_dict: dict) -> list[list[dict]]:
     right_block = [
         [{"value": None, "fill": None, "border": None}],
         [
@@ -528,30 +561,7 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: 
         ],
     ]
 
-    start_row = ws.max_row + 1
-    neighborhoods_row_number = 0
-    for i, (left_row, right_row) in enumerate(
-        zip(left_block, right_block, strict=True), start=start_row
-    ):
-        for col_idx, cell_definition in enumerate(left_row, start=1):
-            cell = ws.cell(row=i, column=col_idx, value=cell_definition["value"])
-            cell.font = bold_font
-            cell.alignment = alignment_left
-            if cell_definition["value"] and cell_definition["value"].startswith(
-                "Neighborhoods"
-            ):
-                neighborhoods_row_number = i
-
-        for col_idx, cell_definition in enumerate(right_row, start=5):
-            cell = ws.cell(row=i, column=col_idx, value=cell_definition["value"])
-            cell.font = bold_font
-            cell.alignment = alignment_right
-            if isinstance(cell_definition["fill"], PatternFill):
-                cell.fill = cell_definition["fill"]
-            if isinstance(cell_definition["border"], Border):
-                cell.border = cell_definition["border"]
-
-    return neighborhoods_row_number
+    return right_block
 
 
 @typechecked
@@ -598,7 +608,7 @@ def _auto_adjust_column_widths(ws: Worksheet, df_start_row: int) -> None:
         max_length = 0
 
         col_letter = col[0].column_letter
-        padding_scalar = 0.9 if col_letter == "C" else 1  # C is address column.
+        padding_scalar = 1
         for cell in col:
             if cell.row >= df_start_row:
                 try:
@@ -613,12 +623,31 @@ def _auto_adjust_column_widths(ws: Worksheet, df_start_row: int) -> None:
 
 
 @typechecked
-def _word_wrap_notes_column(ws: Worksheet) -> None:
+def _word_wrap_columns(ws: Worksheet) -> None:
     """Word wrap the notes column, and set width."""
+    start_row = 10
     end_row = ws.max_row
-    col_letter = "E"
-    ws.column_dimensions[col_letter].width = NOTES_COLUMN_WIDTH
-    for row in ws[f"{col_letter}10:{col_letter}{end_row}"]:
+    _word_wrap_column(
+        ws=ws,
+        start_row=start_row,
+        end_row=end_row,
+        col_letter="C",
+        width=ADDRESS_COLUMN_WIDTH,
+    )
+    _word_wrap_column(
+        ws=ws, start_row=start_row, end_row=end_row, col_letter="E", width=NOTES_COLUMN_WIDTH
+    )
+
+    return
+
+
+@typechecked
+def _word_wrap_column(
+    ws: Worksheet, start_row: int, end_row: int, col_letter: str, width: float
+) -> None:
+    """Word wrap column, and set width."""
+    ws.column_dimensions[col_letter].width = width
+    for row in ws[f"{col_letter}{start_row}:{col_letter}{end_row}"]:
         for cell in row:
             cell.alignment = Alignment(wrap_text=True)
 

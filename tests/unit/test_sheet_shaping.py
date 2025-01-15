@@ -32,6 +32,7 @@ from bfb_delivery.lib.constants import (
     BoxType,
     CellColors,
     Columns,
+    Defaults,
 )
 from bfb_delivery.lib.formatting.data_cleaning import (
     _format_and_validate_box_type,
@@ -59,21 +60,12 @@ DRIVERS: Final[list[str]] = [
 MANIFEST_DATE: Final[str] = "1.1"
 N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
 NEIGHBORHOODS: Final[list[str]] = ["York", "Puget", "Samish", "Sehome", "South Hill"]
-TEST_DATE: Final[str] = (datetime.now() + pd.DateOffset(weekday=4)).strftime(
-    MANIFEST_DATE_FORMAT
-)
 
 
-@pytest.fixture(scope="module")
-def module_tmp_dir(tmp_path_factory: pytest.TempPathFactory) -> Path:
-    """Get a temporary directory for the class."""
-    return tmp_path_factory.mktemp("tmp")
-
-
-@pytest.fixture(scope="module")
-def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
+@pytest.fixture()
+def mock_chunked_sheet_raw(tmp_path: Path) -> Path:
     """Save mock chunked route sheet and get path."""
-    fp: Path = module_tmp_dir / "mock_chunked_sheet_raw.xlsx"
+    fp: Path = tmp_path / "mock_chunked_sheet_raw.xlsx"
     raw_chunked_sheet = pd.DataFrame(
         columns=SPLIT_ROUTE_COLUMNS + [Columns.DRIVER, Columns.BOX_COUNT, Columns.STOP_NO],
         data=[
@@ -250,7 +242,7 @@ def mock_route_tables(tmp_path: Path, mock_chunked_sheet_raw: Path) -> Path:
     chunked_df = pd.read_excel(mock_chunked_sheet_raw)
     chunked_df.rename(columns={Columns.BOX_TYPE: Columns.PRODUCT_TYPE}, inplace=True)
     for driver in chunked_df[Columns.DRIVER].unique():
-        output_path = output_dir / f"{driver}.csv"
+        output_path = output_dir / f"{MANIFEST_DATE} {driver}.csv"
         driver_df = chunked_df[chunked_df[Columns.DRIVER] == driver]
         driver_df[Columns.STOP_NO] = [i + 1 for i in range(len(driver_df))]
         driver_df[output_cols].to_csv(output_dir / output_path, index=False)
@@ -259,9 +251,9 @@ def mock_route_tables(tmp_path: Path, mock_chunked_sheet_raw: Path) -> Path:
 
 
 @pytest.fixture()
-def mock_combined_routes(module_tmp_dir: Path) -> Path:
+def mock_combined_routes(tmp_path: Path) -> Path:
     """Mock the combined routes table."""
-    output_path = module_tmp_dir / "combined_routes.xlsx"
+    output_path = tmp_path / "combined_routes.xlsx"
     with pd.ExcelWriter(output_path) as writer:
         for driver in DRIVERS:
             df = pd.DataFrame(columns=COMBINED_ROUTES_COLUMNS)
@@ -280,7 +272,7 @@ def mock_combined_routes(module_tmp_dir: Path) -> Path:
             assert df.isna().sum().sum() == 0
             assert set(df.columns.to_list()) == set(COMBINED_ROUTES_COLUMNS)
 
-            df.to_excel(writer, sheet_name=driver, index=False)
+            df.to_excel(writer, sheet_name=f"{MANIFEST_DATE} {driver}", index=False)
 
     return output_path
 
@@ -331,11 +323,11 @@ class TestSplitChunkedRoute:
         output_dir_type: type[Path | str],
         output_dir: Path | str,
         n_books: int,
-        module_tmp_dir: Path,
+        tmp_path: Path,
         mock_chunked_sheet_raw: Path,
     ) -> None:
         """Test that the output directory can be set."""
-        output_dir = output_dir_type(module_tmp_dir / output_dir)
+        output_dir = output_dir_type(tmp_path / output_dir)
         output_paths = split_chunked_route(
             input_path=mock_chunked_sheet_raw, output_dir=output_dir, n_books=n_books
         )
@@ -371,7 +363,7 @@ class TestSplitChunkedRoute:
         """Test that the number of workbooks is equal to n_books."""
         if n_books_passed is None:
             output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw)
-            n_books = 4
+            n_books = Defaults.SPLIT_CHUNKED_ROUTE["n_books"]
         else:
             n_books = n_books_passed
             output_paths = split_chunked_route(
@@ -408,7 +400,11 @@ class TestSplitChunkedRoute:
 
         driver_sets = []
         for output_path in output_paths:
-            driver_sets.append(pd.ExcelFile(output_path).sheet_names)
+            drivers = [
+                " ".join(str(sheet_name).split(" ")[1:])
+                for sheet_name in pd.ExcelFile(output_path).sheet_names
+            ]
+            driver_sets.append(drivers)
         for i, driver_set in enumerate(driver_sets):
             driver_sets_sans_i = driver_sets[:i] + driver_sets[i + 1 :]  # noqa: E203
             driver_sets_sans_i = [
@@ -424,9 +420,10 @@ class TestSplitChunkedRoute:
         output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
         driver_d_sheets_found = False
         for output_path in output_paths:
-            sheet_names = pd.ExcelFile(output_path).sheet_names
             driver_d_sheets = [
-                sheet_name for sheet_name in sheet_names if "Driver D" in str(sheet_name)
+                sheet_name
+                for sheet_name in pd.ExcelFile(output_path).sheet_names
+                if "Driver D" in str(sheet_name)
             ]
             assert len(driver_d_sheets) == 2 or len(driver_d_sheets) == 0
 
@@ -499,7 +496,9 @@ class TestSplitChunkedRoute:
                 book_one_drivers_file=book_one_drivers_file_path,
             )
         book_one = pd.ExcelFile(output_paths[0])
-        book_one_drivers = [str(sheet_name) for sheet_name in book_one.sheet_names]
+        book_one_drivers = [
+            " ".join(str(sheet_name).split(" ")[1:]) for sheet_name in book_one.sheet_names
+        ]
 
         missing_drivers = (
             set(test_book_one_drivers) - set(book_one_drivers) - set(exclude_drivers)
@@ -571,6 +570,26 @@ class TestSplitChunkedRoute:
         ):
             _ = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
 
+    def test_date_added_to_sheet_names(self, mock_chunked_sheet_raw: Path) -> None:
+        """Test that the date is added to the sheet names."""
+        output_paths = split_chunked_route(
+            input_path=mock_chunked_sheet_raw, date=MANIFEST_DATE
+        )
+        for output_path in output_paths:
+            for sheet_name in pd.ExcelFile(output_path).sheet_names:
+                assert str(sheet_name).startswith(f"{MANIFEST_DATE} ")
+
+    def test_sheetname_date_is_friday(self, mock_chunked_sheet_raw: Path) -> None:
+        """Test that default date added is Friday."""
+        output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=1)
+        workbook = pd.ExcelFile(output_paths[0])
+        this_year = datetime.now().year.__str__()
+        for sheet_name in workbook.sheet_names:
+            sheet_date = datetime.strptime(
+                str(sheet_name).split(" ")[0] + "." + this_year, MANIFEST_DATE_FORMAT + ".%Y"
+            )
+            assert sheet_date.weekday() == 4
+
     @pytest.mark.parametrize(
         "output_dir, output_filename, n_books",
         [("", "", 4), ("output", "", 3), ("", "output_filename.xlsx", 1)],
@@ -581,10 +600,10 @@ class TestSplitChunkedRoute:
         output_filename: str,
         n_books: int,
         mock_chunked_sheet_raw: Path,
-        module_tmp_dir: Path,
+        tmp_path: Path,
     ) -> None:
         """Test CLI works."""
-        output_dir = str(module_tmp_dir / output_dir) if output_dir else output_dir
+        output_dir = str(tmp_path / output_dir) if output_dir else output_dir
         arg_list = [
             "--input_path",
             str(mock_chunked_sheet_raw),
@@ -640,11 +659,11 @@ class TestCombineRouteTables:
         self,
         output_dir_type: type[Path | str],
         output_dir: Path | str,
-        module_tmp_dir: Path,
+        tmp_path: Path,
         mock_route_tables: Path,
     ) -> None:
         """Test that the output directory can be set."""
-        output_dir = output_dir_type(module_tmp_dir / output_dir)
+        output_dir = output_dir_type(tmp_path / output_dir)
         output_path = combine_route_tables(input_dir=mock_route_tables, output_dir=output_dir)
         assert str(output_path.parent) == str(output_dir)
 
@@ -705,14 +724,10 @@ class TestCombineRouteTables:
     @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
     def test_cli(
-        self,
-        output_dir: str,
-        output_filename: str,
-        mock_route_tables: Path,
-        module_tmp_dir: Path,
+        self, output_dir: str, output_filename: str, mock_route_tables: Path, tmp_path: Path
     ) -> None:
         """Test CLI works."""
-        output_dir = str(module_tmp_dir / output_dir) if output_dir else output_dir
+        output_dir = str(tmp_path / output_dir) if output_dir else output_dir
         arg_list = [
             "--input_dir",
             str(mock_route_tables),
@@ -740,9 +755,7 @@ class TestFormatCombinedRoutes:
     @pytest.fixture()
     def basic_manifest(self, mock_combined_routes: Path) -> Path:
         """Create a basic manifest scoped to class for reuse."""
-        output_path = format_combined_routes(
-            input_path=mock_combined_routes, date=MANIFEST_DATE
-        )
+        output_path = format_combined_routes(input_path=mock_combined_routes)
         return output_path
 
     @pytest.fixture()
@@ -757,11 +770,11 @@ class TestFormatCombinedRoutes:
         self,
         output_dir_type: type[Path | str],
         output_dir: Path | str,
-        module_tmp_dir: Path,
+        tmp_path: Path,
         mock_combined_routes: Path,
     ) -> None:
         """Test that the output directory can be set."""
-        output_dir = output_dir_type(module_tmp_dir / output_dir)
+        output_dir = output_dir_type(tmp_path / output_dir)
         output_path = format_combined_routes(
             input_path=mock_combined_routes, output_dir=output_dir
         )
@@ -782,21 +795,13 @@ class TestFormatCombinedRoutes:
         )
         assert output_path.name == expected_output_filename
 
-    @pytest.mark.parametrize(
-        "date, expected_date", [("", TEST_DATE), ("Dummy date", "Dummy date")]
-    )
-    def test_all_drivers_have_a_sheet(
-        self, mock_combined_routes: Path, date: str | None, expected_date: str
-    ) -> None:
+    def test_all_drivers_have_a_sheet(self, mock_combined_routes: Path) -> None:
         """Test that all drivers have a sheet in the formatted workbook. And date works."""
-        sheet_names = set([f"{expected_date} {driver}" for driver in DRIVERS])
-        kwargs: dict[str, str] = {"input_path": str(mock_combined_routes)}
-        if date is not None:
-            kwargs["date"] = str(date)
-
-        output_path = format_combined_routes(**kwargs)
+        output_path = format_combined_routes(input_path=mock_combined_routes)
         workbook = pd.ExcelFile(output_path)
-        assert set(workbook.sheet_names) == sheet_names
+        assert set(workbook.sheet_names) == set(
+            [f"{MANIFEST_DATE} {driver}" for driver in DRIVERS]
+        )
 
     @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
@@ -805,10 +810,10 @@ class TestFormatCombinedRoutes:
         output_dir: str,
         output_filename: str,
         mock_combined_routes: Path,
-        module_tmp_dir: Path,
+        tmp_path: Path,
     ) -> None:
         """Test CLI works."""
-        output_dir = str(module_tmp_dir / output_dir) if output_dir else output_dir
+        output_dir = str(tmp_path / output_dir) if output_dir else output_dir
         arg_list = [
             "--input_path",
             str(mock_combined_routes),
@@ -836,9 +841,7 @@ class TestFormatCombinedRoutes:
         for sheet_name in sorted(mock_combined_routes_ExcelFile.sheet_names):
             input_df = pd.read_excel(mock_combined_routes_ExcelFile, sheet_name=sheet_name)
             input_df.sort_values(by=[Columns.STOP_NO], inplace=True)
-            output_df = pd.read_excel(
-                basic_manifest, sheet_name=f"{MANIFEST_DATE} {sheet_name}", skiprows=8
-            )
+            output_df = pd.read_excel(basic_manifest, sheet_name=sheet_name, skiprows=8)
 
             # Hacky, but need to make sure formatted values haven't fundamentally changed.
             formatted_columns = [Columns.BOX_TYPE, Columns.NAME, Columns.PHONE]
@@ -917,8 +920,7 @@ class TestFormatCombinedRoutes:
         """Test that the aggregated cells are correct."""
         for sheet_name in sorted(mock_combined_routes_ExcelFile.sheet_names):
             input_df = pd.read_excel(mock_combined_routes_ExcelFile, sheet_name=sheet_name)
-            manifest_sheet_name = f"{MANIFEST_DATE} {sheet_name}"
-            ws = basic_manifest_workbook[manifest_sheet_name]
+            ws = basic_manifest_workbook[str(sheet_name)]
 
             agg_dict = _aggregate_route_data(
                 df=input_df, extra_notes_df=get_extra_notes(file_path="")
@@ -1052,19 +1054,15 @@ class TestFormatCombinedRoutes:
                 df = mock_combined_routes_file.parse(sheet_name=sheet_name)
                 df.to_excel(writer, sheet_name=str(sheet_name), index=False)
 
-        dummy_date = "Dummy date"
         with mock_extra_notes_context:
             manifests_path = format_combined_routes(
-                input_path=new_mock_combined_routes_path,
-                extra_notes_file=extra_notes_file,
-                date=dummy_date,
+                input_path=new_mock_combined_routes_path, extra_notes_file=extra_notes_file
             )
 
         _assert_extra_notes(
             manifests_path=manifests_path,
-            dummy_date=dummy_date,
-            first_driver_name=first_sheet_name,
-            second_driver_name=second_sheet_name,
+            first_sheet_name=first_sheet_name,
+            second_sheet_name=second_sheet_name,
             extra_notes_df=mock_extra_notes_df,
             first_df=first_df,
             second_df=second_df,
@@ -1077,7 +1075,7 @@ class TestCreateManifests:
     @pytest.fixture()
     def basic_manifest(self, mock_route_tables: Path) -> Path:
         """Create a basic manifest scoped to class for reuse."""
-        output_path = create_manifests(input_dir=mock_route_tables, date=MANIFEST_DATE)
+        output_path = create_manifests(input_dir=mock_route_tables)
         return output_path
 
     @pytest.fixture()
@@ -1098,11 +1096,11 @@ class TestCreateManifests:
         self,
         output_dir_type: type[Path | str],
         output_dir: Path | str,
-        module_tmp_dir: Path,
+        tmp_path: Path,
         mock_route_tables: Path,
     ) -> None:
         """Test that the output directory can be set."""
-        output_dir = output_dir_type(module_tmp_dir / output_dir)
+        output_dir = output_dir_type(tmp_path / output_dir)
         output_path = create_manifests(input_dir=mock_route_tables, output_dir=output_dir)
         assert str(output_path.parent) == str(output_dir)
 
@@ -1119,56 +1117,31 @@ class TestCreateManifests:
         )
         assert output_path.name == expected_output_filename
 
-    @pytest.mark.parametrize(
-        "date, expected_date", [("", TEST_DATE), ("Dummy date", "Dummy date")]
-    )
-    def test_all_drivers_have_a_sheet(
-        self, mock_route_tables: Path, date: str | None, expected_date: str
-    ) -> None:
+    def test_all_drivers_have_a_sheet(self, mock_route_tables: Path) -> None:
         """Test that all drivers have a sheet in the formatted workbook. And date works."""
-        sheet_names = set([f"{expected_date} {driver}" for driver in DRIVERS])
-        kwargs: dict[str, str] = {"input_dir": str(mock_route_tables)}
-        if date is not None:
-            kwargs["date"] = str(date)
-
-        output_path = create_manifests(**kwargs)
-        workbook = pd.ExcelFile(output_path)
-        assert set(workbook.sheet_names) == sheet_names
-
-    def test_sheetname_date_is_friday(self, mock_route_tables: Path) -> None:
-        """Test that default date added is Friday."""
         output_path = create_manifests(input_dir=mock_route_tables)
         workbook = pd.ExcelFile(output_path)
-        this_year = datetime.now().year.__str__()
-        for sheet_name in workbook.sheet_names:
-            sheet_date = datetime.strptime(
-                str(sheet_name).split(" ")[0] + "." + this_year, MANIFEST_DATE_FORMAT + ".%Y"
-            )
-            assert sheet_date.weekday() == 4
+        assert set(workbook.sheet_names) == set(
+            [f"{MANIFEST_DATE} {driver}" for driver in DRIVERS]
+        )
 
-    def test_date_field_is_friday(self, mock_route_tables: Path) -> None:
-        """Test that default date added is Friday."""
+    def test_date_field_matches_sheet_date(self, mock_route_tables: Path) -> None:
+        """Test that the date field matches the sheet date."""
         output_path = create_manifests(input_dir=mock_route_tables)
         workbook = load_workbook(output_path)
-        this_year = datetime.now().year.__str__()
         for sheet_name in workbook.sheetnames:
             ws = workbook[sheet_name]
-            field_date = datetime.strptime(
-                ws["A3"].value.split(" ")[1] + "." + this_year, MANIFEST_DATE_FORMAT + ".%Y"
-            )
-            assert field_date.weekday() == 4
+            field_date = ws["A3"].value.split(" ")[1]
+            sheet_name_date = sheet_name.split(" ")[0]
+            assert field_date == sheet_name_date
 
     @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
     def test_cli(
-        self,
-        output_dir: str,
-        output_filename: str,
-        mock_route_tables: Path,
-        module_tmp_dir: Path,
+        self, output_dir: str, output_filename: str, mock_route_tables: Path, tmp_path: Path
     ) -> None:
         """Test CLI works."""
-        output_dir = str(module_tmp_dir / output_dir) if output_dir else output_dir
+        output_dir = str(tmp_path / output_dir) if output_dir else output_dir
         arg_list = [
             "--input_dir",
             str(mock_route_tables),
@@ -1194,8 +1167,7 @@ class TestCreateManifests:
     ) -> None:
         """All the input data is in the formatted workbook."""
         for sheet_name in sorted(basic_manifest_ExcelFile.sheet_names):
-            driver = str(sheet_name).replace(f"{MANIFEST_DATE} ", "")
-            input_df = pd.read_csv(mock_route_tables / f"{driver}.csv")
+            input_df = pd.read_csv(mock_route_tables / f"{sheet_name}.csv")
             output_df = pd.read_excel(
                 basic_manifest_ExcelFile, sheet_name=sheet_name, skiprows=8
             )
@@ -1275,8 +1247,7 @@ class TestCreateManifests:
     ) -> None:
         """Test that the aggregated cells are correct."""
         for sheet_name in sorted(basic_manifest_workbook.sheetnames):
-            driver = str(sheet_name).replace(f"{MANIFEST_DATE} ", "")
-            input_df = pd.read_csv(mock_route_tables / f"{driver}.csv")
+            input_df = pd.read_csv(mock_route_tables / f"{sheet_name}.csv")
             ws = basic_manifest_workbook[sheet_name]
 
             input_df.rename(columns={Columns.PRODUCT_TYPE: Columns.BOX_TYPE}, inplace=True)
@@ -1393,11 +1364,11 @@ class TestCreateManifests:
         )
 
         mock_route_tables_names = glob.glob(str(mock_route_tables / "*.csv"))
-        first_driver_name = Path(mock_route_tables_names[0]).stem
+        first_sheet_name = Path(mock_route_tables_names[0]).stem
         first_df = pd.read_csv(mock_route_tables_names[0])
         first_df = pd.concat([first_df] * 5, ignore_index=True)
         first_df[Columns.STOP_NO] = range(1, len(first_df) + 1)
-        second_driver_name = Path(mock_route_tables_names[1]).stem
+        second_sheet_name = Path(mock_route_tables_names[1]).stem
         second_df = pd.read_csv(mock_route_tables_names[1])
         first_df, second_df = _set_extra_notes(
             first_df=first_df, second_df=second_df, extra_notes_df=mock_extra_notes_df
@@ -1405,19 +1376,15 @@ class TestCreateManifests:
         first_df.to_csv(mock_route_tables_names[0], index=False)
         second_df.to_csv(mock_route_tables_names[1], index=False)
 
-        dummy_date = "Dummy date"
         with mock_extra_notes_context:
             manifests_path = create_manifests(
-                input_dir=mock_route_tables,
-                extra_notes_file=extra_notes_file,
-                date=dummy_date,
+                input_dir=mock_route_tables, extra_notes_file=extra_notes_file
             )
 
         _assert_extra_notes(
             manifests_path=manifests_path,
-            dummy_date=dummy_date,
-            first_driver_name=first_driver_name,
-            second_driver_name=second_driver_name,
+            first_sheet_name=first_sheet_name,
+            second_sheet_name=second_sheet_name,
             extra_notes_df=mock_extra_notes_df,
             first_df=first_df,
             second_df=second_df,
@@ -1461,16 +1428,15 @@ def _set_extra_notes(
 
 def _assert_extra_notes(
     manifests_path: Path,
-    dummy_date: str,
-    first_driver_name: str,
-    second_driver_name: str,
+    first_sheet_name: str,
+    second_sheet_name: str,
     extra_notes_df: pd.DataFrame,
     first_df: pd.DataFrame,
     second_df: pd.DataFrame,
 ) -> None:
     manifests_workbook = load_workbook(manifests_path)
-    first_ws = manifests_workbook[f"{dummy_date} {first_driver_name}"]
-    second_ws = manifests_workbook[f"{dummy_date} {second_driver_name}"]
+    first_ws = manifests_workbook[first_sheet_name]
+    second_ws = manifests_workbook[second_sheet_name]
     start_first_notes = 11 + len(first_df)
     start_second_notes = 11 + len(second_df)
 

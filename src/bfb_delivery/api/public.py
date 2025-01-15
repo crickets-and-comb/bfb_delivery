@@ -19,6 +19,7 @@ def split_chunked_route(
     output_filename: str = Defaults.SPLIT_CHUNKED_ROUTE["output_filename"],
     n_books: int = Defaults.SPLIT_CHUNKED_ROUTE["n_books"],
     book_one_drivers_file: str = Defaults.SPLIT_CHUNKED_ROUTE["book_one_drivers_file"],
+    date: str = Defaults.SPLIT_CHUNKED_ROUTE["date"],
 ) -> list[Path]:
     """Split route sheet into n workbooks with sheets by driver.
 
@@ -33,7 +34,17 @@ def split_chunked_route(
     Writes adjacent to the original workbook unless `output_dir` specified. If specified, will
     create the directory if it doesn't exist.
 
-    Note: Renames "Box Type" column name to "Product Type", per Circuit API.
+    .. note::
+
+        Renames "Box Type" column name to "Product Type", per Circuit API.
+
+    .. note::
+
+        The date passed sets the date in the sheet names of the output workbooks, and that
+        date in the sheet name is used for the manifest date field in later functions that
+        make the manifests: :py:func:`bfb_delivery.api.public.format_combined_routes` and
+        :py:func:`bfb_delivery.api.public.create_manifests` (which wraps the former).
+
 
     See :doc:`split_chunked_route` for more information.
 
@@ -46,6 +57,8 @@ def split_chunked_route(
         n_books: Number of workbooks to split into.
         book_one_drivers_file: Path to the book-one driver's file. If empty (default), uses
             a constant list. See :py:data:`bfb_delivery.lib.constants.BookOneDrivers`.
+        date: The date to use in the output workbook sheetnames. Empty string (default) uses
+            the soonest Friday.
 
     Returns:
         Paths to the split chunked route workbooks.
@@ -60,6 +73,7 @@ def split_chunked_route(
         output_filename=output_filename,
         n_books=n_books,
         book_one_drivers_file=book_one_drivers_file,
+        date=date,
     )
 
 
@@ -68,7 +82,6 @@ def create_manifests(
     input_dir: Path | str,
     output_dir: Path | str = Defaults.CREATE_MANIFESTS["output_dir"],
     output_filename: str = Defaults.CREATE_MANIFESTS["output_filename"],
-    date: str = Defaults.CREATE_MANIFESTS["date"],
     extra_notes_file: str = Defaults.CREATE_MANIFESTS["extra_notes_file"],
 ) -> Path:
     """From Circuit route CSVs, creates driver manifest workbook ready to print.
@@ -81,7 +94,11 @@ def create_manifests(
     The workbook is saved to `output_dir` with the name `output_filename`. Will create
     `output_dir` if it doesn't exist.
 
-    The date is used in the manifest headers and sheet names, not in the filename.
+    .. note::
+
+        Uses the date of the front of each CSV name to set the manifest date field. I.e.,
+        each sheet should be named something like "08.08 Richard N", and, e.g., this would
+        set the manifest date field to "Date: 08.08".
 
     Just wraps :py:func:`bfb_delivery.api.public.combine_route_tables` and
     :py:func:`bfb_delivery.api.public.format_combined_routes`. Creates an intermediate output
@@ -95,7 +112,6 @@ def create_manifests(
             Empty string (default) saves to the `input_dir` directory.
         output_filename: The name of the output workbook.
             Empty string sets filename to "final_manifests_{date}.xlsx".
-        date: The date to use in the driver manifests.
         extra_notes_file: Path to the extra notes file. If empty (default), uses a constant
             DataFrame. See :py:data:`bfb_delivery.lib.constants.ExtraNotes`.
 
@@ -106,7 +122,6 @@ def create_manifests(
         input_dir=input_dir,
         output_dir=output_dir,
         output_filename=output_filename,
-        date=date,
         extra_notes_file=extra_notes_file,
     )
 
@@ -126,7 +141,9 @@ def combine_route_tables(
 
     If `output_dir` is specified, will create the directory if it doesn't exist.
 
-    Note: Changes "Product Type" column name back to "Box Type".
+    .. note::
+
+        Changes "Product Type" column name back to "Box Type".
 
     See :doc:`combine_route_tables` for more information.
 
@@ -153,7 +170,6 @@ def format_combined_routes(
     input_path: Path | str,
     output_dir: Path | str = Defaults.FORMAT_COMBINED_ROUTES["output_dir"],
     output_filename: str = Defaults.FORMAT_COMBINED_ROUTES["output_filename"],
-    date: str = Defaults.FORMAT_COMBINED_ROUTES["date"],
     extra_notes_file: str = Defaults.FORMAT_COMBINED_ROUTES["extra_notes_file"],
 ) -> Path:
     """Formats the combined routes table into driver manifests to print.
@@ -165,6 +181,12 @@ def format_combined_routes(
 
     If `output_dir` is specified, will create the directory if it doesn't exist.
 
+    .. note::
+
+        Uses the date of the front of each sheet name to set the manifest date field. I.e.,
+        each sheet should be named something like "05.27 Oscar W", and, e.g., this would set
+        the manifest date field to "Date: 05.27".
+
     See :doc:`format_combined_routes` for more information.
 
     Args:
@@ -173,8 +195,6 @@ def format_combined_routes(
             Empty string (default) saves to the input path's parent directory.
         output_filename: The name of the formatted workbook.
             Empty string (default) will name the file "formatted_routes_{date}.xlsx".
-        date: The date to use in driver manifests. Empty string (default) will use today's
-            date as {MM.DD}.
         extra_notes_file: The path to the extra notes file. If empty (default), uses a
             constant DataFrame. See :py:data:`bfb_delivery.lib.constants.ExtraNotes`.
 
@@ -185,6 +205,5 @@ def format_combined_routes(
         input_path=input_path,
         output_dir=output_dir,
         output_filename=output_filename,
-        date=date,
         extra_notes_file=extra_notes_file,
     )
