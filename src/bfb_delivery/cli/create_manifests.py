@@ -31,7 +31,7 @@ from bfb_delivery.lib.constants import Defaults
     default=Defaults.CREATE_MANIFESTS["output_filename"],
     help=(
         "The name of the output workbook. Empty string (default) will name the file "
-        '"combined_routes_{date}.xlsx".'
+        '"formatted_routes_{date}.xlsx".'
     ),
 )
 @click.option(
