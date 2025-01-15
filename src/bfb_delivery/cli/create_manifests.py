@@ -54,5 +54,5 @@ def main(input_dir: str, output_dir: str, output_filename: str, extra_notes_file
         extra_notes_file=extra_notes_file,
     )
     path = str(path)
-    click.echo(f"Combined workbook saved to: {path}")
+    click.echo(f"Formatted workbook saved to: {path}")
     return path
