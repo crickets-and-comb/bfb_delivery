@@ -46,7 +46,7 @@ from bfb_delivery.lib.constants import Defaults
 )
 @typechecked
 def main(input_dir: str, output_dir: str, output_filename: str, extra_notes_file: str) -> str:
-    """See public docstring: :py:func:`bfb_delivery.api.public.combine_route_tables`."""
+    """See public docstring: :py:func:`bfb_delivery.api.public.create_manifests`."""
     path = create_manifests(
         input_dir=input_dir,
         output_dir=output_dir,
