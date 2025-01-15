@@ -5,6 +5,8 @@ from typing import Final
 
 import pandas as pd
 
+ADDRESS_COLUMN_WIDTH: Final[float] = 40
+
 
 class BookOneDrivers(StrEnum):
     """Drivers for the first book.

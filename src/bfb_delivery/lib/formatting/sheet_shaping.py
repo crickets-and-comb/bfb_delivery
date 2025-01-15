@@ -14,6 +14,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 from typeguard import typechecked
 
 from bfb_delivery.lib.constants import (
+    ADDRESS_COLUMN_WIDTH,
     BOX_TYPE_COLOR_MAP,
     COLUMN_NAME_MAP,
     COMBINED_ROUTES_COLUMNS,
@@ -365,7 +366,7 @@ def _make_manifest_sheet(
     )
     df_start_row = _write_data_to_sheet(ws=ws, df=route_df)
     _auto_adjust_column_widths(ws=ws, df_start_row=df_start_row)
-    _word_wrap_notes_column(ws=ws)
+    _word_wrap_columns(ws=ws)
     _merge_and_wrap_neighborhoods(ws=ws, neighborhoods_row_number=neighborhoods_row_number)
     _append_extra_notes(ws=ws, extra_notes=agg_dict["extra_notes"])
 
@@ -594,7 +595,7 @@ def _auto_adjust_column_widths(ws: Worksheet, df_start_row: int) -> None:
         max_length = 0
 
         col_letter = col[0].column_letter
-        padding_scalar = 0.9 if col_letter == "C" else 1  # C is address column.
+        padding_scalar = 1
         for cell in col:
             if cell.row >= df_start_row:
                 try:
@@ -609,12 +610,31 @@ def _auto_adjust_column_widths(ws: Worksheet, df_start_row: int) -> None:
 
 
 @typechecked
-def _word_wrap_notes_column(ws: Worksheet) -> None:
+def _word_wrap_columns(ws: Worksheet) -> None:
     """Word wrap the notes column, and set width."""
+    start_row = 10
     end_row = ws.max_row
-    col_letter = "E"
-    ws.column_dimensions[col_letter].width = NOTES_COLUMN_WIDTH
-    for row in ws[f"{col_letter}10:{col_letter}{end_row}"]:
+    _word_wrap_column(
+        ws=ws,
+        start_row=start_row,
+        end_row=end_row,
+        col_letter="C",
+        width=ADDRESS_COLUMN_WIDTH,
+    )
+    _word_wrap_column(
+        ws=ws, start_row=start_row, end_row=end_row, col_letter="E", width=NOTES_COLUMN_WIDTH
+    )
+
+    return
+
+
+@typechecked
+def _word_wrap_column(
+    ws: Worksheet, start_row: int, end_row: int, col_letter: str, width: float
+) -> None:
+    """Word wrap column, and set width."""
+    ws.column_dimensions[col_letter].width = width
+    for row in ws[f"{col_letter}{start_row}:{col_letter}{end_row}"]:
         for cell in row:
             cell.alignment = Alignment(wrap_text=True)
 
