@@ -53,12 +53,16 @@ def split_chunked_route(
     output_filename: str,
     n_books: int,
     book_one_drivers_file: str,
+    date: str,
 ) -> list[Path]:
     """See public docstring: :py:func:`bfb_delivery.api.public.split_chunked_route`."""
     if n_books <= 0:
         raise ValueError("n_books must be greater than 0.")
     # TODO: Make this accept input_path only as Path? Or only as str to simplify?
     input_path = Path(input_path)
+
+    friday = datetime.now() + pd.DateOffset(weekday=4)
+    date = date if date else friday.strftime(MANIFEST_DATE_FORMAT)
 
     chunked_sheet: pd.DataFrame = pd.read_excel(input_path)
     chunked_sheet.columns = format_column_names(columns=chunked_sheet.columns.to_list())
@@ -97,7 +101,7 @@ def split_chunked_route(
             driver_set_df.sort_values(by=[Columns.DRIVER, Columns.STOP_NO], inplace=True)
             for driver_name, data in driver_set_df.groupby(Columns.DRIVER):
                 data[SPLIT_ROUTE_COLUMNS].to_excel(
-                    writer, sheet_name=str(driver_name), index=False
+                    writer, sheet_name=f"{date} {driver_name}", index=False
                 )
 
     split_workbook_paths = [path.resolve() for path in split_workbook_paths]
@@ -107,11 +111,7 @@ def split_chunked_route(
 
 @typechecked
 def create_manifests(
-    input_dir: Path | str,
-    output_dir: Path | str,
-    output_filename: str,
-    date: str,
-    extra_notes_file: str,
+    input_dir: Path | str, output_dir: Path | str, output_filename: str, extra_notes_file: str
 ) -> Path:
     """See public docstring for :py:func:`bfb_delivery.api.public.create_manifests`."""
     output_filename = (
@@ -128,7 +128,6 @@ def create_manifests(
         input_path=combined_route_workbook_path,
         output_dir=output_dir,
         output_filename=output_filename,
-        date=date,
         extra_notes_file=extra_notes_file,
     )
 
@@ -157,9 +156,8 @@ def combine_route_tables(
             route_df = pd.read_csv(path)
             map_columns(df=route_df, column_name_map=COLUMN_NAME_MAP, invert_map=True)
             route_df.sort_values(by=[Columns.STOP_NO], inplace=True)
-            driver_name = path.stem
             route_df[COMBINED_ROUTES_COLUMNS].to_excel(
-                writer, sheet_name=driver_name, index=False
+                writer, sheet_name=path.stem, index=False
             )
 
     return output_path.resolve()
@@ -170,7 +168,6 @@ def format_combined_routes(
     input_path: Path | str,
     output_dir: Path | str,
     output_filename: str,
-    date: str,
     extra_notes_file: str,
 ) -> Path:
     """See public docstring: :py:func:`bfb_delivery.api.public.format_combined_routes`."""
@@ -182,8 +179,6 @@ def format_combined_routes(
         else output_filename
     )
     output_path = Path(output_dir) / output_filename
-    friday = datetime.now() + pd.DateOffset(weekday=4)
-    date = date if date else friday.strftime(MANIFEST_DATE_FORMAT)
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -194,9 +189,7 @@ def format_combined_routes(
     with pd.ExcelFile(input_path) as xls:
         for sheet_idx, sheet_name in enumerate(sorted(xls.sheet_names)):
 
-            driver_name = str(sheet_name)
-            new_sheet_name = f"{date} {driver_name}"
-            route_df = pd.read_excel(xls, driver_name)
+            route_df = pd.read_excel(xls, sheet_name)
 
             # TODO: Use Pandera?
             route_df.columns = format_column_names(columns=route_df.columns.to_list())
@@ -215,13 +208,9 @@ def format_combined_routes(
             # Oh wait, they're all 1s, so is that just a way for them to count them with sum?
             # If that's so, ignore it or validate always a 1?
 
-            ws = wb.create_sheet(title=new_sheet_name, index=sheet_idx)
+            ws = wb.create_sheet(title=str(sheet_name), index=sheet_idx)
             _make_manifest_sheet(
-                ws=ws,
-                agg_dict=agg_dict,
-                route_df=route_df,
-                date=date,
-                driver_name=driver_name,
+                ws=ws, agg_dict=agg_dict, route_df=route_df, sheet_name=sheet_name
             )
 
     # Can check cell values, though. (Maye read dataframe from start row?)
@@ -363,12 +352,12 @@ def _aggregate_route_data(df: pd.DataFrame, extra_notes_df: pd.DataFrame) -> dic
 
 @typechecked
 def _make_manifest_sheet(
-    ws: Worksheet, agg_dict: dict, route_df: pd.DataFrame, date: str, driver_name: str
+    ws: Worksheet, agg_dict: dict, route_df: pd.DataFrame, sheet_name: str
 ) -> None:
     """Create a manifest sheet."""
     _add_header_row(ws=ws)
     neighborhoods_row_number = _add_aggregate_block(
-        ws=ws, agg_dict=agg_dict, date=date, driver_name=driver_name
+        ws=ws, agg_dict=agg_dict, sheet_name=sheet_name
     )
     df_start_row = _write_data_to_sheet(ws=ws, df=route_df)
     _auto_adjust_column_widths(ws=ws, df_start_row=df_start_row)
@@ -433,8 +422,11 @@ def _add_header_row(ws: Worksheet) -> None:
 
 
 @typechecked
-def _add_aggregate_block(ws: Worksheet, agg_dict: dict, date: str, driver_name: str) -> int:
+def _add_aggregate_block(ws: Worksheet, agg_dict: dict, sheet_name: str) -> int:
     """Append left and right aggregation blocks to the worksheet row by row."""
+    date = str(sheet_name).split(" ")[0]
+    driver_name = " ".join(str(sheet_name).split(" ")[1:])
+
     # TODO: Yeah, let's use an enum for box types since the manifest is a contract.
     thin_border = Border(
         left=Side(style="thin"),

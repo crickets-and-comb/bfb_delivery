@@ -83,13 +83,11 @@ class Defaults:
     CREATE_MANIFESTS: Final[dict[str, str]] = {
         "output_dir": "",
         "output_filename": "",
-        "date": "",
         "extra_notes_file": "",
     }
     FORMAT_COMBINED_ROUTES: Final[dict[str, str]] = {
         "output_dir": "",
         "output_filename": "",
-        "date": "",
         "extra_notes_file": CREATE_MANIFESTS["extra_notes_file"],
     }
     SPLIT_CHUNKED_ROUTE: Final[dict[str, str | int]] = {
@@ -97,6 +95,7 @@ class Defaults:
         "output_filename": "",
         "n_books": 4,
         "book_one_drivers_file": "",
+        "date": "",
     }
 
 

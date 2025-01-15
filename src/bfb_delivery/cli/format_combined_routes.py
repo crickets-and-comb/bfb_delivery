@@ -30,16 +30,6 @@ from bfb_delivery.lib.constants import Defaults
     ),
 )
 @click.option(
-    "--date",
-    type=str,
-    required=False,
-    default=Defaults.FORMAT_COMBINED_ROUTES["date"],
-    help=(
-        "The date to use in driver manifests. Empty string (default) will use today's date "
-        "as {MM.DD}'"
-    ),
-)
-@click.option(
     "--extra_notes_file",
     type=str,
     required=False,
@@ -51,14 +41,13 @@ from bfb_delivery.lib.constants import Defaults
 )
 @typechecked
 def main(
-    input_path: str, output_dir: str, output_filename: str, date: str, extra_notes_file: str
+    input_path: str, output_dir: str, output_filename: str, extra_notes_file: str
 ) -> str:
     """See public docstring: :py:func:`bfb_delivery.api.public.format_combined_routes`."""
     path = format_combined_routes(
         input_path=input_path,
         output_dir=output_dir,
         output_filename=output_filename,
-        date=date,
         extra_notes_file=extra_notes_file,
     )
     path = str(path)

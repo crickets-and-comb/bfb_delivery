@@ -51,6 +51,13 @@ from bfb_delivery.lib.constants import Defaults
         "See :py:data:`bfb_delivery.lib.constants.BookOneDrivers`."
     ),
 )
+@click.option(
+    "--date",
+    type=str,
+    required=False,
+    default=Defaults.SPLIT_CHUNKED_ROUTE["date"],
+    help="The date to use in the output workbook sheetnames.",
+)
 @typechecked
 def main(
     input_path: str,
@@ -58,6 +65,7 @@ def main(
     output_filename: str,
     n_books: int,
     book_one_drivers_file: str,
+    date: str,
 ) -> list[str]:
     """See public docstring: :py:func:`bfb_delivery.api.public.split_chunked_route`."""
     paths = split_chunked_route(
@@ -66,6 +74,7 @@ def main(
         output_filename=output_filename,
         n_books=n_books,
         book_one_drivers_file=book_one_drivers_file,
+        date=date,
     )
     return_paths = [str(path) for path in paths]
     click.echo(f"Split workbook(s) saved to: {return_paths}")

@@ -8,6 +8,12 @@ This tool replaces the Excel macro previously used, as well as some manual steps
 
 .. note::
 
+    Uses the date of the front of each CSV name to set the manifest date field.
+    I.e., each sheet should be named something like "02.12 Bill C",
+    and, e.g., this would set the manifest date field to "Date: 02.12".
+
+.. note::
+
     :code:`create_manifests` wraps this tool and :code:`combine_route_tables` into one tool. You can still use them if you wish, but you can instead use :code:`create_manifests`. See :doc:`create_manifests` and :doc:`combine_route_tables`.
 
 Python API documentation at :py:func:`bfb_delivery.api.public.format_combined_routes`.
@@ -101,30 +107,6 @@ With CLI:
 .. code:: bash
 
     format_route_table --input_path path/to/combined_workbook.xlsx --output_name manifests.xlsx
-
-Manifest date
-~~~~~~~~~~~~~
-
-A date is prepended to the driver's name in the manifest worksheets, and it's also used in the date field in the worksheets.
-
-The default is today's date as ``MM.DD``. But, you can pass a specific date with :code:`date`.
-
-In Python:
-
-.. code:: python
-
-    format_route_table(
-        input_path="path/to/combined_workbook.xlsx",
-        date="1971.01.27",
-    )
-
-With CLI:
-
-.. code:: bash
-
-    format_route_table --input_path path/to/combined_workbook.xlsx --date "1971.01.27"
-
-It doesn't have to be a date; it can be any text you want. Also, it doesn't affect the date in the filename.
 
 
 Supplying extra notes
