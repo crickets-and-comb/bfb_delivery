@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="bfb_delivery" href="modules.html" /><link rel="prev" title="Create Printable Manifests from Optimized Routes" href="create_manifests.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>CLI - bfb_delivery 0.4.3 documentation</title>
+        <title>CLI - bfb_delivery 0.4.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.4.3 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.4.4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.4.3 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.4.4 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -303,6 +303,12 @@
 <dd><p>Path to the book-one driver’s file. If empty (default), uses a constant list. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.BookOneDrivers" title="bfb_delivery.lib.constants.BookOneDrivers"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.BookOneDrivers</span></code></a>.</p>
 </dd></dl>
 
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-split_chunked_route-date">
+<span class="sig-name descname"><span class="pre">--date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;date&gt;</span></span><a class="headerlink" href="#cmdoption-split_chunked_route-date" title="Link to this definition">¶</a></dt>
+<dd><p>The date to use in the output workbook sheetnames.</p>
+</dd></dl>
+
 </section>
 </section>
 <section id="create-manifests">
@@ -331,12 +337,6 @@
 <dt class="sig sig-object std" id="cmdoption-create_manifests-output_filename">
 <span class="sig-name descname"><span class="pre">--output_filename</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_filename&gt;</span></span><a class="headerlink" href="#cmdoption-create_manifests-output_filename" title="Link to this definition">¶</a></dt>
 <dd><p>The name of the output workbook. Empty string (default) will name the file “combined_routes_{date}.xlsx”.</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-create_manifests-date">
-<span class="sig-name descname"><span class="pre">--date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;date&gt;</span></span><a class="headerlink" href="#cmdoption-create_manifests-date" title="Link to this definition">¶</a></dt>
-<dd><p>The date to use in driver manifests. Empty string (default) will use today’s date as {MM.DD}’</p>
 </dd></dl>
 
 <dl class="std option">
@@ -403,12 +403,6 @@
 <dt class="sig sig-object std" id="cmdoption-format_combined_routes-output_filename">
 <span class="sig-name descname"><span class="pre">--output_filename</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_filename&gt;</span></span><a class="headerlink" href="#cmdoption-format_combined_routes-output_filename" title="Link to this definition">¶</a></dt>
 <dd><p>The name of the formatted workbook. Empty string (default) will name the file “formatted_routes_{date}.xlsx”.</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-format_combined_routes-date">
-<span class="sig-name descname"><span class="pre">--date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;date&gt;</span></span><a class="headerlink" href="#cmdoption-format_combined_routes-date" title="Link to this definition">¶</a></dt>
-<dd><p>The date to use in driver manifests. Empty string (default) will use today’s date as {MM.DD}’</p>
 </dd></dl>
 
 <dl class="std option">
@@ -510,7 +504,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=5bfaad31"></script>
+</div><script src="_static/documentation_options.js?v=90733dfc"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

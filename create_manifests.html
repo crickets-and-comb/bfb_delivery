@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="CLI" href="CLI.html" /><link rel="prev" title="Split Chunked Route Sheet into Multiple Files" href="split_chunked_route.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Create Printable Manifests from Optimized Routes - bfb_delivery 0.4.3 documentation</title>
+        <title>Create Printable Manifests from Optimized Routes - bfb_delivery 0.4.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.4.3 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.4.4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.4.3 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.4.4 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -263,6 +263,12 @@
 <p>This tool replaces the manual task of copying each driver’s optimized route into a single workbook, running an Excel macro, and finishing up with some manual steps. It will combine all the optimized routes into a single workbook, with each driver’s route on a separate sheet, and format the sheets into manifests ready to print.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
+<p>Uses the date of the front of each CSV name to set the manifest date field.
+I.e., each sheet should be named something like “07.17 Walt D”,
+and, e.g., this would set the manifest date field to “Date: 07.17”.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>This wraps the two other tools <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> and <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code> into one tool. You can still use them if you wish, but you can instead use this tool. For instance, say you’ve found a bug when using <code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code>. You could try running <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> then passing its output to <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code>. For whichever of those steps fails you can revert to using your old method, but you can still ostensibly use the tool for the other piece that didn’t fail (e.g., <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> ran fine, but <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code> threw an error, so you reverted to using the Excel macro and manually formatting). See <a class="reference internal" href="combine_route_tables.html"><span class="doc">Combine Driver Route Tables into a Single Workbook</span></a> and <a class="reference internal" href="format_combined_routes.html"><span class="doc">Format Manifests</span></a>.</p>
 </div>
 <p>Python API documentation at <a class="reference internal" href="bfb_delivery.api.html#bfb_delivery.api.public.create_manifests" title="bfb_delivery.api.public.create_manifests"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.create_manifests()</span></code></a>.</p>
@@ -323,23 +329,6 @@
 <p class="admonition-title">Note</p>
 <p>You can use both <cite>output_dir</cite> and <cite>output_name</cite> together to specify the directory and filename of the output workbook.</p>
 </div>
-</section>
-<section id="manifest-date">
-<h4>Manifest date<a class="headerlink" href="#manifest-date" title="Link to this heading">¶</a></h4>
-<p>A date is prepended to the driver’s name in the manifest worksheets, and it’s also used in the date field in the worksheets.</p>
-<p>The default is today’s date as <code class="docutils literal notranslate"><span class="pre">MM.DD</span></code>. But, you can pass a specific date with <code class="code docutils literal notranslate"><span class="pre">date</span></code>.</p>
-<p>In Python:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">create_manifests</span><span class="p">(</span>
-    <span class="n">input_dir</span><span class="o">=</span><span class="s2">&quot;path/to/input/&quot;</span><span class="p">,</span>
-    <span class="n">date</span><span class="o">=</span><span class="s2">&quot;1971.01.27&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-<p>With CLI:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests<span class="w"> </span>--input_dir<span class="w"> </span>path/to/input/<span class="w"> </span>--date<span class="w"> </span><span class="s2">&quot;1971.01.27&quot;</span>
-</pre></div>
-</div>
-<p>It doesn’t have to be a date; it can be any text you want. Also, it doesn’t affect the date in the filename.</p>
 </section>
 <section id="supplying-extra-notes">
 <h4>Supplying extra notes<a class="headerlink" href="#supplying-extra-notes" title="Link to this heading">¶</a></h4>
@@ -434,7 +423,6 @@ Cedarwood Apartments special instructions *,Please call the recipient when you a
 <li><a class="reference internal" href="#optional-arguments">Optional arguments</a><ul>
 <li><a class="reference internal" href="#output-directory">Output directory</a></li>
 <li><a class="reference internal" href="#output-filename">Output filename</a></li>
-<li><a class="reference internal" href="#manifest-date">Manifest date</a></li>
 <li><a class="reference internal" href="#supplying-extra-notes">Supplying extra notes</a></li>
 </ul>
 </li>
@@ -452,7 +440,7 @@ Cedarwood Apartments special instructions *,Please call the recipient when you a
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=5bfaad31"></script>
+</div><script src="_static/documentation_options.js?v=90733dfc"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

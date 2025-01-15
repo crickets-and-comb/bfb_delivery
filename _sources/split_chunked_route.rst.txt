@@ -131,6 +131,30 @@ With CLI:
 
     This argument and the default won't work correctly if you have too many drivers for the first workbook. The tool simply bumps those drivers to the top of the list and then splits all drivers evenly between workbooks. For example, if you have 100 drivers, 4 workbooks to make, and 30 book-one drivers, only the first 25 of those book-one drivers will go to book one, and the remaining 5 will go to book two. If this is a problem, please request a fix.
 
+Manifest date
+~~~~~~~~~~~~~
+
+A date is prepended to the driver's name in the manifest worksheets. It's also used in the date field in the final manifests. That is, the date you set here for the sheet names will be extracted from the sheet names later and used in the date field in the final manifest when running py:function:`bfb_delivery.api.public.format_combined_routes` or :py:func:`bfb_delivery.api.public.create_manifests` (which wraps the former).
+
+The default is the soonest Friday as ``MM.DD``. But, you can pass a specific date with :code:`date`.
+
+In Python:
+
+.. code:: python
+
+    split_chunked_route(
+        input_path="path/to/input.xlsx",
+        date="1971.01.27",
+    )
+
+With CLI:
+
+.. code:: bash
+
+    split_chunked_route --input_path path/to/input.xlsx --date "1971.01.27"
+
+It doesn't have to be a date; it can be any text you want. Also, it doesn't affect the date in the filename.
+
 
 See Also
 --------

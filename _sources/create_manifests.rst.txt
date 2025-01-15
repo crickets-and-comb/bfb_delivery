@@ -8,6 +8,12 @@ This tool replaces the manual task of copying each driver's optimized route into
 
 .. note::
 
+    Uses the date of the front of each CSV name to set the manifest date field.
+    I.e., each sheet should be named something like "07.17 Walt D",
+    and, e.g., this would set the manifest date field to "Date: 07.17".
+
+.. note::
+
     This wraps the two other tools :code:`combine_route_tables` and :code:`format_combined_routes` into one tool. You can still use them if you wish, but you can instead use this tool. For instance, say you've found a bug when using :code:`create_manifests`. You could try running :code:`combine_route_tables` then passing its output to :code:`format_combined_routes`. For whichever of those steps fails you can revert to using your old method, but you can still ostensibly use the tool for the other piece that didn't fail (e.g., :code:`combine_route_tables` ran fine, but :code:`format_combined_routes` threw an error, so you reverted to using the Excel macro and manually formatting). See :doc:`combine_route_tables` and :doc:`format_combined_routes`.
 
 Python API documentation at :py:func:`bfb_delivery.api.public.create_manifests`.
@@ -91,30 +97,6 @@ With CLI:
 .. note::
 
     You can use both `output_dir` and `output_name` together to specify the directory and filename of the output workbook.
-
-Manifest date
-~~~~~~~~~~~~~
-
-A date is prepended to the driver's name in the manifest worksheets, and it's also used in the date field in the worksheets.
-
-The default is today's date as ``MM.DD``. But, you can pass a specific date with :code:`date`.
-
-In Python:
-
-.. code:: python
-
-    create_manifests(
-        input_dir="path/to/input/",
-        date="1971.01.27",
-    )
-
-With CLI:
-
-.. code:: bash
-
-    create_manifests --input_dir path/to/input/ --date "1971.01.27"
-
-It doesn't have to be a date; it can be any text you want. Also, it doesn't affect the date in the filename.
 
 
 Supplying extra notes
