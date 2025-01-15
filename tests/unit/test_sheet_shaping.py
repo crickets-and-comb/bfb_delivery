@@ -62,18 +62,10 @@ N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
 NEIGHBORHOODS: Final[list[str]] = ["York", "Puget", "Samish", "Sehome", "South Hill"]
 
 
-# TODO: Replace this with normal tmp_path, since everything else went to session?
-# Or, just use it for the mock_chunked_sheet_raw fixture?
-@pytest.fixture(scope="module")
-def module_tmp_dir(tmp_path_factory: pytest.TempPathFactory) -> Path:
-    """Get a temporary directory for the class."""
-    return tmp_path_factory.mktemp("tmp")
-
-
-@pytest.fixture(scope="module")
-def mock_chunked_sheet_raw(module_tmp_dir: Path) -> Path:
+@pytest.fixture()
+def mock_chunked_sheet_raw(tmp_path: Path) -> Path:
     """Save mock chunked route sheet and get path."""
-    fp: Path = module_tmp_dir / "mock_chunked_sheet_raw.xlsx"
+    fp: Path = tmp_path / "mock_chunked_sheet_raw.xlsx"
     raw_chunked_sheet = pd.DataFrame(
         columns=SPLIT_ROUTE_COLUMNS + [Columns.DRIVER, Columns.BOX_COUNT, Columns.STOP_NO],
         data=[
@@ -259,9 +251,9 @@ def mock_route_tables(tmp_path: Path, mock_chunked_sheet_raw: Path) -> Path:
 
 
 @pytest.fixture()
-def mock_combined_routes(module_tmp_dir: Path) -> Path:
+def mock_combined_routes(tmp_path: Path) -> Path:
     """Mock the combined routes table."""
-    output_path = module_tmp_dir / "combined_routes.xlsx"
+    output_path = tmp_path / "combined_routes.xlsx"
     with pd.ExcelWriter(output_path) as writer:
         for driver in DRIVERS:
             df = pd.DataFrame(columns=COMBINED_ROUTES_COLUMNS)
@@ -331,11 +323,11 @@ class TestSplitChunkedRoute:
         output_dir_type: type[Path | str],
         output_dir: Path | str,
         n_books: int,
-        module_tmp_dir: Path,
+        tmp_path: Path,
         mock_chunked_sheet_raw: Path,
     ) -> None:
         """Test that the output directory can be set."""
-        output_dir = output_dir_type(module_tmp_dir / output_dir)
+        output_dir = output_dir_type(tmp_path / output_dir)
         output_paths = split_chunked_route(
             input_path=mock_chunked_sheet_raw, output_dir=output_dir, n_books=n_books
         )
@@ -608,10 +600,10 @@ class TestSplitChunkedRoute:
         output_filename: str,
         n_books: int,
         mock_chunked_sheet_raw: Path,
-        module_tmp_dir: Path,
+        tmp_path: Path,
     ) -> None:
         """Test CLI works."""
-        output_dir = str(module_tmp_dir / output_dir) if output_dir else output_dir
+        output_dir = str(tmp_path / output_dir) if output_dir else output_dir
         arg_list = [
             "--input_path",
             str(mock_chunked_sheet_raw),
@@ -667,11 +659,11 @@ class TestCombineRouteTables:
         self,
         output_dir_type: type[Path | str],
         output_dir: Path | str,
-        module_tmp_dir: Path,
+        tmp_path: Path,
         mock_route_tables: Path,
     ) -> None:
         """Test that the output directory can be set."""
-        output_dir = output_dir_type(module_tmp_dir / output_dir)
+        output_dir = output_dir_type(tmp_path / output_dir)
         output_path = combine_route_tables(input_dir=mock_route_tables, output_dir=output_dir)
         assert str(output_path.parent) == str(output_dir)
 
@@ -732,14 +724,10 @@ class TestCombineRouteTables:
     @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
     def test_cli(
-        self,
-        output_dir: str,
-        output_filename: str,
-        mock_route_tables: Path,
-        module_tmp_dir: Path,
+        self, output_dir: str, output_filename: str, mock_route_tables: Path, tmp_path: Path
     ) -> None:
         """Test CLI works."""
-        output_dir = str(module_tmp_dir / output_dir) if output_dir else output_dir
+        output_dir = str(tmp_path / output_dir) if output_dir else output_dir
         arg_list = [
             "--input_dir",
             str(mock_route_tables),
@@ -782,11 +770,11 @@ class TestFormatCombinedRoutes:
         self,
         output_dir_type: type[Path | str],
         output_dir: Path | str,
-        module_tmp_dir: Path,
+        tmp_path: Path,
         mock_combined_routes: Path,
     ) -> None:
         """Test that the output directory can be set."""
-        output_dir = output_dir_type(module_tmp_dir / output_dir)
+        output_dir = output_dir_type(tmp_path / output_dir)
         output_path = format_combined_routes(
             input_path=mock_combined_routes, output_dir=output_dir
         )
@@ -822,10 +810,10 @@ class TestFormatCombinedRoutes:
         output_dir: str,
         output_filename: str,
         mock_combined_routes: Path,
-        module_tmp_dir: Path,
+        tmp_path: Path,
     ) -> None:
         """Test CLI works."""
-        output_dir = str(module_tmp_dir / output_dir) if output_dir else output_dir
+        output_dir = str(tmp_path / output_dir) if output_dir else output_dir
         arg_list = [
             "--input_path",
             str(mock_combined_routes),
@@ -1108,11 +1096,11 @@ class TestCreateManifests:
         self,
         output_dir_type: type[Path | str],
         output_dir: Path | str,
-        module_tmp_dir: Path,
+        tmp_path: Path,
         mock_route_tables: Path,
     ) -> None:
         """Test that the output directory can be set."""
-        output_dir = output_dir_type(module_tmp_dir / output_dir)
+        output_dir = output_dir_type(tmp_path / output_dir)
         output_path = create_manifests(input_dir=mock_route_tables, output_dir=output_dir)
         assert str(output_path.parent) == str(output_dir)
 
@@ -1150,14 +1138,10 @@ class TestCreateManifests:
     @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
     def test_cli(
-        self,
-        output_dir: str,
-        output_filename: str,
-        mock_route_tables: Path,
-        module_tmp_dir: Path,
+        self, output_dir: str, output_filename: str, mock_route_tables: Path, tmp_path: Path
     ) -> None:
         """Test CLI works."""
-        output_dir = str(module_tmp_dir / output_dir) if output_dir else output_dir
+        output_dir = str(tmp_path / output_dir) if output_dir else output_dir
         arg_list = [
             "--input_dir",
             str(mock_route_tables),
