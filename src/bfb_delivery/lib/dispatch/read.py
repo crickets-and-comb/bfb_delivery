@@ -41,8 +41,7 @@ def get_route_files(start_date: str, output_dir: str) -> str:
     # TODO: Validate single box count and single type.
     # TODO: Validate that route:driver_sheet_name is 1:1.
     # TODO: Validate that route title is same as plan title. (i.e., driver sheet name)
-    breakpoint()
-    routes_df.to_pickle(".test_data/sample_responses/routes_df.pkl")
+    
     routes_df = _transform_routes_df(routes_df=routes_df)
     _write_routes_dfs(routes_df=routes_df, output_dir=Path(output_dir))
 
