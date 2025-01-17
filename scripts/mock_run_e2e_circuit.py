@@ -96,7 +96,7 @@ def main(start_date: str, mock_plans: bool, mock_routes: bool, use_public: bool)
             routes_df = _get_raw_routes_df(plans=plans)
         else:
             routes_df: pd.DataFrame
-            with open(".test_data/sample_responses/routes_df.pkl", "rb") as f:
+            with open(".test_data/sample_responses/raw_routes_df.pkl", "rb") as f:
                 routes_df = pickle.load(f)
 
         routes_df = _transform_routes_df(routes_df=routes_df)

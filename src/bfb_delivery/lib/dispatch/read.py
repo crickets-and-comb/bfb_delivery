@@ -3,6 +3,7 @@
 import os
 import shutil
 from pathlib import Path
+from time import sleep
 from typing import Any
 from warnings import warn
 
@@ -11,7 +12,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import COMBINED_ROUTES_COLUMNS, Columns
+from bfb_delivery.lib.constants import COMBINED_ROUTES_COLUMNS, Columns, RateLimits
 from bfb_delivery.lib.dispatch.utils import get_circuit_key
 from bfb_delivery.lib.utils import get_friday
 
@@ -34,6 +35,7 @@ def get_route_files(start_date: str, output_dir: str) -> str:
     if not output_dir:
         output_dir = os.getcwd() + "/routes_" + start_date
 
+    # TODO: All we really need is a df of plan IDs and titles.
     plans = _get_plans(start_date=start_date)
     routes_df = _get_raw_routes_df(plans=plans)
     del plans
@@ -95,8 +97,6 @@ def _get_plans(start_date: str) -> list[dict[str, Any]]:
 @typechecked
 def _get_raw_routes_df(plans: list[dict[str, Any]]) -> pd.DataFrame:
     """Get the raw routes DataFrame from the plans."""
-    # TODO: Rate limit.
-    # TODO: Handle nextPageToken.
     # TODO: Add external ID for delivery day so we can filter stops by it in request?
     # After taking over upload.
     routes_dfs: list[pd.DataFrame] = []
@@ -113,15 +113,15 @@ def _get_raw_routes_df(plans: list[dict[str, Any]]) -> pd.DataFrame:
     for plan in plans:
         plan_id = plan.get("id", None)  # e.g., "plans/AqcSgl1s1MDonjzYBHM2"
         # https://developer.team.getcircuit.com/api#tag/Stops/operation/listStops
-        stops_response = requests.get(
-            f"https://api.getcircuit.com/public/v0.2b/{plan_id}/stops",
-            auth=HTTPBasicAuth(get_circuit_key(), ""),
-        )
-        if stops_response.status_code != 200:
-            if stops_response.status_code == 429:
-                # TODO: Retry after wait?
-                pass
-            else:
+        base_url = f"https://api.getcircuit.com/public/v0.2b/{plan_id}/stops"
+        wait_seconds = RateLimits.READ_SECONDS
+        next_page_token = ""
+        plan_stops_dfs: list[pd.DataFrame] = []
+
+        while next_page_token is not None:
+            url = base_url + str(next_page_token)
+            stops_response = requests.get(url, auth=HTTPBasicAuth(get_circuit_key(), ""))
+            if stops_response.status_code != 200:
                 try:
                     response_json: dict = stops_response.json()
                 except Exception as e:
@@ -130,20 +130,34 @@ def _get_raw_routes_df(plans: list[dict[str, Any]]) -> pd.DataFrame:
                         "additional_notes": "No-JSON response.",
                         "response to JSON exception:": str(e),
                     }
-                raise ValueError(
-                    f"Got {stops_response.status_code} reponse when getting getting stops "
-                    f"for {plan_id}: {response_json}"
+                err_msg = (
+                    f"Got {stops_response.status_code} reponse when getting stops for "
+                    f"{plan_id}: {response_json}"
                 )
-        else:
-            stops: dict = stops_response.json()
-            stops_df = pd.DataFrame(stops.get("stops"))
-            stops_df = stops_df[input_cols]
-            stops_df["driver_sheet_name"] = plan.get("title")  # e.g. "1.17 Jay C"
-            routes_dfs.append(stops_df)
+                if stops_response.status_code == 429:
+                    wait_seconds = wait_seconds * 2
+                    warn(
+                        f"Doubling per-request wait time to {wait_seconds} seconds. {err_msg}"
+                    )
+                else:
+                    raise ValueError(err_msg)
+            else:
+                stops = stops_response.json()
+                next_page_token = stops.get("nextPageToken", None)
 
-    routes_df = pd.concat(routes_dfs)
+                stops_df = pd.DataFrame(stops["stops"])
+                stops_df = stops_df[input_cols]
+                plan_stops_dfs.append(stops_df)
 
-    return routes_df
+            if next_page_token or stops_response.status_code == 429:
+                next_page_token = f"?pageToken={next_page_token}"
+                sleep(wait_seconds)
+
+        plan_stops_df = pd.concat(plan_stops_dfs)
+        plan_stops_df["driver_sheet_name"] = plan.get("title")  # e.g. "1.17 Jay C"
+        routes_dfs.append(plan_stops_df)
+
+    return pd.concat(routes_dfs)
 
 
 @typechecked
@@ -172,6 +186,7 @@ def _transform_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
         inplace=True,
     )
     routes_df["route"] = routes_df["route"].apply(lambda route_dict: route_dict.get("id"))
+    # routes_df[Columns.STOP_NO] = routes_df[Columns.STOP_NO].astype(int) + 1
     routes_df[Columns.NAME] = routes_df["recipient"].apply(
         lambda recipient_dict: recipient_dict.get("name")
     )
@@ -195,6 +210,8 @@ def _transform_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
         lambda recipient_dict: recipient_dict.get("externalId")
     )
     # TODO: Verify we want to do this.
+    # TODO: Handle if neighborhood is missing from address, too. (Make function.)
+    # TODO: Strip whitespace.
     routes_df[Columns.NEIGHBORHOOD] = routes_df[
         [Columns.NEIGHBORHOOD, Columns.ADDRESS]
     ].apply(
@@ -216,5 +233,6 @@ def _transform_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
         routes_df["addressLineOne"] + ", " + routes_df["addressLineTwo"]
     )
     routes_df = routes_df[output_cols]
+    routes_df.sort_values(by=["route", "driver_sheet_name", Columns.STOP_NO], inplace=True)
 
     return routes_df

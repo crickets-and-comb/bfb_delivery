@@ -1,5 +1,6 @@
 """Constants used in the project."""
 
+import math
 from enum import StrEnum
 from typing import Final
 
@@ -160,6 +161,17 @@ MAX_ORDER_COUNT: Final[int] = 5
 NOTES_COLUMN_WIDTH: Final[float] = 56.67
 
 PROTEIN_BOX_TYPES: Final[list[str]] = ["BASIC", "GF", "LA"]
+
+
+class RateLimits:
+    """Rate limits for Circuit API."""
+
+    BATCH_STOP_IMPORT_SECONDS: Final[float] = math.ceil(1 / (10 / 60))
+    BATCH_STOP_IMPORT_MAX_STOPS: Final[int] = 1000
+    OPTIMIZATION_PER_SECOND: Final[float] = math.ceil(1 / (3 / 60))
+    READ_SECONDS: Final[float] = 1 / 10
+    WRITE_SECONDS: Final[float] = 1 / 5
+
 
 SPLIT_ROUTE_COLUMNS: Final[list[str]] = [
     Columns.NAME,
