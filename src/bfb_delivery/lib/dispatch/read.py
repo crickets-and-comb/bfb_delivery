@@ -195,8 +195,15 @@ def _get_routes_by_plans(plans: list[dict[str, Any]]) -> pd.DataFrame:
     routes_df[Columns.NEIGHBORHOOD] = routes_df["recipient"].apply(
         lambda recipient_dict: recipient_dict.get("externalId")
     )
-    routes_df[Columns.NEIGHBORHOOD] = routes_df[Columns.NEIGHBORHOOD, Columns.ADDRESS].apply(
-        lambda row: row[0] if row[0] else row[1].get("address").split(",")[1]
+    routes_df[Columns.NEIGHBORHOOD] = routes_df[
+        [Columns.NEIGHBORHOOD, Columns.ADDRESS]
+    ].apply(
+        lambda row: (
+            row[Columns.NEIGHBORHOOD]
+            if row[Columns.NEIGHBORHOOD]
+            else row[Columns.ADDRESS].get("address").split(",")[1]
+        ),
+        axis=1,
     )
 
     # TODO: Warn and impute missing values.
