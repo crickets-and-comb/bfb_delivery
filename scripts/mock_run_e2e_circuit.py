@@ -24,7 +24,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../.tes
 OUTPUT_DIRS: Final[dict[str, str]] = {
     "CIRCUIT_TABLES_DIR": ".test_data/circuit_tables",
     "MANIFESTS_DIR": ".test_data/manifests",
-    "EXTRA_NOTES_DIR": ".test_data/extra_notes",
 }
 
 
@@ -72,7 +71,6 @@ def main(start_date: str, use_mock_data: bool, use_public: bool) -> None:
             start_date=start_date,
             output_dir=OUTPUT_DIRS["MANIFESTS_DIR"],
             circuit_output_dir=OUTPUT_DIRS["CIRCUIT_TABLES_DIR"],
-            extra_notes_file=OUTPUT_DIRS["EXTRA_NOTES_DIR"],
         )
         print(final_manifest_path)
         breakpoint()
@@ -84,7 +82,6 @@ def main(start_date: str, use_mock_data: bool, use_public: bool) -> None:
             with open(".test_data/sample_responses/plans.json") as f:
                 plans = json.load(f)
                 plans = plans["plans"]
-                # breakpoint()
             routes_df: pd.DataFrame
             with open(".test_data/sample_responses/routes_df.pkl", "rb") as f:
                 routes_df = pickle.load(f)
@@ -95,6 +92,8 @@ def main(start_date: str, use_mock_data: bool, use_public: bool) -> None:
         )
 
         print(routes_df)
+        # TODO: See if handling nextpagetoken resolved discontiguous stop numbers.
+        # And, resave sample data.
         breakpoint()
 
 
