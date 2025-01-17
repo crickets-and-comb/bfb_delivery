@@ -42,7 +42,8 @@ else:
 # TODO: Handle error responses.
 # TODO: Rate limit.
 # TODO: Handle nextPageToken.
-# TODO: Add external ID for delivery day so we can filter stops by it in request.
+# TODO: Add external ID for delivery day so we can filter stops by it in request?
+# After taking over upload.
 # TODO: Validate single box count and single type.
 # TODO: Make Circuit columns constant.
 # TODO: Validate that route:driver_sheet_name is 1:1.

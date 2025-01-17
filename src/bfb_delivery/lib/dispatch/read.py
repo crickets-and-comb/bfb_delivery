@@ -15,13 +15,14 @@ def get_route_files(date: str, output_dir: str) -> str:
         date: The date to get the routes for, as "YYYYMMDD".
             Empty string uses the soonest Friday.
         output_dir: The directory to save the routes to.
-            Empty string saves to the present working directory.
+            Empty string saves to "routes_{date}" directory in present working directory.
+            If the directory does not exist, it is created. If it exists, it is overwritten.
 
     Returns:
         The path to the route files.
     """
     date = date if date else get_friday(fmt="%Y%m%d")
-    output_dir = _get_output_dir(output_dir=output_dir)
+    output_dir = _get_output_dir(output_dir=output_dir, date=date)
 
     # TODO: Download/write route files from Circuit.
 
@@ -29,18 +30,8 @@ def get_route_files(date: str, output_dir: str) -> str:
 
 
 @typechecked
-def _get_output_dir(output_dir: str) -> str:
-    """Get the output directory.
-
-    Args:
-        output_dir: The directory to save the routes to.
-            Empty string saves to the present working directory.
-
-    Returns:
-        The output directory.
-    """
+def _get_output_dir(output_dir: str, date: str) -> str:
     if not output_dir:
-        # Get the present working directory.
-        output_dir = os.getcwd()
+        output_dir = os.getcwd() + "/routes_" + date
 
     return output_dir

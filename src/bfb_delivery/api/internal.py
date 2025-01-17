@@ -35,13 +35,17 @@ def split_chunked_route(
 
 @typechecked
 def create_manifests_from_circuit(
-    date: str, output_dir: str, output_filename: str, extra_notes_file: str
+    date: str,
+    output_dir: str,
+    output_filename: str,
+    circuit_output_dir: str,
+    extra_notes_file: str,
 ) -> Path:
     """See public docstring.
 
     :py:func:`bfb_delivery.api.public.create_manifests_from_circuit`.
     """
-    input_dir = get_route_files(date=date, output_dir=output_dir)
+    input_dir = get_route_files(date=date, output_dir=circuit_output_dir)
     formatted_manifest_path = sheet_shaping.create_manifests(
         input_dir=input_dir,
         output_dir=output_dir,

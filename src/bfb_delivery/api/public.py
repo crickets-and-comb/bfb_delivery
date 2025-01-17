@@ -83,6 +83,7 @@ def create_manifests_from_circuit(
     date: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["date"],
     output_dir: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["output_dir"],
     output_filename: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["output_filename"],
+    circuit_output_dir: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["circuit_output_dir"],
     extra_notes_file: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["extra_notes_file"],
 ) -> Path:
     """Gets optimized routes from Circuit, creates driver manifest workbook ready to print.
@@ -115,6 +116,9 @@ def create_manifests_from_circuit(
             Empty string (default) saves to the `input_dir` directory.
         output_filename: The name of the output workbook.
             Empty string (default) sets filename to "final_manifests_{date}.xlsx".
+        circuit_output_dir: The directory to save the Circuit route CSVs to.
+            Empty string saves to "routes_{date}" directory in present working directory.
+            If the directory does not exist, it is created. If it exists, it is overwritten.
         extra_notes_file: Path to the extra notes file. If empty (default), uses a constant
             DataFrame. See :py:data:`bfb_delivery.lib.constants.ExtraNotes`.
 
@@ -125,6 +129,7 @@ def create_manifests_from_circuit(
         date=date,
         output_dir=output_dir,
         output_filename=output_filename,
+        circuit_output_dir=circuit_output_dir,
         extra_notes_file=extra_notes_file,
     )
 
