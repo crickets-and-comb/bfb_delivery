@@ -9,6 +9,7 @@ from pathlib import Path
 
 from typeguard import typechecked
 
+from bfb_delivery.lib.dispatch.read import get_route_files
 from bfb_delivery.lib.formatting import sheet_shaping
 
 
@@ -30,6 +31,25 @@ def split_chunked_route(
         book_one_drivers_file=book_one_drivers_file,
         date=date,
     )
+
+
+@typechecked
+def create_manifests_from_circuit(
+    date: str, output_dir: str, output_filename: str, extra_notes_file: str
+) -> Path:
+    """See public docstring.
+
+    :py:func:`bfb_delivery.api.public.create_manifests_from_circuit`.
+    """
+    input_dir = get_route_files(date=date, output_dir=output_dir)
+    formatted_manifest_path = sheet_shaping.create_manifests(
+        input_dir=input_dir,
+        output_dir=output_dir,
+        output_filename=output_filename,
+        extra_notes_file=extra_notes_file,
+    )
+
+    return formatted_manifest_path
 
 
 @typechecked

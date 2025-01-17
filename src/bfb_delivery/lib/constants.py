@@ -87,6 +87,12 @@ class Defaults:
         "output_filename": "",
         "extra_notes_file": "",
     }
+    CREATE_MANIFESTS_FROM_CIRCUIT: Final[dict[str, str]] = {
+        "date": "",
+        "output_dir": CREATE_MANIFESTS["output_dir"],
+        "output_filename": CREATE_MANIFESTS["output_filename"],
+        "extra_notes_file": CREATE_MANIFESTS["extra_notes_file"],
+    }
     FORMAT_COMBINED_ROUTES: Final[dict[str, str]] = {
         "output_dir": "",
         "output_filename": "",

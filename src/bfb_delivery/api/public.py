@@ -77,6 +77,60 @@ def split_chunked_route(
     )
 
 
+# TODO: Update docstring.
+@typechecked
+def create_manifests_from_circuit(
+    date: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["date"],
+    output_dir: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["output_dir"],
+    output_filename: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["output_filename"],
+    extra_notes_file: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["extra_notes_file"],
+) -> Path:
+    """Gets optimized routes from Circuit, creates driver manifest workbook ready to print.
+
+    This is used after uploading and optimizing the routes. Reads routes CSVs from Circuit,
+    and creates a formatted workbook with driver manifests ready to print, with headers,
+    aggregate data, and color-coded box types. Each driver's route is a separate sheet in the
+    workbook.
+
+    The workbook is saved to `output_dir` with the name `output_filename`. Will create
+    `output_dir` if it doesn't exist.
+
+    .. note::
+
+        Uses the date of the front of each CSV name to set the manifest date field. I.e.,
+        each sheet should be named something like "08.08 Richard N", and, e.g., this would
+        set the manifest date field to "Date: 08.08".
+
+    Wraps :py:func:`bfb_delivery.api.public.create_manifests` and adds Circuit integration.
+    And, `create_manifests` just wraps :py:func:`bfb_delivery.api.public.combine_route_tables`
+    and :py:func:`bfb_delivery.api.public.format_combined_routes`. Creates an intermediate
+    output workbook with all routes combined, then formats it.
+
+    See :doc:`create_manifests_from_circuit` for more information.
+
+    Args:
+        date: The date to use in the output workbook sheetnames as "YYYYMMDD".
+            Empty string (default) uses the soonest Friday.
+        output_dir: The directory to write the formatted manifest workbook to.
+            Empty string (default) saves to the `input_dir` directory.
+        output_filename: The name of the output workbook.
+            Empty string (default) sets filename to "final_manifests_{date}.xlsx".
+        extra_notes_file: Path to the extra notes file. If empty (default), uses a constant
+            DataFrame. See :py:data:`bfb_delivery.lib.constants.ExtraNotes`.
+
+    Returns:
+        Path to the final manifest workbook.
+    """
+    final_manifest_path = internal.create_manifests_from_circuit(
+        date=date,
+        output_dir=output_dir,
+        output_filename=output_filename,
+        extra_notes_file=extra_notes_file,
+    )
+
+    return final_manifest_path
+
+
 @typechecked
 def create_manifests(
     input_dir: Path | str,
