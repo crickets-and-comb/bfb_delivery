@@ -18,6 +18,7 @@ from bfb_delivery.lib.dispatch.read import (
     _transform_routes_df,
     _write_routes_dfs,
 )
+from bfb_delivery.lib.formatting import sheet_shaping
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../.test_data")))
 
@@ -49,7 +50,7 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
     ),
 )
 @click.option(
-    "--mock_routes",
+    "--mock_raw_routes",
     type=bool,
     required=False,
     default=True,
@@ -68,7 +69,7 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
         "Does not mock data; overrides use_mock_data and always queries the Circuit API."
     ),
 )
-def main(start_date: str, mock_plans: bool, mock_routes: bool, use_public: bool) -> None:
+def main(start_date: str, mock_plans: bool, mock_raw_routes: bool, use_public: bool) -> None:
     """Mock run of the end-to-end Circuit integration."""
     for output_dir_key in OUTPUT_DIRS.keys():
         if output_dir_key != "CIRCUIT_TABLES_DIR":
@@ -92,7 +93,7 @@ def main(start_date: str, mock_plans: bool, mock_routes: bool, use_public: bool)
                 plans = json.load(f)
                 plans = plans["plans"]
 
-        if not mock_routes:
+        if not mock_raw_routes:
             routes_df = _get_raw_routes_df(plans=plans)
         else:
             routes_df: pd.DataFrame
@@ -103,10 +104,18 @@ def main(start_date: str, mock_plans: bool, mock_routes: bool, use_public: bool)
         _write_routes_dfs(
             routes_df=routes_df, output_dir=Path(OUTPUT_DIRS["CIRCUIT_TABLES_DIR"])
         )
+        # routes_df.to_csv(
+        #     ".test_data/sample_responses/routes_df_transformed.csv",
+        #     index=False
+        # )
 
-        print(routes_df)
-        # TODO: See if handling nextpagetoken resolved discontiguous stop numbers.
-        # And, resave sample data.
+        formatted_manifest_path = sheet_shaping.create_manifests(
+            input_dir=Path(OUTPUT_DIRS["CIRCUIT_TABLES_DIR"]),
+            output_dir=Path(OUTPUT_DIRS["MANIFESTS_DIR"]),
+            output_filename="",
+            extra_notes_file="",
+        )
+        print(f"formatted_manifest_path: {formatted_manifest_path}")
         breakpoint()
 
 
