@@ -9,11 +9,11 @@ from bfb_delivery.lib.constants import Defaults
 
 @click.command()
 @click.option(
-    "--date",
+    "--start_date",
     type=str,
     required=False,
     help=(
-        'The date to use in the output workbook sheetnames as "YYYYMMDD".'
+        'The start date to use in the output workbook sheetnames as "YYYYMMDD".'
         "Empty string (default) uses the soonest Friday."
     ),
 )
@@ -60,7 +60,7 @@ from bfb_delivery.lib.constants import Defaults
 )
 @typechecked
 def main(
-    date: str,
+    start_date: str,
     output_dir: str,
     output_filename: str,
     circuit_output_dir: str,
@@ -72,7 +72,7 @@ def main(
 
     """
     path = create_manifests_from_circuit(
-        date=date,
+        start_date=start_date,
         output_dir=output_dir,
         output_filename=output_filename,
         circuit_output_dir=circuit_output_dir,

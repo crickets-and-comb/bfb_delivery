@@ -80,7 +80,7 @@ def split_chunked_route(
 # TODO: Update docstring.
 @typechecked
 def create_manifests_from_circuit(
-    date: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["date"],
+    start_date: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["start_date"],
     output_dir: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["output_dir"],
     output_filename: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["output_filename"],
     circuit_output_dir: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["circuit_output_dir"],
@@ -110,7 +110,7 @@ def create_manifests_from_circuit(
     See :doc:`create_manifests_from_circuit` for more information.
 
     Args:
-        date: The date to use in the output workbook sheetnames as "YYYYMMDD".
+        start_date: The start date to use in the output workbook sheetnames as "YYYYMMDD".
             Empty string (default) uses the soonest Friday.
         output_dir: The directory to write the formatted manifest workbook to.
             Empty string (default) saves to the `input_dir` directory.
@@ -126,7 +126,7 @@ def create_manifests_from_circuit(
         Path to the final manifest workbook.
     """
     final_manifest_path = internal.create_manifests_from_circuit(
-        date=date,
+        start_date=start_date,
         output_dir=output_dir,
         output_filename=output_filename,
         circuit_output_dir=circuit_output_dir,

@@ -88,7 +88,7 @@ class Defaults:
         "extra_notes_file": "",
     }
     CREATE_MANIFESTS_FROM_CIRCUIT: Final[dict[str, str]] = {
-        "date": "",
+        "start_date": "",
         "output_dir": CREATE_MANIFESTS["output_dir"],
         "output_filename": CREATE_MANIFESTS["output_filename"],
         "circuit_output_dir": "",
