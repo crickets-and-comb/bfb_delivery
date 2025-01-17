@@ -112,17 +112,26 @@ def _get_plans(start_date: str) -> list[dict[str, Any]]:
 @typechecked
 def _get_routes_by_plans(plans: list[dict[str, Any]]) -> pd.DataFrame:
     """Get the routes DataFrame from the plans."""
+    routes_df = _get_raw_routes_df(plans=plans)
+    del plans
+    # TODO: Validate single box count and single type.
+    # TODO: Validate that route:driver_sheet_name is 1:1.
+    # TODO: Validate that route title is same as plan title. (i.e., driver sheet name)
+    routes_df = _transform_routes_df(routes_df=routes_df)
+
+    return routes_df
+
+
+@typechecked
+def _get_raw_routes_df(plans: list[dict[str, Any]]) -> pd.DataFrame:
+    """Get the raw routes DataFrame from the plans."""
     # TODO: Handle error responses.
     # TODO: Rate limit.
     # TODO: Handle nextPageToken.
     # TODO: Add external ID for delivery day so we can filter stops by it in request?
     # After taking over upload.
-    # TODO: Validate single box count and single type.
-    # TODO: Validate that route:driver_sheet_name is 1:1.
-    # TODO: Validate that route title is same as plan title. (i.e., driver sheet name)
-
     routes_dfs: list[pd.DataFrame] = []
-    # TODO: Make Circuit columns constant.
+    # TODO: Make Circuit columns constant?
     input_cols = [
         "route",
         "stopPosition",
@@ -147,9 +156,12 @@ def _get_routes_by_plans(plans: list[dict[str, Any]]) -> pd.DataFrame:
 
     routes_df = pd.concat(routes_dfs)
 
-    del routes_dfs
-    del plans
+    return routes_df
 
+
+@typechecked
+def _transform_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
+    """Transform the raw routes DataFrame."""
     # TODO: Make columns constant. (And/or use pandera.)
     output_cols = [
         "route",
@@ -195,6 +207,7 @@ def _get_routes_by_plans(plans: list[dict[str, Any]]) -> pd.DataFrame:
     routes_df[Columns.NEIGHBORHOOD] = routes_df["recipient"].apply(
         lambda recipient_dict: recipient_dict.get("externalId")
     )
+    # TODO: Verify we want to do this.
     routes_df[Columns.NEIGHBORHOOD] = routes_df[
         [Columns.NEIGHBORHOOD, Columns.ADDRESS]
     ].apply(
