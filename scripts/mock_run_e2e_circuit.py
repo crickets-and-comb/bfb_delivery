@@ -9,7 +9,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 
 from bfb_delivery.lib.constants import Columns
-from bfb_delivery.lib.utils import get_circuit_key
+from bfb_delivery.lib.dispatch.utils import get_circuit_key
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../.test_data")))
 

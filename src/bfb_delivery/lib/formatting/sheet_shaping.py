@@ -32,13 +32,13 @@ from bfb_delivery.lib.formatting.data_cleaning import (
     format_and_validate_data,
     format_column_names,
 )
-from bfb_delivery.lib.utils import (
+from bfb_delivery.lib.formatting.utils import (
     get_book_one_drivers,
     get_extra_notes,
-    get_friday,
     get_phone_number,
     map_columns,
 )
+from bfb_delivery.lib.utils import get_friday
 
 # Silences warning for in-place operations on copied df slices.
 pd.options.mode.copy_on_write = True

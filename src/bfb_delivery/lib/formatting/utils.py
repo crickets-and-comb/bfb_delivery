@@ -1,13 +1,11 @@
-"""Utility functions for the BFB Delivery project."""
+"""Utility functions for the formatting module."""
 
 import configparser
 import os
 import warnings
-from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
-from dotenv import load_dotenv
 from typeguard import typechecked
 
 from bfb_delivery.lib.constants import BookOneDrivers, Columns, ExtraNotes
@@ -28,19 +26,6 @@ def get_book_one_drivers(file_path: str) -> list[str]:
         sheet_one_drivers = pd.read_csv(file_path)[Columns.DRIVER].astype(dtype=str).tolist()
 
     return sheet_one_drivers
-
-
-@typechecked
-def get_circuit_key() -> str:
-    """Get the Circuit API key."""
-    load_dotenv()
-    key = os.getenv("CIRCUIT_API_KEY")
-    if not key:
-        raise ValueError(
-            "Circuit API key not found. Set the CIRCUIT_API_KEY environment variable."
-        )
-
-    return key
 
 
 @typechecked
@@ -67,13 +52,6 @@ def get_extra_notes(file_path: str) -> pd.DataFrame:
         raise ValueError(f"Extra notes has duplicated tags: {duplicated_tags}")
 
     return extra_notes_df
-
-
-@typechecked
-def get_friday(fmt: str) -> str:
-    """Get the soonest Friday."""
-    friday = datetime.now() + pd.DateOffset(weekday=4)
-    return friday.strftime(fmt)
 
 
 @typechecked

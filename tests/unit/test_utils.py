@@ -9,7 +9,7 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 
-from bfb_delivery.lib.utils import get_extra_notes, get_phone_number, map_columns
+from bfb_delivery.lib.formatting.utils import get_extra_notes, get_phone_number, map_columns
 
 
 @pytest.mark.parametrize(
@@ -145,7 +145,7 @@ def test_get_extra_notes(
             df: Final[pd.DataFrame] = extra_notes_df
 
         mock_extra_notes_context = patch(
-            "bfb_delivery.lib.utils.ExtraNotes", new=TestExtraNotes
+            "bfb_delivery.lib.formatting.utils.ExtraNotes", new=TestExtraNotes
         )
 
     with error_context, mock_extra_notes_context:
