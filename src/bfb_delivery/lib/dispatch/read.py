@@ -28,19 +28,9 @@ def get_route_files(start_date: str, output_dir: str) -> str:
         The path to the route files.
     """
     start_date = start_date if start_date else get_friday(fmt="%Y%m%d")
-    output_dir = _get_output_dir(output_dir=output_dir, date=start_date)
-
-    # TODO: Download/write route files from Circuit.
-    _write_route_files(date=start_date, output_dir=output_dir)
-
-    return output_dir
-
-
-@typechecked
-def _get_output_dir(output_dir: str, date: str) -> str:
-    """Set the output directory for the route files, if not passed."""
     if not output_dir:
-        output_dir = os.getcwd() + "/routes_" + date
+        output_dir = os.getcwd() + "/routes_" + start_date
+    _write_route_files(date=start_date, output_dir=output_dir)
 
     return output_dir
 
