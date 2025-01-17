@@ -186,7 +186,7 @@ def _transform_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
         inplace=True,
     )
     routes_df["route"] = routes_df["route"].apply(lambda route_dict: route_dict.get("id"))
-    # routes_df[Columns.STOP_NO] = routes_df[Columns.STOP_NO].astype(int) + 1
+    routes_df[Columns.STOP_NO] = routes_df[Columns.STOP_NO].astype(int) + 1
     routes_df[Columns.NAME] = routes_df["recipient"].apply(
         lambda recipient_dict: recipient_dict.get("name")
     )
@@ -233,6 +233,6 @@ def _transform_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
         routes_df["addressLineOne"] + ", " + routes_df["addressLineTwo"]
     )
     routes_df = routes_df[output_cols]
-    routes_df.sort_values(by=["route", "driver_sheet_name", Columns.STOP_NO], inplace=True)
+    routes_df.sort_values(by=["driver_sheet_name", Columns.STOP_NO], inplace=True)
 
     return routes_df
