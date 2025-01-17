@@ -32,19 +32,29 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
     "--start_date",
     type=str,
     required=False,
-    default="2025-01-14",
+    default="2025-01-17",
     help=(
         'The start date to use in the output workbook sheetnames as "YYYYMMDD". '
         "Empty string (default) uses the soonest Friday."
     ),
 )
 @click.option(
-    "--use_mock_data",
+    "--mock_plans",
     type=bool,
     required=False,
     default=True,
     help=(
-        "Use mock data instead of querying the Circuit API, where possible. "
+        "Use mock plan data instead of querying the Circuit API. "
+        "Only relevant if not using the public API, which will query Circuit."
+    ),
+)
+@click.option(
+    "--mock_routes",
+    type=bool,
+    required=False,
+    default=True,
+    help=(
+        "Use mock routes data instead of querying the Circuit API. "
         "Only relevant if not using the public API, which will query Circuit."
     ),
 )
@@ -58,7 +68,7 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
         "Does not mock data; overrides use_mock_data and always queries the Circuit API."
     ),
 )
-def main(start_date: str, use_mock_data: bool, use_public: bool) -> None:
+def main(start_date: str, mock_plans: bool, mock_routes: bool, use_public: bool) -> None:
     """Mock run of the end-to-end Circuit integration."""
     for output_dir_key in OUTPUT_DIRS.keys():
         if output_dir_key != "CIRCUIT_TABLES_DIR":
@@ -75,13 +85,16 @@ def main(start_date: str, use_mock_data: bool, use_public: bool) -> None:
         print(final_manifest_path)
         breakpoint()
     else:
-        if not use_mock_data:
+        if not mock_plans:
             plans = _get_plans(start_date=start_date)
-            routes_df = _get_raw_routes_df(plans=plans)
         else:
             with open(".test_data/sample_responses/plans.json") as f:
                 plans = json.load(f)
                 plans = plans["plans"]
+
+        if not mock_routes:
+            routes_df = _get_raw_routes_df(plans=plans)
+        else:
             routes_df: pd.DataFrame
             with open(".test_data/sample_responses/routes_df.pkl", "rb") as f:
                 routes_df = pickle.load(f)

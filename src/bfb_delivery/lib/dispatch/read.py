@@ -41,7 +41,7 @@ def get_route_files(start_date: str, output_dir: str) -> str:
     # TODO: Validate single box count and single type.
     # TODO: Validate that route:driver_sheet_name is 1:1.
     # TODO: Validate that route title is same as plan title. (i.e., driver sheet name)
-    
+
     routes_df = _transform_routes_df(routes_df=routes_df)
     _write_routes_dfs(routes_df=routes_df, output_dir=Path(output_dir))
 
@@ -95,7 +95,6 @@ def _get_plans(start_date: str) -> list[dict[str, Any]]:
 @typechecked
 def _get_raw_routes_df(plans: list[dict[str, Any]]) -> pd.DataFrame:
     """Get the raw routes DataFrame from the plans."""
-    # TODO: Handle error responses.
     # TODO: Rate limit.
     # TODO: Handle nextPageToken.
     # TODO: Add external ID for delivery day so we can filter stops by it in request?
@@ -118,11 +117,29 @@ def _get_raw_routes_df(plans: list[dict[str, Any]]) -> pd.DataFrame:
             f"https://api.getcircuit.com/public/v0.2b/{plan_id}/stops",
             auth=HTTPBasicAuth(get_circuit_key(), ""),
         )
-        stops = stops_response.json()
-        stops_df = pd.DataFrame(stops.get("stops"))
-        stops_df = stops_df[input_cols]
-        stops_df["driver_sheet_name"] = plan.get("title")  # e.g. "1.17 Jay C"
-        routes_dfs.append(stops_df)
+        if stops_response.status_code != 200:
+            if stops_response.status_code == 429:
+                # TODO: Retry after wait?
+                pass
+            else:
+                try:
+                    response_json: dict = stops_response.json()
+                except Exception as e:
+                    response_json = {
+                        "reason": stops_response.reason,
+                        "additional_notes": "No-JSON response.",
+                        "response to JSON exception:": str(e),
+                    }
+                raise ValueError(
+                    f"Got {stops_response.status_code} reponse when getting getting stops "
+                    f"for {plan_id}: {response_json}"
+                )
+        else:
+            stops: dict = stops_response.json()
+            stops_df = pd.DataFrame(stops.get("stops"))
+            stops_df = stops_df[input_cols]
+            stops_df["driver_sheet_name"] = plan.get("title")  # e.g. "1.17 Jay C"
+            routes_dfs.append(stops_df)
 
     routes_df = pd.concat(routes_dfs)
 
