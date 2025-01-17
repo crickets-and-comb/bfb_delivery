@@ -71,14 +71,14 @@ def main(
     :py:func:`bfb_delivery.api.public.create_manifests_from_circuit`.
 
     """
-    path = create_manifests_from_circuit(
+    final_manifest_path = create_manifests_from_circuit(
         start_date=start_date,
         output_dir=output_dir,
         output_filename=output_filename,
         circuit_output_dir=circuit_output_dir,
         extra_notes_file=extra_notes_file,
     )
-    path = str(path)
-    click.echo(f"Formatted workbook saved to: {path}")
+    final_manifest_path = str(final_manifest_path)
+    click.echo(f"Formatted workbook saved to: {final_manifest_path}")
 
-    return path
+    return final_manifest_path

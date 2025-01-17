@@ -47,12 +47,12 @@ from bfb_delivery.lib.constants import Defaults
 @typechecked
 def main(input_dir: str, output_dir: str, output_filename: str, extra_notes_file: str) -> str:
     """See public docstring: :py:func:`bfb_delivery.api.public.create_manifests`."""
-    path = create_manifests(
+    final_manifest_path = create_manifests(
         input_dir=input_dir,
         output_dir=output_dir,
         output_filename=output_filename,
         extra_notes_file=extra_notes_file,
     )
-    path = str(path)
-    click.echo(f"Final manifests saved to: {path}")
-    return path
+    final_manifest_path = str(final_manifest_path)
+    click.echo(f"Final manifests saved to: {final_manifest_path}")
+    return final_manifest_path

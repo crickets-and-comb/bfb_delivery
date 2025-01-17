@@ -44,7 +44,6 @@ def main(mock_raw_chunked_sheet_path: str) -> None:
     mocks the CSVs returned by Circuit, recombines them, and formats them.
     """
     for output_dir in OUTPUT_DIRS.values():
-        # Remove directory if it exists.
         shutil.rmtree(output_dir, ignore_errors=True)
         Path(output_dir).mkdir(parents=True)
 

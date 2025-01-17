@@ -1,14 +1,18 @@
 """Read from Circuit."""
 
 import os
+import shutil
+from pathlib import Path
 from typing import Any
+from warnings import warn
+import pickle
 
 import pandas as pd
 import requests
 from requests.auth import HTTPBasicAuth
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import Columns
+from bfb_delivery.lib.constants import COMBINED_ROUTES_COLUMNS, Columns
 from bfb_delivery.lib.dispatch.utils import get_circuit_key
 from bfb_delivery.lib.utils import get_friday
 
@@ -30,56 +34,47 @@ def get_route_files(start_date: str, output_dir: str) -> str:
     start_date = start_date if start_date else get_friday(fmt="%Y%m%d")
     if not output_dir:
         output_dir = os.getcwd() + "/routes_" + start_date
-    _write_route_files(date=start_date, output_dir=output_dir)
+
+    plans = _get_plans(start_date=start_date)
+    routes_df = _get_raw_routes_df(plans=plans)
+    del plans
+
+    # TODO: Validate single box count and single type.
+    # TODO: Validate that route:driver_sheet_name is 1:1.
+    # TODO: Validate that route title is same as plan title. (i.e., driver sheet name)
+    breakpoint()
+    routes_df.to_pickle(".test_data/sample_responses/routes_df.pkl")
+    routes_df = _transform_routes_df(routes_df=routes_df)
+    _write_routes_dfs(routes_df=routes_df, output_dir=Path(output_dir))
 
     return output_dir
 
 
 @typechecked
-def _write_route_files(date: str, output_dir: str) -> None:
-    """Get routes from Circuit and write CSVs to the output directory."""
-    routes_df = _get_routes_df(start_date=date)
-    _write_routes_dfs(routes_df=routes_df, output_dir=output_dir)
-
-
-@typechecked
-def _get_routes_df(start_date: str) -> pd.DataFrame:
-    """Get the routes DataFrame for the given date.
-
-    Args:
-        start_date: The start date to get the routes for, as "YYYYMMDD".
-
-    Returns:
-        Routes DataFrame with the columns:
-        [
-            "route",
-            "driver_sheet_name",
-            Columns.STOP_NO,
-            Columns.NAME,
-            Columns.ADDRESS,
-            Columns.PHONE,
-            Columns.NOTES,
-            Columns.ORDER_COUNT,
-            Columns.BOX_TYPE,
-            Columns.NEIGHBORHOOD,
-        ]
-    """
-    plans = _get_plans(start_date=start_date)
-    routes_df = _get_routes_by_plans(plans=plans)
-
-    return routes_df
-
-
-@typechecked
-def _write_routes_dfs(routes_df: pd.DataFrame, output_dir: str) -> None:
+def _write_routes_dfs(routes_df: pd.DataFrame, output_dir: Path) -> None:
     """Split and write the routes DataFrame to the output directory.
 
     Args:
         routes_df: The routes DataFrame to write.
         output_dir: The directory to save the routes to.
     """
-    # TODO: Group by route and write CSVs to file named after driver_sheet_name.
-    pass
+    if output_dir.exists():
+        warn(f"Output directory exists {output_dir}. Overwriting.")
+        shutil.rmtree(output_dir, ignore_errors=True)
+    output_dir.mkdir(parents=True)
+
+    for route, route_df in routes_df.groupby("route"):
+        driver_sheet_name = route_df["driver_sheet_name"].unique()
+        if len(driver_sheet_name) > 1:
+            raise ValueError(
+                f"Route {route} has multiple driver sheet names: {driver_sheet_name}"
+            )
+        elif len(driver_sheet_name) < 1:
+            raise ValueError(f"Route {route} has no driver sheet name.")
+
+        route_df[COMBINED_ROUTES_COLUMNS].to_csv(
+            output_dir / f"{driver_sheet_name}.csv", index=False
+        )
 
 
 @typechecked
@@ -97,19 +92,6 @@ def _get_plans(start_date: str) -> list[dict[str, Any]]:
     plans = list_plans_response.json()
 
     return plans.get("plans", {})
-
-
-@typechecked
-def _get_routes_by_plans(plans: list[dict[str, Any]]) -> pd.DataFrame:
-    """Get the routes DataFrame from the plans."""
-    routes_df = _get_raw_routes_df(plans=plans)
-    del plans
-    # TODO: Validate single box count and single type.
-    # TODO: Validate that route:driver_sheet_name is 1:1.
-    # TODO: Validate that route title is same as plan title. (i.e., driver sheet name)
-    routes_df = _transform_routes_df(routes_df=routes_df)
-
-    return routes_df
 
 
 @typechecked
