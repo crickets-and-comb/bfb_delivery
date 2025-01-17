@@ -5,7 +5,6 @@ import shutil
 from pathlib import Path
 from typing import Any
 from warnings import warn
-import pickle
 
 import pandas as pd
 import requests
@@ -64,14 +63,14 @@ def _write_routes_dfs(routes_df: pd.DataFrame, output_dir: Path) -> None:
     output_dir.mkdir(parents=True)
 
     for route, route_df in routes_df.groupby("route"):
-        driver_sheet_name = route_df["driver_sheet_name"].unique()
-        if len(driver_sheet_name) > 1:
+        driver_sheet_names = route_df["driver_sheet_name"].unique()
+        if len(driver_sheet_names) > 1:
             raise ValueError(
-                f"Route {route} has multiple driver sheet names: {driver_sheet_name}"
+                f"Route {route} has multiple driver sheet names: {driver_sheet_names}"
             )
-        elif len(driver_sheet_name) < 1:
+        elif len(driver_sheet_names) < 1:
             raise ValueError(f"Route {route} has no driver sheet name.")
-
+        driver_sheet_name = driver_sheet_names[0]
         route_df[COMBINED_ROUTES_COLUMNS].to_csv(
             output_dir / f"{driver_sheet_name}.csv", index=False
         )

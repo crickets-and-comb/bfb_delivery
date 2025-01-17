@@ -2,11 +2,11 @@
 
 import json
 import os
+import pickle
 import shutil
 import sys
 from pathlib import Path
 from typing import Final
-import pickle
 
 import click
 import pandas as pd
@@ -84,6 +84,7 @@ def main(start_date: str, use_mock_data: bool, use_public: bool) -> None:
             with open(".test_data/sample_responses/plans.json") as f:
                 plans = json.load(f)
                 plans = plans["plans"]
+                # breakpoint()
             routes_df: pd.DataFrame
             with open(".test_data/sample_responses/routes_df.pkl", "rb") as f:
                 routes_df = pickle.load(f)
