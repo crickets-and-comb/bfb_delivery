@@ -128,45 +128,55 @@ def _get_raw_stops_lists(plan_ids: list[str]) -> list[list[dict[str, Any]]]:
     for plan_id in plan_ids:
         # https://developer.team.getcircuit.com/api#tag/Stops/operation/listStops
         base_url = f"https://api.getcircuit.com/public/v0.2b/{plan_id}/stops"
-        wait_seconds = RateLimits.READ_SECONDS
-        next_page_token = ""
-        stops_lists = []
-
-        while next_page_token is not None:
-            url = base_url + str(next_page_token)
-            stops_response = requests.get(url, auth=HTTPBasicAuth(get_circuit_key(), ""))
-            if stops_response.status_code != 200:
-                try:
-                    response_json: dict = stops_response.json()
-                except Exception as e:
-                    response_json = {
-                        "reason": stops_response.reason,
-                        "additional_notes": "No-JSON response.",
-                        "response to JSON exception:": str(e),
-                    }
-                err_msg = (
-                    f"Got {stops_response.status_code} reponse when getting stops for "
-                    f"{plan_id}: {response_json}"
-                )
-                if stops_response.status_code == 429:
-                    wait_seconds = wait_seconds * 2
-                    warn(
-                        f"Doubling per-request wait time to {wait_seconds} seconds. {err_msg}"
-                    )
-                else:
-                    raise ValueError(err_msg)
-            else:
-                stops = stops_response.json()
-                stops_lists.append(stops)
-                next_page_token = stops.get("nextPageToken", None)
-
-            if next_page_token or stops_response.status_code == 429:
-                next_page_token = f"?pageToken={next_page_token}"
-                sleep(wait_seconds)
-
+        stops_lists = _get_responses(base_url=base_url)
+        # TODO: Why are we appending? Just add?
         plan_stops_lists.append(stops_lists)
 
     return plan_stops_lists
+
+
+@typechecked
+def _get_responses(base_url: str) -> list[dict[str, Any]]:
+    wait_seconds = RateLimits.READ_SECONDS
+    next_page_token = ""
+    responses = []
+
+    while next_page_token is not None:
+        url = base_url + str(next_page_token)
+        response = requests.get(url, auth=HTTPBasicAuth(get_circuit_key(), ""))
+        if response.status_code != 200:
+            try:
+                response_dict: dict = response.json()
+            except Exception as e:
+                response_dict = {
+                    "reason": response.reason,
+                    "additional_notes": "No-JSON response.",
+                    "response to JSON exception:": str(e),
+                }
+            err_msg = (
+                f"Got {response.status_code} reponse for {url}: {response_dict}"
+            )
+            if response.status_code == 429:
+                wait_seconds = wait_seconds * 2
+                warn(
+                    f"Doubling per-request wait time to {wait_seconds} seconds. {err_msg}"
+                )
+            else:
+                raise ValueError(err_msg)
+        else:
+            stops = response.json()
+            # TODO: Why are we appending?
+            # Just drop token, select data lists and concat?
+            # [{'nextPageToken': 'cm91dGVzL2xJVFRuUXN4WWZmcUpRRHhJcHpyL3N0b3BzL3hGYk1nN0RIcm1GOFhvd0RkdlNn',
+            #   'stops': [{'activity': 'delivery',
+            responses.append(stops)
+            next_page_token = stops.get("nextPageToken", None)
+
+        if next_page_token or response.status_code == 429:
+            next_page_token = f"?pageToken={next_page_token}"
+            sleep(wait_seconds)
+    
+    return responses
 
 
 @typechecked

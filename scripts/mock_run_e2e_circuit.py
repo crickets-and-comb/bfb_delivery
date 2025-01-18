@@ -89,7 +89,7 @@ def main(
             circuit_output_dir=OUTPUT_DIRS["CIRCUIT_TABLES_DIR"],
         )
         print(final_manifest_path)
-        breakpoint()
+        
     else:
         # BEGIN: get_route_files
         if not mock_raw_plans:
