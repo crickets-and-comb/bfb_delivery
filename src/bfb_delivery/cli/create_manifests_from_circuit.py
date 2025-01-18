@@ -60,6 +60,17 @@ from bfb_delivery.lib.constants import Defaults
     ),
 )
 @click.option(
+    "--all_HHs",
+    type=bool,
+    required=False,
+    default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["all_HHs"],
+    help=(
+        'Flag to get only the "All HHs" route.'
+        'False gets all routes except "All HHs". True gets only the "All HHs" route.'
+        "NOTE: True returns email column in CSVs, for reuploading after splitting."
+    ),
+)
+@click.option(
     "--extra_notes_file",
     type=str,
     required=False,
@@ -76,6 +87,7 @@ def main(
     output_dir: str,
     output_filename: str,
     circuit_output_dir: str,
+    all_HHs: bool,
     extra_notes_file: str,
 ) -> str:
     """See public docstring.
@@ -89,6 +101,7 @@ def main(
         output_dir=output_dir,
         output_filename=output_filename,
         circuit_output_dir=circuit_output_dir,
+        all_HHs=all_HHs,
         extra_notes_file=extra_notes_file,
     )
     final_manifest_path = str(final_manifest_path)

@@ -13,6 +13,7 @@ from requests.auth import HTTPBasicAuth
 from typeguard import typechecked
 
 from bfb_delivery.lib.constants import (
+    ALL_HHS_DRIVER,
     COMBINED_ROUTES_COLUMNS,
     DEPOT_PLACE_ID,
     Columns,
@@ -28,7 +29,7 @@ from bfb_delivery.lib.utils import get_friday
 
 
 @typechecked
-def get_route_files(start_date: str, end_date: str, output_dir: str) -> str:
+def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bool) -> str:
     """Get the route files for the given date.
 
     Args:
@@ -39,6 +40,9 @@ def get_route_files(start_date: str, end_date: str, output_dir: str) -> str:
         output_dir: The directory to save the routes to.
             Empty string saves to "routes_{date}" directory in present working directory.
             If the directory does not exist, it is created. If it exists, it is overwritten.
+        all_HHs: Flag to get only the "All HHs" route.
+            False gets all routes except "All HHs". True gets only the "All HHs" route.
+            NOTE: True returns email column in CSV, for reuploading after splitting.
 
     Returns:
         The path to the route files.
@@ -49,19 +53,23 @@ def get_route_files(start_date: str, end_date: str, output_dir: str) -> str:
         output_dir = os.getcwd() + "/routes_" + start_date
 
     plans_list = _get_raw_plans(start_date=start_date, end_date=end_date)
-    plans_df = _make_plans_df(plans_list=plans_list)
+    # TODO: Filter to only plans with routes to make sure we don't get plans that aren't
+    # routed. That would cause a validation problem when we check stops against routes.
+    plans_df = _make_plans_df(plans_list=plans_list, all_HHs=all_HHs)
     del plans_list
     # TODO: Add external ID for delivery day so we can filter stops by it in request?
     # After taking over upload.
     plan_stops_list = _get_raw_stops_lists(plan_ids=plans_df["id"].tolist())
+    # TODO: Filter to only stops with a route id to ensure we don't get stops with a plan and
+    # no route. (I.e., not optimized and routed.)
     routes_df = _concat_routes_df(plan_stops_list=plan_stops_list, plans_df=plans_df)
 
     # TODO: Validate single box count and single type.
     # TODO: Validate that route:title is 1:1. (plan title is driver sheet name)
     # TODO: Validate that route title is same as plan title. (i.e., driver sheet name)
 
-    routes_df = _transform_routes_df(routes_df=routes_df)
-    _write_routes_dfs(routes_df=routes_df, output_dir=Path(output_dir))
+    routes_df = _transform_routes_df(routes_df=routes_df, include_email=all_HHs)
+    _write_routes_dfs(routes_df=routes_df, output_dir=Path(output_dir), include_email=all_HHs)
 
     return output_dir
 
@@ -82,10 +90,20 @@ def _get_raw_plans(start_date: str, end_date: str) -> list[dict[str, Any]]:
 
 
 @typechecked
-def _make_plans_df(plans_list: list[dict[str, Any]]) -> pd.DataFrame:
+def _make_plans_df(plans_list: list[dict[str, Any]], all_HHs: bool) -> pd.DataFrame:
     """Make the plans DataFrame from the plans."""
     plans_df = pd.DataFrame(plans_list)
     plans_df = plans_df[["id", "title"]]
+    # TODO: We could do this in a few ways that are more robust.
+    # 1. Filter by driver ID, but we'd need to exclude the staff that use their driver IDs
+    # to do this, and what if they decided to drive one day?
+    # 2. Pass an external ID to filter on.
+    # 3. Create a dummy driver ID for the "All HHs" route.
+    # Worst to best in order.
+    if all_HHs:
+        plans_df = plans_df[plans_df["title"].str.contains(ALL_HHS_DRIVER)]
+    else:
+        plans_df = plans_df[~(plans_df["title"].str.contains(ALL_HHS_DRIVER))]
 
     if plans_df.isna().any().any():
         raise ValueError("Plan ID or title is missing.")
@@ -145,7 +163,7 @@ def _concat_routes_df(
 
 
 @typechecked
-def _transform_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
+def _transform_routes_df(routes_df: pd.DataFrame, include_email: bool) -> pd.DataFrame:
     """Transform the raw routes DataFrame."""
     # TODO: Make columns constant. (And/or use pandera.)
     output_cols = [
@@ -160,6 +178,9 @@ def _transform_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
         Columns.BOX_TYPE,
         Columns.NEIGHBORHOOD,
     ]
+    if include_email:
+        output_cols.append(Columns.EMAIL)
+
     routes_df.rename(
         columns={
             "title": "driver_sheet_name",  # Plan title is upload/download sheet name.
@@ -198,6 +219,10 @@ def _transform_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
     routes_df[Columns.NEIGHBORHOOD] = routes_df["recipient"].apply(
         lambda recipient_dict: recipient_dict.get("externalId")
     )
+    if include_email:
+        routes_df[Columns.EMAIL] = routes_df["recipient"].apply(
+            lambda recipient_dict: recipient_dict.get("email")
+        )
 
     # TODO: Verify we want to warn/raise/impute.
     # TODO: Validate required not null: route, driver_sheet_name, stop_no, addressLineOne,
@@ -214,17 +239,21 @@ def _transform_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
 
 
 @typechecked
-def _write_routes_dfs(routes_df: pd.DataFrame, output_dir: Path) -> None:
+def _write_routes_dfs(routes_df: pd.DataFrame, output_dir: Path, include_email: bool) -> None:
     """Split and write the routes DataFrame to the output directory.
 
     Args:
         routes_df: The routes DataFrame to write.
         output_dir: The directory to save the routes to.
+        include_email: Whether to include the email column in the output.
     """
     if output_dir.exists():
         warn(f"Output directory exists {output_dir}. Overwriting.")
         shutil.rmtree(output_dir, ignore_errors=True)
     output_dir.mkdir(parents=True)
+    output_columns = COMBINED_ROUTES_COLUMNS.copy()
+    if include_email:
+        output_columns.append(Columns.EMAIL)
 
     for route, route_df in routes_df.groupby("route"):
         driver_sheet_names = route_df["driver_sheet_name"].unique()
@@ -235,9 +264,7 @@ def _write_routes_dfs(routes_df: pd.DataFrame, output_dir: Path) -> None:
         elif len(driver_sheet_names) < 1:
             raise ValueError(f"Route {route} has no driver sheet name.")
         driver_sheet_name = driver_sheet_names[0]
-        route_df[COMBINED_ROUTES_COLUMNS].to_csv(
-            output_dir / f"{driver_sheet_name}.csv", index=False
-        )
+        route_df[output_columns].to_csv(output_dir / f"{driver_sheet_name}.csv", index=False)
 
 
 @typechecked

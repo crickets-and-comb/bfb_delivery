@@ -55,6 +55,17 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
     ),
 )
 @click.option(
+    "--all_hhs",
+    type=bool,
+    required=False,
+    default=False,
+    help=(
+        'Flag to get only the "All HHs" route.'
+        'False gets all routes except "All HHs". True gets only the "All HHs" route.'
+        "NOTE: True returns email column in CSV, for reuploading after splitting."
+    ),
+)
+@click.option(
     "--mock_raw_plans",
     type=bool,
     required=False,
@@ -87,6 +98,7 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
 def main(
     start_date: str,
     end_date: str,
+    all_hhs: bool,
     mock_raw_plans: bool,
     mock_raw_routes: bool,
     use_public: bool,
@@ -102,10 +114,11 @@ def main(
         final_manifest_path = create_manifests_from_circuit(
             start_date=start_date,
             end_date=end_date,
+            all_HHs=all_hhs,
             output_dir=OUTPUT_DIRS["MANIFESTS_DIR"],
             circuit_output_dir=OUTPUT_DIRS["CIRCUIT_TABLES_DIR"],
         )
-        print(final_manifest_path)
+        print(f"final_manifest_path: {final_manifest_path}")
 
     else:
         # BEGIN: get_route_files-ish
@@ -121,7 +134,7 @@ def main(
             with open(".test_data/sample_responses/plans_list.json") as f:
                 plans_list = json.load(f)
 
-        plans_df = _make_plans_df(plans_list=plans_list)
+        plans_df = _make_plans_df(plans_list=plans_list, all_HHs=all_hhs)
         # plans_df.to_csv(".test_data/sample_responses/plans_df.csv", index=False)
 
         if not mock_raw_routes:
@@ -135,12 +148,15 @@ def main(
 
         routes_df = _concat_routes_df(plan_stops_list=plan_stops_list, plans_df=plans_df)
         # routes_df.to_pickle(".test_data/sample_responses/routes_df_raw.pkl")
-        routes_df = _transform_routes_df(routes_df=routes_df)
+        routes_df = _transform_routes_df(routes_df=routes_df, include_email=all_hhs)
         # routes_df.to_csv(
-        #     ".test_data/sample_responses/routes_df_transformed.csv", index=False
+        #     ".test_data/sample_responses/routes_df_transformed.csv",
+        #     index=False
         # )
         _write_routes_dfs(
-            routes_df=routes_df, output_dir=Path(OUTPUT_DIRS["CIRCUIT_TABLES_DIR"])
+            routes_df=routes_df,
+            output_dir=Path(OUTPUT_DIRS["CIRCUIT_TABLES_DIR"]),
+            include_email=all_hhs,
         )
         # END: get_route_files
 

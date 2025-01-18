@@ -7,6 +7,8 @@ import pandas as pd
 
 ADDRESS_COLUMN_WIDTH: Final[float] = 40
 
+ALL_HHS_DRIVER: Final[str] = "All HHs"
+
 
 class BookOneDrivers(StrEnum):
     """Drivers for the first book.
@@ -87,7 +89,8 @@ class Defaults:
         "output_filename": "",
         "extra_notes_file": "",
     }
-    CREATE_MANIFESTS_FROM_CIRCUIT: Final[dict[str, str]] = {
+    CREATE_MANIFESTS_FROM_CIRCUIT: Final[dict[str, str | bool]] = {
+        "all_HHs": False,
         "start_date": "",
         "end_date": "",
         "output_dir": CREATE_MANIFESTS["output_dir"],
