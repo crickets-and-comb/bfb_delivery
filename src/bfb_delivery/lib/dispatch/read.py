@@ -21,7 +21,10 @@ from bfb_delivery.lib.constants import (
 from bfb_delivery.lib.dispatch.utils import get_circuit_key
 from bfb_delivery.lib.utils import get_friday
 
-# TODO: Reorder functions.
+# TODO: Add info/progess logging.
+# TODO: Drop "All HHs" routes (is the single long route I think).
+# Maybe add flag to get only them or not them. They can use this to get the
+# initial route. Make get_route_files CLI, then.
 
 
 @typechecked
@@ -42,9 +45,9 @@ def get_route_files(start_date: str, output_dir: str) -> str:
     if not output_dir:
         output_dir = os.getcwd() + "/routes_" + start_date
 
-    plans = _get_raw_plans(start_date=start_date)
-    plans_df = _make_plans_df(plans=plans)
-    del plans
+    plans_list = _get_raw_plans(start_date=start_date)
+    plans_df = _make_plans_df(plans_list=plans_list)
+    del plans_list
     # TODO: Add external ID for delivery day so we can filter stops by it in request?
     # After taking over upload.
     plan_stops_lists = _get_raw_stops_lists(plan_ids=plans_df["id"].tolist())
@@ -61,53 +64,23 @@ def get_route_files(start_date: str, output_dir: str) -> str:
 
 
 @typechecked
-def _write_routes_dfs(routes_df: pd.DataFrame, output_dir: Path) -> None:
-    """Split and write the routes DataFrame to the output directory.
-
-    Args:
-        routes_df: The routes DataFrame to write.
-        output_dir: The directory to save the routes to.
-    """
-    if output_dir.exists():
-        warn(f"Output directory exists {output_dir}. Overwriting.")
-        shutil.rmtree(output_dir, ignore_errors=True)
-    output_dir.mkdir(parents=True)
-
-    for route, route_df in routes_df.groupby("route"):
-        driver_sheet_names = route_df["driver_sheet_name"].unique()
-        if len(driver_sheet_names) > 1:
-            raise ValueError(
-                f"Route {route} has multiple driver sheet names: {driver_sheet_names}"
-            )
-        elif len(driver_sheet_names) < 1:
-            raise ValueError(f"Route {route} has no driver sheet name.")
-        driver_sheet_name = driver_sheet_names[0]
-        route_df[COMBINED_ROUTES_COLUMNS].to_csv(
-            output_dir / f"{driver_sheet_name}.csv", index=False
-        )
-
-
-@typechecked
 def _get_raw_plans(start_date: str) -> list[dict[str, Any]]:
     """Call Circuit API to get the plans for the given date."""
-    # TODO: Handle error responses.
-    # TODO: Rate limit.
-    # TODO: Handle nextPageToken.
     # TODO: Filter to upper date too? (Do they only do one day at a time?)
     # https://developer.team.getcircuit.com/api#tag/Plans/operation/listPlans
-    list_plans_response = requests.get(
-        f"https://api.getcircuit.com/public/v0.2b/plans?filter.startsGte={start_date}",
-        auth=HTTPBasicAuth(get_circuit_key(), ""),
-    )
-    plans = list_plans_response.json()
-
-    return plans.get("plans", {})
+    url = f"https://api.getcircuit.com/public/v0.2b/plans?filter.startsGte={start_date}"
+    plans = _get_responses(base_url=url)
+    # TODO: Do this inside _get_responses.
+    plans_list = []
+    for plan in plans:
+        plans_list += plan["plans"]
+    return plans_list
 
 
 @typechecked
-def _make_plans_df(plans: list[dict[str, Any]]) -> pd.DataFrame:
+def _make_plans_df(plans_list: list[dict[str, Any]]) -> pd.DataFrame:
     """Make the plans DataFrame from the plans."""
-    plans_df = pd.DataFrame(plans)
+    plans_df = pd.DataFrame(plans_list)
     plans_df = plans_df[["id", "title"]]
 
     if plans_df.isna().any().any():
@@ -133,46 +106,6 @@ def _get_raw_stops_lists(plan_ids: list[str]) -> list[dict[str, Any]]:
         plan_stops_lists += stops_lists
 
     return plan_stops_lists
-
-
-@typechecked
-def _get_responses(base_url: str) -> list[dict[str, Any]]:
-    wait_seconds = RateLimits.READ_SECONDS
-    next_page_token = ""
-    responses = []
-
-    while next_page_token is not None:
-        url = base_url + str(next_page_token)
-        response = requests.get(url, auth=HTTPBasicAuth(get_circuit_key(), ""))
-        if response.status_code != 200:
-            try:
-                response_dict: dict = response.json()
-            except Exception as e:
-                response_dict = {
-                    "reason": response.reason,
-                    "additional_notes": "No-JSON response.",
-                    "response to JSON exception:": str(e),
-                }
-            err_msg = f"Got {response.status_code} reponse for {url}: {response_dict}"
-            if response.status_code == 429:
-                wait_seconds = wait_seconds * 2
-                warn(f"Doubling per-request wait time to {wait_seconds} seconds. {err_msg}")
-            else:
-                raise ValueError(err_msg)
-        else:
-            stops = response.json()
-            # TODO: Why are we appending?
-            # Just drop token, select data lists and concat?
-            # [{'nextPageToken': 'cm91dGVzL2xJVFRuUXN4WWZmcUpRRHhJcHpyL3N0b3BzL3hGYk1nN0RIcm1GOFhvd0RkdlNn', # noqa: B950, E501
-            #   'stops': [{'activity': 'delivery',
-            responses.append(stops)
-            next_page_token = stops.get("nextPageToken", None)
-
-        if next_page_token or response.status_code == 429:
-            next_page_token = f"?pageToken={next_page_token}"
-            sleep(wait_seconds)
-
-    return responses
 
 
 @typechecked
@@ -273,6 +206,74 @@ def _transform_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
     routes_df.sort_values(by=["driver_sheet_name", Columns.STOP_NO], inplace=True)
 
     return routes_df
+
+
+@typechecked
+def _write_routes_dfs(routes_df: pd.DataFrame, output_dir: Path) -> None:
+    """Split and write the routes DataFrame to the output directory.
+
+    Args:
+        routes_df: The routes DataFrame to write.
+        output_dir: The directory to save the routes to.
+    """
+    if output_dir.exists():
+        warn(f"Output directory exists {output_dir}. Overwriting.")
+        shutil.rmtree(output_dir, ignore_errors=True)
+    output_dir.mkdir(parents=True)
+
+    for route, route_df in routes_df.groupby("route"):
+        driver_sheet_names = route_df["driver_sheet_name"].unique()
+        if len(driver_sheet_names) > 1:
+            raise ValueError(
+                f"Route {route} has multiple driver sheet names: {driver_sheet_names}"
+            )
+        elif len(driver_sheet_names) < 1:
+            raise ValueError(f"Route {route} has no driver sheet name.")
+        driver_sheet_name = driver_sheet_names[0]
+        route_df[COMBINED_ROUTES_COLUMNS].to_csv(
+            output_dir / f"{driver_sheet_name}.csv", index=False
+        )
+
+
+@typechecked
+def _get_responses(base_url: str) -> list[dict[str, Any]]:
+    wait_seconds = RateLimits.READ_SECONDS
+    next_page_token = ""
+    responses = []
+
+    while next_page_token is not None:
+        url = base_url + str(next_page_token)
+        response = requests.get(url, auth=HTTPBasicAuth(get_circuit_key(), ""))
+        if response.status_code != 200:
+            try:
+                response_dict: dict = response.json()
+            except Exception as e:
+                response_dict = {
+                    "reason": response.reason,
+                    "additional_notes": "No-JSON response.",
+                    "response to JSON exception:": str(e),
+                }
+            err_msg = f"Got {response.status_code} reponse for {url}: {response_dict}"
+            if response.status_code == 429:
+                wait_seconds = wait_seconds * 2
+                warn(f"Doubling per-request wait time to {wait_seconds} seconds. {err_msg}")
+            else:
+                raise ValueError(err_msg)
+        else:
+            stops = response.json()
+            # TODO: Why are we appending?
+            # Just drop token, select data lists and concat?
+            # [{'nextPageToken': 'cm91dGVzL2xJVFRuUXN4WWZmcUpRRHhJcHpyL3N0b3BzL3hGYk1nN0RIcm1GOFhvd0RkdlNn', # noqa: B950, E501
+            #   'stops': [{'activity': 'delivery',
+            responses.append(stops)
+            next_page_token = stops.get("nextPageToken", None)
+
+        if next_page_token or response.status_code == 429:
+            token_prefix = "?" if "?" not in base_url else "&"
+            next_page_token = f"{token_prefix}pageToken={next_page_token}"
+            sleep(wait_seconds)
+
+    return responses
 
 
 @typechecked

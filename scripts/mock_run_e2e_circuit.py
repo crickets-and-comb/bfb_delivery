@@ -93,15 +93,15 @@ def main(
     else:
         # BEGIN: get_route_files
         if not mock_raw_plans:
-            plans = _get_raw_plans(start_date=start_date)
-            # with open(".test_data/sample_responses/plans.json", "w") as f:
-            #     json.dump(plans, f, indent=4)
+            plans_list = _get_raw_plans(start_date=start_date)
+            # with open(".test_data/sample_responses/plans_list.json", "w") as f:
+            #     json.dump(plans_list, f, indent=4)
             # breakpoint()
         else:
-            with open(".test_data/sample_responses/plans.json") as f:
-                plans = json.load(f)
+            with open(".test_data/sample_responses/plans_list.json") as f:
+                plans_list = json.load(f)
 
-        plans_df = _make_plans_df(plans=plans)
+        plans_df = _make_plans_df(plans_list=plans_list)
         # plans_df.to_csv(".test_data/sample_responses/plans_df.csv", index=False)
 
         if not mock_raw_routes:
