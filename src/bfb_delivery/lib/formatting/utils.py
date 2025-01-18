@@ -1,14 +1,17 @@
 """Utility functions for the formatting module."""
 
 import configparser
+import logging
 import os
-import warnings
 from pathlib import Path
 
 import pandas as pd
 from typeguard import typechecked
 
 from bfb_delivery.lib.constants import BookOneDrivers, Columns, ExtraNotes
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 
 @typechecked
@@ -82,17 +85,15 @@ def get_phone_number(key: str, config_path: str = "config.ini") -> str:
             config.read(full_config_path)
             phone_number = config[section_key][key]
         except KeyError:
-            warnings.warn(
-                f"{key} not found in config file: {full_config_path}. {config_instructions}",
-                stacklevel=2,
+            logger.warning(
+                f"{key} not found in config file: {full_config_path}. {config_instructions}"
             )
     else:
-        warnings.warn(
+        logger.warning(
             (
                 f"Config file not found: {full_config_path}. "
                 f"Create the file. {config_instructions}"
-            ),
-            stacklevel=2,
+            )
         )
 
     return str(phone_number)

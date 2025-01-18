@@ -6,7 +6,6 @@ import shutil
 from pathlib import Path
 from time import sleep
 from typing import Any
-from warnings import warn
 
 import pandas as pd
 import requests
@@ -256,7 +255,7 @@ def _write_routes_dfs(routes_df: pd.DataFrame, output_dir: Path, include_email: 
         include_email: Whether to include the email column in the output.
     """
     if output_dir.exists():
-        warn(f"Output directory exists {output_dir}. Overwriting.")
+        logger.warning(f"Output directory exists {output_dir}. Overwriting.")
         shutil.rmtree(output_dir, ignore_errors=True)
     output_dir.mkdir(parents=True)
     output_columns = COMBINED_ROUTES_COLUMNS.copy()
@@ -297,7 +296,9 @@ def _get_responses(base_url: str) -> list[dict[str, Any]]:
             err_msg = f"Got {response.status_code} reponse for {url}: {response_dict}"
             if response.status_code == 429:
                 wait_seconds = wait_seconds * 2
-                warn(f"Doubling per-request wait time to {wait_seconds} seconds. {err_msg}")
+                logger.warning(
+                    f"Doubling per-request wait time to {wait_seconds} seconds. {err_msg}"
+                )
             else:
                 raise ValueError(err_msg)
         else:
@@ -330,7 +331,9 @@ def _warn_and_impute(routes_df: pd.DataFrame) -> None:
     """Warn and impute missing values in the routes DataFrame."""
     missing_order_count = routes_df[Columns.ORDER_COUNT].isna()
     if missing_order_count.any():
-        warn(f"Missing order count for {missing_order_count.sum()} stops. Imputing 1.")
+        logger.warning(
+            f"Missing order count for {missing_order_count.sum()} stops. Imputing 1 order."
+        )
     routes_df[Columns.ORDER_COUNT] = routes_df[Columns.ORDER_COUNT].fillna(1)
 
     # TODO: Verify we want to do this. Ask, if we want to just overwrite the neighborhood.
@@ -338,7 +341,7 @@ def _warn_and_impute(routes_df: pd.DataFrame) -> None:
     # TODO: Strip whitespace.
     missing_neighborhood = routes_df[Columns.NEIGHBORHOOD].isna()
     if missing_neighborhood.any():
-        warn(
+        logger.warning(
             f"Missing neighborhood for {missing_neighborhood.sum()} stops."
             " Imputing best guesses from Circuit-supplied address."
         )

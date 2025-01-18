@@ -1,6 +1,6 @@
 """Data cleaning utilities."""
 
-import warnings
+import logging
 from collections.abc import Callable
 from logging import info
 
@@ -10,6 +10,9 @@ import phonenumbers
 from typeguard import typechecked
 
 from bfb_delivery.lib.constants import MAX_ORDER_COUNT, Columns
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 
 @typechecked
@@ -149,15 +152,13 @@ def _format_and_validate_email(df: pd.DataFrame) -> None:
                 formatted_email = email_info.normalized
         except email_validator.EmailNotValidError as e:
             invalid_emails.append(email)
-            warnings.warn(message=f"Invalid email address, {email}: {e}", stacklevel=2)
+            logger.warning(f"Invalid email address, {email}: {e}")
             info("Checking for more invalid addresses before raising error.")
 
         formatted_emails.append(formatted_email)
 
     if invalid_emails:
-        warnings.warn(
-            message=f"Invalid email addresses found:\n{invalid_emails}", stacklevel=2
-        )
+        logger.warning(f"Invalid email addresses found:\n{invalid_emails}")
     else:
         df[Columns.EMAIL] = formatted_emails
 
@@ -218,9 +219,8 @@ def _format_and_validate_phone(df: pd.DataFrame) -> None:
     )
     if not formatting_df["is_valid"].all():
         invalid_numbers = formatting_df[~formatting_df["is_valid"]]
-        warnings.warn(
-            message=f"Invalid phone numbers found:\n{invalid_numbers[df.columns.to_list()]}",
-            stacklevel=2,
+        logger.warning(
+            f"Invalid phone numbers found:\n{invalid_numbers[df.columns.to_list()]}"
         )
 
     # TODO: Use phonenumbers.format_by_pattern to achieve (555) 555-5555 if desired.
