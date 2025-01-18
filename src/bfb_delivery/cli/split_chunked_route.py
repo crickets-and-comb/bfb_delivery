@@ -1,10 +1,15 @@
 """split_chunked_route CLI. See :doc:`split_chunked_route` for more information."""
 
+import logging
+
 import click
 from typeguard import typechecked
 
 from bfb_delivery import split_chunked_route
 from bfb_delivery.lib.constants import Defaults
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 
 @click.command()
@@ -77,6 +82,6 @@ def main(
         date=date,
     )
     return_paths = [str(path.resolve()) for path in paths]
-    click.echo(f"Split workbook(s) saved to: {return_paths}")
+    logger.info(f"Split workbook(s) saved to:\n{return_paths}")
 
     return return_paths

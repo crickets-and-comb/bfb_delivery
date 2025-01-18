@@ -1,10 +1,15 @@
 """combine_route_tables CLI. See :doc:`create_manifests` for more information."""
 
+import logging
+
 import click
 from typeguard import typechecked
 
 from bfb_delivery import create_manifests
 from bfb_delivery.lib.constants import Defaults
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 
 @click.command()
@@ -53,6 +58,6 @@ def main(input_dir: str, output_dir: str, output_filename: str, extra_notes_file
         output_filename=output_filename,
         extra_notes_file=extra_notes_file,
     )
-    click.echo(f"Final manifests saved to: {final_manifest_path.resolve()}")
+    logger.info(f"Final manifests saved to:\n{final_manifest_path.resolve()}")
 
     return str(final_manifest_path)

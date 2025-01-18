@@ -264,7 +264,7 @@ def _write_routes_dfs(routes_df: pd.DataFrame, output_dir: Path, include_email: 
     if include_email:
         output_columns.append(Columns.EMAIL)
 
-    logger.info(f"Writing route CSVs to {output_dir.resolve()}.")
+    logger.info(f"Writing route CSVs to {output_dir.resolve()}")
     for route, route_df in routes_df.groupby("route"):
         driver_sheet_names = route_df["driver_sheet_name"].unique()
         if len(driver_sheet_names) > 1:
