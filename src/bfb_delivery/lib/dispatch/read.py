@@ -28,12 +28,14 @@ from bfb_delivery.lib.utils import get_friday
 
 
 @typechecked
-def get_route_files(start_date: str, output_dir: str) -> str:
+def get_route_files(start_date: str, end_date: str, output_dir: str) -> str:
     """Get the route files for the given date.
 
     Args:
         start_date: The start date to get the routes for, as "YYYYMMDD".
             Empty string uses the soonest Friday.
+        end_date: The end date to get the routes for, as "YYYYMMDD".
+            Empty string uses the start date.
         output_dir: The directory to save the routes to.
             Empty string saves to "routes_{date}" directory in present working directory.
             If the directory does not exist, it is created. If it exists, it is overwritten.
@@ -42,10 +44,11 @@ def get_route_files(start_date: str, output_dir: str) -> str:
         The path to the route files.
     """
     start_date = start_date if start_date else get_friday(fmt="%Y%m%d")
+    end_date = end_date if end_date else start_date
     if not output_dir:
         output_dir = os.getcwd() + "/routes_" + start_date
 
-    plans_list = _get_raw_plans(start_date=start_date)
+    plans_list = _get_raw_plans(start_date=start_date, end_date=end_date)
     plans_df = _make_plans_df(plans_list=plans_list)
     del plans_list
     # TODO: Add external ID for delivery day so we can filter stops by it in request?
@@ -64,11 +67,15 @@ def get_route_files(start_date: str, output_dir: str) -> str:
 
 
 @typechecked
-def _get_raw_plans(start_date: str) -> list[dict[str, Any]]:
+def _get_raw_plans(start_date: str, end_date: str) -> list[dict[str, Any]]:
     """Call Circuit API to get the plans for the given date."""
     # TODO: Filter to upper date too? (Do they only do one day at a time?)
     # https://developer.team.getcircuit.com/api#tag/Plans/operation/listPlans
-    url = f"https://api.getcircuit.com/public/v0.2b/plans?filter.startsGte={start_date}"
+    url = (
+        "https://api.getcircuit.com/public/v0.2b/plans"
+        f"?filter.startsGte={start_date}"
+        f"&filter.startsLte={end_date}"
+    )
     plans = _get_responses(base_url=url)
     plans_list = _concat_response_pages(page_list=plans, data_key="plans")
     return plans_list
@@ -259,10 +266,6 @@ def _get_responses(base_url: str) -> list[dict[str, Any]]:
                 raise ValueError(err_msg)
         else:
             stops = response.json()
-            # TODO: Why are we appending?
-            # Just drop token, select data lists and concat?
-            # [{'nextPageToken': 'cm91dGVzL2xJVFRuUXN4WWZmcUpRRHhJcHpyL3N0b3BzL3hGYk1nN0RIcm1GOFhvd0RkdlNn', # noqa: B950, E501
-            #   'stops': [{'activity': 'delivery',
             responses.append(stops)
             next_page_token = stops.get("nextPageToken", None)
 
@@ -275,7 +278,9 @@ def _get_responses(base_url: str) -> list[dict[str, Any]]:
 
 
 @typechecked
-def _concat_response_pages(page_list: list[dict[str, Any]], data_key: str) -> list[dict[str, Any]]:
+def _concat_response_pages(
+    page_list: list[dict[str, Any]], data_key: str
+) -> list[dict[str, Any]]:
     """Extract and concatenate the data lists from response pages."""
     data_list = []
     for page in page_list:

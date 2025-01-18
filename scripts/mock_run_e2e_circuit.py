@@ -22,6 +22,7 @@ from bfb_delivery.lib.dispatch.read import (
     _write_routes_dfs,
 )
 from bfb_delivery.lib.formatting import sheet_shaping
+from bfb_delivery.lib.utils import get_friday
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../.test_data")))
 
@@ -36,10 +37,21 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
     "--start_date",
     type=str,
     required=False,
+    # NOTE: Need to update eventually when data gets purged from Circuit.
     default="2025-01-17",
     help=(
         'The start date to use in the output workbook sheetnames as "YYYYMMDD". '
-        "Empty string (default) uses the soonest Friday."
+        "Empty string (default) uses the soonest Friday. Range is inclusive."
+    ),
+)
+@click.option(
+    "--end_date",
+    type=str,
+    required=False,
+    default="",
+    help=(
+        'The end date to use in the output workbook sheetnames as "YYYYMMDD".'
+        "Empty string (default) uses the start date. Range is inclusive."
     ),
 )
 @click.option(
@@ -73,7 +85,11 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
     ),
 )
 def main(
-    start_date: str, mock_raw_plans: bool, mock_raw_routes: bool, use_public: bool
+    start_date: str,
+    end_date: str,
+    mock_raw_plans: bool,
+    mock_raw_routes: bool,
+    use_public: bool,
 ) -> None:
     """Mock run of the end-to-end Circuit integration."""
     for output_dir_key in OUTPUT_DIRS.keys():
@@ -85,15 +101,19 @@ def main(
     if use_public:
         final_manifest_path = create_manifests_from_circuit(
             start_date=start_date,
+            end_date=end_date,
             output_dir=OUTPUT_DIRS["MANIFESTS_DIR"],
             circuit_output_dir=OUTPUT_DIRS["CIRCUIT_TABLES_DIR"],
         )
         print(final_manifest_path)
 
     else:
-        # BEGIN: get_route_files
+        # BEGIN: get_route_files-ish
         if not mock_raw_plans:
-            plans_list = _get_raw_plans(start_date=start_date)
+            start_date = start_date if start_date else get_friday(fmt="%Y%m%d")
+            end_date = end_date if end_date else start_date
+
+            plans_list = _get_raw_plans(start_date=start_date, end_date=end_date)
             # with open(".test_data/sample_responses/plans_list.json", "w") as f:
             #     json.dump(plans_list, f, indent=4)
             # breakpoint()

@@ -89,6 +89,7 @@ class Defaults:
     }
     CREATE_MANIFESTS_FROM_CIRCUIT: Final[dict[str, str]] = {
         "start_date": "",
+        "end_date": "",
         "output_dir": CREATE_MANIFESTS["output_dir"],
         "output_filename": CREATE_MANIFESTS["output_filename"],
         "circuit_output_dir": "",

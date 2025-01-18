@@ -81,6 +81,7 @@ def split_chunked_route(
 @typechecked
 def create_manifests_from_circuit(
     start_date: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["start_date"],
+    end_date: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["end_date"],
     output_dir: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["output_dir"],
     output_filename: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["output_filename"],
     circuit_output_dir: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["circuit_output_dir"],
@@ -100,7 +101,8 @@ def create_manifests_from_circuit(
 
         Uses the date of the front of each CSV name to set the manifest date field. I.e.,
         each sheet should be named something like "08.08 Richard N", and, e.g., this would
-        set the manifest date field to "Date: 08.08".
+        set the manifest date field to "Date: 08.08". **But, this does not determine the
+        search date range.**
 
     Wraps :py:func:`bfb_delivery.api.public.create_manifests` and adds Circuit integration.
     And, `create_manifests` just wraps :py:func:`bfb_delivery.api.public.combine_route_tables`
@@ -111,7 +113,9 @@ def create_manifests_from_circuit(
 
     Args:
         start_date: The start date to use in the output workbook sheetnames as "YYYYMMDD".
-            Empty string (default) uses the soonest Friday.
+            Empty string (default) uses the soonest Friday. Range is inclusive.
+        end_date: The end date to use in the output workbook sheetnames as "YYYYMMDD".
+            Empty string (default) uses the start date. Range is inclusive.
         output_dir: The directory to write the formatted manifest workbook to.
             Empty string (default) saves to the `input_dir` directory.
         output_filename: The name of the output workbook.
@@ -127,6 +131,7 @@ def create_manifests_from_circuit(
     """
     final_manifest_path = internal.create_manifests_from_circuit(
         start_date=start_date,
+        end_date=end_date,
         output_dir=output_dir,
         output_filename=output_filename,
         circuit_output_dir=circuit_output_dir,
