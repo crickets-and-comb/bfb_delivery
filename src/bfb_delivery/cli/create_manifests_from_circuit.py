@@ -60,7 +60,7 @@ from bfb_delivery.lib.constants import Defaults
     ),
 )
 @click.option(
-    "--all_HHs",
+    "--all_hhs",
     type=bool,
     required=False,
     default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["all_HHs"],
@@ -87,7 +87,7 @@ def main(
     output_dir: str,
     output_filename: str,
     circuit_output_dir: str,
-    all_HHs: bool,
+    all_hhs: bool,
     extra_notes_file: str,
 ) -> str:
     """See public docstring.
@@ -101,7 +101,7 @@ def main(
         output_dir=output_dir,
         output_filename=output_filename,
         circuit_output_dir=circuit_output_dir,
-        all_HHs=all_HHs,
+        all_HHs=all_hhs,
         extra_notes_file=extra_notes_file,
     )
     click.echo(f"Formatted workbook saved to: {final_manifest_path.resolve()}")
