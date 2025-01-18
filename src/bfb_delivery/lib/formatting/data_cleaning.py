@@ -278,7 +278,10 @@ def _format_and_validate_names_base(df: pd.DataFrame, column: str) -> None:
 def _format_int(df: pd.DataFrame, column: str) -> None:
     """Basic formatting for an integer column."""
     df[column] = df[column].astype(str).str.strip()
-    df[column] = df[column].astype(float).astype(int)
+    try:
+        df[column] = df[column].astype(float).astype(int)
+    except Exception:
+        breakpoint()
     return
 
 

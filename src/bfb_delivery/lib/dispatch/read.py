@@ -231,10 +231,13 @@ def _transform_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
         },
         inplace=True,
     )
+
+     # Drop depot.
     routes_df["placeId"] = routes_df[Columns.ADDRESS].apply(
         lambda address_dict: address_dict.get("placeId")
     )
-    routes_df = routes_df[routes_df["placeId"] != DEPOT_PLACE_ID]  # Drop depot.
+    routes_df = routes_df[routes_df["placeId"] != DEPOT_PLACE_ID]
+
     routes_df["route"] = routes_df["route"].apply(lambda route_dict: route_dict.get("id"))
     routes_df[Columns.NAME] = routes_df["recipient"].apply(
         lambda recipient_dict: recipient_dict.get("name")
@@ -253,14 +256,42 @@ def _transform_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
             order_info_dict["products"][0] if order_info_dict.get("products") else None
         )
     )
-    # TODO: Ask if they want to get neighborhood from address instead of externalId.
-    # Or, just impute from there when missing?
     routes_df[Columns.NEIGHBORHOOD] = routes_df["recipient"].apply(
         lambda recipient_dict: recipient_dict.get("externalId")
     )
-    # TODO: Verify we want to do this.
+
+    # TODO: Verify we want to warn/raise/impute.
+    # TODO: Validate required not null: route, driver_sheet_name, stop_no, addressLineOne,
+    # addressLineTwo, name, box_type.
+    # Give plan ID and instruct to download the routes from Circuit.
+    _warn_and_impute(routes_df=routes_df)
+    routes_df[Columns.ADDRESS] = (
+        routes_df["addressLineOne"] + ", " + routes_df["addressLineTwo"]
+    )
+    routes_df = routes_df[output_cols]
+    routes_df.sort_values(by=["driver_sheet_name", Columns.STOP_NO], inplace=True)
+
+    return routes_df
+
+@typechecked
+def _warn_and_impute(routes_df: pd.DataFrame) -> None:
+    """Warn and impute missing values in the routes DataFrame."""
+    missing_order_count = routes_df[Columns.ORDER_COUNT].isna()
+    if missing_order_count.any():
+        warn(
+            f"Missing order count for {missing_order_count.sum()} stops. Imputing 1."
+        )
+    routes_df[Columns.ORDER_COUNT] = routes_df[Columns.ORDER_COUNT].fillna(1)
+
+    # TODO: Verify we want to do this. Ask, if we want to just overwrite the neighborhood.
     # TODO: Handle if neighborhood is missing from address, too. (Make function.)
     # TODO: Strip whitespace.
+    missing_neighborhood = routes_df[Columns.NEIGHBORHOOD].isna()
+    if missing_neighborhood.any():
+        warn(
+            f"Missing neighborhood for {missing_neighborhood.sum()} stops."
+            " Imputing best guesses from Circuit-supplied address."
+        )
     routes_df[Columns.NEIGHBORHOOD] = routes_df[
         [Columns.NEIGHBORHOOD, Columns.ADDRESS]
     ].apply(
@@ -271,17 +302,3 @@ def _transform_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
         ),
         axis=1,
     )
-
-    # TODO: Warn and impute missing values.
-    # Required (fail if missing): route, driver_sheet_name, stop_no, addressLineOne,
-    # addressLineTwo. Give plan ID and instruct to download the routes from Circuit.
-    # Optional (warn and impute if missing): name, phone, notes, order_count, box_type,
-    # neighborhood
-    # TODO: What to do with empty product types?
-    routes_df[Columns.ADDRESS] = (
-        routes_df["addressLineOne"] + ", " + routes_df["addressLineTwo"]
-    )
-    routes_df = routes_df[output_cols]
-    routes_df.sort_values(by=["driver_sheet_name", Columns.STOP_NO], inplace=True)
-
-    return routes_df

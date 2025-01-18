@@ -132,7 +132,6 @@ def main(
             extra_notes_file="",
         )
         print(f"formatted_manifest_path: {formatted_manifest_path}")
-        breakpoint()
 
 
 if __name__ == "__main__":
