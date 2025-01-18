@@ -123,7 +123,6 @@ def main(
         _write_routes_dfs(
             routes_df=routes_df, output_dir=Path(OUTPUT_DIRS["CIRCUIT_TABLES_DIR"])
         )
-        breakpoint()
         # END: get_route_files
 
         formatted_manifest_path = sheet_shaping.create_manifests(

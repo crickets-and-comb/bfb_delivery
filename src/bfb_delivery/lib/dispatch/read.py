@@ -12,7 +12,12 @@ import requests
 from requests.auth import HTTPBasicAuth
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import COMBINED_ROUTES_COLUMNS, Columns, RateLimits
+from bfb_delivery.lib.constants import (
+    COMBINED_ROUTES_COLUMNS,
+    DEPOT_PLACE_ID,
+    Columns,
+    RateLimits,
+)
 from bfb_delivery.lib.dispatch.utils import get_circuit_key
 from bfb_delivery.lib.utils import get_friday
 
@@ -226,9 +231,11 @@ def _transform_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
         },
         inplace=True,
     )
+    routes_df["placeId"] = routes_df[Columns.ADDRESS].apply(
+        lambda address_dict: address_dict.get("placeId")
+    )
+    routes_df = routes_df[routes_df["placeId"] != DEPOT_PLACE_ID]  # Drop depot.
     routes_df["route"] = routes_df["route"].apply(lambda route_dict: route_dict.get("id"))
-    # TODO: Drop stop 0. It's the depot.
-    routes_df[Columns.STOP_NO] = routes_df[Columns.STOP_NO].astype(int) + 1
     routes_df[Columns.NAME] = routes_df["recipient"].apply(
         lambda recipient_dict: recipient_dict.get("name")
     )

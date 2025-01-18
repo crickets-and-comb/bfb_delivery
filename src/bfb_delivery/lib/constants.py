@@ -109,6 +109,10 @@ class Defaults:
     }
 
 
+# Food placeId.
+DEPOT_PLACE_ID: Final[str] = "ChIJFw9CDZejhVQRizqiyJSmPqo"
+
+
 class ExtraNotes:
     """Extra notes for the combined routes.
 
