@@ -9,7 +9,7 @@ from pathlib import Path
 
 from typeguard import typechecked
 
-from bfb_delivery.lib.dispatch.read import get_route_files
+from bfb_delivery.lib.dispatch.read_circuit import get_route_files
 from bfb_delivery.lib.formatting import sheet_shaping
 
 

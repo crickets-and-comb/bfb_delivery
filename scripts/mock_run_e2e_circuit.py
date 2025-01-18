@@ -13,7 +13,7 @@ from typing import Final
 import click
 
 from bfb_delivery import create_manifests_from_circuit
-from bfb_delivery.lib.dispatch.read import (
+from bfb_delivery.lib.dispatch.read_circuit import (
     _concat_routes_df,
     _get_raw_plans,
     _get_raw_stops_lists,
