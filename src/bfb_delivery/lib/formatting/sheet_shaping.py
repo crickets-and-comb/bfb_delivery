@@ -96,9 +96,10 @@ def split_chunked_route(
         split_workbook_path: Path = output_dir / i_file_name
         split_workbook_paths.append(split_workbook_path)
 
+        driver_set_df = chunked_sheet[chunked_sheet[Columns.DRIVER].isin(driver_set)]
+        driver_set_df.sort_values(by=[Columns.DRIVER, Columns.STOP_NO], inplace=True)
+
         with pd.ExcelWriter(split_workbook_path) as writer:
-            driver_set_df = chunked_sheet[chunked_sheet[Columns.DRIVER].isin(driver_set)]
-            driver_set_df.sort_values(by=[Columns.DRIVER, Columns.STOP_NO], inplace=True)
             for driver_name, data in driver_set_df.groupby(Columns.DRIVER):
                 data[SPLIT_ROUTE_COLUMNS].to_excel(
                     writer, sheet_name=f"{date} {driver_name}", index=False
