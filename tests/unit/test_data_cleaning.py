@@ -404,7 +404,7 @@ class TestFormatAndValidateData:
                 pytest.warns(
                     UserWarning,
                     match=re.escape(
-                        "Invalid email addresses found: ['us@them..com', 'u@s@them.com']"
+                        "Invalid email addresses found:\n['us@them..com', 'u@s@them.com']"
                     ),
                 ),
                 format_and_validate_data,
@@ -422,7 +422,7 @@ class TestFormatAndValidateData:
                     }
                 ),
                 pytest.warns(
-                    UserWarning, match=f"Invalid phone numbers found: {INVALID_NUMBERS}"
+                    UserWarning, match=f"Invalid phone numbers found:\n{INVALID_NUMBERS}"
                 ),
                 format_and_validate_data,
             ),

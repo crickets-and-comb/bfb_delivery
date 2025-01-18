@@ -156,7 +156,7 @@ def _format_and_validate_email(df: pd.DataFrame) -> None:
 
     if invalid_emails:
         warnings.warn(
-            message=f"Invalid email addresses found: {invalid_emails}", stacklevel=2
+            message=f"Invalid email addresses found:\n{invalid_emails}", stacklevel=2
         )
     else:
         df[Columns.EMAIL] = formatted_emails
@@ -219,7 +219,7 @@ def _format_and_validate_phone(df: pd.DataFrame) -> None:
     if not formatting_df["is_valid"].all():
         invalid_numbers = formatting_df[~formatting_df["is_valid"]]
         warnings.warn(
-            message=f"Invalid phone numbers found: {invalid_numbers[df.columns.to_list()]}",
+            message=f"Invalid phone numbers found:\n{invalid_numbers[df.columns.to_list()]}",
             stacklevel=2,
         )
 
@@ -278,10 +278,7 @@ def _format_and_validate_names_base(df: pd.DataFrame, column: str) -> None:
 def _format_int(df: pd.DataFrame, column: str) -> None:
     """Basic formatting for an integer column."""
     df[column] = df[column].astype(str).str.strip()
-    try:
-        df[column] = df[column].astype(float).astype(int)
-    except Exception:
-        breakpoint()
+    df[column] = df[column].astype(float).astype(int)
     return
 
 
