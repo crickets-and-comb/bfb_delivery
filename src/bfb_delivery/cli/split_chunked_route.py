@@ -76,7 +76,7 @@ def main(
         book_one_drivers_file=book_one_drivers_file,
         date=date,
     )
-    return_paths = [str(path) for path in paths]
+    return_paths = [str(path.resolve()) for path in paths]
     click.echo(f"Split workbook(s) saved to: {return_paths}")
 
     return return_paths

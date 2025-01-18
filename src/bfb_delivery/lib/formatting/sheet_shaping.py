@@ -1,5 +1,6 @@
 """Functions for shaping and formatting spreadsheets."""
 
+import logging
 import math
 import warnings
 from datetime import datetime
@@ -39,6 +40,9 @@ from bfb_delivery.lib.formatting.utils import (
     map_columns,
 )
 from bfb_delivery.lib.utils import get_friday
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 # Silences warning for in-place operations on copied df slices.
 pd.options.mode.copy_on_write = True
@@ -91,6 +95,8 @@ def split_chunked_route(
     driver_sets = _get_driver_sets(
         drivers=drivers, n_books=n_books, book_one_drivers_file=book_one_drivers_file
     )
+
+    logger.info(f"Writing split chunked workbooks to {output_dir.resolve()}")
     for i, driver_set in enumerate(driver_sets):
         i_file_name = f"{base_output_filename.split('.')[0]}_{i + 1}.xlsx"
         split_workbook_path: Path = output_dir / i_file_name
@@ -152,6 +158,7 @@ def combine_route_tables(
     output_path = output_dir / output_filename
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    logger.info(f"Writing combined routes to {output_path.resolve()}")
     with pd.ExcelWriter(output_path) as writer:
         for path in sorted(paths):
             route_df = pd.read_csv(path)
@@ -218,6 +225,7 @@ def format_combined_routes(
             )
 
     # Can check cell values, though. (Maye read dataframe from start row?)
+    logger.info(f"Writing formatted routes to {output_path.resolve()}")
     wb.save(output_path)
 
     return output_path.resolve()

@@ -53,6 +53,6 @@ def main(input_dir: str, output_dir: str, output_filename: str, extra_notes_file
         output_filename=output_filename,
         extra_notes_file=extra_notes_file,
     )
-    final_manifest_path = str(final_manifest_path)
-    click.echo(f"Final manifests saved to: {final_manifest_path}")
-    return final_manifest_path
+    click.echo(f"Final manifests saved to: {final_manifest_path.resolve()}")
+
+    return str(final_manifest_path)

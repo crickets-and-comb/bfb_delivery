@@ -1,5 +1,6 @@
 """Read from Circuit."""
 
+import logging
 import os
 import shutil
 from pathlib import Path
@@ -21,6 +22,9 @@ from bfb_delivery.lib.constants import (
 )
 from bfb_delivery.lib.dispatch.utils import get_circuit_key
 from bfb_delivery.lib.utils import get_friday
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 # TODO: Add info/progess logging.
 # TODO: Drop "All HHs" routes (is the single long route I think).
@@ -84,7 +88,9 @@ def _get_raw_plans(start_date: str, end_date: str) -> list[dict[str, Any]]:
         f"?filter.startsGte={start_date}"
         f"&filter.startsLte={end_date}"
     )
+    logger.info(f"Getting route plans from {url} \n ...")
     plans = _get_responses(base_url=url)
+    logger.info("Finished getting route plans.")
     plans_list = _concat_response_pages(page_list=plans, data_key="plans")
     return plans_list
 
@@ -122,8 +128,10 @@ def _get_raw_stops_lists(plan_ids: list[str]) -> list[dict[str, Any]]:
     plan_stops_list = []
     for plan_id in plan_ids:
         # https://developer.team.getcircuit.com/api#tag/Stops/operation/listStops
-        base_url = f"https://api.getcircuit.com/public/v0.2b/{plan_id}/stops"
-        stops_lists = _get_responses(base_url=base_url)
+        url = f"https://api.getcircuit.com/public/v0.2b/{plan_id}/stops"
+        logger.info(f"Getting route from {url} \n ...")
+        stops_lists = _get_responses(base_url=url)
+        logger.info("Finished getting route.")
         plan_stops_list += _concat_response_pages(page_list=stops_lists, data_key="stops")
 
     return plan_stops_list
@@ -255,6 +263,7 @@ def _write_routes_dfs(routes_df: pd.DataFrame, output_dir: Path, include_email: 
     if include_email:
         output_columns.append(Columns.EMAIL)
 
+    logger.info(f"Writing route CSVs to {output_dir.resolve()}.")
     for route, route_df in routes_df.groupby("route"):
         driver_sheet_names = route_df["driver_sheet_name"].unique()
         if len(driver_sheet_names) > 1:

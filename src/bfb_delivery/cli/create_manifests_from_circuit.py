@@ -104,7 +104,6 @@ def main(
         all_HHs=all_HHs,
         extra_notes_file=extra_notes_file,
     )
-    final_manifest_path = str(final_manifest_path)
-    click.echo(f"Formatted workbook saved to: {final_manifest_path}")
+    click.echo(f"Formatted workbook saved to: {final_manifest_path.resolve()}")
 
-    return final_manifest_path
+    return str(final_manifest_path)

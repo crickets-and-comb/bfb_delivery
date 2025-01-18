@@ -50,6 +50,6 @@ def main(
         output_filename=output_filename,
         extra_notes_file=extra_notes_file,
     )
-    path = str(path)
-    click.echo(f"Formatted driver manifest saved to: {path}")
-    return path
+    click.echo(f"Formatted driver manifest saved to: {path.resolve()}")
+
+    return str(path)

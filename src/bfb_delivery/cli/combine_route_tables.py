@@ -40,6 +40,6 @@ def main(input_dir: str, output_dir: str, output_filename: str) -> str:
     path = combine_route_tables(
         input_dir=input_dir, output_dir=output_dir, output_filename=output_filename
     )
-    path = str(path)
-    click.echo(f"Combined workbook saved to: {path}")
-    return path
+    click.echo(f"Combined workbook saved to: {path.resolve()}")
+
+    return str(path)
