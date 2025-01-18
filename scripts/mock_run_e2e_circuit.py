@@ -89,7 +89,7 @@ def main(
             circuit_output_dir=OUTPUT_DIRS["CIRCUIT_TABLES_DIR"],
         )
         print(final_manifest_path)
-        
+
     else:
         # BEGIN: get_route_files
         if not mock_raw_plans:
@@ -115,7 +115,6 @@ def main(
 
         routes_df = _concat_routes_df(plan_stops_lists=plan_stops_lists, plans_df=plans_df)
         # routes_df.to_pickle(".test_data/sample_responses/routes_df_raw.pkl")
-        # breakpoint()
         routes_df = _transform_routes_df(routes_df=routes_df)
         # routes_df.to_csv(
         #     ".test_data/sample_responses/routes_df_transformed.csv", index=False

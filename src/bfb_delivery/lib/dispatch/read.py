@@ -122,7 +122,7 @@ def _make_plans_df(plans: list[dict[str, Any]]) -> pd.DataFrame:
 
 
 @typechecked
-def _get_raw_stops_lists(plan_ids: list[str]) -> list[list[dict[str, Any]]]:
+def _get_raw_stops_lists(plan_ids: list[str]) -> list[dict[str, Any]]:
     """Get the raw stops list from Circuit."""
     plan_stops_lists = []
     for plan_id in plan_ids:
@@ -130,7 +130,7 @@ def _get_raw_stops_lists(plan_ids: list[str]) -> list[list[dict[str, Any]]]:
         base_url = f"https://api.getcircuit.com/public/v0.2b/{plan_id}/stops"
         stops_lists = _get_responses(base_url=base_url)
         # TODO: Why are we appending? Just add?
-        plan_stops_lists.append(stops_lists)
+        plan_stops_lists += stops_lists
 
     return plan_stops_lists
 
@@ -153,21 +153,17 @@ def _get_responses(base_url: str) -> list[dict[str, Any]]:
                     "additional_notes": "No-JSON response.",
                     "response to JSON exception:": str(e),
                 }
-            err_msg = (
-                f"Got {response.status_code} reponse for {url}: {response_dict}"
-            )
+            err_msg = f"Got {response.status_code} reponse for {url}: {response_dict}"
             if response.status_code == 429:
                 wait_seconds = wait_seconds * 2
-                warn(
-                    f"Doubling per-request wait time to {wait_seconds} seconds. {err_msg}"
-                )
+                warn(f"Doubling per-request wait time to {wait_seconds} seconds. {err_msg}")
             else:
                 raise ValueError(err_msg)
         else:
             stops = response.json()
             # TODO: Why are we appending?
             # Just drop token, select data lists and concat?
-            # [{'nextPageToken': 'cm91dGVzL2xJVFRuUXN4WWZmcUpRRHhJcHpyL3N0b3BzL3hGYk1nN0RIcm1GOFhvd0RkdlNn',
+            # [{'nextPageToken': 'cm91dGVzL2xJVFRuUXN4WWZmcUpRRHhJcHpyL3N0b3BzL3hGYk1nN0RIcm1GOFhvd0RkdlNn', # noqa: B950, E501
             #   'stops': [{'activity': 'delivery',
             responses.append(stops)
             next_page_token = stops.get("nextPageToken", None)
@@ -175,13 +171,13 @@ def _get_responses(base_url: str) -> list[dict[str, Any]]:
         if next_page_token or response.status_code == 429:
             next_page_token = f"?pageToken={next_page_token}"
             sleep(wait_seconds)
-    
+
     return responses
 
 
 @typechecked
 def _concat_routes_df(
-    plan_stops_lists: list[list[dict[str, Any]]], plans_df: pd.DataFrame
+    plan_stops_lists: list[dict[str, Any]], plans_df: pd.DataFrame
 ) -> pd.DataFrame:
     """Concatenate the routes DataFrames from the plan stops lists."""
     # TODO: Make Circuit columns constant?
@@ -197,12 +193,7 @@ def _concat_routes_df(
         "packageCount",
     ]
     routes_df = pd.concat(
-        [
-            pd.concat(
-                [pd.DataFrame(stops.get("stops", []))[input_cols] for stops in stops_lists]
-            )
-            for stops_lists in plan_stops_lists
-        ]
+        [pd.DataFrame(stops.get("stops", []))[input_cols] for stops in plan_stops_lists]
     )
     # TODO: Validate that no null ID.
     routes_df = routes_df.merge(
@@ -242,7 +233,7 @@ def _transform_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
         inplace=True,
     )
 
-     # Drop depot.
+    # Drop depot.
     routes_df["placeId"] = routes_df[Columns.ADDRESS].apply(
         lambda address_dict: address_dict.get("placeId")
     )
@@ -283,14 +274,13 @@ def _transform_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
 
     return routes_df
 
+
 @typechecked
 def _warn_and_impute(routes_df: pd.DataFrame) -> None:
     """Warn and impute missing values in the routes DataFrame."""
     missing_order_count = routes_df[Columns.ORDER_COUNT].isna()
     if missing_order_count.any():
-        warn(
-            f"Missing order count for {missing_order_count.sum()} stops. Imputing 1."
-        )
+        warn(f"Missing order count for {missing_order_count.sum()} stops. Imputing 1.")
     routes_df[Columns.ORDER_COUNT] = routes_df[Columns.ORDER_COUNT].fillna(1)
 
     # TODO: Verify we want to do this. Ask, if we want to just overwrite the neighborhood.
