@@ -5,19 +5,18 @@ Use this to test on real data. in your .test_data dir.
 
 import json
 import os
-import pickle
 import shutil
 import sys
 from pathlib import Path
 from typing import Final
 
 import click
-import pandas as pd
 
 from bfb_delivery import create_manifests_from_circuit
 from bfb_delivery.lib.dispatch.read import (
-    _get_plans,
-    _get_raw_routes_df,
+    _concat_routes_df,
+    _get_raw_plans,
+    _get_raw_stops_lists,
     _make_plans_df,
     _transform_routes_df,
     _write_routes_dfs,
@@ -44,7 +43,7 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
     ),
 )
 @click.option(
-    "--mock_plans",
+    "--mock_raw_plans",
     type=bool,
     required=False,
     default=True,
@@ -73,7 +72,9 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
         "Does not mock data; overrides use_mock_data and always queries the Circuit API."
     ),
 )
-def main(start_date: str, mock_plans: bool, mock_raw_routes: bool, use_public: bool) -> None:
+def main(
+    start_date: str, mock_raw_plans: bool, mock_raw_routes: bool, use_public: bool
+) -> None:
     """Mock run of the end-to-end Circuit integration."""
     for output_dir_key in OUTPUT_DIRS.keys():
         if output_dir_key != "CIRCUIT_TABLES_DIR":  # Func should delete it.
@@ -90,34 +91,40 @@ def main(start_date: str, mock_plans: bool, mock_raw_routes: bool, use_public: b
         print(final_manifest_path)
         breakpoint()
     else:
-        if not mock_plans:
-            plans = _get_plans(start_date=start_date)
+        # BEGIN: get_route_files
+        if not mock_raw_plans:
+            plans = _get_raw_plans(start_date=start_date)
             # with open(".test_data/sample_responses/plans.json", "w") as f:
-            #     json.dump(plans, f)
+            #     json.dump(plans, f, indent=4)
+            # breakpoint()
         else:
             with open(".test_data/sample_responses/plans.json") as f:
                 plans = json.load(f)
-                plans = plans["plans"]
 
         plans_df = _make_plans_df(plans=plans)
         # plans_df.to_csv(".test_data/sample_responses/plans_df.csv", index=False)
 
         if not mock_raw_routes:
-            routes_df = _get_raw_routes_df(plans_df=plans_df)
-            # routes_df.to_pickle(".test_data/sample_responses/raw_routes_df.pkl")
+            plan_stops_lists = _get_raw_stops_lists(plan_ids=plans_df["id"].to_list())
+            # with open(".test_data/sample_responses/plan_stops_lists.json", "w") as f:
+            #     json.dump(plan_stops_lists, f, indent=4)
+            # breakpoint()
         else:
-            routes_df: pd.DataFrame
-            with open(".test_data/sample_responses/raw_routes_df.pkl", "rb") as f:
-                routes_df = pickle.load(f)
+            with open(".test_data/sample_responses/plan_stops_lists.json") as f:
+                plan_stops_lists = json.load(f)
 
+        routes_df = _concat_routes_df(plan_stops_lists=plan_stops_lists, plans_df=plans_df)
+        # routes_df.to_pickle(".test_data/sample_responses/routes_df_raw.pkl")
+        # breakpoint()
         routes_df = _transform_routes_df(routes_df=routes_df)
         # routes_df.to_csv(
-        #     ".test_data/sample_responses/routes_df_transformed.csv",
-        #     index=False
+        #     ".test_data/sample_responses/routes_df_transformed.csv", index=False
         # )
         _write_routes_dfs(
             routes_df=routes_df, output_dir=Path(OUTPUT_DIRS["CIRCUIT_TABLES_DIR"])
         )
+        breakpoint()
+        # END: get_route_files
 
         formatted_manifest_path = sheet_shaping.create_manifests(
             input_dir=Path(OUTPUT_DIRS["CIRCUIT_TABLES_DIR"]),

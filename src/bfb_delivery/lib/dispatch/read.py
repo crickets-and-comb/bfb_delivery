@@ -37,14 +37,16 @@ def get_route_files(start_date: str, output_dir: str) -> str:
     if not output_dir:
         output_dir = os.getcwd() + "/routes_" + start_date
 
-    # TODO: All we really need is a df of plan IDs and titles.
-    plans = _get_plans(start_date=start_date)
+    plans = _get_raw_plans(start_date=start_date)
     plans_df = _make_plans_df(plans=plans)
     del plans
-    routes_df = _get_raw_routes_df(plans_df=plans_df)
+    # TODO: Add external ID for delivery day so we can filter stops by it in request?
+    # After taking over upload.
+    plan_stops_lists = _get_raw_stops_lists(plan_ids=plans_df["id"].tolist())
+    routes_df = _concat_routes_df(plan_stops_lists=plan_stops_lists, plans_df=plans_df)
 
     # TODO: Validate single box count and single type.
-    # TODO: Validate that route:driver_sheet_name is 1:1.
+    # TODO: Validate that route:title is 1:1. (plan title is driver sheet name)
     # TODO: Validate that route title is same as plan title. (i.e., driver sheet name)
 
     routes_df = _transform_routes_df(routes_df=routes_df)
@@ -81,7 +83,7 @@ def _write_routes_dfs(routes_df: pd.DataFrame, output_dir: Path) -> None:
 
 
 @typechecked
-def _get_plans(start_date: str) -> list[dict[str, Any]]:
+def _get_raw_plans(start_date: str) -> list[dict[str, Any]]:
     """Call Circuit API to get the plans for the given date."""
     # TODO: Handle error responses.
     # TODO: Rate limit.
@@ -115,31 +117,15 @@ def _make_plans_df(plans: list[dict[str, Any]]) -> pd.DataFrame:
 
 
 @typechecked
-def _get_raw_routes_df(plans_df: pd.DataFrame) -> pd.DataFrame:
-    """Get the raw routes DataFrame from the plans."""
-    # TODO: Add external ID for delivery day so we can filter stops by it in request?
-    # After taking over upload.
-    routes_dfs: list[pd.DataFrame] = []
-    # TODO: Make Circuit columns constant?
-    input_cols = [
-        "route",
-        "stopPosition",
-        "recipient",
-        "address",
-        "notes",
-        "orderInfo",
-        "packageCount",
-    ]
-    for plan_id, plan_title in plans_df.itertuples(index=False):
-        # E.g.
-        # plan_id = "plans/AqcSgl1s1MDonjzYBHM2"
-        # plan_title = "1.17 Jay C" (the driver sheet name)
-
+def _get_raw_stops_lists(plan_ids: list[str]) -> list[list[dict[str, Any]]]:
+    """Get the raw stops list from Circuit."""
+    plan_stops_lists = []
+    for plan_id in plan_ids:
         # https://developer.team.getcircuit.com/api#tag/Stops/operation/listStops
         base_url = f"https://api.getcircuit.com/public/v0.2b/{plan_id}/stops"
         wait_seconds = RateLimits.READ_SECONDS
         next_page_token = ""
-        plan_stops_dfs: list[pd.DataFrame] = []
+        stops_lists = []
 
         while next_page_token is not None:
             url = base_url + str(next_page_token)
@@ -166,21 +152,52 @@ def _get_raw_routes_df(plans_df: pd.DataFrame) -> pd.DataFrame:
                     raise ValueError(err_msg)
             else:
                 stops = stops_response.json()
+                stops_lists.append(stops)
                 next_page_token = stops.get("nextPageToken", None)
-
-                stops_df = pd.DataFrame(stops["stops"])
-                stops_df = stops_df[input_cols]
-                plan_stops_dfs.append(stops_df)
 
             if next_page_token or stops_response.status_code == 429:
                 next_page_token = f"?pageToken={next_page_token}"
                 sleep(wait_seconds)
 
-        plan_stops_df = pd.concat(plan_stops_dfs)
-        plan_stops_df["driver_sheet_name"] = plan_title
-        routes_dfs.append(plan_stops_df)
+        plan_stops_lists.append(stops_lists)
 
-    return pd.concat(routes_dfs)
+    return plan_stops_lists
+
+
+@typechecked
+def _concat_routes_df(
+    plan_stops_lists: list[list[dict[str, Any]]], plans_df: pd.DataFrame
+) -> pd.DataFrame:
+    """Concatenate the routes DataFrames from the plan stops lists."""
+    # TODO: Make Circuit columns constant?
+    input_cols = [
+        "plan",  # plan id, e.g. "plans/0IWNayD8NEkvD5fQe2SQ"
+        "route",
+        "id",  # stop id, e.g. "plans/0IWNayD8NEkvD5fQe2SQ/stops/40lmbcQrd32NOfZiiC1b"
+        "stopPosition",
+        "recipient",
+        "address",
+        "notes",
+        "orderInfo",
+        "packageCount",
+    ]
+    routes_df = pd.concat(
+        [
+            pd.concat(
+                [pd.DataFrame(stops.get("stops", []))[input_cols] for stops in stops_lists]
+            )
+            for stops_lists in plan_stops_lists
+        ]
+    )
+    # TODO: Validate that no null ID.
+    routes_df = routes_df.merge(
+        plans_df, left_on="plan", right_on="id", how="left", validate="m:1"
+    )
+    # TODO: Validate that no null title.
+    # TODO: Validate that all IDs and titles represented.
+    # TODO: Validate that stop IDs are unique.
+
+    return routes_df
 
 
 @typechecked
@@ -201,6 +218,7 @@ def _transform_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
     ]
     routes_df.rename(
         columns={
+            "title": "driver_sheet_name",  # Plan title is upload/download sheet name.
             "stopPosition": Columns.STOP_NO,
             "notes": Columns.NOTES,
             "packageCount": Columns.ORDER_COUNT,
@@ -209,6 +227,7 @@ def _transform_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
         inplace=True,
     )
     routes_df["route"] = routes_df["route"].apply(lambda route_dict: route_dict.get("id"))
+    # TODO: Drop stop 0. It's the depot.
     routes_df[Columns.STOP_NO] = routes_df[Columns.STOP_NO].astype(int) + 1
     routes_df[Columns.NAME] = routes_df["recipient"].apply(
         lambda recipient_dict: recipient_dict.get("name")
