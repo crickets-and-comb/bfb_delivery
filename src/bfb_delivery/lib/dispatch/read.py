@@ -50,8 +50,8 @@ def get_route_files(start_date: str, output_dir: str) -> str:
     del plans_list
     # TODO: Add external ID for delivery day so we can filter stops by it in request?
     # After taking over upload.
-    plan_stops_lists = _get_raw_stops_lists(plan_ids=plans_df["id"].tolist())
-    routes_df = _concat_routes_df(plan_stops_lists=plan_stops_lists, plans_df=plans_df)
+    plan_stops_list = _get_raw_stops_lists(plan_ids=plans_df["id"].tolist())
+    routes_df = _concat_routes_df(plan_stops_list=plan_stops_list, plans_df=plans_df)
 
     # TODO: Validate single box count and single type.
     # TODO: Validate that route:title is 1:1. (plan title is driver sheet name)
@@ -70,7 +70,6 @@ def _get_raw_plans(start_date: str) -> list[dict[str, Any]]:
     # https://developer.team.getcircuit.com/api#tag/Plans/operation/listPlans
     url = f"https://api.getcircuit.com/public/v0.2b/plans?filter.startsGte={start_date}"
     plans = _get_responses(base_url=url)
-    # TODO: Do this inside _get_responses.
     plans_list = []
     for plan in plans:
         plans_list += plan["plans"]
@@ -97,37 +96,39 @@ def _make_plans_df(plans_list: list[dict[str, Any]]) -> pd.DataFrame:
 @typechecked
 def _get_raw_stops_lists(plan_ids: list[str]) -> list[dict[str, Any]]:
     """Get the raw stops list from Circuit."""
-    plan_stops_lists = []
+    plan_stops_list = []
     for plan_id in plan_ids:
         # https://developer.team.getcircuit.com/api#tag/Stops/operation/listStops
         base_url = f"https://api.getcircuit.com/public/v0.2b/{plan_id}/stops"
         stops_lists = _get_responses(base_url=base_url)
-        # TODO: Why are we appending? Just add?
-        plan_stops_lists += stops_lists
+        for stops in stops_lists:
+            plan_stops_list += stops["stops"]
 
-    return plan_stops_lists
+    return plan_stops_list
 
 
 @typechecked
 def _concat_routes_df(
-    plan_stops_lists: list[dict[str, Any]], plans_df: pd.DataFrame
+    plan_stops_list: list[dict[str, Any]], plans_df: pd.DataFrame
 ) -> pd.DataFrame:
     """Concatenate the routes DataFrames from the plan stops lists."""
+    routes_df = pd.DataFrame(plan_stops_list)
     # TODO: Make Circuit columns constant?
-    input_cols = [
-        "plan",  # plan id, e.g. "plans/0IWNayD8NEkvD5fQe2SQ"
-        "route",
-        "id",  # stop id, e.g. "plans/0IWNayD8NEkvD5fQe2SQ/stops/40lmbcQrd32NOfZiiC1b"
-        "stopPosition",
-        "recipient",
-        "address",
-        "notes",
-        "orderInfo",
-        "packageCount",
+    routes_df = routes_df[
+        [
+            # plan id, e.g. "plans/0IWNayD8NEkvD5fQe2SQ"
+            "plan",
+            "route",
+            # stop id, e.g. "plans/0IWNayD8NEkvD5fQe2SQ/stops/40lmbcQrd32NOfZiiC1b"
+            "id",
+            "stopPosition",
+            "recipient",
+            "address",
+            "notes",
+            "orderInfo",
+            "packageCount",
+        ]
     ]
-    routes_df = pd.concat(
-        [pd.DataFrame(stops.get("stops", []))[input_cols] for stops in plan_stops_lists]
-    )
     # TODO: Validate that no null ID.
     routes_df = routes_df.merge(
         plans_df, left_on="plan", right_on="id", how="left", validate="m:1"

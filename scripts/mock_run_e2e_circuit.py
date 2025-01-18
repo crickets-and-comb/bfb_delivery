@@ -105,15 +105,15 @@ def main(
         # plans_df.to_csv(".test_data/sample_responses/plans_df.csv", index=False)
 
         if not mock_raw_routes:
-            plan_stops_lists = _get_raw_stops_lists(plan_ids=plans_df["id"].to_list())
-            # with open(".test_data/sample_responses/plan_stops_lists.json", "w") as f:
-            #     json.dump(plan_stops_lists, f, indent=4)
+            plan_stops_list = _get_raw_stops_lists(plan_ids=plans_df["id"].to_list())
+            # with open(".test_data/sample_responses/plan_stops_list.json", "w") as f:
+            #     json.dump(plan_stops_list, f, indent=4)
             # breakpoint()
         else:
-            with open(".test_data/sample_responses/plan_stops_lists.json") as f:
-                plan_stops_lists = json.load(f)
+            with open(".test_data/sample_responses/plan_stops_list.json") as f:
+                plan_stops_list = json.load(f)
 
-        routes_df = _concat_routes_df(plan_stops_lists=plan_stops_lists, plans_df=plans_df)
+        routes_df = _concat_routes_df(plan_stops_list=plan_stops_list, plans_df=plans_df)
         # routes_df.to_pickle(".test_data/sample_responses/routes_df_raw.pkl")
         routes_df = _transform_routes_df(routes_df=routes_df)
         # routes_df.to_csv(
