@@ -104,6 +104,8 @@ def _make_plans_df(plans_list: list[dict[str, Any]], all_HHs: bool) -> pd.DataFr
     # to do this, and what if they decided to drive one day?
     # 2. Pass an external ID to filter on.
     # 3. Create a dummy driver ID for the "All HHs" route.
+    # 4. Pass title filter once we're confident in the title because we uploaded it
+    # programmatically.
     # Worst to best in order.
     if all_HHs:
         plans_df = plans_df[plans_df["title"].str.contains(ALL_HHS_DRIVER)]

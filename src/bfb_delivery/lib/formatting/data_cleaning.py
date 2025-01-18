@@ -1,6 +1,7 @@
 """Data cleaning utilities."""
 
 import logging
+import warnings
 from collections.abc import Callable
 from logging import info
 
@@ -63,7 +64,9 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
     # raise an error in a future version of pandas. Value '' has dtype incompatible with
     # float64, please explicitly cast to a compatible dtype first.
     # Cast all to string to start? Then convert "nan" to ""?
-    df.fillna("", inplace=True)
+    with warnings.catch_warnings():
+        warnings.simplefilter(action="ignore", category=FutureWarning)
+        df.fillna("", inplace=True)
 
     # Could use generic, class, or Pandera? But, this works, and is flexible and transparent.
     formatters_dict = {
