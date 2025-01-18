@@ -16,6 +16,8 @@ from bfb_delivery.lib.constants import COMBINED_ROUTES_COLUMNS, Columns, RateLim
 from bfb_delivery.lib.dispatch.utils import get_circuit_key
 from bfb_delivery.lib.utils import get_friday
 
+# TODO: Reorder functions.
+
 
 @typechecked
 def get_route_files(start_date: str, output_dir: str) -> str:
@@ -37,8 +39,9 @@ def get_route_files(start_date: str, output_dir: str) -> str:
 
     # TODO: All we really need is a df of plan IDs and titles.
     plans = _get_plans(start_date=start_date)
-    routes_df = _get_raw_routes_df(plans=plans)
+    plans_df = _make_plans_df(plans=plans)
     del plans
+    routes_df = _get_raw_routes_df(plans_df=plans_df)
 
     # TODO: Validate single box count and single type.
     # TODO: Validate that route:driver_sheet_name is 1:1.
@@ -95,7 +98,24 @@ def _get_plans(start_date: str) -> list[dict[str, Any]]:
 
 
 @typechecked
-def _get_raw_routes_df(plans: list[dict[str, Any]]) -> pd.DataFrame:
+def _make_plans_df(plans: list[dict[str, Any]]) -> pd.DataFrame:
+    """Make the plans DataFrame from the plans."""
+    plans_df = pd.DataFrame(plans)
+    plans_df = plans_df[["id", "title"]]
+
+    if plans_df.isna().any().any():
+        raise ValueError("Plan ID or title is missing.")
+    duplicates = plans_df[plans_df.duplicated(subset="title", keep=False)]
+    if not duplicates.empty:
+        raise ValueError(f"Duplicate plan id:titles:\n{duplicates}")
+    if plans_df["id"].nunique() != plans_df["title"].nunique():
+        raise ValueError("Plan ID and title are not 1:1.")
+
+    return plans_df
+
+
+@typechecked
+def _get_raw_routes_df(plans_df: pd.DataFrame) -> pd.DataFrame:
     """Get the raw routes DataFrame from the plans."""
     # TODO: Add external ID for delivery day so we can filter stops by it in request?
     # After taking over upload.
@@ -110,8 +130,11 @@ def _get_raw_routes_df(plans: list[dict[str, Any]]) -> pd.DataFrame:
         "orderInfo",
         "packageCount",
     ]
-    for plan in plans:
-        plan_id = plan.get("id", None)  # e.g., "plans/AqcSgl1s1MDonjzYBHM2"
+    for plan_id, plan_title in plans_df.itertuples(index=False):
+        # E.g.
+        # plan_id = "plans/AqcSgl1s1MDonjzYBHM2"
+        # plan_title = "1.17 Jay C" (the driver sheet name)
+
         # https://developer.team.getcircuit.com/api#tag/Stops/operation/listStops
         base_url = f"https://api.getcircuit.com/public/v0.2b/{plan_id}/stops"
         wait_seconds = RateLimits.READ_SECONDS
@@ -154,7 +177,7 @@ def _get_raw_routes_df(plans: list[dict[str, Any]]) -> pd.DataFrame:
                 sleep(wait_seconds)
 
         plan_stops_df = pd.concat(plan_stops_dfs)
-        plan_stops_df["driver_sheet_name"] = plan.get("title")  # e.g. "1.17 Jay C"
+        plan_stops_df["driver_sheet_name"] = plan_title
         routes_dfs.append(plan_stops_df)
 
     return pd.concat(routes_dfs)

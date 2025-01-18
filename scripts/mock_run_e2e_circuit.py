@@ -1,4 +1,7 @@
-"""Mock run of the end-to-end Circuit delivery script."""
+"""Mock run of the end-to-end Circuit delivery script.
+
+Use this to test on real data. in your .test_data dir.
+"""
 
 import json
 import os
@@ -15,6 +18,7 @@ from bfb_delivery import create_manifests_from_circuit
 from bfb_delivery.lib.dispatch.read import (
     _get_plans,
     _get_raw_routes_df,
+    _make_plans_df,
     _transform_routes_df,
     _write_routes_dfs,
 )
@@ -72,7 +76,7 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
 def main(start_date: str, mock_plans: bool, mock_raw_routes: bool, use_public: bool) -> None:
     """Mock run of the end-to-end Circuit integration."""
     for output_dir_key in OUTPUT_DIRS.keys():
-        if output_dir_key != "CIRCUIT_TABLES_DIR":
+        if output_dir_key != "CIRCUIT_TABLES_DIR":  # Func should delete it.
             this_output_dir = OUTPUT_DIRS[output_dir_key]
             shutil.rmtree(this_output_dir, ignore_errors=True)
             Path(this_output_dir).mkdir(parents=True)
@@ -88,26 +92,32 @@ def main(start_date: str, mock_plans: bool, mock_raw_routes: bool, use_public: b
     else:
         if not mock_plans:
             plans = _get_plans(start_date=start_date)
+            # with open(".test_data/sample_responses/plans.json", "w") as f:
+            #     json.dump(plans, f)
         else:
             with open(".test_data/sample_responses/plans.json") as f:
                 plans = json.load(f)
                 plans = plans["plans"]
 
+        plans_df = _make_plans_df(plans=plans)
+        # plans_df.to_csv(".test_data/sample_responses/plans_df.csv", index=False)
+
         if not mock_raw_routes:
-            routes_df = _get_raw_routes_df(plans=plans)
+            routes_df = _get_raw_routes_df(plans_df=plans_df)
+            # routes_df.to_pickle(".test_data/sample_responses/raw_routes_df.pkl")
         else:
             routes_df: pd.DataFrame
             with open(".test_data/sample_responses/raw_routes_df.pkl", "rb") as f:
                 routes_df = pickle.load(f)
 
         routes_df = _transform_routes_df(routes_df=routes_df)
-        _write_routes_dfs(
-            routes_df=routes_df, output_dir=Path(OUTPUT_DIRS["CIRCUIT_TABLES_DIR"])
-        )
         # routes_df.to_csv(
         #     ".test_data/sample_responses/routes_df_transformed.csv",
         #     index=False
         # )
+        _write_routes_dfs(
+            routes_df=routes_df, output_dir=Path(OUTPUT_DIRS["CIRCUIT_TABLES_DIR"])
+        )
 
         formatted_manifest_path = sheet_shaping.create_manifests(
             input_dir=Path(OUTPUT_DIRS["CIRCUIT_TABLES_DIR"]),

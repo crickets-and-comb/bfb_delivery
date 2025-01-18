@@ -1,4 +1,7 @@
-"""Mock the workflow end to end."""
+"""Mock the workflow end to end.
+
+Use this to test on real data. in your .test_data dir.
+"""
 
 # TODO: Make a real e2e test in the test suite.
 import shutil
