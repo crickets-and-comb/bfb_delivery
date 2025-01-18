@@ -70,9 +70,7 @@ def _get_raw_plans(start_date: str) -> list[dict[str, Any]]:
     # https://developer.team.getcircuit.com/api#tag/Plans/operation/listPlans
     url = f"https://api.getcircuit.com/public/v0.2b/plans?filter.startsGte={start_date}"
     plans = _get_responses(base_url=url)
-    plans_list = []
-    for plan in plans:
-        plans_list += plan["plans"]
+    plans_list = _concat_response_pages(page_list=plans, data_key="plans")
     return plans_list
 
 
@@ -101,8 +99,7 @@ def _get_raw_stops_lists(plan_ids: list[str]) -> list[dict[str, Any]]:
         # https://developer.team.getcircuit.com/api#tag/Stops/operation/listStops
         base_url = f"https://api.getcircuit.com/public/v0.2b/{plan_id}/stops"
         stops_lists = _get_responses(base_url=base_url)
-        for stops in stops_lists:
-            plan_stops_list += stops["stops"]
+        plan_stops_list += _concat_response_pages(page_list=stops_lists, data_key="stops")
 
     return plan_stops_list
 
@@ -275,6 +272,16 @@ def _get_responses(base_url: str) -> list[dict[str, Any]]:
             sleep(wait_seconds)
 
     return responses
+
+
+@typechecked
+def _concat_response_pages(page_list: list[dict[str, Any]], data_key: str) -> list[dict[str, Any]]:
+    """Extract and concatenate the data lists from response pages."""
+    data_list = []
+    for page in page_list:
+        data_list += page[data_key]
+
+    return data_list
 
 
 @typechecked
