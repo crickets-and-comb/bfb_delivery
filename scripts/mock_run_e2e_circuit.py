@@ -6,13 +6,14 @@ Use this to test on real data. in your .test_data dir.
 import json
 import os
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 from typing import Final
 
 import click
 
-from bfb_delivery import create_manifests_from_circuit
+# from bfb_delivery import create_manifests_from_circuit
 from bfb_delivery.lib.dispatch.read_circuit import (
     _concat_routes_df,
     _get_raw_plans,
@@ -92,7 +93,7 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
     default=False,
     help=(
         "Use the public API instead of walking through internal helpers. "
-        "Does not mock data; overrides use_mock_data and always queries the Circuit API."
+        "Does not mock data; overrides mock_raw_*, always queries the Circuit API."
     ),
 )
 def main(
@@ -111,14 +112,28 @@ def main(
             Path(this_output_dir).mkdir(parents=True)
 
     if use_public:
-        final_manifest_path = create_manifests_from_circuit(
-            start_date=start_date,
-            end_date=end_date,
-            all_HHs=all_hhs,
-            output_dir=OUTPUT_DIRS["MANIFESTS_DIR"],
-            circuit_output_dir=OUTPUT_DIRS["CIRCUIT_TABLES_DIR"],
-        )
-        print(f"final_manifest_path: {final_manifest_path}")
+        # final_manifest_path = create_manifests_from_circuit(
+        #     start_date=start_date,
+        #     end_date=end_date,
+        #     all_HHs=all_hhs,
+        #     output_dir=OUTPUT_DIRS["MANIFESTS_DIR"],
+        #     circuit_output_dir=OUTPUT_DIRS["CIRCUIT_TABLES_DIR"],
+        # )
+        # print(f"final_manifest_path: {final_manifest_path}")
+        args_list = [
+            "--output_dir",
+            OUTPUT_DIRS["MANIFESTS_DIR"],
+            "--circuit_output_dir",
+            OUTPUT_DIRS["CIRCUIT_TABLES_DIR"],
+        ]
+        if start_date:
+            args_list += ["--start_date", start_date]
+        if end_date:
+            args_list += ["--end_date", end_date]
+        if all_hhs:
+            args_list += ["--all_hhs", str(all_hhs).lower()]
+        result = subprocess.run(["create_manifests_from_circuit"] + args_list)
+        print(f"result: {result}")
 
     else:
         # BEGIN: get_route_files-ish
