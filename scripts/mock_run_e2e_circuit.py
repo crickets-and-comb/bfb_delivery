@@ -148,8 +148,8 @@ def main(
         else:
             with open(".test_data/sample_responses/plans_list.json") as f:
                 plans_list = json.load(f)
-
-        plans_df = _make_plans_df(plans_list=plans_list, all_HHs=all_hhs)
+        # all_hhs = 'afgasfgd'
+        plans_df = _make_plans_df(plans_df=plans_list, all_HHs=all_hhs)
         # plans_df.to_csv(".test_data/sample_responses/plans_df.csv", index=False)
 
         if not mock_raw_routes:

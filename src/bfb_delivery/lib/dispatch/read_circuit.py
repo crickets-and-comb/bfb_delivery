@@ -8,7 +8,9 @@ from time import sleep
 from typing import Any
 
 import pandas as pd
+import pandera as pa
 import requests
+from pandera.typing import DataFrame
 from requests.auth import HTTPBasicAuth
 from typeguard import typechecked
 
@@ -20,6 +22,7 @@ from bfb_delivery.lib.constants import (
     RateLimits,
 )
 from bfb_delivery.lib.dispatch.utils import get_circuit_key
+from bfb_delivery.lib.schema import CircuitPlans, CircuitPlansFromDict
 from bfb_delivery.lib.utils import get_friday
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -58,7 +61,7 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
     plans_list = _get_raw_plans(start_date=start_date, end_date=end_date)
     # TODO: Filter to only plans with routes to make sure we don't get plans that aren't
     # routed. That would cause a validation problem when we check stops against routes.
-    plans_df = _make_plans_df(plans_list=plans_list, all_HHs=all_HHs)
+    plans_df: DataFrame[CircuitPlans] = _make_plans_df(plans_df=plans_list, all_HHs=all_HHs)
     del plans_list
     # TODO: Add external ID for delivery day so we can filter stops by it in request?
     # After taking over upload.
@@ -94,10 +97,16 @@ def _get_raw_plans(start_date: str, end_date: str) -> list[dict[str, Any]]:
     return plans_list
 
 
-@typechecked
-def _make_plans_df(plans_list: list[dict[str, Any]], all_HHs: bool) -> pd.DataFrame:
+# Using https://pandera.readthedocs.io/en/v0.22.1/
+# data_format_conversion.html#data-format-conversion
+# Not a fan of this as it obscures the pipeline steps and makes it harder to follow.
+# But, I wanted to use it once to see how it works.
+@pa.check_types(with_pydantic=True, lazy=True)
+def _make_plans_df(
+    plans_df: DataFrame[CircuitPlansFromDict], all_HHs: bool
+) -> DataFrame[CircuitPlans]:
     """Make the plans DataFrame from the plans."""
-    plans_df = pd.DataFrame(plans_list)
+    # plans_df = pd.DataFrame(plans_list)
     plans_df = plans_df[["id", "title"]]
     # TODO: We could do this in a few ways that are more robust.
     # 1. Filter by driver ID, but we'd need to exclude the staff that use their driver IDs
@@ -138,9 +147,9 @@ def _get_raw_stops_lists(plan_ids: list[str]) -> list[dict[str, Any]]:
     return plan_stops_list
 
 
-@typechecked
+@pa.check_types(with_pydantic=True, lazy=True)
 def _concat_routes_df(
-    plan_stops_list: list[dict[str, Any]], plans_df: pd.DataFrame
+    plan_stops_list: list[dict[str, Any]], plans_df: DataFrame[CircuitPlans]
 ) -> pd.DataFrame:
     """Concatenate the routes DataFrames from the plan stops lists."""
     routes_df = pd.DataFrame(plan_stops_list)

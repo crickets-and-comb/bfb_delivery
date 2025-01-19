@@ -38,7 +38,6 @@ class CellColors:  # TODO: Use accessible palette.
     VEGAN: Final[str] = "00CCCCCC"  # Grey
 
 
-# TODO: Make box type StrEnum.
 BOX_TYPE_COLOR_MAP: Final[dict[str, str]] = {
     BoxType.BASIC: CellColors.BASIC,
     BoxType.GF: CellColors.GF,
