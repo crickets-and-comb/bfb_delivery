@@ -280,11 +280,11 @@ def _write_routes_dfs(routes_df: pd.DataFrame, output_dir: Path, include_email: 
 @typechecked
 def _get_responses(base_url: str) -> list[dict[str, Any]]:
     wait_seconds = RateLimits.READ_SECONDS
-    next_page_token = ""
+    next_page = ""
     responses = []
 
-    while next_page_token is not None:
-        url = base_url + str(next_page_token)
+    while next_page is not None:
+        url = base_url + str(next_page)
         response = requests.get(url, auth=HTTPBasicAuth(get_circuit_key(), ""))
         if response.status_code != 200:
             try:
@@ -306,11 +306,11 @@ def _get_responses(base_url: str) -> list[dict[str, Any]]:
         else:
             stops = response.json()
             responses.append(stops)
-            next_page_token = stops.get("nextPageToken", None)
+            next_page = stops.get("nextPageToken", None)
 
-        if next_page_token or response.status_code == 429:
+        if next_page or response.status_code == 429:
             token_prefix = "?" if "?" not in base_url else "&"
-            next_page_token = f"{token_prefix}pageToken={next_page_token}"
+            next_page = f"{token_prefix}pageToken={next_page}"
             sleep(wait_seconds)
 
     return responses
