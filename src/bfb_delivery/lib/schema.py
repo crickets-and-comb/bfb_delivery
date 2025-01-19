@@ -7,8 +7,8 @@ from pandera.typing import Series
 class CircuitPlans(pa.DataFrameModel):
     """The schema for the Circuit plans data."""
 
-    id: Series[str] = pa.Field(coerce=True)
-    title: Series[str] = pa.Field(coerce=True)
+    id: Series[str] = pa.Field(coerce=True, unique=True)
+    title: Series[str] = pa.Field(coerce=True, unique=True)
 
 
 class CircuitPlansFromDict(CircuitPlans):

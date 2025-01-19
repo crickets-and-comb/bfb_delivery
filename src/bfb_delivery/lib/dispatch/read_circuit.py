@@ -61,7 +61,7 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
     plans_list = _get_raw_plans(start_date=start_date, end_date=end_date)
     # TODO: Filter to only plans with routes to make sure we don't get plans that aren't
     # routed. That would cause a validation problem when we check stops against routes.
-    plans_df: DataFrame[CircuitPlans] = _make_plans_df(plans_df=plans_list, all_HHs=all_HHs)
+    plans_df = _make_plans_df(plans_df=plans_list, all_HHs=all_HHs)
     del plans_list
     # TODO: Add external ID for delivery day so we can filter stops by it in request?
     # After taking over upload.
@@ -120,14 +120,6 @@ def _make_plans_df(
         plans_df = plans_df[plans_df["title"].str.contains(ALL_HHS_DRIVER)]
     else:
         plans_df = plans_df[~(plans_df["title"].str.contains(ALL_HHS_DRIVER))]
-
-    if plans_df.isna().any().any():
-        raise ValueError("Plan ID or title is missing.")
-    duplicates = plans_df[plans_df.duplicated(subset="title", keep=False)]
-    if not duplicates.empty:
-        raise ValueError(f"Duplicate plan id:titles:\n{duplicates}")
-    if plans_df["id"].nunique() != plans_df["title"].nunique():
-        raise ValueError("Plan ID and title are not 1:1.")
 
     return plans_df
 
