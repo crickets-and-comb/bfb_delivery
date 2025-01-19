@@ -290,7 +290,10 @@ def _get_responses(base_url: str) -> list[dict[str, Any]]:
             auth=HTTPBasicAuth(get_circuit_key(), ""),
             timeout=RateLimits.READ_TIMEOUT_SECONDS,
         )
-        if response.status_code != 200:
+
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as http_e:
             try:
                 response_dict: dict = response.json()
             except Exception as e:
@@ -300,13 +303,15 @@ def _get_responses(base_url: str) -> list[dict[str, Any]]:
                     "No-JSON response exception:": str(e),
                 }
             err_msg = f"Got {response.status_code} reponse for {url}: {response_dict}"
+
             if response.status_code == 429:
                 wait_seconds = wait_seconds * 2
                 logger.warning(
                     f"{err_msg} . Doubling per-request wait time to {wait_seconds} seconds."
                 )
             else:
-                raise ValueError(err_msg)
+                raise requests.exceptions.HTTPError(err_msg) from http_e
+
         else:
             stops = response.json()
             responses.append(stops)
