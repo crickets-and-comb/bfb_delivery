@@ -285,7 +285,11 @@ def _get_responses(base_url: str) -> list[dict[str, Any]]:
 
     while next_page is not None:
         url = base_url + str(next_page)
-        response = requests.get(url, auth=HTTPBasicAuth(get_circuit_key(), ""))
+        response = requests.get(
+            url,
+            auth=HTTPBasicAuth(get_circuit_key(), ""),
+            timeout=RateLimits.READ_TIMEOUT_SECONDS,
+        )
         if response.status_code != 200:
             try:
                 response_dict: dict = response.json()
@@ -293,13 +297,13 @@ def _get_responses(base_url: str) -> list[dict[str, Any]]:
                 response_dict = {
                     "reason": response.reason,
                     "additional_notes": "No-JSON response.",
-                    "response to JSON exception:": str(e),
+                    "No-JSON response exception:": str(e),
                 }
             err_msg = f"Got {response.status_code} reponse for {url}: {response_dict}"
             if response.status_code == 429:
                 wait_seconds = wait_seconds * 2
                 logger.warning(
-                    f"Doubling per-request wait time to {wait_seconds} seconds. {err_msg}"
+                    f"{err_msg} . Doubling per-request wait time to {wait_seconds} seconds."
                 )
             else:
                 raise ValueError(err_msg)

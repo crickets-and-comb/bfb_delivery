@@ -176,6 +176,7 @@ class RateLimits:
     BATCH_STOP_IMPORT_SECONDS: Final[float] = 1 / (10 / 60)
     BATCH_STOP_IMPORT_MAX_STOPS: Final[int] = 1000
     OPTIMIZATION_PER_SECOND: Final[float] = 1 / (3 / 60)
+    READ_TIMEOUT_SECONDS: Final[int] = 10
     READ_SECONDS: Final[float] = 1 / 10
     WRITE_SECONDS: Final[float] = 1 / 5
 
