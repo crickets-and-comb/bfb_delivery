@@ -3,10 +3,58 @@
 # TODO: Move to new folder. Split into checks and schema files.
 
 
-from typing import Any
+from typing import Any, Self
 
+import pandas as pd
 import pandera as pa
+from pandera.errors import SchemaError
 from pandera.typing import Series
+from pandera.typing.common import DataFrameBase
+
+
+class NonVerboseDataFrameModel(pa.DataFrameModel):
+    """A DataFrameModel that does not print verbose error message."""
+
+    @classmethod
+    def validate(
+        cls,
+        check_obj: pd.DataFrame,
+        head: int | None = None,
+        tail: int | None = None,
+        sample: int | None = None,
+        random_state: int | None = None,
+        lazy: bool = False,
+        inplace: bool = False,
+    ) -> DataFrameBase[Self]:
+        """Validate the DataFrame without printing verbose error messages."""
+        try:
+            return super().validate(
+                check_obj=check_obj,
+                head=head,
+                tail=tail,
+                sample=sample,
+                random_state=random_state,
+                lazy=lazy,
+                inplace=inplace,
+            )
+        except SchemaError as e:
+            e_dict = vars(e)
+            err_msg = "Error validating the raw routes DataFrame."
+            schema = e_dict.get("schema")
+            reason_code = e_dict.get("reason_code")
+            column_name = e_dict.get("column_name")
+            check = e_dict.get("check")
+            failure_cases = e_dict.get("failure_cases")
+            if schema:
+                err_msg += f"\nSchema: {schema}"
+            if reason_code:
+                err_msg += f"\nReason code: {reason_code}"
+            if column_name:
+                err_msg += f"\nColumn name: {column_name}"
+            if check:
+                err_msg += f"\nCheck: {check}"
+            breakpoint()
+            raise SchemaError(schema=schema, data=failure_cases, message=err_msg) from e
 
 
 class CircuitPlans(pa.DataFrameModel):
@@ -26,14 +74,14 @@ class CircuitPlansFromDict(CircuitPlans):
         from_format = "dict"
 
 
-class CircuitRoutesConcatOut(pa.DataFrameModel):
+class CircuitRoutesConcatOut(NonVerboseDataFrameModel):
     """The schema for the Circuit routes data."""
 
     # TODO: Recycle fields.
 
     # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
     plan: Series[str] = pa.Field(coerce=True, str_startswith="plans/")
-    # route id e.g. "routes/lITTnQsxYffqJQDxIpzr":
+    # route id e.g. "routes/lITTnQsxYffqJQDxIpzr", but in dict at this step.
     route: Series[dict[str, Any]] = pa.Field(coerce=True)
     # stop id e.g. "plans/0IWNayD8NEkvD5fQe2SQ/stops/40lmbcQrd32NOfZiiC1b":
     id: Series[str] = pa.Field(
