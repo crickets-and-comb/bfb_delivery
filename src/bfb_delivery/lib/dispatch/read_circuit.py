@@ -168,7 +168,7 @@ def _get_raw_stops_lists(plan_ids: list[str]) -> list[dict[str, Any]]:
 
 
 @schema_error_handler
-@pa.check_types(with_pydantic=True)
+@pa.check_types(with_pydantic=True, lazy=True)
 def _concat_routes_df(
     plan_stops_list: list[dict[str, Any]], plans_df: DataFrame[CircuitRoutesConcatInPlans]
 ) -> DataFrame[CircuitRoutesConcatOut]:
@@ -205,7 +205,7 @@ def _concat_routes_df(
 
 
 @schema_error_handler
-@pa.check_types(with_pydantic=True)
+@pa.check_types(with_pydantic=True, lazy=True)
 def _transform_routes_df(
     routes_df: DataFrame[CircuitRoutesTransformIn], include_email: bool
 ) -> DataFrame[CircuitRoutesTransformOut]:

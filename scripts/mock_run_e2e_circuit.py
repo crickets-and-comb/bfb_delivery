@@ -96,7 +96,7 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
         "Does not mock data; overrides mock_raw_*, always queries the Circuit API."
     ),
 )
-def main(
+def main(  # noqa: C901
     start_date: str,
     end_date: str,
     all_hhs: bool,
@@ -142,29 +142,54 @@ def main(
             end_date = end_date if end_date else start_date
 
             plans_list = _get_raw_plans(start_date=start_date, end_date=end_date)
-            with open(".test_data/sample_responses/plans_list.json", "w") as f:
-                json.dump(plans_list, f, indent=4)
+            # with open(".test_data/sample_responses/plans_list.json", "w") as f:
+            #     json.dump(plans_list, f, indent=4)
 
         else:
             with open(".test_data/sample_responses/plans_list.json") as f:
                 plans_list = json.load(f)
 
         plans_df = _make_plans_df(plans_df=plans_list, all_HHs=all_hhs)
-        plans_df.to_csv(".test_data/sample_responses/plans_df.csv", index=False)
+        # if all_hhs:
+        #     plans_df.to_csv(".test_data/sample_responses/plans_df_all_hhs.csv", index=False)
+        # else:
+        #     plans_df.to_csv(".test_data/sample_responses/plans_df.csv", index=False)
 
         if not mock_raw_routes:
             plan_stops_list = _get_raw_stops_lists(plan_ids=plans_df["id"].to_list())
-            with open(".test_data/sample_responses/plan_stops_list.json", "w") as f:
-                json.dump(plan_stops_list, f, indent=4)
+            # if all_hhs:
+            #     with open(
+            #         ".test_data/sample_responses/plan_stops_list_all_hhs.json", "w"
+            #     ) as f:
+            #         json.dump(plan_stops_list, f, indent=4)
+            # else:
+            #     with open(".test_data/sample_responses/plan_stops_list.json", "w") as f:
+            #         json.dump(plan_stops_list, f, indent=4)
 
         else:
-            with open(".test_data/sample_responses/plan_stops_list.json") as f:
-                plan_stops_list = json.load(f)
+            if all_hhs:
+                with open(".test_data/sample_responses/plan_stops_list_all_hhs.json") as f:
+                    plan_stops_list = json.load(f)
+            else:
+                with open(".test_data/sample_responses/plan_stops_list.json") as f:
+                    plan_stops_list = json.load(f)
 
         routes_df = _concat_routes_df(plan_stops_list=plan_stops_list, plans_df=plans_df)
-        routes_df.to_pickle(".test_data/sample_responses/routes_df_raw.pkl")
+        # if all_hhs:
+        #     routes_df.to_csv(".test_data/sample_responses/routes_df_raw_all_hhs.csv", index=False) # noqa: E501
+        # else:
+        #     routes_df.to_pickle(".test_data/sample_responses/routes_df_raw.pkl")
+
         routes_df = _transform_routes_df(routes_df=routes_df, include_email=all_hhs)
-        routes_df.to_csv(".test_data/sample_responses/routes_df_transformed.csv", index=False)
+        # if all_hhs:
+        #     routes_df.to_csv(
+        #         ".test_data/sample_responses/routes_df_transformed_all_hhs.csv", index=False
+        #     )
+        # else:
+        #     routes_df.to_csv(
+        #         ".test_data/sample_responses/routes_df_transformed.csv", index=False
+        #     )
+
         _write_routes_dfs(
             routes_df=routes_df,
             output_dir=Path(OUTPUT_DIRS["CIRCUIT_TABLES_DIR"]),
