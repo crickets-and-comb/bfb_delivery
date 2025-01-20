@@ -23,8 +23,8 @@ from bfb_delivery.lib.constants import (
 )
 from bfb_delivery.lib.dispatch.utils import get_circuit_key
 from bfb_delivery.lib.schema import (
-    CircuitPlans,
     CircuitPlansFromDict,
+    CircuitPlansOut,
     CircuitRoutesConcatInPlans,
     CircuitRoutesConcatOut,
     CircuitRoutesTransformIn,
@@ -132,7 +132,7 @@ def _get_raw_plans(start_date: str, end_date: str) -> list[dict[str, Any]]:
 @pa.check_types(with_pydantic=True, lazy=True)
 def _make_plans_df(
     plans_df: DataFrame[CircuitPlansFromDict], all_HHs: bool
-) -> DataFrame[CircuitPlans]:
+) -> DataFrame[CircuitPlansOut]:
     """Make the plans DataFrame from the plans."""
     # plans_df = pd.DataFrame(plans_list)
     plans_df = plans_df[["id", "title"]]

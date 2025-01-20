@@ -9,18 +9,18 @@ from bfb_delivery.lib.constants import DEPOT_PLACE_ID, BoxType, Columns
 from bfb_delivery.lib.schema import checks  # noqa: F401
 
 
-class CircuitPlans(pa.DataFrameModel):
+class CircuitPlansOut(pa.DataFrameModel):
     """The schema for the Circuit plans data.
 
     bfb_delivery.lib.dispatch.read_circuit._make_plans_df output.
     """
 
-    # TODO: How to set field names from column constants? Annotated?
+    # TODO: Alias ambiguous column names.
     id: Series[str] = pa.Field(coerce=True, unique=True, str_startswith="plans/")
     title: Series[str] = pa.Field(coerce=True, unique=True)
 
 
-class CircuitPlansFromDict(CircuitPlans):
+class CircuitPlansFromDict(CircuitPlansOut):
     """The schema for the Circuit plans data from a dict.
 
     bfb_delivery.lib.dispatch.read_circuit._make_plans_df input.
@@ -32,7 +32,7 @@ class CircuitPlansFromDict(CircuitPlans):
         from_format = "dict"
 
 
-class CircuitRoutesConcatInPlans(pa.DataFrameModel):
+class CircuitRoutesConcatInPlans(CircuitPlansOut):
     """The schema for the Circuit plans data.
 
     bfb_delivery.lib.dispatch.read_circuit._concat_routes_df input.
@@ -44,8 +44,6 @@ class CircuitRoutesConcatOut(pa.DataFrameModel):
 
     bfb_delivery.lib.dispatch.read_circuit._concat_routes_df output.
     """
-
-    # TODO: Recycle fields and checks.
 
     # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
     plan: Series[str] = pa.Field(coerce=True, str_startswith="plans/")
