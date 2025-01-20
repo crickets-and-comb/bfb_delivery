@@ -67,7 +67,7 @@ class CircuitRoutesConcatOut(pa.DataFrameModel):
     #     """Check that each stop has only one route."""
     #     return all(route.nunique() == 1 for route in grouped_value.values())
 
-    # @pa.check("plan", groupby="id", name="many_to_one_stop_plan")
+    @pa.check("plan", groupby="id", name="many_to_one_stop_plan")
     def check_many_to_one_stop_plan(
         cls, grouped_value: dict[str, Series[str]]  # noqa: B902
     ) -> bool:
