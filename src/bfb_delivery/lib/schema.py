@@ -5,7 +5,6 @@
 
 from typing import Any, Self
 
-import pandas as pd
 import pandera as pa
 from pandera.errors import SchemaError
 from pandera.typing import Series
@@ -17,26 +16,11 @@ class NonVerboseDataFrameModel(pa.DataFrameModel):
 
     @classmethod
     def validate(
-        cls,
-        check_obj: pd.DataFrame,
-        head: int | None = None,
-        tail: int | None = None,
-        sample: int | None = None,
-        random_state: int | None = None,
-        lazy: bool = False,
-        inplace: bool = False,
+        cls, *args: tuple[Any, ...], **kwargs: dict[str, Any]
     ) -> DataFrameBase[Self]:
         """Validate the DataFrame without printing verbose error messages."""
         try:
-            return super().validate(
-                check_obj=check_obj,
-                head=head,
-                tail=tail,
-                sample=sample,
-                random_state=random_state,
-                lazy=lazy,
-                inplace=inplace,
-            )
+            return super().validate(*args, **kwargs)
         except SchemaError as e:
             e_dict = vars(e)
             err_msg = "Error validating the raw routes DataFrame."
