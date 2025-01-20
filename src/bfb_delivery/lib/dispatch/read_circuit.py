@@ -22,11 +22,7 @@ from bfb_delivery.lib.constants import (
     RateLimits,
 )
 from bfb_delivery.lib.dispatch.utils import get_circuit_key
-from bfb_delivery.lib.schema.schema import (
-    CircuitPlans,
-    CircuitPlansFromDict,
-    CircuitRoutesConcatOut,
-)
+from bfb_delivery.lib.schema import CircuitPlans, CircuitPlansFromDict, CircuitRoutesConcatOut
 from bfb_delivery.lib.schema.utils import schema_error_handler
 from bfb_delivery.lib.utils import get_friday
 
