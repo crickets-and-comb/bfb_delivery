@@ -22,7 +22,12 @@ from bfb_delivery.lib.constants import (
     RateLimits,
 )
 from bfb_delivery.lib.dispatch.utils import get_circuit_key
-from bfb_delivery.lib.schema import CircuitPlans, CircuitPlansFromDict, CircuitRoutesConcatOut
+from bfb_delivery.lib.schema import (
+    CircuitPlans,
+    CircuitPlansFromDict,
+    CircuitRoutesConcatOut,
+    schema_error_handler,
+)
 from bfb_delivery.lib.utils import get_friday
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -97,10 +102,12 @@ def _get_raw_plans(start_date: str, end_date: str) -> list[dict[str, Any]]:
     return plans_list
 
 
-# Using https://pandera.readthedocs.io/en/v0.22.1/
+# Using from_format config https://pandera.readthedocs.io/en/v0.22.1/
 # data_format_conversion.html#data-format-conversion
 # Not a fan of this as it obscures the pipeline steps and makes it harder to follow.
-# But, I wanted to use it once to see how it works.
+# Here, you pass in plans_df as a list of dictionaries, but you treat/type it as a dataframe.
+# But, I want to use it once in a simple place to see how it works.
+@schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
 def _make_plans_df(
     plans_df: DataFrame[CircuitPlansFromDict], all_HHs: bool
@@ -139,6 +146,7 @@ def _get_raw_stops_lists(plan_ids: list[str]) -> list[dict[str, Any]]:
     return plan_stops_list
 
 
+@schema_error_handler
 @pa.check_types(with_pydantic=True)
 def _concat_routes_df(
     plan_stops_list: list[dict[str, Any]], plans_df: DataFrame[CircuitPlans]
@@ -171,8 +179,6 @@ def _concat_routes_df(
     )
 
     # TODO: Validate that all IDs and titles represented.
-
-    CircuitRoutesConcatOut.validate(routes_df)
 
     return routes_df
 

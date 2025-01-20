@@ -3,24 +3,23 @@
 # TODO: Move to new folder. Split into checks and schema files.
 
 
-from typing import Any, Self
+from collections.abc import Callable
+from typing import Any
 
 import pandera as pa
 from pandera.errors import SchemaError
 from pandera.typing import Series
-from pandera.typing.common import DataFrameBase
 
 
-class NonVerboseDataFrameModel(pa.DataFrameModel):
-    """A DataFrameModel that does not print verbose error message."""
+def schema_error_handler(func: Callable) -> Callable:
+    """Custom error handler for the schema validation errors.
 
-    @classmethod
-    def validate(
-        cls, *args: tuple[Any, ...], **kwargs: dict[str, Any]
-    ) -> DataFrameBase[Self]:
-        """Validate the DataFrame without printing verbose error messages."""
+    Use as decorator to wrap pa.check_types decorator.
+    """
+
+    def wrapper(*args, **kwargs):  # noqa: ANN201, ANN002, ANN003
         try:
-            return super().validate(*args, **kwargs)
+            return func(*args, **kwargs)
         except SchemaError as e:
             e_dict = vars(e)
             err_msg = "Error validating the raw routes DataFrame."
@@ -37,8 +36,12 @@ class NonVerboseDataFrameModel(pa.DataFrameModel):
                 err_msg += f"\nColumn name: {column_name}"
             if check:
                 err_msg += f"\nCheck: {check}"
-            breakpoint()
+
             raise SchemaError(schema=schema, data=failure_cases, message=err_msg) from e
+        except Exception as e:
+            raise e
+
+    return wrapper
 
 
 class CircuitPlans(pa.DataFrameModel):
@@ -58,14 +61,14 @@ class CircuitPlansFromDict(CircuitPlans):
         from_format = "dict"
 
 
-class CircuitRoutesConcatOut(NonVerboseDataFrameModel):
+class CircuitRoutesConcatOut(pa.DataFrameModel):
     """The schema for the Circuit routes data."""
 
     # TODO: Recycle fields.
 
     # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
     plan: Series[str] = pa.Field(coerce=True, str_startswith="plans/")
-    # route id e.g. "routes/lITTnQsxYffqJQDxIpzr", but in dict at this step.
+    # route id e.g. "routes/lITTnQsxYffqJQDxIpzr", but within dict at this step.
     route: Series[dict[str, Any]] = pa.Field(coerce=True)
     # stop id e.g. "plans/0IWNayD8NEkvD5fQe2SQ/stops/40lmbcQrd32NOfZiiC1b":
     id: Series[str] = pa.Field(
