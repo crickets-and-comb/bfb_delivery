@@ -82,8 +82,9 @@ class CircuitRoutesTransformIn(CircuitRoutesConcatOut):
     bfb_delivery.lib.dispatch.read_circuit._transform_routes_df input.
     """
 
+    # TODO: Do dict field validations on input to tx.
 
-# TODO: Do dict field validations on input to tx.
+
 class CircuitRoutesTransformOut(pa.DataFrameModel):
     """The schema for the Circuit routes data after transformation.
 
@@ -157,3 +158,8 @@ class CircuitRoutesWriteIn(CircuitRoutesTransformOut):
 
     bfb_delivery.lib.dispatch.read_circuit._write_routes_df input.
     """
+
+    class Config:
+        """The configuration for the schema."""
+
+        strict = True

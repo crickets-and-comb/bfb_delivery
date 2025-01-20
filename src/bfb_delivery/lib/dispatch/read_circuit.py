@@ -100,7 +100,7 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
     # TODO: Validate that route title is same as plan title. (i.e., driver sheet name)
 
     routes_df = _transform_routes_df(routes_df=routes_df, include_email=all_HHs)
-    # TODO: Make Pandera validate that only the columns we want are present.
+    # TODO: Split to with and without email functions for separate pandera strict set.
     _write_routes_dfs(
         routes_df=routes_df[output_cols], output_dir=Path(output_dir), include_email=all_HHs
     )
