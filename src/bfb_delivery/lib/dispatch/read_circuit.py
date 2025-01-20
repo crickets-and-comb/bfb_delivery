@@ -29,6 +29,7 @@ from bfb_delivery.lib.schema import (
     CircuitRoutesConcatOut,
     CircuitRoutesTransformIn,
     CircuitRoutesTransformOut,
+    CircuitRoutesWriteIn,
 )
 from bfb_delivery.lib.schema.utils import schema_error_handler
 from bfb_delivery.lib.utils import get_friday
@@ -267,8 +268,11 @@ def _transform_routes_df(
     return routes_df
 
 
-@typechecked
-def _write_routes_dfs(routes_df: pd.DataFrame, output_dir: Path, include_email: bool) -> None:
+@schema_error_handler
+@pa.check_types(with_pydantic=True, lazy=True)
+def _write_routes_dfs(
+    routes_df: DataFrame[CircuitRoutesWriteIn], output_dir: Path, include_email: bool
+) -> None:
     """Split and write the routes DataFrame to the output directory.
 
     Args:

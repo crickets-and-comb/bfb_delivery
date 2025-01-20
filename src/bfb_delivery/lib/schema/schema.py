@@ -15,8 +15,9 @@ class CircuitPlansOut(pa.DataFrameModel):
     bfb_delivery.lib.dispatch.read_circuit._make_plans_df output.
     """
 
-    # TODO: Alias ambiguous column names.
+    # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
     id: Series[str] = pa.Field(coerce=True, unique=True, str_startswith="plans/")
+    # e.g. "1.17 Andy W":
     title: Series[str] = pa.Field(coerce=True, unique=True)
 
 
@@ -89,9 +90,10 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
     bfb_delivery.lib.dispatch.read_circuit._transform_routes_df output.
     """
 
-    # # Main output columns for downstream processing.
+    # Main output columns for downstream processing.
     # route id e.g. "routes/lITTnQsxYffqJQDxIpzr".
     route: Series[str] = pa.Field(coerce=True, str_startswith="routes/")
+    # Renamed "title" column, e.g. "1.17 Andy W":
     driver_sheet_name: Series[str] = pa.Field(coerce=True, at_least_two_words=True)
     stop_no: Series[int] = pa.Field(coerce=True, ge=1, alias=Columns.STOP_NO)
     name: Series[str] = pa.Field(coerce=True, alias=Columns.NAME)
@@ -108,19 +110,17 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
     neighborhood: Series[str] = pa.Field(
         coerce=True, nullable=True, alias=Columns.NEIGHBORHOOD
     )
-    # from typing import Optional
     email: Series[str] | None = pa.Field(coerce=True, nullable=True, alias=Columns.EMAIL)
 
-    # # Ancillary columns.
+    # Ancillary columns.
     # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
     plan: Series[str] = pa.Field(coerce=True, str_startswith="plans/")
-    # # stop id e.g. "plans/0IWNayD8NEkvD5fQe2SQ/stops/40lmbcQrd32NOfZiiC1b":
+    # stop id e.g. "plans/0IWNayD8NEkvD5fQe2SQ/stops/40lmbcQrd32NOfZiiC1b":
     id: Series[str] = pa.Field(
         coerce=True, unique=True, str_startswith="plans/", str_contains="/stops/"
     )
     placeId: Series[str] = pa.Field(coerce=True, ne=DEPOT_PLACE_ID)
 
-    # Properties.
     class Config:
         """The configuration for the schema."""
 
@@ -150,3 +150,10 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
             "start_idx": 1,
         }
         increasing_by = {"cols": ["driver_sheet_name", Columns.STOP_NO]}
+
+
+class CircuitRoutesWriteIn(CircuitRoutesTransformOut):
+    """The schema for the Circuit routes data before writing.
+
+    bfb_delivery.lib.dispatch.read_circuit._write_routes_df input.
+    """
