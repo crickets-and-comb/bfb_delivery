@@ -107,7 +107,6 @@ def _get_raw_plans(start_date: str, end_date: str) -> list[dict[str, Any]]:
 # Not a fan of this as it obscures the pipeline steps and makes it harder to follow.
 # Here, you pass in plans_df as a list of dictionaries, but you treat/type it as a dataframe.
 # But, I want to use it once in a simple place to see how it works.
-@schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
 def _make_plans_df(
     plans_df: DataFrame[CircuitPlansFromDict], all_HHs: bool
