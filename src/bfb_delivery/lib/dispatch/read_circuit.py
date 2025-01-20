@@ -10,6 +10,7 @@ from typing import Any
 import pandas as pd
 import pandera as pa
 import requests
+from pandera.errors import SchemaError
 from pandera.typing import DataFrame
 from requests.auth import HTTPBasicAuth
 from typeguard import typechecked
@@ -22,7 +23,7 @@ from bfb_delivery.lib.constants import (
     RateLimits,
 )
 from bfb_delivery.lib.dispatch.utils import get_circuit_key
-from bfb_delivery.lib.schema import CircuitPlans, CircuitPlansFromDict
+from bfb_delivery.lib.schema import CircuitPlans, CircuitPlansFromDict, CircuitRoutesConcatOut
 from bfb_delivery.lib.utils import get_friday
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -139,19 +140,19 @@ def _get_raw_stops_lists(plan_ids: list[str]) -> list[dict[str, Any]]:
     return plan_stops_list
 
 
-@pa.check_types(with_pydantic=True, lazy=True)
+@pa.check_types(with_pydantic=True)
 def _concat_routes_df(
     plan_stops_list: list[dict[str, Any]], plans_df: DataFrame[CircuitPlans]
-) -> pd.DataFrame:
+) -> DataFrame[CircuitRoutesConcatOut]:
     """Concatenate the routes DataFrames from the plan stops lists."""
     routes_df = pd.DataFrame(plan_stops_list)
     # TODO: Make Circuit columns constant?
     routes_df = routes_df[
         [
-            # plan id, e.g. "plans/0IWNayD8NEkvD5fQe2SQ"
+            # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
             "plan",
             "route",
-            # stop id, e.g. "plans/0IWNayD8NEkvD5fQe2SQ/stops/40lmbcQrd32NOfZiiC1b"
+            # stop id e.g. "plans/0IWNayD8NEkvD5fQe2SQ/stops/40lmbcQrd32NOfZiiC1b":
             "id",
             "stopPosition",
             "recipient",
@@ -161,13 +162,39 @@ def _concat_routes_df(
             "packageCount",
         ]
     ]
-    # TODO: Validate that no null ID.
+
     routes_df = routes_df.merge(
-        plans_df, left_on="plan", right_on="id", how="left", validate="m:1"
+        plans_df.copy().rename(columns={"id": "plan_id"}),
+        left_on="plan",
+        right_on="plan_id",
+        how="left",
+        validate="m:1",
     )
-    # TODO: Validate that no null title.
+
     # TODO: Validate that all IDs and titles represented.
-    # TODO: Validate that stop IDs are unique.
+
+    # Redundant to the builtin validation as type is specified.
+    # But reduces the output to be more legible and not fill the console.
+    try:
+        CircuitRoutesConcatOut.to_schema().validate(routes_df)
+    except SchemaError as e:
+        e_dict = vars(e)
+        err_msg = "Error validating the raw routes DataFrame."
+        schema = e_dict.get("schema")
+        reason_code = e_dict.get("reason_code")
+        column_name = e_dict.get("column_name")
+        check = e_dict.get("check")
+        failure_cases = e_dict.get("failure_cases")
+        if schema:
+            err_msg += f"\nSchema: {schema}"
+        if reason_code:
+            err_msg += f"\nReason code: {reason_code}"
+        if column_name:
+            err_msg += f"\nColumn name: {column_name}"
+        if check:
+            err_msg += f"\nCheck: {check}"
+
+        raise SchemaError(schema=schema, data=failure_cases, message=err_msg) from e
 
     return routes_df
 
@@ -207,7 +234,6 @@ def _transform_routes_df(routes_df: pd.DataFrame, include_email: bool) -> pd.Dat
         lambda address_dict: address_dict.get("placeId")
     )
     routes_df = routes_df[routes_df["placeId"] != DEPOT_PLACE_ID]
-
     routes_df["route"] = routes_df["route"].apply(lambda route_dict: route_dict.get("id"))
     routes_df[Columns.NAME] = routes_df["recipient"].apply(
         lambda recipient_dict: recipient_dict.get("name")
