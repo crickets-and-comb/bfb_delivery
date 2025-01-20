@@ -22,7 +22,7 @@ from bfb_delivery.lib.constants import (
     RateLimits,
 )
 from bfb_delivery.lib.dispatch.utils import get_circuit_key
-from bfb_delivery.lib.schema import (
+from bfb_delivery.lib.schema.schema import (
     CircuitPlans,
     CircuitPlansFromDict,
     CircuitRoutesConcatOut,
