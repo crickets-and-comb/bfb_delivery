@@ -1,7 +1,9 @@
 """Utility functions for schema validation."""
 
-from pandera.errors import SchemaError
 from collections.abc import Callable
+
+from pandera.errors import SchemaError
+
 
 def schema_error_handler(func: Callable) -> Callable:
     """Custom error handler for the schema validation errors.
