@@ -22,7 +22,14 @@ from bfb_delivery.lib.constants import (
     RateLimits,
 )
 from bfb_delivery.lib.dispatch.utils import get_circuit_key
-from bfb_delivery.lib.schema import CircuitPlans, CircuitPlansFromDict, CircuitRoutesConcatOut
+from bfb_delivery.lib.schema import (
+    CircuitPlans,
+    CircuitPlansFromDict,
+    CircuitRoutesConcatInPlans,
+    CircuitRoutesConcatOut,
+    CircuitRoutesTransformIn,
+    CircuitRoutesTransformOut,
+)
 from bfb_delivery.lib.schema.utils import schema_error_handler
 from bfb_delivery.lib.utils import get_friday
 
@@ -59,6 +66,22 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
     if not output_dir:
         output_dir = os.getcwd() + "/routes_" + start_date
 
+    # TODO: Make Circuit columns constants.
+    output_cols = [
+        "route",
+        "driver_sheet_name",
+        Columns.STOP_NO,
+        Columns.NAME,
+        Columns.ADDRESS,
+        Columns.PHONE,
+        Columns.NOTES,
+        Columns.ORDER_COUNT,
+        Columns.BOX_TYPE,
+        Columns.NEIGHBORHOOD,
+    ]
+    if all_HHs:
+        output_cols.append(Columns.EMAIL)
+
     plans_list = _get_raw_plans(start_date=start_date, end_date=end_date)
     # TODO: Filter to only plans with routes to make sure we don't get plans that aren't
     # routed. That would cause a validation problem when we check stops against routes.
@@ -76,7 +99,10 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
     # TODO: Validate that route title is same as plan title. (i.e., driver sheet name)
 
     routes_df = _transform_routes_df(routes_df=routes_df, include_email=all_HHs)
-    _write_routes_dfs(routes_df=routes_df, output_dir=Path(output_dir), include_email=all_HHs)
+    # TODO: Make Pandera validate that only the columns we want are present.
+    _write_routes_dfs(
+        routes_df=routes_df[output_cols], output_dir=Path(output_dir), include_email=all_HHs
+    )
 
     return output_dir
 
@@ -144,7 +170,7 @@ def _get_raw_stops_lists(plan_ids: list[str]) -> list[dict[str, Any]]:
 @schema_error_handler
 @pa.check_types(with_pydantic=True)
 def _concat_routes_df(
-    plan_stops_list: list[dict[str, Any]], plans_df: DataFrame[CircuitPlans]
+    plan_stops_list: list[dict[str, Any]], plans_df: DataFrame[CircuitRoutesConcatInPlans]
 ) -> DataFrame[CircuitRoutesConcatOut]:
     """Concatenate the routes DataFrames from the plan stops lists."""
     routes_df = pd.DataFrame(plan_stops_list)
@@ -178,25 +204,12 @@ def _concat_routes_df(
     return routes_df
 
 
-@typechecked
-def _transform_routes_df(routes_df: pd.DataFrame, include_email: bool) -> pd.DataFrame:
+@schema_error_handler
+@pa.check_types(with_pydantic=True)
+def _transform_routes_df(
+    routes_df: DataFrame[CircuitRoutesTransformIn], include_email: bool
+) -> DataFrame[CircuitRoutesTransformOut]:
     """Transform the raw routes DataFrame."""
-    # TODO: Make columns constant. (And/or use pandera.)
-    output_cols = [
-        "route",
-        "driver_sheet_name",
-        Columns.STOP_NO,
-        Columns.NAME,
-        Columns.ADDRESS,
-        Columns.PHONE,
-        Columns.NOTES,
-        Columns.ORDER_COUNT,
-        Columns.BOX_TYPE,
-        Columns.NEIGHBORHOOD,
-    ]
-    if include_email:
-        output_cols.append(Columns.EMAIL)
-
     routes_df.rename(
         columns={
             "title": "driver_sheet_name",  # Plan title is upload/download sheet name.
@@ -213,6 +226,7 @@ def _transform_routes_df(routes_df: pd.DataFrame, include_email: bool) -> pd.Dat
         lambda address_dict: address_dict.get("placeId")
     )
     routes_df = routes_df[routes_df["placeId"] != DEPOT_PLACE_ID]
+
     routes_df["route"] = routes_df["route"].apply(lambda route_dict: route_dict.get("id"))
     routes_df[Columns.NAME] = routes_df["recipient"].apply(
         lambda recipient_dict: recipient_dict.get("name")
@@ -247,7 +261,7 @@ def _transform_routes_df(routes_df: pd.DataFrame, include_email: bool) -> pd.Dat
     routes_df[Columns.ADDRESS] = (
         routes_df["addressLineOne"] + ", " + routes_df["addressLineTwo"]
     )
-    routes_df = routes_df[output_cols]
+
     routes_df.sort_values(by=["driver_sheet_name", Columns.STOP_NO], inplace=True)
 
     return routes_df

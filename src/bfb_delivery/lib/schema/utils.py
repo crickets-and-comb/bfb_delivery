@@ -16,7 +16,7 @@ def schema_error_handler(func: Callable) -> Callable:
             return func(*args, **kwargs)
         except SchemaError as e:
             e_dict = vars(e)
-            err_msg = "Error validating the raw routes DataFrame."
+            err_msg = "SchemaError: "
             schema = e_dict.get("schema")
             reason_code = e_dict.get("reason_code")
             column_name = e_dict.get("column_name")
