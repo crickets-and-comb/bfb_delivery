@@ -26,8 +26,8 @@ from bfb_delivery.lib.schema.schema import (
     CircuitPlans,
     CircuitPlansFromDict,
     CircuitRoutesConcatOut,
-    schema_error_handler,
 )
+from bfb_delivery.lib.schema.utils import schema_error_handler
 from bfb_delivery.lib.utils import get_friday
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
