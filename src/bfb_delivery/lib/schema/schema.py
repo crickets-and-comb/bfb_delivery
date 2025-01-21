@@ -15,6 +15,7 @@ from bfb_delivery.lib.constants import (
 )
 from bfb_delivery.lib.schema import checks  # noqa: F401
 
+# TODO: Can we alias more of these? Pass alias on call? Refactor to pass?
 ADDRESS_FIELD: Series[str] = partial(pa.Field, coerce=True, alias=Columns.ADDRESS)
 BOX_TYPE_FIELD: Series[pa.Category] = partial(
     pa.Field,
@@ -36,6 +37,15 @@ ORDER_COUNT_FIELD: Series[float] = partial(
 PHONE_FIELD: Series[str] = partial(pa.Field, coerce=True, nullable=True, alias=Columns.PHONE)
 # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
 PLAN_ID_FIELD: Series[str] = partial(pa.Field, coerce=True, str_startswith="plans/")
+# stop id e.g. "plans/0IWNayD8NEkvD5fQe2SQ/stops/40lmbcQrd32NOfZiiC1b":
+STOP_ID_FIELD: Series[str] = partial(
+    pa.Field,
+    coerce=True,
+    unique=True,
+    str_startswith="plans/",
+    str_contains="/stops/",
+    alias=CircuitColumns.ID,
+)
 STOP_NO_FIELD: Series[int] = partial(pa.Field, coerce=True, ge=1, alias=Columns.STOP_NO)
 
 
@@ -46,9 +56,12 @@ class CircuitPlansOut(pa.DataFrameModel):
     """
 
     # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
-    id: Series[str] = pa.Field(coerce=True, unique=True, str_startswith="plans/")
+    # TODO: Use ID field and pass unique
+    id: Series[str] = pa.Field(
+        coerce=True, unique=True, str_startswith="plans/", alias=CircuitColumns.ID
+    )
     # e.g. "1.17 Andy W":
-    title: Series[str] = DRIVER_SHEET_NAME_FIELD()
+    title: Series[str] = DRIVER_SHEET_NAME_FIELD(alias=CircuitColumns.TITLE)
 
 
 class CircuitPlansFromDict(CircuitPlansOut):
@@ -77,29 +90,31 @@ class CircuitRoutesConcatOut(pa.DataFrameModel):
     """
 
     # TODO: Validate single box count and single type.
-    # TODO: Alias the constant columns.
 
     plan: Series[str] = PLAN_ID_FIELD()
     route: Series[dict[str, Any]] = pa.Field(
-        coerce=True, item_in_field_dict=CircuitColumns.ID
+        coerce=True, item_in_field_dict=CircuitColumns.ID, alias=CircuitColumns.ROUTE
     )
-    # stop id e.g. "plans/0IWNayD8NEkvD5fQe2SQ/stops/40lmbcQrd32NOfZiiC1b":
-    id: Series[str] = pa.Field(
-        coerce=True, unique=True, str_startswith="plans/", str_contains="/stops/"
-    )
+    id: Series[str] = STOP_ID_FIELD()
     # Position 0 is depot, which gets dropped later for the manifests.
-    stopPosition: Series[int] = pa.Field(coerce=True, ge=0)
+    stopPosition: Series[int] = pa.Field(
+        coerce=True, ge=0, alias=CircuitColumns.STOP_POSITION
+    )
     recipient: Series[dict[str, Any]] = pa.Field(
-        coerce=True, item_in_field_dict=CircuitColumns.NAME
+        coerce=True, item_in_field_dict=CircuitColumns.NAME, alias=CircuitColumns.RECIPIENT
     )
     address: Series[dict[str, Any]] = pa.Field(
-        coerce=True, item_in_field_dict=CircuitColumns.PLACE_ID
+        coerce=True, item_in_field_dict=CircuitColumns.PLACE_ID, alias=CircuitColumns.ADDRESS
     )
-    notes: Series[str] = pa.Field(coerce=True, nullable=True)
+    notes: Series[str] = pa.Field(coerce=True, nullable=True, alias=CircuitColumns.NOTES)
     orderInfo: Series[dict[str, Any]] = pa.Field(
-        coerce=True, item_in_field_dict=CircuitColumns.PRODUCTS
+        coerce=True,
+        item_in_field_dict=CircuitColumns.PRODUCTS,
+        alias=CircuitColumns.ORDER_INFO,
     )
-    packageCount: Series[float] = pa.Field(coerce=True, nullable=True, eq=1)
+    packageCount: Series[float] = pa.Field(
+        coerce=True, nullable=True, eq=1, alias=CircuitColumns.PACKAGE_COUNT
+    )
 
     class Config:
         """The configuration for the schema."""
@@ -145,8 +160,12 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
 
     # Main output columns for downstream processing.
     # route id e.g. "routes/lITTnQsxYffqJQDxIpzr".
-    route: Series[str] = pa.Field(coerce=True, str_startswith="routes/")
-    driver_sheet_name: Series[str] = DRIVER_SHEET_NAME_FIELD()
+    route: Series[str] = pa.Field(
+        coerce=True, str_startswith="routes/", alias=CircuitColumns.ROUTE
+    )
+    driver_sheet_name: Series[str] = DRIVER_SHEET_NAME_FIELD(
+        alias=IntermediateColumns.DRIVER_SHEET_NAME
+    )
     stop_no: Series[int] = STOP_NO_FIELD()
     name: Series[str] = NAME_FIELD()
     address: Series[str] = ADDRESS_FIELD()
@@ -159,12 +178,11 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
 
     # Ancillary columns.
     plan: Series[str] = PLAN_ID_FIELD()
-    # stop id e.g. "plans/0IWNayD8NEkvD5fQe2SQ/stops/40lmbcQrd32NOfZiiC1b":
-    id: Series[str] = pa.Field(
-        coerce=True, unique=True, str_startswith="plans/", str_contains="/stops/"
+    id: Series[str] = STOP_ID_FIELD()
+    route_title: Series[str] = DRIVER_SHEET_NAME_FIELD(alias=IntermediateColumns.ROUTE_TITLE)
+    placeId: Series[str] = pa.Field(
+        coerce=True, ne=DEPOT_PLACE_ID, alias=CircuitColumns.PLACE_ID
     )
-    route_title: Series[str] = DRIVER_SHEET_NAME_FIELD()
-    placeId: Series[str] = pa.Field(coerce=True, ne=DEPOT_PLACE_ID)
 
     class Config:
         """The configuration for the schema."""
@@ -259,7 +277,9 @@ class CircuitRoutesWriteIn(pa.DataFrameModel):
     bfb_delivery.lib.dispatch.read_circuit._write_routes_df input.
     """
 
-    driver_sheet_name: Series[str] = DRIVER_SHEET_NAME_FIELD()
+    driver_sheet_name: Series[str] = DRIVER_SHEET_NAME_FIELD(
+        alias=IntermediateColumns.DRIVER_SHEET_NAME
+    )
     stop_no: Series[int] = STOP_NO_FIELD()
     name: Series[str] = NAME_FIELD()
     address: Series[str] = ADDRESS_FIELD()
