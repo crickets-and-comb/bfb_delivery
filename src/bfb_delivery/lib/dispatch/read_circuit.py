@@ -30,6 +30,7 @@ from bfb_delivery.lib.schema import (
     CircuitRoutesTransformIn,
     CircuitRoutesTransformOut,
     CircuitRoutesWriteIn,
+    CircuitRoutesWriteInAllHHs,
 )
 from bfb_delivery.lib.schema.utils import schema_error_handler
 from bfb_delivery.lib.utils import get_friday
@@ -57,7 +58,7 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
             If the directory does not exist, it is created. If it exists, it is overwritten.
         all_HHs: Flag to get only the "All HHs" route.
             False gets all routes except "All HHs". True gets only the "All HHs" route.
-            NOTE: True returns email column in CSV, for reuploading after splitting.
+            NOTE: True validates email column is in CSV, for reuploading after splitting.
 
     Returns:
         The path to the route files.
@@ -66,22 +67,6 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
     end_date = end_date if end_date else start_date
     if not output_dir:
         output_dir = os.getcwd() + "/routes_" + start_date
-
-    # TODO: Make Circuit columns constants.
-    output_cols = [
-        "route",
-        "driver_sheet_name",
-        Columns.STOP_NO,
-        Columns.NAME,
-        Columns.ADDRESS,
-        Columns.PHONE,
-        Columns.NOTES,
-        Columns.ORDER_COUNT,
-        Columns.BOX_TYPE,
-        Columns.NEIGHBORHOOD,
-    ]
-    if all_HHs:
-        output_cols.append(Columns.EMAIL)
 
     plans_list = _get_raw_plans(start_date=start_date, end_date=end_date)
     # TODO: Filter to only plans with routes to make sure we don't get plans that aren't
@@ -99,11 +84,11 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
     # TODO: Validate that route:title is 1:1. (plan title is driver sheet name)
     # TODO: Validate that route title is same as plan title. (i.e., driver sheet name)
 
-    routes_df = _transform_routes_df(routes_df=routes_df, include_email=all_HHs)
-    # TODO: Split to with and without email functions for separate pandera strict set.
-    _write_routes_dfs(
-        routes_df=routes_df[output_cols], output_dir=Path(output_dir), include_email=all_HHs
-    )
+    routes_df = _transform_routes_df(routes_df=routes_df)
+    if all_HHs:
+        _write_routes_dfs_all_hhs(routes_df=routes_df, output_dir=Path(output_dir))
+    else:
+        _write_routes_dfs(routes_df=routes_df, output_dir=Path(output_dir))
 
     return output_dir
 
@@ -145,6 +130,7 @@ def _make_plans_df(
     # 4. Pass title filter once we're confident in the title because we uploaded it
     # programmatically.
     # Worst to best in order.
+    # TODO: Validate in pandera schema.
     if all_HHs:
         plans_df = plans_df[plans_df["title"].str.contains(ALL_HHS_DRIVER)]
     else:
@@ -208,7 +194,7 @@ def _concat_routes_df(
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
 def _transform_routes_df(
-    routes_df: DataFrame[CircuitRoutesTransformIn], include_email: bool
+    routes_df: DataFrame[CircuitRoutesTransformIn],
 ) -> DataFrame[CircuitRoutesTransformOut]:
     """Transform the raw routes DataFrame."""
     routes_df.rename(
@@ -249,10 +235,9 @@ def _transform_routes_df(
     routes_df[Columns.NEIGHBORHOOD] = routes_df["recipient"].apply(
         lambda recipient_dict: recipient_dict.get("externalId")
     )
-    if include_email:
-        routes_df[Columns.EMAIL] = routes_df["recipient"].apply(
-            lambda recipient_dict: recipient_dict.get("email")
-        )
+    routes_df[Columns.EMAIL] = routes_df["recipient"].apply(
+        lambda recipient_dict: recipient_dict.get("email")
+    )
 
     # TODO: Verify we want to warn/raise/impute.
     # TODO: Validate required not null: route, driver_sheet_name, stop_no, addressLineOne,
@@ -270,23 +255,29 @@ def _transform_routes_df(
 
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
-def _write_routes_dfs(
-    routes_df: DataFrame[CircuitRoutesWriteIn], output_dir: Path, include_email: bool
+def _write_routes_dfs_all_hhs(
+    routes_df: DataFrame[CircuitRoutesWriteInAllHHs], output_dir: Path
 ) -> None:
+    _write_routes_dfs(routes_df=routes_df, output_dir=output_dir)
+
+
+@schema_error_handler
+@pa.check_types(with_pydantic=True, lazy=True)
+def _write_routes_dfs(routes_df: DataFrame[CircuitRoutesWriteIn], output_dir: Path) -> None:
     """Split and write the routes DataFrame to the output directory.
 
     Args:
         routes_df: The routes DataFrame to write.
         output_dir: The directory to save the routes to.
-        include_email: Whether to include the email column in the output.
     """
     if output_dir.exists():
         logger.warning(f"Output directory exists {output_dir}. Overwriting.")
         shutil.rmtree(output_dir, ignore_errors=True)
     output_dir.mkdir(parents=True)
-    output_columns = COMBINED_ROUTES_COLUMNS.copy()
-    if include_email:
-        output_columns.append(Columns.EMAIL)
+
+    # TODO: Make Circuit columns constants?
+    output_cols = COMBINED_ROUTES_COLUMNS.copy()
+    output_cols += [Columns.EMAIL]
 
     logger.info(f"Writing route CSVs to {output_dir.resolve()}")
     for route, route_df in routes_df.groupby("route"):
@@ -298,7 +289,8 @@ def _write_routes_dfs(
         elif len(driver_sheet_names) < 1:
             raise ValueError(f"Route {route} has no driver sheet name.")
         driver_sheet_name = driver_sheet_names[0]
-        route_df[output_columns].to_csv(output_dir / f"{driver_sheet_name}.csv", index=False)
+        # TODO: Wrap this so we can validate with a DataFrameModel.
+        route_df[output_cols].to_csv(output_dir / f"{driver_sheet_name}.csv", index=False)
 
 
 @typechecked

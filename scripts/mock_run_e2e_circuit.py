@@ -21,6 +21,7 @@ from bfb_delivery.lib.dispatch.read_circuit import (
     _make_plans_df,
     _transform_routes_df,
     _write_routes_dfs,
+    _write_routes_dfs_all_hhs,
 )
 from bfb_delivery.lib.formatting import sheet_shaping
 from bfb_delivery.lib.utils import get_friday
@@ -180,21 +181,23 @@ def main(  # noqa: C901
         # else:
         #     routes_df.to_pickle(".test_data/sample_responses/routes_df_raw.pkl")
 
-        routes_df = _transform_routes_df(routes_df=routes_df, include_email=all_hhs)
+        routes_df = _transform_routes_df(routes_df=routes_df)
         # if all_hhs:
         #     routes_df.to_csv(
         #         ".test_data/sample_responses/routes_df_transformed_all_hhs.csv", index=False
-        #     )
+        #     )  # noqa: E501
         # else:
         #     routes_df.to_csv(
         #         ".test_data/sample_responses/routes_df_transformed.csv", index=False
-        #     )
-
-        _write_routes_dfs(
-            routes_df=routes_df,
-            output_dir=Path(OUTPUT_DIRS["CIRCUIT_TABLES_DIR"]),
-            include_email=all_hhs,
-        )
+        #     )  # noqa: E501
+        if all_hhs:
+            _write_routes_dfs_all_hhs(
+                routes_df=routes_df, output_dir=Path(OUTPUT_DIRS["CIRCUIT_TABLES_DIR"])
+            )
+        else:
+            _write_routes_dfs(
+                routes_df=routes_df, output_dir=Path(OUTPUT_DIRS["CIRCUIT_TABLES_DIR"])
+            )
         # END: get_route_files
 
         formatted_manifest_path = sheet_shaping.create_manifests(

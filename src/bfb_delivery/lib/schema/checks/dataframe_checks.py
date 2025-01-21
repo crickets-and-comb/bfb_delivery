@@ -3,16 +3,17 @@
 import pandas as pd
 import pandera.extensions as extensions
 
-
 # NOTE: Registering as dataframe checks instead of field checks includes the columns in the
 # error message, whereas groupby field checks do not.
+# NOTE: There may be better a way to mock an RDB structure, but this works.
+
+
 @extensions.register_check_method(statistics=["group_col", "at_least_one_col"])
-def at_least_one_in_group_str(
-    df: pd.DataFrame, group_col: str, at_least_one_col: str
-) -> bool:
-    """Check that at least one value in a group, or string `at_least_one_col` column."""
+def at_least_one_in_group(df: pd.DataFrame, group_col: str, at_least_one_col: str) -> bool:
+    """Check that at least one value in a group is not null or empty."""
     return all(
-        len(vals.to_list()) == len([val for val in vals.to_list() if val])
+        len(vals.to_list())
+        == len([val for val in vals.to_list() if val and not pd.isna(val)])  # noqa: W503
         for _, vals in df.groupby(group_col)[at_least_one_col]
     )
 

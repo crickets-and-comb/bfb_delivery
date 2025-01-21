@@ -1,7 +1,7 @@
 """Schema checks."""
 
 from bfb_delivery.lib.schema.checks.dataframe_checks import (
-    at_least_one_in_group_str,
+    at_least_one_in_group,
     contiguous_group,
     increasing_by,
     many_to_one,
