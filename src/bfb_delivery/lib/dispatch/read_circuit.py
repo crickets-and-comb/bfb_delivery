@@ -31,6 +31,8 @@ from bfb_delivery.lib.schema import (
     CircuitRoutesTransformOut,
     CircuitRoutesWriteIn,
     CircuitRoutesWriteInAllHHs,
+    CircuitRoutesWriteOut,
+    CircuitRoutesWriteOutAllHHs,
 )
 from bfb_delivery.lib.schema.utils import schema_error_handler
 from bfb_delivery.lib.utils import get_friday
@@ -258,17 +260,20 @@ def _transform_routes_df(
 def _write_routes_dfs_all_hhs(
     routes_df: DataFrame[CircuitRoutesWriteInAllHHs], output_dir: Path
 ) -> None:
-    _write_routes_dfs(routes_df=routes_df, output_dir=output_dir)
+    _write_routes_dfs(routes_df=routes_df, output_dir=output_dir, all_HHs=True)
 
 
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
-def _write_routes_dfs(routes_df: DataFrame[CircuitRoutesWriteIn], output_dir: Path) -> None:
+def _write_routes_dfs(
+    routes_df: DataFrame[CircuitRoutesWriteIn], output_dir: Path, all_HHs: bool = False
+) -> None:
     """Split and write the routes DataFrame to the output directory.
 
     Args:
         routes_df: The routes DataFrame to write.
         output_dir: The directory to save the routes to.
+        all_HHs: Flag to ensure email colum is in CSV for reuploading after splitting.
     """
     if output_dir.exists():
         logger.warning(f"Output directory exists {output_dir}. Overwriting.")
@@ -288,9 +293,28 @@ def _write_routes_dfs(routes_df: DataFrame[CircuitRoutesWriteIn], output_dir: Pa
             )
         elif len(driver_sheet_names) < 1:
             raise ValueError(f"Route {route} has no driver sheet name.")
+
+        route_df = route_df[output_cols]
         driver_sheet_name = driver_sheet_names[0]
-        # TODO: Wrap this so we can validate with a DataFrameModel.
-        route_df[output_cols].to_csv(output_dir / f"{driver_sheet_name}.csv", index=False)
+        fp = output_dir / f"{driver_sheet_name}.csv"
+        if all_HHs:
+            _write_route_df_all_hhs(route_df=route_df, fp=fp)
+        else:
+            _write_route_df(route_df=route_df, fp=fp)
+
+
+@schema_error_handler
+@pa.check_types(with_pydantic=True, lazy=True)
+def _write_route_df_all_hhs(
+    route_df: DataFrame[CircuitRoutesWriteOutAllHHs], fp: Path
+) -> None:
+    _write_route_df(route_df=route_df, fp=fp)
+
+
+@schema_error_handler
+@pa.check_types(with_pydantic=True, lazy=True)
+def _write_route_df(route_df: DataFrame[CircuitRoutesWriteOut], fp: Path) -> None:
+    route_df.to_csv(fp, index=False)
 
 
 @typechecked

@@ -10,7 +10,21 @@ def at_least_two_words(pandas_obj: pd.Series, flag: bool) -> bool:
     return all(len(val.split()) >= 2 for val in pandas_obj) if flag else True
 
 
+@extensions.register_check_method(statistics=["start_idx"])
+def contiguous(pandas_obj: pd.Series, start_idx: int) -> bool:
+    """Assert that values are contiguous."""
+    return sorted(pandas_obj.to_list()) == list(
+        range(start_idx, len(pandas_obj.to_list()) + start_idx)
+    )
+
+
 @extensions.register_check_method(statistics=["category_list"])
 def in_list_case_insensitive(pandas_obj: pd.Series, *, category_list: list[str]) -> bool:
     """Check that a column is in a list."""
     return pandas_obj.str.upper().isin([val.upper() for val in category_list]).all()
+
+
+@extensions.register_check_method(statistics=["check_sort"])
+def is_sorted(pandas_obj: pd.Series, check_sort: int) -> bool:
+    """Assert that values are contiguous."""
+    return sorted(pandas_obj.to_list()) == pandas_obj.to_list() if check_sort else True

@@ -10,5 +10,7 @@ from bfb_delivery.lib.schema.checks.dataframe_checks import (
 )
 from bfb_delivery.lib.schema.checks.field_checks import (
     at_least_two_words,
+    contiguous,
     in_list_case_insensitive,
+    is_sorted,
 )
