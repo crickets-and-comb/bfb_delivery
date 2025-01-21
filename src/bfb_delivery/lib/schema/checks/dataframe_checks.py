@@ -5,7 +5,7 @@ import pandera.extensions as extensions
 
 # NOTE: Registering as dataframe checks instead of field checks includes the columns in the
 # error message, whereas groupby field checks do not.
-# NOTE: There may be better a way to mock an RDB structure, but this works.
+# NOTE: There may be better a way to mock an RDB structure (spin up temp DB), but this works.
 
 
 @extensions.register_check_method(statistics=["group_col", "at_least_one_col"])
@@ -27,6 +27,12 @@ def contiguous_group(
         sorted(vals) == list(range(start_idx, len(vals) + start_idx))
         for _, vals in df.groupby(group_col)[contiguous_col]
     )
+
+
+@extensions.register_check_method(statistics=["col_a", "col_b"])
+def equal_cols(df: pd.DataFrame, col_a: str, col_b: str) -> bool:
+    """Assert that plan titles are the same as route titles."""
+    return all(df[col_a] == df[col_b])
 
 
 @extensions.register_check_method(statistics=["cols"])

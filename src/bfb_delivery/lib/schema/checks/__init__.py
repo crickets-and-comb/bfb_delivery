@@ -3,6 +3,7 @@
 from bfb_delivery.lib.schema.checks.dataframe_checks import (
     at_least_one_in_group,
     contiguous_group,
+    equal_cols,
     increasing_by,
     item_in_dict_col,
     many_to_one,

@@ -145,6 +145,7 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
     # Main output columns for downstream processing.
     # route id e.g. "routes/lITTnQsxYffqJQDxIpzr".
     route: Series[str] = pa.Field(coerce=True, str_startswith="routes/")
+    route_title: Series[str] = DRIVER_SHEET_NAME_FIELD()
     driver_sheet_name: Series[str] = DRIVER_SHEET_NAME_FIELD()
     stop_no: Series[int] = STOP_NO_FIELD()
     name: Series[str] = NAME_FIELD()
@@ -207,6 +208,16 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
             "group_col": CircuitColumns.PLAN,
             "at_least_one_col": CircuitColumns.ROUTE,
         }
+        equal_cols = {"col_a": CircuitColumns.TITLE, "col_b": IntermediateColumns.ROUTE_TITLE}
+        equal_cols = {
+            "col_a": CircuitColumns.TITLE,
+            "col_b": IntermediateColumns.DRIVER_SHEET_NAME,
+        }
+        equal_cols = {
+            "col_a": IntermediateColumns.ROUTE_TITLE,
+            "col_b": IntermediateColumns.DRIVER_SHEET_NAME,
+        }
+
         many_to_one = {"many_col": CircuitColumns.ID, "one_col": CircuitColumns.PLAN}
         many_to_one = {"many_col": CircuitColumns.ID, "one_col": CircuitColumns.ROUTE}
         many_to_one = {

@@ -192,6 +192,7 @@ class IntermediateColumns:
     """Column name constants for intermediate tables."""
 
     DRIVER_SHEET_NAME: Final[str] = "driver_sheet_name"
+    ROUTE_TITLE: Final[str] = "route_title"
 
 
 MANIFEST_DATE_FORMAT: Final[str] = "%m.%d"

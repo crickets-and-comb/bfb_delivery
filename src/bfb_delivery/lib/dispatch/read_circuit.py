@@ -133,6 +133,8 @@ def _make_plans_df(
     else:
         plans_df = plans_df[~(plans_df[CircuitColumns.TITLE].str.contains(ALL_HHS_DRIVER))]
 
+    # TODO: Filter to routed plans here.
+
     return plans_df
 
 
@@ -160,7 +162,6 @@ def _concat_routes_df(
 ) -> DataFrame[CircuitRoutesConcatOut]:
     """Concatenate the routes DataFrames from the plan stops lists."""
     routes_df = pd.DataFrame(plan_stops_list)
-    # TODO: Make Circuit columns constant?
     routes_df = routes_df[
         [
             # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
@@ -177,6 +178,7 @@ def _concat_routes_df(
         ]
     ]
 
+    # TODO: This should be done in _transform_routes_df instead.
     routes_df = routes_df.merge(
         plans_df.copy().rename(columns={CircuitColumns.ID: "plan_id"}),
         left_on=CircuitColumns.PLAN,
@@ -185,7 +187,7 @@ def _concat_routes_df(
         validate="m:1",
     )
 
-    # TODO: Validate that route title == plan title.
+    # TODO: Filter to routes stops here, though.
 
     return routes_df
 
@@ -196,9 +198,11 @@ def _transform_routes_df(
     routes_df: DataFrame[CircuitRoutesTransformIn],
 ) -> DataFrame[CircuitRoutesTransformOut]:
     """Transform the raw routes DataFrame."""
+    # TODO: Further Pandera validations could include each and every tx step.
+    # So, always make a new column for each tx and check column equality.
     routes_df.rename(
         columns={
-            # Plan/route title is upload/download sheet name.
+            # Plan title is upload/download sheet name.
             CircuitColumns.TITLE: IntermediateColumns.DRIVER_SHEET_NAME,
             CircuitColumns.STOP_POSITION: Columns.STOP_NO,
             CircuitColumns.NOTES: Columns.NOTES,
@@ -214,6 +218,9 @@ def _transform_routes_df(
     )
     routes_df = routes_df[routes_df[CircuitColumns.PLACE_ID] != DEPOT_PLACE_ID]
 
+    routes_df[IntermediateColumns.ROUTE_TITLE] = routes_df[CircuitColumns.ROUTE].apply(
+        lambda route_dict: route_dict.get(CircuitColumns.TITLE)
+    )
     routes_df[CircuitColumns.ROUTE] = routes_df[CircuitColumns.ROUTE].apply(
         lambda route_dict: route_dict.get(CircuitColumns.ID)
     )
@@ -246,7 +253,10 @@ def _transform_routes_df(
 
     # TODO: Verify we want to warn/raise/impute.
     # Give plan ID and instruct to download the routes from Circuit.
+    # TODO: Validate that not null.
     _warn_and_impute(routes_df=routes_df)
+
+    # TODO: Move this ahead of warning and imputing.
     routes_df[Columns.ADDRESS] = (
         routes_df[CircuitColumns.ADDRESS_LINE_1]
         + ", "  # noqa: W503
@@ -318,6 +328,8 @@ def _write_route_df(route_df: DataFrame[CircuitRoutesWriteOut], fp: Path) -> Non
     route_df.to_csv(fp, index=False)
 
 
+# TODO: Pass params instead of forming URL first.
+# (Would need to then grab params URL for next page?)
 @typechecked
 def _get_responses(base_url: str) -> list[dict[str, Any]]:
     wait_seconds = RateLimits.READ_SECONDS
