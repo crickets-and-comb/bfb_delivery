@@ -15,32 +15,30 @@ from bfb_delivery.lib.constants import (
 )
 from bfb_delivery.lib.schema import checks  # noqa: F401
 
-# TODO: Update init to only import the schema.
-
 _COERCE_FIELD = partial(pa.Field, coerce=True)
 _NULLABLE_FIELD = partial(_COERCE_FIELD, nullable=True)
 _UNIQUE_FIELD = partial(_COERCE_FIELD, unique=True)
 
-ADDRESS_FIELD: Series[str] = partial(_COERCE_FIELD, alias=Columns.ADDRESS)
-BOX_TYPE_FIELD: Series[pa.Category] = partial(
+ADDRESS_FIELD = partial(_COERCE_FIELD, alias=Columns.ADDRESS)
+BOX_TYPE_FIELD = partial(
     _COERCE_FIELD, alias=Columns.BOX_TYPE, in_list_case_insensitive={"category_list": BoxType}
 )
 # Renamed CircuitColumns.TITLE column, e.g. "1.17 Andy W":
-TITLE_FIELD: Series[str] = partial(_COERCE_FIELD, at_least_two_words=True)
-EMAIL_FIELD: Any = partial(_NULLABLE_FIELD, alias=Columns.EMAIL)
-NAME_FIELD: Series[str] = partial(_COERCE_FIELD, alias=Columns.NAME)
-NEIGHBORHOOD_FIELD: Series[str] = partial(_NULLABLE_FIELD, alias=Columns.NEIGHBORHOOD)
-NOTES_FIELD: Series[str] = partial(_NULLABLE_FIELD, alias=Columns.NOTES)
-ORDER_COUNT_FIELD: Series[float] = partial(_COERCE_FIELD, eq=1, alias=Columns.ORDER_COUNT)
-PHONE_FIELD: Series[str] = partial(_NULLABLE_FIELD, alias=Columns.PHONE)
+TITLE_FIELD = partial(_COERCE_FIELD, at_least_two_words=True)
+EMAIL_FIELD = partial(_NULLABLE_FIELD, alias=Columns.EMAIL)
+NAME_FIELD = partial(_COERCE_FIELD, alias=Columns.NAME)
+NEIGHBORHOOD_FIELD = partial(_NULLABLE_FIELD, alias=Columns.NEIGHBORHOOD)
+NOTES_FIELD = partial(_NULLABLE_FIELD, alias=Columns.NOTES)
+ORDER_COUNT_FIELD = partial(_COERCE_FIELD, eq=1, alias=Columns.ORDER_COUNT)
+PHONE_FIELD = partial(_NULLABLE_FIELD, alias=Columns.PHONE)
 # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
-PLAN_ID_FIELD: Series[str] = partial(_COERCE_FIELD, str_startswith="plans/")
-ROUTE_FIELD: Series[str] = partial(_COERCE_FIELD, alias=CircuitColumns.ROUTE)
+PLAN_ID_FIELD = partial(_COERCE_FIELD, str_startswith="plans/")
+ROUTE_FIELD = partial(_COERCE_FIELD, alias=CircuitColumns.ROUTE)
 # stop id e.g. "plans/0IWNayD8NEkvD5fQe2SQ/stops/40lmbcQrd32NOfZiiC1b":
-STOP_ID_FIELD: Series[str] = partial(
+STOP_ID_FIELD = partial(
     _UNIQUE_FIELD, str_startswith="plans/", str_contains="/stops/", alias=CircuitColumns.ID
 )
-STOP_NO_FIELD: Series[int] = partial(_COERCE_FIELD, ge=1, alias=Columns.STOP_NO)
+STOP_NO_FIELD = partial(_COERCE_FIELD, ge=1, alias=Columns.STOP_NO)
 
 
 class CircuitPlansOut(pa.DataFrameModel):
