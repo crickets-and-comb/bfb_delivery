@@ -72,17 +72,17 @@ class CircuitRoutesConcatOut(pa.DataFrameModel):
     """
 
     plan: Series[str] = PLAN_ID_FIELD()
-    route: Series[dict[str, Any]] = pa.Field(coerce=True)
+    route: Series[dict[str, Any]] = pa.Field(coerce=True, item_in_field_dict="id")
     # stop id e.g. "plans/0IWNayD8NEkvD5fQe2SQ/stops/40lmbcQrd32NOfZiiC1b":
     id: Series[str] = pa.Field(
         coerce=True, unique=True, str_startswith="plans/", str_contains="/stops/"
     )
     # Position 0 is depot, which gets dropped later for the manifests.
     stopPosition: Series[int] = pa.Field(coerce=True, ge=0)
-    recipient: Series[dict[str, Any]] = pa.Field(coerce=True)
-    address: Series[dict[str, Any]] = pa.Field(coerce=True)
+    recipient: Series[dict[str, Any]] = pa.Field(coerce=True, item_in_field_dict="name")
+    address: Series[dict[str, Any]] = pa.Field(coerce=True, item_in_field_dict="placeId")
     notes: Series[str] = pa.Field(coerce=True, nullable=True)
-    orderInfo: Series[dict[str, Any]] = pa.Field(coerce=True)
+    orderInfo: Series[dict[str, Any]] = pa.Field(coerce=True, item_in_field_dict="products")
     packageCount: Series[float] = pa.Field(coerce=True, nullable=True, eq=1)
     title: Series[str] = DRIVER_SHEET_NAME_FIELD()
 
@@ -97,6 +97,9 @@ class CircuitRoutesConcatOut(pa.DataFrameModel):
             "contiguous_col": "stopPosition",
             "start_idx": 0,
         }
+        item_in_dict_col = {"col_name": "address", "item_name": "placeId"}
+        item_in_dict_col = {"col_name": "address", "item_name": "addressLineOne"}
+        item_in_dict_col = {"col_name": "address", "item_name": "addressLineTwo"}
 
 
 class CircuitRoutesTransformIn(CircuitRoutesConcatOut):
@@ -104,8 +107,6 @@ class CircuitRoutesTransformIn(CircuitRoutesConcatOut):
 
     bfb_delivery.lib.dispatch.read_circuit._transform_routes_df input.
     """
-
-    # TODO: Do dict field validations on input to tx.
 
 
 class CircuitRoutesTransformOut(pa.DataFrameModel):

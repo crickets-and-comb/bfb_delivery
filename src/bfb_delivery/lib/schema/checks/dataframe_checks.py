@@ -43,6 +43,12 @@ def increasing_by(df: pd.DataFrame, cols: list[str]) -> bool:
     )
 
 
+@extensions.register_check_method(statistics=["col_name", "item_name"])
+def item_in_dict_col(df: pd.DataFrame, col_name: str, item_name: str) -> bool:
+    """Check that a dictionary field has an item in it."""
+    return all(item_name in val.keys() for val in df[col_name])
+
+
 @extensions.register_check_method(statistics=["many_col", "one_col"])
 def many_to_one(df: pd.DataFrame, many_col: str, one_col: str) -> bool:
     """Assert that a column has a many-to-one relationship with another column."""

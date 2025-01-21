@@ -28,3 +28,9 @@ def in_list_case_insensitive(pandas_obj: pd.Series, *, category_list: list[str])
 def is_sorted(pandas_obj: pd.Series, check_sort: int) -> bool:
     """Assert that values are contiguous."""
     return sorted(pandas_obj.to_list()) == pandas_obj.to_list() if check_sort else True
+
+
+@extensions.register_check_method(statistics=["item_name"])
+def item_in_field_dict(pandas_obj: pd.Series, item_name: str) -> bool:
+    """Check that a dictionary field has an item in it."""
+    return all(item_name in val.keys() for val in pandas_obj)
