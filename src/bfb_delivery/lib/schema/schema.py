@@ -77,6 +77,7 @@ class CircuitRoutesConcatOut(pa.DataFrameModel):
     """
 
     # TODO: Validate single box count and single type.
+    # TODO: Alias the constant columns.
 
     plan: Series[str] = PLAN_ID_FIELD()
     route: Series[dict[str, Any]] = pa.Field(
@@ -99,12 +100,12 @@ class CircuitRoutesConcatOut(pa.DataFrameModel):
         coerce=True, item_in_field_dict=CircuitColumns.PRODUCTS
     )
     packageCount: Series[float] = pa.Field(coerce=True, nullable=True, eq=1)
-    title: Series[str] = DRIVER_SHEET_NAME_FIELD()
 
     class Config:
         """The configuration for the schema."""
 
-        one_to_one = {"col_a": CircuitColumns.PLAN, "col_b": CircuitColumns.TITLE}
+        strict = True
+
         many_to_one = {"many_col": CircuitColumns.ID, "one_col": CircuitColumns.PLAN}
         unique_group = {
             "group_col": CircuitColumns.PLAN,
@@ -145,7 +146,6 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
     # Main output columns for downstream processing.
     # route id e.g. "routes/lITTnQsxYffqJQDxIpzr".
     route: Series[str] = pa.Field(coerce=True, str_startswith="routes/")
-    route_title: Series[str] = DRIVER_SHEET_NAME_FIELD()
     driver_sheet_name: Series[str] = DRIVER_SHEET_NAME_FIELD()
     stop_no: Series[int] = STOP_NO_FIELD()
     name: Series[str] = NAME_FIELD()
@@ -163,6 +163,7 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
     id: Series[str] = pa.Field(
         coerce=True, unique=True, str_startswith="plans/", str_contains="/stops/"
     )
+    route_title: Series[str] = DRIVER_SHEET_NAME_FIELD()
     placeId: Series[str] = pa.Field(coerce=True, ne=DEPOT_PLACE_ID)
 
     class Config:
@@ -207,11 +208,6 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
         at_least_one_in_group = {
             "group_col": CircuitColumns.PLAN,
             "at_least_one_col": CircuitColumns.ROUTE,
-        }
-        equal_cols = {"col_a": CircuitColumns.TITLE, "col_b": IntermediateColumns.ROUTE_TITLE}
-        equal_cols = {
-            "col_a": CircuitColumns.TITLE,
-            "col_b": IntermediateColumns.DRIVER_SHEET_NAME,
         }
         equal_cols = {
             "col_a": IntermediateColumns.ROUTE_TITLE,
@@ -344,6 +340,7 @@ class CircuitRoutesWriteOut(pa.DataFrameModel):
         unique = [Columns.NAME, Columns.ADDRESS, Columns.BOX_TYPE]
 
 
+# TODO: This is unnecessary. Just make it one.
 class CircuitRoutesWriteOutAllHHs(CircuitRoutesWriteOut):
     """The schema for the Circuit routes data after writing.
 

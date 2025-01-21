@@ -77,9 +77,9 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
     plan_stops_list = _get_raw_stops_lists(plan_ids=plans_df[CircuitColumns.ID].tolist())
     # TODO: Filter to only stops with a route id to ensure we don't get stops with a plan and
     # no route. (I.e., not optimized and routed.)
-    routes_df = _concat_routes_df(plan_stops_list=plan_stops_list, plans_df=plans_df)
+    routes_df = _concat_routes_df(plan_stops_list=plan_stops_list)
 
-    routes_df = _transform_routes_df(routes_df=routes_df)
+    routes_df = _transform_routes_df(routes_df=routes_df, plans_df=plans_df)
     if all_HHs:
         _write_routes_dfs_all_hhs(routes_df=routes_df, output_dir=Path(output_dir))
     else:
@@ -158,7 +158,7 @@ def _get_raw_stops_lists(plan_ids: list[str]) -> list[dict[str, Any]]:
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
 def _concat_routes_df(
-    plan_stops_list: list[dict[str, Any]], plans_df: DataFrame[CircuitRoutesConcatInPlans]
+    plan_stops_list: list[dict[str, Any]]
 ) -> DataFrame[CircuitRoutesConcatOut]:
     """Concatenate the routes DataFrames from the plan stops lists."""
     routes_df = pd.DataFrame(plan_stops_list)
@@ -178,15 +178,6 @@ def _concat_routes_df(
         ]
     ]
 
-    # TODO: This should be done in _transform_routes_df instead.
-    routes_df = routes_df.merge(
-        plans_df.copy().rename(columns={CircuitColumns.ID: "plan_id"}),
-        left_on=CircuitColumns.PLAN,
-        right_on="plan_id",
-        how="left",
-        validate="m:1",
-    )
-
     # TODO: Filter to routes stops here, though.
 
     return routes_df
@@ -196,10 +187,19 @@ def _concat_routes_df(
 @pa.check_types(with_pydantic=True, lazy=True)
 def _transform_routes_df(
     routes_df: DataFrame[CircuitRoutesTransformIn],
+    plans_df: DataFrame[CircuitRoutesConcatInPlans],
 ) -> DataFrame[CircuitRoutesTransformOut]:
     """Transform the raw routes DataFrame."""
     # TODO: Further Pandera validations could include each and every tx step.
     # So, always make a new column for each tx and check column equality.
+    routes_df = routes_df.merge(
+        plans_df.copy().rename(columns={CircuitColumns.ID: "plan_id"}),
+        left_on=CircuitColumns.PLAN,
+        right_on="plan_id",
+        how="left",
+        validate="m:1",
+    )
+
     routes_df.rename(
         columns={
             # Plan title is upload/download sheet name.
