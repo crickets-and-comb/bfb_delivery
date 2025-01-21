@@ -48,7 +48,6 @@ logger = logging.getLogger(__name__)
 pd.options.mode.copy_on_write = True
 
 
-# TODO: When wrapping in final function, start calling it "make_manifest" or similar.
 # TODO: There's got to be a way to set the docstring as a constant.
 # TODO: Use Pandera.
 # TODO: Switch to or allow CSVs instead of Excel files.

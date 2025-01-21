@@ -88,7 +88,6 @@ def combine_route_tables(
     )
 
 
-# TODO: Remove defaults.
 @typechecked
 def format_combined_routes(
     input_path: Path | str,

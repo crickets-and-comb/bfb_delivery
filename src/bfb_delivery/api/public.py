@@ -77,7 +77,6 @@ def split_chunked_route(
     )
 
 
-# TODO: Update docstring.
 @typechecked
 def create_manifests_from_circuit(
     start_date: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["start_date"],

@@ -16,9 +16,11 @@ from typeguard import typechecked
 
 from bfb_delivery.lib.constants import (
     ALL_HHS_DRIVER,
-    COMBINED_ROUTES_COLUMNS,
+    CIRCUIT_DOWNLOAD_COLUMNS,
     DEPOT_PLACE_ID,
+    CircuitColumns,
     Columns,
+    IntermediateColumns,
     RateLimits,
 )
 from bfb_delivery.lib.dispatch.utils import get_circuit_key
@@ -39,11 +41,6 @@ from bfb_delivery.lib.utils import get_friday
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
-
-# TODO: Add info/progess logging.
-# TODO: Drop "All HHs" routes (is the single long route I think).
-# Maybe add flag to get only them or not them. They can use this to get the
-# initial route. Make get_route_files CLI, then.
 
 
 @typechecked
@@ -77,14 +74,10 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
     del plans_list
     # TODO: Add external ID for delivery day so we can filter stops by it in request?
     # After taking over upload.
-    plan_stops_list = _get_raw_stops_lists(plan_ids=plans_df["id"].tolist())
+    plan_stops_list = _get_raw_stops_lists(plan_ids=plans_df[CircuitColumns.ID].tolist())
     # TODO: Filter to only stops with a route id to ensure we don't get stops with a plan and
     # no route. (I.e., not optimized and routed.)
     routes_df = _concat_routes_df(plan_stops_list=plan_stops_list, plans_df=plans_df)
-
-    # TODO: Validate single box count and single type.
-    # TODO: Validate that route:title is 1:1. (plan title is driver sheet name)
-    # TODO: Validate that route title is same as plan title. (i.e., driver sheet name)
 
     routes_df = _transform_routes_df(routes_df=routes_df)
     if all_HHs:
@@ -98,8 +91,6 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
 @typechecked
 def _get_raw_plans(start_date: str, end_date: str) -> list[dict[str, Any]]:
     """Call Circuit API to get the plans for the given date."""
-    # TODO: Filter to upper date too? (Do they only do one day at a time?)
-    # https://developer.team.getcircuit.com/api#tag/Plans/operation/listPlans
     url = (
         "https://api.getcircuit.com/public/v0.2b/plans"
         f"?filter.startsGte={start_date}"
@@ -117,26 +108,30 @@ def _get_raw_plans(start_date: str, end_date: str) -> list[dict[str, Any]]:
 # Not a fan of this as it obscures the pipeline steps and makes it harder to follow.
 # Here, you pass in plans_df as a list of dictionaries, but you treat/type it as a dataframe.
 # But, I want to use it once in a simple place to see how it works.
+# NOTE: with_pydantic allows check of other params.
 @pa.check_types(with_pydantic=True, lazy=True)
 def _make_plans_df(
     plans_df: DataFrame[CircuitPlansFromDict], all_HHs: bool
 ) -> DataFrame[CircuitPlansOut]:
     """Make the plans DataFrame from the plans."""
     # plans_df = pd.DataFrame(plans_list)
-    plans_df = plans_df[["id", "title"]]
-    # TODO: We could do this in a few ways that are more robust.
+    plans_df = plans_df[[CircuitColumns.ID, CircuitColumns.TITLE]]
+    # TODO: We could drop All HHs in a few ways that are more robust.
     # 1. Filter by driver ID, but we'd need to exclude the staff that use their driver IDs
-    # to do this, and what if they decided to drive one day?
+    # to test things out, and what if they decided to drive one day?
+    # (Make new driver ID if that ever happens.)
     # 2. Pass an external ID to filter on.
     # 3. Create a dummy driver ID for the "All HHs" route.
     # 4. Pass title filter once we're confident in the title because we uploaded it
     # programmatically.
     # Worst to best in order.
-    # TODO: Validate in pandera schema.
+    # TODO: Should probably do #1 anyway.
+    # TODO: Validate in pandera schema: split into wrapper with separate schema.
+    # Can update the validation once we select on different condition.
     if all_HHs:
-        plans_df = plans_df[plans_df["title"].str.contains(ALL_HHS_DRIVER)]
+        plans_df = plans_df[plans_df[CircuitColumns.TITLE].str.contains(ALL_HHS_DRIVER)]
     else:
-        plans_df = plans_df[~(plans_df["title"].str.contains(ALL_HHS_DRIVER))]
+        plans_df = plans_df[~(plans_df[CircuitColumns.TITLE].str.contains(ALL_HHS_DRIVER))]
 
     return plans_df
 
@@ -151,7 +146,9 @@ def _get_raw_stops_lists(plan_ids: list[str]) -> list[dict[str, Any]]:
         logger.info(f"Getting route from {url} \n ...")
         stops_lists = _get_responses(base_url=url)
         logger.info("Finished getting route.")
-        plan_stops_list += _concat_response_pages(page_list=stops_lists, data_key="stops")
+        plan_stops_list += _concat_response_pages(
+            page_list=stops_lists, data_key=CircuitColumns.STOPS
+        )
 
     return plan_stops_list
 
@@ -167,28 +164,28 @@ def _concat_routes_df(
     routes_df = routes_df[
         [
             # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
-            "plan",
-            "route",
+            CircuitColumns.PLAN,
+            CircuitColumns.ROUTE,
             # stop id e.g. "plans/0IWNayD8NEkvD5fQe2SQ/stops/40lmbcQrd32NOfZiiC1b":
-            "id",
-            "stopPosition",
-            "recipient",
-            "address",
-            "notes",
-            "orderInfo",
-            "packageCount",
+            CircuitColumns.ID,
+            CircuitColumns.STOP_POSITION,
+            CircuitColumns.RECIPIENT,
+            CircuitColumns.ADDRESS,
+            CircuitColumns.NOTES,
+            CircuitColumns.ORDER_INFO,
+            CircuitColumns.PACKAGE_COUNT,
         ]
     ]
 
     routes_df = routes_df.merge(
-        plans_df.copy().rename(columns={"id": "plan_id"}),
-        left_on="plan",
+        plans_df.copy().rename(columns={CircuitColumns.ID: "plan_id"}),
+        left_on=CircuitColumns.PLAN,
         right_on="plan_id",
         how="left",
         validate="m:1",
     )
 
-    # TODO: Validate that all IDs and titles represented.
+    # TODO: Validate that route title == plan title.
 
     return routes_df
 
@@ -201,56 +198,64 @@ def _transform_routes_df(
     """Transform the raw routes DataFrame."""
     routes_df.rename(
         columns={
-            "title": "driver_sheet_name",  # Plan title is upload/download sheet name.
-            "stopPosition": Columns.STOP_NO,
-            "notes": Columns.NOTES,
-            "packageCount": Columns.ORDER_COUNT,
-            "address": Columns.ADDRESS,
+            # Plan/route title is upload/download sheet name.
+            CircuitColumns.TITLE: IntermediateColumns.DRIVER_SHEET_NAME,
+            CircuitColumns.STOP_POSITION: Columns.STOP_NO,
+            CircuitColumns.NOTES: Columns.NOTES,
+            CircuitColumns.PACKAGE_COUNT: Columns.ORDER_COUNT,
+            CircuitColumns.ADDRESS: Columns.ADDRESS,
         },
         inplace=True,
     )
 
     # Drop depot.
-    routes_df["placeId"] = routes_df[Columns.ADDRESS].apply(
-        lambda address_dict: address_dict.get("placeId")
+    routes_df[CircuitColumns.PLACE_ID] = routes_df[Columns.ADDRESS].apply(
+        lambda address_dict: address_dict.get(CircuitColumns.PLACE_ID)
     )
-    routes_df = routes_df[routes_df["placeId"] != DEPOT_PLACE_ID]
+    routes_df = routes_df[routes_df[CircuitColumns.PLACE_ID] != DEPOT_PLACE_ID]
 
-    routes_df["route"] = routes_df["route"].apply(lambda route_dict: route_dict.get("id"))
-    routes_df[Columns.NAME] = routes_df["recipient"].apply(
-        lambda recipient_dict: recipient_dict.get("name")
+    routes_df[CircuitColumns.ROUTE] = routes_df[CircuitColumns.ROUTE].apply(
+        lambda route_dict: route_dict.get(CircuitColumns.ID)
     )
-    routes_df["addressLineOne"] = routes_df[Columns.ADDRESS].apply(
-        lambda address_dict: address_dict.get("addressLineOne")
+    routes_df[Columns.NAME] = routes_df[CircuitColumns.RECIPIENT].apply(
+        lambda recipient_dict: recipient_dict.get(CircuitColumns.NAME)
     )
-    routes_df["addressLineTwo"] = routes_df[Columns.ADDRESS].apply(
-        lambda address_dict: address_dict.get("addressLineTwo")
+    # TODO: Split into helper to validate not null addressLineOne and addressLineTwo.
+    routes_df[CircuitColumns.ADDRESS_LINE_1] = routes_df[Columns.ADDRESS].apply(
+        lambda address_dict: address_dict.get(CircuitColumns.ADDRESS_LINE_1)
     )
-    routes_df[Columns.PHONE] = routes_df["recipient"].apply(
-        lambda recipient_dict: recipient_dict.get("phone")
+    routes_df[CircuitColumns.ADDRESS_LINE_2] = routes_df[Columns.ADDRESS].apply(
+        lambda address_dict: address_dict.get(CircuitColumns.ADDRESS_LINE_2)
     )
-    routes_df[Columns.BOX_TYPE] = routes_df["orderInfo"].apply(
+    routes_df[Columns.PHONE] = routes_df[CircuitColumns.RECIPIENT].apply(
+        lambda recipient_dict: recipient_dict.get(CircuitColumns.PHONE)
+    )
+    routes_df[Columns.BOX_TYPE] = routes_df[CircuitColumns.ORDER_INFO].apply(
         lambda order_info_dict: (
-            order_info_dict["products"][0] if order_info_dict.get("products") else None
+            order_info_dict[CircuitColumns.PRODUCTS][0]
+            if order_info_dict.get(CircuitColumns.PRODUCTS)
+            else None
         )
     )
-    routes_df[Columns.NEIGHBORHOOD] = routes_df["recipient"].apply(
-        lambda recipient_dict: recipient_dict.get("externalId")
+    routes_df[Columns.NEIGHBORHOOD] = routes_df[CircuitColumns.RECIPIENT].apply(
+        lambda recipient_dict: recipient_dict.get(CircuitColumns.EXTERNAL_ID)
     )
-    routes_df[Columns.EMAIL] = routes_df["recipient"].apply(
-        lambda recipient_dict: recipient_dict.get("email")
+    routes_df[Columns.EMAIL] = routes_df[CircuitColumns.RECIPIENT].apply(
+        lambda recipient_dict: recipient_dict.get(CircuitColumns.EMAIL)
     )
 
     # TODO: Verify we want to warn/raise/impute.
-    # TODO: Validate required not null: route, driver_sheet_name, stop_no, addressLineOne,
-    # addressLineTwo, name, box_type.
     # Give plan ID and instruct to download the routes from Circuit.
     _warn_and_impute(routes_df=routes_df)
     routes_df[Columns.ADDRESS] = (
-        routes_df["addressLineOne"] + ", " + routes_df["addressLineTwo"]
+        routes_df[CircuitColumns.ADDRESS_LINE_1]
+        + ", "  # noqa: W503
+        + routes_df[CircuitColumns.ADDRESS_LINE_2]  # noqa: W503
     )
 
-    routes_df.sort_values(by=["driver_sheet_name", Columns.STOP_NO], inplace=True)
+    routes_df.sort_values(
+        by=[IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO], inplace=True
+    )
 
     return routes_df
 
@@ -280,13 +285,9 @@ def _write_routes_dfs(
         shutil.rmtree(output_dir, ignore_errors=True)
     output_dir.mkdir(parents=True)
 
-    # TODO: Make Circuit columns constants?
-    output_cols = COMBINED_ROUTES_COLUMNS.copy()
-    output_cols += [Columns.EMAIL]
-
     logger.info(f"Writing route CSVs to {output_dir.resolve()}")
-    for route, route_df in routes_df.groupby("route"):
-        driver_sheet_names = route_df["driver_sheet_name"].unique()
+    for route, route_df in routes_df.groupby(CircuitColumns.ROUTE):
+        driver_sheet_names = route_df[IntermediateColumns.DRIVER_SHEET_NAME].unique()
         if len(driver_sheet_names) > 1:
             raise ValueError(
                 f"Route {route} has multiple driver sheet names: {driver_sheet_names}"
@@ -294,7 +295,7 @@ def _write_routes_dfs(
         elif len(driver_sheet_names) < 1:
             raise ValueError(f"Route {route} has no driver sheet name.")
 
-        route_df = route_df[output_cols]
+        route_df = route_df[CIRCUIT_DOWNLOAD_COLUMNS]
         driver_sheet_name = driver_sheet_names[0]
         fp = output_dir / f"{driver_sheet_name}.csv"
         if all_HHs:
@@ -388,8 +389,7 @@ def _warn_and_impute(routes_df: pd.DataFrame) -> None:
     routes_df[Columns.ORDER_COUNT] = routes_df[Columns.ORDER_COUNT].fillna(1)
 
     # TODO: Verify we want to do this. Ask, if we want to just overwrite the neighborhood.
-    # TODO: Handle if neighborhood is missing from address, too. (Make function.)
-    # TODO: Strip whitespace.
+    # TODO: Handle if neighborhood is missing from address, too.
     missing_neighborhood = routes_df[Columns.NEIGHBORHOOD].isna()
     if missing_neighborhood.any():
         logger.warning(
@@ -402,7 +402,7 @@ def _warn_and_impute(routes_df: pd.DataFrame) -> None:
         lambda row: (
             row[Columns.NEIGHBORHOOD]
             if row[Columns.NEIGHBORHOOD]
-            else row[Columns.ADDRESS].get("address").split(",")[1]
+            else row[Columns.ADDRESS].get(CircuitColumns.ADDRESS).split(",")[1]
         ),
         axis=1,
     )

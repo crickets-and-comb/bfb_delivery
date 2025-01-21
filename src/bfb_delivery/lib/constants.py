@@ -1,5 +1,7 @@
 """Constants used in the project."""
 
+# TODO: Use case-sensitive ordering, i.e. separate classes and constants.
+
 from enum import StrEnum
 from typing import Final
 
@@ -46,7 +48,30 @@ BOX_TYPE_COLOR_MAP: Final[dict[str, str]] = {
 }
 
 
-# TODO: Make StrEnum.
+class CircuitColumns:
+    """Column/field/doc name constants for Circuit API."""
+
+    ADDRESS: Final[str] = "address"
+    ADDRESS_LINE_1: Final[str] = "addressLineOne"
+    ADDRESS_LINE_2: Final[str] = "addressLineTwo"
+    EMAIL: Final[str] = "email"
+    EXTERNAL_ID: Final[str] = "externalId"
+    ID: Final[str] = "id"
+    NAME: Final[str] = "name"
+    NOTES: Final[str] = "notes"
+    ORDER_INFO: Final[str] = "orderInfo"
+    PACKAGE_COUNT: Final[str] = "packageCount"
+    PHONE: Final[str] = "phone"
+    PLACE_ID: Final[str] = "placeId"
+    PLAN: Final[str] = "plan"
+    PRODUCTS: Final[str] = "products"
+    RECIPIENT: Final[str] = "recipient"
+    ROUTE: Final[str] = "route"
+    STOP_POSITION: Final[str] = "stopPosition"
+    STOPS: Final[str] = "stops"
+    TITLE: Final[str] = "title"
+
+
 class Columns:
     """Column name constants."""
 
@@ -77,6 +102,8 @@ COMBINED_ROUTES_COLUMNS: Final[list[str]] = [
     Columns.BOX_TYPE,
     Columns.NEIGHBORHOOD,
 ]
+
+CIRCUIT_DOWNLOAD_COLUMNS: Final[list[str]] = COMBINED_ROUTES_COLUMNS + [Columns.EMAIL]
 
 
 class Defaults:
@@ -159,6 +186,13 @@ FORMATTED_ROUTES_COLUMNS: Final[list[str]] = [
     Columns.NOTES,
     Columns.BOX_TYPE,
 ]
+
+
+class IntermediateColumns:
+    """Column name constants for intermediate tables."""
+
+    DRIVER_SHEET_NAME: Final[str] = "driver_sheet_name"
+
 
 MANIFEST_DATE_FORMAT: Final[str] = "%m.%d"
 
