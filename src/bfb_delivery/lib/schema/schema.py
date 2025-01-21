@@ -15,6 +15,8 @@ from bfb_delivery.lib.constants import (
 )
 from bfb_delivery.lib.schema import checks  # noqa: F401
 
+# TODO: Update init to only import the schema.
+
 _COERCE_FIELD = partial(pa.Field, coerce=True)
 _NULLABLE_FIELD = partial(_COERCE_FIELD, nullable=True)
 _UNIQUE_FIELD = partial(_COERCE_FIELD, unique=True)
@@ -326,20 +328,9 @@ class CircuitRoutesWriteOut(pa.DataFrameModel):
     notes: Series[str] = NOTES_FIELD()
     box_type: Series[pa.Category] = BOX_TYPE_FIELD()
     neighborhood: Series[str] = NEIGHBORHOOD_FIELD()
-    email: Series[str] | None = EMAIL_FIELD()
+    email: Series[str] = EMAIL_FIELD()
 
     class Config:
         """The configuration for the schema."""
 
         unique = [Columns.NAME, Columns.ADDRESS, Columns.BOX_TYPE]
-
-
-# TODO: This is unnecessary. Just make it one.
-class CircuitRoutesWriteOutAllHHs(CircuitRoutesWriteOut):
-    """The schema for the Circuit routes data after writing.
-
-    bfb_delivery.lib.dispatch.read_circuit._write_route_df_all_hhs input.
-    called within _write_routes_dfs_all_hhs as its "output."
-    """
-
-    email: Series[str] = EMAIL_FIELD()

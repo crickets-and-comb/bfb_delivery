@@ -32,9 +32,7 @@ from bfb_delivery.lib.schema import (
     CircuitRoutesTransformIn,
     CircuitRoutesTransformOut,
     CircuitRoutesWriteIn,
-    CircuitRoutesWriteInAllHHs,
     CircuitRoutesWriteOut,
-    CircuitRoutesWriteOutAllHHs,
 )
 from bfb_delivery.lib.schema.utils import schema_error_handler
 from bfb_delivery.lib.utils import get_friday
@@ -57,7 +55,6 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
             If the directory does not exist, it is created. If it exists, it is overwritten.
         all_HHs: Flag to get only the "All HHs" route.
             False gets all routes except "All HHs". True gets only the "All HHs" route.
-            NOTE: True validates email column is in CSV, for reuploading after splitting.
 
     Returns:
         The path to the route files.
@@ -80,10 +77,7 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
     routes_df = _concat_routes_df(plan_stops_list=plan_stops_list)
 
     routes_df = _transform_routes_df(routes_df=routes_df, plans_df=plans_df)
-    if all_HHs:
-        _write_routes_dfs_all_hhs(routes_df=routes_df, output_dir=Path(output_dir))
-    else:
-        _write_routes_dfs(routes_df=routes_df, output_dir=Path(output_dir))
+    _write_routes_dfs(routes_df=routes_df, output_dir=Path(output_dir))
 
     return output_dir
 
@@ -272,17 +266,7 @@ def _transform_routes_df(
 
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
-def _write_routes_dfs_all_hhs(
-    routes_df: DataFrame[CircuitRoutesWriteInAllHHs], output_dir: Path
-) -> None:
-    _write_routes_dfs(routes_df=routes_df, output_dir=output_dir, all_HHs=True)
-
-
-@schema_error_handler
-@pa.check_types(with_pydantic=True, lazy=True)
-def _write_routes_dfs(
-    routes_df: DataFrame[CircuitRoutesWriteIn], output_dir: Path, all_HHs: bool = False
-) -> None:
+def _write_routes_dfs(routes_df: DataFrame[CircuitRoutesWriteIn], output_dir: Path) -> None:
     """Split and write the routes DataFrame to the output directory.
 
     Args:
@@ -308,18 +292,7 @@ def _write_routes_dfs(
         route_df = route_df[CIRCUIT_DOWNLOAD_COLUMNS]
         driver_sheet_name = driver_sheet_names[0]
         fp = output_dir / f"{driver_sheet_name}.csv"
-        if all_HHs:
-            _write_route_df_all_hhs(route_df=route_df, fp=fp)
-        else:
-            _write_route_df(route_df=route_df, fp=fp)
-
-
-@schema_error_handler
-@pa.check_types(with_pydantic=True, lazy=True)
-def _write_route_df_all_hhs(
-    route_df: DataFrame[CircuitRoutesWriteOutAllHHs], fp: Path
-) -> None:
-    _write_route_df(route_df=route_df, fp=fp)
+        _write_route_df(route_df=route_df, fp=fp)
 
 
 @schema_error_handler

@@ -23,7 +23,6 @@ from bfb_delivery.lib.dispatch.read_circuit import (
     _make_plans_df,
     _transform_routes_df,
     _write_routes_dfs,
-    _write_routes_dfs_all_hhs,
 )
 from bfb_delivery.lib.formatting import sheet_shaping
 from bfb_delivery.lib.utils import get_friday
@@ -194,14 +193,9 @@ def main(  # noqa: C901
         #     routes_df.to_csv(
         #         ".test_data/sample_responses/routes_df_transformed.csv", index=False
         #     )  # noqa: E501
-        if all_hhs:
-            _write_routes_dfs_all_hhs(
-                routes_df=routes_df, output_dir=Path(OUTPUT_DIRS["CIRCUIT_TABLES_DIR"])
-            )
-        else:
-            _write_routes_dfs(
-                routes_df=routes_df, output_dir=Path(OUTPUT_DIRS["CIRCUIT_TABLES_DIR"])
-            )
+        _write_routes_dfs(
+            routes_df=routes_df, output_dir=Path(OUTPUT_DIRS["CIRCUIT_TABLES_DIR"])
+        )
         # END: get_route_files
 
         formatted_manifest_path = sheet_shaping.create_manifests(
