@@ -71,7 +71,7 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
 
     plans_list = _get_raw_plans(start_date=start_date, end_date=end_date)
 
-    plans_df = _make_plans_df(plans_df=plans_list, all_HHs=all_HHs)
+    plans_df = _make_plans_df(plans_list=plans_list, all_HHs=all_HHs)
     del plans_list
     # TODO: Add external ID for delivery day so we can filter stops by it in request?
     # After taking over upload.
@@ -109,7 +109,7 @@ def _get_raw_plans(start_date: str, end_date: str) -> list[dict[str, Any]]:
 # NOTE: with_pydantic allows check of other params.
 @pa.check_types(with_pydantic=True, lazy=True)
 def _make_plans_df(
-    plans_df: DataFrame[CircuitPlansFromDict], all_HHs: bool
+    plans_list: DataFrame[CircuitPlansFromDict], all_HHs: bool
 ) -> DataFrame[CircuitPlansOut]:
     """Make the plans DataFrame from the plans."""
     # What we'd do if not using from_format config:
@@ -125,28 +125,28 @@ def _make_plans_df(
     # programmatically.
     # Worst to best in order.
     # TODO: Set validation once we've settled on filter method.
-    plan_count = len(plans_df)
+    plan_count = len(plans_list)
     if all_HHs:
-        logger.info(f'Getting only the "{ALL_HHS_DRIVER}" plan.')  # noqa: B907
-        plans_df = plans_df[
+        logger.info(f'Filtering to only the "{ALL_HHS_DRIVER}" plan.')  # noqa: B907
+        plans_df = plans_list[
             [
                 ALL_HHS_DRIVER.upper() in title.upper()
-                for title in plans_df[CircuitColumns.TITLE]
+                for title in plans_list[CircuitColumns.TITLE]
             ]
         ]
     else:
-        logger.info(f'Getting all plans except "{ALL_HHS_DRIVER}".')  # noqa: B907
-        plans_df = plans_df[
+        logger.info(f'Filtering to all plans except "{ALL_HHS_DRIVER}".')  # noqa: B907
+        plans_df = plans_list[
             [
                 ALL_HHS_DRIVER.upper() not in title.upper()
-                for title in plans_df[CircuitColumns.TITLE]
+                for title in plans_list[CircuitColumns.TITLE]
             ]
         ]
     dropped_count = plan_count - len(plans_df)
     if not all_HHs and dropped_count != 1:
         logger.warning(f"Dropped {dropped_count} plans.")
     elif dropped_count:
-        logger.info(f"Dropped {dropped_count} plan.")
+        logger.info(f"Dropped {dropped_count} plans.")
     else:
         logger.info("Dropped no plans.")
 
@@ -184,13 +184,12 @@ def _get_raw_stops_lists(plan_ids: list[str]) -> list[dict[str, Any]]:
     for plan_id in plan_ids:
         # https://developer.team.getcircuit.com/api#tag/Stops/operation/listStops
         url = f"https://api.getcircuit.com/public/v0.2b/{plan_id}/stops"
-        logger.info(f"Getting route from {url} \n ...")
+        logger.info(f"Getting stops from {url} \n ...")
         stops_lists = _get_responses(url=url)
-        logger.info("Finished getting route.")
         plan_stops_list += _concat_response_pages(
             page_list=stops_lists, data_key=CircuitColumns.STOPS
         )
-
+    logger.info("Finished getting stops.")
     if not plan_stops_list:
         raise ValueError(f"No stops found for plans {plan_ids}.")
 

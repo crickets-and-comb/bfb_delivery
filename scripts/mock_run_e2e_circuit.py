@@ -150,7 +150,7 @@ def main(  # noqa: C901
             with open(".test_data/sample_responses/plans_list.json") as f:
                 plans_list = json.load(f)
 
-        plans_df = _make_plans_df(plans_df=plans_list, all_HHs=all_hhs)
+        plans_df = _make_plans_df(plans_list=plans_list, all_HHs=all_hhs)
         # if all_hhs:
         #     plans_df.to_csv(".test_data/sample_responses/plans_df_all_hhs.csv", index=False)
         # else:
