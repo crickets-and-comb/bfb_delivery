@@ -58,14 +58,13 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
     ),
 )
 @click.option(
-    "--all_hhs",
+    "--staff",
     type=bool,
     required=False,
     default=False,
     help=(
-        'Flag to get only the "All HHs" route.'
-        'False gets all routes except "All HHs". True gets only the "All HHs" route.'
-        "NOTE: True returns email column in CSV, for reuploading after splitting."
+        "Flag to get only the staff routes. (For testing, or alternative to All HHs.)"
+        "False gets all routes except staff, the usual use case."
     ),
 )
 @click.option(
@@ -101,9 +100,9 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
 def main(  # noqa: C901
     start_date: str,
     end_date: str,
-    all_hhs: bool,
     mock_raw_plans: bool,
     mock_raw_routes: bool,
+    staff: bool,
     use_public: bool,
 ) -> None:
     """Mock run of the end-to-end Circuit integration."""
@@ -120,6 +119,7 @@ def main(  # noqa: C901
         #     all_HHs=all_hhs,
         #     output_dir=OUTPUT_DIRS["MANIFESTS_DIR"],
         #     circuit_output_dir=OUTPUT_DIRS["CIRCUIT_TABLES_DIR"],
+        #     staff=staff,        
         # )
         # print(f"final_manifest_path: {final_manifest_path}")
         args_list = [
@@ -132,8 +132,8 @@ def main(  # noqa: C901
             args_list += ["--start_date", start_date]
         if end_date:
             args_list += ["--end_date", end_date]
-        if all_hhs:
-            args_list += ["--all_hhs", str(all_hhs).lower()]
+        if staff:
+            args_list += ["--staff", str(staff).lower()]
         result = subprocess.run(["create_manifests_from_circuit"] + args_list)
         print(f"result: {result}")
 
@@ -151,48 +151,48 @@ def main(  # noqa: C901
             with open(".test_data/sample_responses/plans_list.json") as f:
                 plans_list = json.load(f)
 
-        plans_df = _make_plans_df(plans_df=plans_list, all_HHs=all_hhs)
-        # if all_hhs:
-        #     plans_df.to_csv(".test_data/sample_responses/plans_df_all_hhs.csv", index=False)
-        # else:
-        #     plans_df.to_csv(".test_data/sample_responses/plans_df.csv", index=False)
+        plans_df = _make_plans_df(plans_df=plans_list, staff=staff)
+        if staff:
+            plans_df.to_csv(".test_data/sample_responses/plans_df_staff.csv", index=False)
+        else:
+            plans_df.to_csv(".test_data/sample_responses/plans_df.csv", index=False)
 
         if not mock_raw_routes:
             plan_stops_list = _get_raw_stops_lists(
                 plan_ids=plans_df[CircuitColumns.ID].to_list()
             )
-            # if all_hhs:
-            #     with open(
-            #         ".test_data/sample_responses/plan_stops_list_all_hhs.json", "w"
-            #     ) as f:
-            #         json.dump(plan_stops_list, f, indent=4)
-            # else:
-            #     with open(".test_data/sample_responses/plan_stops_list.json", "w") as f:
-            #         json.dump(plan_stops_list, f, indent=4)
+            if staff:
+                with open(
+                    ".test_data/sample_responses/plan_stops_list_staff.json", "w"
+                ) as f:
+                    json.dump(plan_stops_list, f, indent=4)
+            else:
+                with open(".test_data/sample_responses/plan_stops_list.json", "w") as f:
+                    json.dump(plan_stops_list, f, indent=4)
 
         else:
-            if all_hhs:
-                with open(".test_data/sample_responses/plan_stops_list_all_hhs.json") as f:
+            if staff:
+                with open(".test_data/sample_responses/plan_stops_list_staff.json") as f:
                     plan_stops_list = json.load(f)
             else:
                 with open(".test_data/sample_responses/plan_stops_list.json") as f:
                     plan_stops_list = json.load(f)
 
-        routes_df = _concat_routes_df(plan_stops_list=plan_stops_list)
-        # if all_hhs:
-        #     routes_df.to_csv(".test_data/sample_responses/routes_df_raw_all_hhs.csv", index=False) # noqa: E501
-        # else:
-        #     routes_df.to_pickle(".test_data/sample_responses/routes_df_raw.pkl")
+        routes_df = _concat_routes_df(plan_stops_list=plan_stops_list, staff=staff)
+        if staff:
+            routes_df.to_csv(".test_data/sample_responses/routes_df_raw_staff.csv", index=False) # noqa: E501
+        else:
+            routes_df.to_pickle(".test_data/sample_responses/routes_df_raw.pkl")
 
         routes_df = _transform_routes_df(routes_df=routes_df, plans_df=plans_df)
-        # if all_hhs:
-        #     routes_df.to_csv(
-        #         ".test_data/sample_responses/routes_df_transformed_all_hhs.csv", index=False
-        #     )  # noqa: E501
-        # else:
-        #     routes_df.to_csv(
-        #         ".test_data/sample_responses/routes_df_transformed.csv", index=False
-        #     )  # noqa: E501
+        if staff:
+            routes_df.to_csv(
+                ".test_data/sample_responses/routes_df_transformed_staff.csv", index=False
+            )
+        else:
+            routes_df.to_csv(
+                ".test_data/sample_responses/routes_df_transformed.csv", index=False
+            )
         _write_routes_dfs(
             routes_df=routes_df, output_dir=Path(OUTPUT_DIRS["CIRCUIT_TABLES_DIR"])
         )
