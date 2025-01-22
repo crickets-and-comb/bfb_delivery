@@ -162,36 +162,9 @@ def _transform_routes_df(
     plans_df: DataFrame[CircuitPlansTransformIn],
 ) -> DataFrame[CircuitRoutesTransformOut]:
     """Transform the raw routes DataFrame."""
-    # Subspace.
-    routes_df = plan_stops_list[
-        [
-            # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
-            CircuitColumns.PLAN,
-            CircuitColumns.ROUTE,
-            # stop id e.g. "plans/0IWNayD8NEkvD5fQe2SQ/stops/40lmbcQrd32NOfZiiC1b":
-            CircuitColumns.ID,
-            CircuitColumns.STOP_POSITION,
-            CircuitColumns.RECIPIENT,
-            CircuitColumns.ADDRESS,
-            CircuitColumns.NOTES,
-            CircuitColumns.ORDER_INFO,
-            CircuitColumns.PACKAGE_COUNT,
-        ]
-    ]
+    routes_df = _pare_routes_df(routes_df=plan_stops_list)
+    del plan_stops_list
 
-    # Subset.
-    routed_stops_mask = [
-        isinstance(route_dict, dict) and route_dict.get(CircuitColumns.ID, "") != ""
-        for route_dict in routes_df[CircuitColumns.ROUTE]
-    ]
-    routes_df = routes_df[routed_stops_mask]
-
-    routes_df[CircuitColumns.PLACE_ID] = routes_df[CircuitColumns.ADDRESS].apply(
-        lambda address_dict: address_dict.get(CircuitColumns.PLACE_ID)
-    )
-    routes_df = routes_df[routes_df[CircuitColumns.PLACE_ID] != DEPOT_PLACE_ID]
-
-    # Transform.
     routes_df = routes_df.merge(
         plans_df.copy().rename(columns={CircuitColumns.ID: "plan_id"}),
         left_on=CircuitColumns.PLAN,
@@ -212,47 +185,7 @@ def _transform_routes_df(
         inplace=True,
     )
 
-    routes_df[IntermediateColumns.ROUTE_TITLE] = routes_df[CircuitColumns.ROUTE].apply(
-        lambda route_dict: route_dict.get(CircuitColumns.TITLE)
-    )
-    routes_df[CircuitColumns.ROUTE] = routes_df[CircuitColumns.ROUTE].apply(
-        lambda route_dict: route_dict.get(CircuitColumns.ID)
-    )
-    routes_df[Columns.NAME] = routes_df[CircuitColumns.RECIPIENT].apply(
-        lambda recipient_dict: recipient_dict.get(CircuitColumns.NAME)
-    )
-    routes_df[CircuitColumns.ADDRESS_LINE_1] = routes_df[Columns.ADDRESS].apply(
-        lambda address_dict: address_dict.get(CircuitColumns.ADDRESS_LINE_1)
-    )
-    routes_df[CircuitColumns.ADDRESS_LINE_2] = routes_df[Columns.ADDRESS].apply(
-        lambda address_dict: address_dict.get(CircuitColumns.ADDRESS_LINE_2)
-    )
-    routes_df[Columns.PHONE] = routes_df[CircuitColumns.RECIPIENT].apply(
-        lambda recipient_dict: recipient_dict.get(CircuitColumns.PHONE)
-    )
-    routes_df[Columns.BOX_TYPE] = routes_df[CircuitColumns.ORDER_INFO].apply(
-        lambda order_info_dict: (
-            order_info_dict[CircuitColumns.PRODUCTS][0]
-            if order_info_dict.get(CircuitColumns.PRODUCTS)
-            else None
-        )
-    )
-    routes_df[Columns.NEIGHBORHOOD] = routes_df[CircuitColumns.RECIPIENT].apply(
-        lambda recipient_dict: recipient_dict.get(CircuitColumns.EXTERNAL_ID)
-    )
-    routes_df[Columns.EMAIL] = routes_df[CircuitColumns.RECIPIENT].apply(
-        lambda recipient_dict: recipient_dict.get(CircuitColumns.EMAIL)
-    )
-
-    # TODO: Verify we want to warn/raise/impute.
-    # Give plan ID and instruct to download the routes from Circuit.
-    _warn_and_impute(routes_df=routes_df)
-
-    routes_df[Columns.ADDRESS] = (
-        routes_df[CircuitColumns.ADDRESS_LINE_1]
-        + ", "  # noqa: W503
-        + routes_df[CircuitColumns.ADDRESS_LINE_2]  # noqa: W503
-    )
+    routes_df = _set_routes_df_values(routes_df=routes_df)
 
     routes_df.sort_values(
         by=[IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO], inplace=True
@@ -358,6 +291,85 @@ def _concat_response_pages(
         data_list += page[data_key]
 
     return data_list
+
+
+@typechecked
+def _pare_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
+    routes_df = routes_df[
+        [
+            # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
+            CircuitColumns.PLAN,
+            CircuitColumns.ROUTE,
+            # stop id e.g. "plans/0IWNayD8NEkvD5fQe2SQ/stops/40lmbcQrd32NOfZiiC1b":
+            CircuitColumns.ID,
+            CircuitColumns.STOP_POSITION,
+            CircuitColumns.RECIPIENT,
+            CircuitColumns.ADDRESS,
+            CircuitColumns.NOTES,
+            CircuitColumns.ORDER_INFO,
+            CircuitColumns.PACKAGE_COUNT,
+        ]
+    ]
+
+    routed_stops_mask = [
+        isinstance(route_dict, dict) and route_dict.get(CircuitColumns.ID, "") != ""
+        for route_dict in routes_df[CircuitColumns.ROUTE]
+    ]
+    routes_df = routes_df[routed_stops_mask]
+
+    routes_df[CircuitColumns.PLACE_ID] = routes_df[CircuitColumns.ADDRESS].apply(
+        lambda address_dict: address_dict.get(CircuitColumns.PLACE_ID)
+    )
+    routes_df = routes_df[routes_df[CircuitColumns.PLACE_ID] != DEPOT_PLACE_ID]
+
+    return routes_df
+
+
+@typechecked
+def _set_routes_df_values(routes_df: pd.DataFrame) -> pd.DataFrame:
+    routes_df[IntermediateColumns.ROUTE_TITLE] = routes_df[CircuitColumns.ROUTE].apply(
+        lambda route_dict: route_dict.get(CircuitColumns.TITLE)
+    )
+    routes_df[CircuitColumns.ROUTE] = routes_df[CircuitColumns.ROUTE].apply(
+        lambda route_dict: route_dict.get(CircuitColumns.ID)
+    )
+    routes_df[Columns.NAME] = routes_df[CircuitColumns.RECIPIENT].apply(
+        lambda recipient_dict: recipient_dict.get(CircuitColumns.NAME)
+    )
+    routes_df[CircuitColumns.ADDRESS_LINE_1] = routes_df[Columns.ADDRESS].apply(
+        lambda address_dict: address_dict.get(CircuitColumns.ADDRESS_LINE_1)
+    )
+    routes_df[CircuitColumns.ADDRESS_LINE_2] = routes_df[Columns.ADDRESS].apply(
+        lambda address_dict: address_dict.get(CircuitColumns.ADDRESS_LINE_2)
+    )
+    routes_df[Columns.PHONE] = routes_df[CircuitColumns.RECIPIENT].apply(
+        lambda recipient_dict: recipient_dict.get(CircuitColumns.PHONE)
+    )
+    routes_df[Columns.BOX_TYPE] = routes_df[CircuitColumns.ORDER_INFO].apply(
+        lambda order_info_dict: (
+            order_info_dict[CircuitColumns.PRODUCTS][0]
+            if order_info_dict.get(CircuitColumns.PRODUCTS)
+            else None
+        )
+    )
+    routes_df[Columns.NEIGHBORHOOD] = routes_df[CircuitColumns.RECIPIENT].apply(
+        lambda recipient_dict: recipient_dict.get(CircuitColumns.EXTERNAL_ID)
+    )
+    routes_df[Columns.EMAIL] = routes_df[CircuitColumns.RECIPIENT].apply(
+        lambda recipient_dict: recipient_dict.get(CircuitColumns.EMAIL)
+    )
+
+    # TODO: Verify we want to warn/raise/impute.
+    # Give plan ID and instruct to download the routes from Circuit.
+    _warn_and_impute(routes_df=routes_df)
+
+    routes_df[Columns.ADDRESS] = (
+        routes_df[CircuitColumns.ADDRESS_LINE_1]
+        + ", "  # noqa: W503
+        + routes_df[CircuitColumns.ADDRESS_LINE_2]  # noqa: W503
+    )
+
+    return routes_df
 
 
 @typechecked
