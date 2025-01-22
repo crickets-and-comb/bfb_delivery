@@ -24,7 +24,6 @@ BOX_TYPE_FIELD = partial(
     _COERCE_FIELD, alias=Columns.BOX_TYPE, in_list_case_insensitive={"category_list": BoxType}
 )
 # Renamed CircuitColumns.TITLE column, e.g. "1.17 Andy W":
-TITLE_FIELD = partial(_COERCE_FIELD, at_least_two_words=True)
 EMAIL_FIELD = partial(_NULLABLE_FIELD, alias=Columns.EMAIL)
 NAME_FIELD = partial(_COERCE_FIELD, alias=Columns.NAME)
 NEIGHBORHOOD_FIELD = partial(_NULLABLE_FIELD, alias=Columns.NEIGHBORHOOD)
@@ -42,6 +41,7 @@ STOP_ID_FIELD = partial(
     _UNIQUE_FIELD, str_startswith="plans/", str_contains="/stops/", alias=CircuitColumns.ID
 )
 STOP_NO_FIELD = partial(_COERCE_FIELD, ge=1, alias=Columns.STOP_NO)
+TITLE_FIELD = partial(_COERCE_FIELD, at_least_two_words=True)
 
 
 class CircuitPlansOut(pa.DataFrameModel):
