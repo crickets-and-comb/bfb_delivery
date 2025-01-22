@@ -52,6 +52,7 @@ class CircuitPlansOut(pa.DataFrameModel):
     id: Series[str] = PLAN_ID_FIELD(unique=True, alias=CircuitColumns.ID)
     # e.g. "1.17 Andy W":
     title: Series[str] = TITLE_FIELD(alias=CircuitColumns.TITLE)
+    routes: Series[list[str]] = _COERCE_FIELD(is_list_of_at_least_one=True)
 
 
 class CircuitPlansFromDict(CircuitPlansOut):

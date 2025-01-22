@@ -76,7 +76,9 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
     # no route. (I.e., not optimized and routed.)
     routes_df = _concat_routes_df(plan_stops_list=plan_stops_list)
 
-    routes_df = _transform_routes_df(routes_df=routes_df, plans_df=plans_df)
+    routes_df = _transform_routes_df(
+        routes_df=routes_df, plans_df=plans_df[[CircuitColumns.ID, CircuitColumns.TITLE]]
+    )
     _write_routes_dfs(routes_df=routes_df, output_dir=Path(output_dir))
 
     return output_dir
@@ -108,8 +110,9 @@ def _make_plans_df(
     plans_df: DataFrame[CircuitPlansFromDict], all_HHs: bool
 ) -> DataFrame[CircuitPlansOut]:
     """Make the plans DataFrame from the plans."""
+    # What we'd do if not using from_format config:
     # plans_df = pd.DataFrame(plans_list)
-    plans_df = plans_df[[CircuitColumns.ID, CircuitColumns.TITLE]]
+
     # TODO: We could drop All HHs in a few ways that are more robust.
     # 1. Filter by driver ID, but we'd need to exclude the staff that use their driver IDs
     # to test things out, and what if they decided to drive one day?
@@ -127,7 +130,8 @@ def _make_plans_df(
     else:
         plans_df = plans_df[~(plans_df[CircuitColumns.TITLE].str.contains(ALL_HHS_DRIVER))]
 
-    # TODO: Filter to routed plans here.
+    routed_plans_mask = [isinstance(val, list) and len(val) > 0 for val in plans_df["routes"]]
+    plans_df = plans_df[routed_plans_mask]
 
     return plans_df
 

@@ -24,6 +24,14 @@ def in_list_case_insensitive(pandas_obj: pd.Series, *, category_list: list[str])
     return pandas_obj.str.upper().isin([val.upper() for val in category_list]).all()
 
 
+@extensions.register_check_method(statistics=["flag"])
+def is_list_of_at_least_one(pandas_obj: pd.Series, flag: bool) -> bool:
+    """Check that a column is a list of at least one item."""
+    return (
+        all(isinstance(val, list) and len(val) >= 1 for val in pandas_obj) if flag else True
+    )
+
+
 @extensions.register_check_method(statistics=["check_sort"])
 def is_sorted(pandas_obj: pd.Series, check_sort: int) -> bool:
     """Assert that values are contiguous."""
