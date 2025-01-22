@@ -93,7 +93,7 @@ def _get_raw_plans(start_date: str, end_date: str) -> list[dict[str, Any]]:
         f"&filter.startsLte={end_date}"
     )
     logger.info(f"Getting route plans from {url} \n ...")
-    plans = _get_responses(base_url=url)
+    plans = _get_responses(url=url)
     logger.info("Finished getting route plans.")
     plans_list = _concat_response_pages(page_list=plans, data_key="plans")
     return plans_list
@@ -144,7 +144,7 @@ def _get_raw_stops_lists(plan_ids: list[str]) -> list[dict[str, Any]]:
         # https://developer.team.getcircuit.com/api#tag/Stops/operation/listStops
         url = f"https://api.getcircuit.com/public/v0.2b/{plan_id}/stops"
         logger.info(f"Getting route from {url} \n ...")
-        stops_lists = _get_responses(base_url=url)
+        stops_lists = _get_responses(url=url)
         logger.info("Finished getting route.")
         plan_stops_list += _concat_response_pages(
             page_list=stops_lists, data_key=CircuitColumns.STOPS
@@ -312,15 +312,15 @@ def _write_route_df(route_df: DataFrame[CircuitRoutesWriteOut], fp: Path) -> Non
 # TODO: Pass params instead of forming URL first.
 # (Would need to then grab params URL for next page?)
 @typechecked
-def _get_responses(base_url: str) -> list[dict[str, Any]]:
+def _get_responses(url: str) -> list[dict[str, Any]]:
     wait_seconds = RateLimits.READ_SECONDS
     next_page = ""
     responses = []
 
     while next_page is not None:
-        url = base_url + str(next_page)
+        page_url = url + str(next_page)
         response = requests.get(
-            url,
+            page_url,
             auth=HTTPBasicAuth(get_circuit_key(), ""),
             timeout=RateLimits.READ_TIMEOUT_SECONDS,
         )
@@ -336,7 +336,7 @@ def _get_responses(base_url: str) -> list[dict[str, Any]]:
                     "additional_notes": "No-JSON response.",
                     "No-JSON response exception:": str(e),
                 }
-            err_msg = f"Got {response.status_code} reponse for {url}: {response_dict}"
+            err_msg = f"Got {response.status_code} reponse for {page_url}: {response_dict}"
 
             if response.status_code == 429:
                 wait_seconds = wait_seconds * 2
@@ -352,7 +352,7 @@ def _get_responses(base_url: str) -> list[dict[str, Any]]:
             next_page = stops.get("nextPageToken", None)
 
         if next_page or response.status_code == 429:
-            token_prefix = "?" if "?" not in base_url else "&"
+            token_prefix = "?" if "?" not in url else "&"
             next_page = f"{token_prefix}pageToken={next_page}"
             sleep(wait_seconds)
 
