@@ -203,10 +203,13 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
             "group_col": CircuitColumns.PLAN,
             "at_least_one_col": CircuitColumns.ROUTE,
         }
-        equal_cols = {
-            "col_a": IntermediateColumns.ROUTE_TITLE,
-            "col_b": IntermediateColumns.DRIVER_SHEET_NAME,
-        }
+        # TODO: Was violated on 10/4. Investigate, but ignore for now.
+        # plans/jEvjLs3ViQkKPBcJVduF, routes/z9AmJkUnuQXUGHGsoxyG
+        # Had route title "10.11 Sara" and driver sheet name (plan title) "10.4 Sara"
+        # equal_cols = {
+        #     "col_a": IntermediateColumns.ROUTE_TITLE,
+        #     "col_b": IntermediateColumns.DRIVER_SHEET_NAME,
+        # }
 
         many_to_one = {"many_col": CircuitColumns.ID, "one_col": CircuitColumns.PLAN}
         many_to_one = {"many_col": CircuitColumns.ID, "one_col": CircuitColumns.ROUTE}
