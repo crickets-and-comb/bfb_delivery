@@ -74,7 +74,6 @@ def get_route_files(
 
     plans_list = _get_raw_plans(start_date=start_date, end_date=end_date, verbose=verbose)
     plans_df = _make_plans_df(plans_list=plans_list, all_HHs=all_HHs)
-    del plans_list
     # TODO: Add external ID for delivery day so we can filter stops by it in request?
     # After taking over upload.
     plan_stops_list = _get_raw_stops_lists(
@@ -424,6 +423,11 @@ def _set_routes_df_values(routes_df: pd.DataFrame) -> pd.DataFrame:
         lambda recipient_dict: recipient_dict.get(CircuitColumns.EMAIL)
     )
 
+    for title_col in [IntermediateColumns.DRIVER_SHEET_NAME, IntermediateColumns.ROUTE_TITLE]:
+        routes_df[title_col] = routes_df[title_col].apply(
+            lambda title: _clean_title(title=title)
+        )
+
     # TODO: Verify we want to warn/raise/impute.
     # Give plan ID and instruct to download the routes from Circuit.
     _warn_and_impute(routes_df=routes_df)
@@ -435,6 +439,14 @@ def _set_routes_df_values(routes_df: pd.DataFrame) -> pd.DataFrame:
     )
 
     return routes_df
+
+
+@typechecked
+def _clean_title(title: str) -> str:
+    """Clean the title."""
+    if "/" in title:
+        logger.warning('Title "{title}" contains "/". Replacing with ".".')  # noqa: B907
+    return title.replace("/", ".")
 
 
 @typechecked
