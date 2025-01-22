@@ -114,15 +114,14 @@ def _make_plans_df(
     # plans_df = pd.DataFrame(plans_list)
 
     # TODO: We could drop All HHs in a few ways that are more robust.
-    # 1. Filter by driver ID, but we'd need to exclude the staff that use their driver IDs
-    # to test things out, and what if they decided to drive one day?
+    # 1. Won't work: Filter by driver ID, but we'd need to exclude the staff that use their
+    # driver IDs to test things out, and what if they decided to drive one day?
     # (Make new driver ID if that ever happens.)
     # 2. Pass an external ID to filter on.
     # 3. Create a dummy driver ID for the "All HHs" route.
     # 4. Pass title filter once we're confident in the title because we uploaded it
     # programmatically.
     # Worst to best in order.
-    # TODO: Should probably do #1 anyway.
     # TODO: Validate in pandera schema: split into wrapper with separate schema.
     # Can update the validation once we select on different condition.
     if all_HHs:
