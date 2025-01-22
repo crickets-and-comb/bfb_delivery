@@ -422,11 +422,12 @@ def _set_routes_df_values(routes_df: pd.DataFrame) -> pd.DataFrame:
     routes_df[Columns.EMAIL] = routes_df[CircuitColumns.RECIPIENT].apply(
         lambda recipient_dict: recipient_dict.get(CircuitColumns.EMAIL)
     )
-
-    for title_col in [IntermediateColumns.DRIVER_SHEET_NAME, IntermediateColumns.ROUTE_TITLE]:
-        routes_df[title_col] = routes_df[title_col].apply(
-            lambda title: _clean_title(title=title)
-        )
+    routes_df[IntermediateColumns.DRIVER_SHEET_NAME] = _clean_title(
+        routes_df[IntermediateColumns.DRIVER_SHEET_NAME], warn=True
+    )
+    routes_df[IntermediateColumns.ROUTE_TITLE] = _clean_title(
+        routes_df[IntermediateColumns.ROUTE_TITLE], warn=False
+    )
 
     # TODO: Verify we want to warn/raise/impute.
     # Give plan ID and instruct to download the routes from Circuit.
@@ -442,11 +443,12 @@ def _set_routes_df_values(routes_df: pd.DataFrame) -> pd.DataFrame:
 
 
 @typechecked
-def _clean_title(title: str) -> str:
-    """Clean the title."""
-    if "/" in title:
-        logger.warning('Title "{title}" contains "/". Replacing with ".".')  # noqa: B907
-    return title.replace("/", ".")
+def _clean_title(title_series: pd.Series, warn: bool) -> pd.Series:
+    """Clean the title column."""
+    for title in title_series.unique():
+        if "/" in title and warn:
+            logger.warning(f'Title "{title}" contains "/". Replacing with ".".')  # noqa: B907
+    return title_series.str.replace("/", ".")
 
 
 @typechecked
