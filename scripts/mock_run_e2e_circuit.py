@@ -17,7 +17,6 @@ from bfb_delivery.lib.constants import CircuitColumns
 
 # from bfb_delivery import create_manifests_from_circuit
 from bfb_delivery.lib.dispatch.read_circuit import (
-    _concat_routes_df,
     _get_raw_plans,
     _get_raw_stops_lists,
     _make_plans_df,
@@ -178,13 +177,7 @@ def main(  # noqa: C901
                 with open(".test_data/sample_responses/plan_stops_list.json") as f:
                     plan_stops_list = json.load(f)
 
-        routes_df = _concat_routes_df(plan_stops_list=plan_stops_list)
-        # if all_hhs:
-        #     routes_df.to_csv(".test_data/sample_responses/routes_df_raw_all_hhs.csv", index=False) # noqa: E501
-        # else:
-        #     routes_df.to_pickle(".test_data/sample_responses/routes_df_raw.pkl")
-
-        routes_df = _transform_routes_df(routes_df=routes_df, plans_df=plans_df)
+        routes_df = _transform_routes_df(plan_stops_list=plan_stops_list, plans_df=plans_df)
         # if all_hhs:
         #     routes_df.to_csv(
         #         ".test_data/sample_responses/routes_df_transformed_all_hhs.csv", index=False

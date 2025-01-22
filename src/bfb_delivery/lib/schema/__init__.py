@@ -3,9 +3,8 @@
 from bfb_delivery.lib.schema.schema import (  # noqa: F403
     CircuitPlansFromDict,
     CircuitPlansOut,
-    CircuitRoutesConcatInPlans,
-    CircuitRoutesConcatOut,
-    CircuitRoutesTransformIn,
+    CircuitPlansTransformIn,
+    CircuitRoutesTransformInFromDict,
     CircuitRoutesTransformOut,
     CircuitRoutesWriteIn,
     CircuitRoutesWriteInAllHHs,

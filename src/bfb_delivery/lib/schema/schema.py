@@ -44,6 +44,7 @@ STOP_ID_FIELD = partial(
 STOP_NO_FIELD = partial(_COERCE_FIELD, ge=1, alias=Columns.STOP_NO)
 
 
+# TODO: Swap these and validate filter on out.
 class CircuitPlansOut(pa.DataFrameModel):
     """The schema for the Circuit plans data.
 
@@ -58,7 +59,7 @@ class CircuitPlansOut(pa.DataFrameModel):
 
 
 class CircuitPlansFromDict(CircuitPlansOut):
-    """The schema for the Circuit plans data from a dict.
+    """The schema for the Circuit plans data from a JSON-esque dict.
 
     bfb_delivery.lib.dispatch.read_circuit._make_plans_df input.
     """
@@ -69,17 +70,17 @@ class CircuitPlansFromDict(CircuitPlansOut):
         from_format = "dict"
 
 
-class CircuitRoutesConcatInPlans(CircuitPlansOut):
+class CircuitPlansTransformIn(CircuitPlansOut):
     """The schema for the Circuit plans data.
 
-    bfb_delivery.lib.dispatch.read_circuit._concat_routes_df input.
+    bfb_delivery.lib.dispatch.read_circuit._transform_routes_df input.
     """
 
 
-class CircuitRoutesConcatOut(pa.DataFrameModel):
-    """The schema for the Circuit routes data.
+class CircuitRoutesTransformInFromDict(pa.DataFrameModel):
+    """The schema for the Circuit routes data from a JSON-esque dict.
 
-    bfb_delivery.lib.dispatch.read_circuit._concat_routes_df output.
+    bfb_delivery.lib.dispatch.read_circuit._transform_routes_df input.
     """
 
     plan: Series[str] = PLAN_ID_FIELD(alias=CircuitColumns.PLAN)
@@ -99,6 +100,8 @@ class CircuitRoutesConcatOut(pa.DataFrameModel):
 
     class Config:
         """The configuration for the schema."""
+
+        from_format = "dict"
 
         many_to_one = {"many_col": CircuitColumns.ID, "one_col": CircuitColumns.PLAN}
         unique_group = {
@@ -122,13 +125,6 @@ class CircuitRoutesConcatOut(pa.DataFrameModel):
             "col_name": CircuitColumns.ADDRESS,
             "item_name": CircuitColumns.ADDRESS_LINE_2,
         }
-
-
-class CircuitRoutesTransformIn(CircuitRoutesConcatOut):
-    """The schema for the Circuit routes data before transformation.
-
-    bfb_delivery.lib.dispatch.read_circuit._transform_routes_df input.
-    """
 
 
 class CircuitRoutesTransformOut(pa.DataFrameModel):

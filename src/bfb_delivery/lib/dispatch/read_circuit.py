@@ -27,9 +27,8 @@ from bfb_delivery.lib.dispatch.utils import get_circuit_key
 from bfb_delivery.lib.schema import (
     CircuitPlansFromDict,
     CircuitPlansOut,
-    CircuitRoutesConcatInPlans,
-    CircuitRoutesConcatOut,
-    CircuitRoutesTransformIn,
+    CircuitPlansTransformIn,
+    CircuitRoutesTransformInFromDict,
     CircuitRoutesTransformOut,
     CircuitRoutesWriteIn,
     CircuitRoutesWriteOut,
@@ -70,10 +69,10 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
     # TODO: Add external ID for delivery day so we can filter stops by it in request?
     # After taking over upload.
     plan_stops_list = _get_raw_stops_lists(plan_ids=plans_df[CircuitColumns.ID].tolist())
-    routes_df = _concat_routes_df(plan_stops_list=plan_stops_list)
 
     routes_df = _transform_routes_df(
-        routes_df=routes_df, plans_df=plans_df[[CircuitColumns.ID, CircuitColumns.TITLE]]
+        plan_stops_list=plan_stops_list,
+        plans_df=plans_df[[CircuitColumns.ID, CircuitColumns.TITLE]],
     )
     _write_routes_dfs(routes_df=routes_df, output_dir=Path(output_dir))
 
@@ -97,9 +96,9 @@ def _get_raw_plans(start_date: str, end_date: str) -> list[dict[str, Any]]:
 
 # Using from_format config https://pandera.readthedocs.io/en/v0.22.1/
 # data_format_conversion.html#data-format-conversion
-# Not a fan of this as it obscures the pipeline steps and makes it harder to follow.
 # Here, you pass in plans_df as a list of dictionaries, but you treat/type it as a dataframe.
-# But, I want to use it once in a simple place to see how it works.
+# Not a huge fan as it obscures the pipeline steps and makes it a little harder to follow.
+# But, it makes input validation simpler.
 # NOTE: with_pydantic allows check of other params.
 @pa.check_types(with_pydantic=True, lazy=True)
 def _make_plans_df(
@@ -156,26 +155,14 @@ def _get_raw_stops_lists(plan_ids: list[str]) -> list[dict[str, Any]]:
     return plan_stops_list
 
 
-# TODO: Just do all this in tx.
-@schema_error_handler
-@pa.check_types(with_pydantic=True, lazy=True)
-def _concat_routes_df(
-    plan_stops_list: list[dict[str, Any]]
-) -> DataFrame[CircuitRoutesConcatOut]:
-    """Concatenate the routes DataFrames from the plan stops lists."""
-    routes_df = pd.DataFrame(plan_stops_list)
-
-    return routes_df
-
-
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
 def _transform_routes_df(
-    routes_df: DataFrame[CircuitRoutesTransformIn],
-    plans_df: DataFrame[CircuitRoutesConcatInPlans],
+    plan_stops_list: DataFrame[CircuitRoutesTransformInFromDict],
+    plans_df: DataFrame[CircuitPlansTransformIn],
 ) -> DataFrame[CircuitRoutesTransformOut]:
     """Transform the raw routes DataFrame."""
-    routes_df = routes_df[
+    routes_df = plan_stops_list[
         [
             # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
             CircuitColumns.PLAN,
