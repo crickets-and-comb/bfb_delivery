@@ -100,8 +100,6 @@ class CircuitRoutesConcatOut(pa.DataFrameModel):
     class Config:
         """The configuration for the schema."""
 
-        strict = True
-
         many_to_one = {"many_col": CircuitColumns.ID, "one_col": CircuitColumns.PLAN}
         unique_group = {
             "group_col": CircuitColumns.PLAN,

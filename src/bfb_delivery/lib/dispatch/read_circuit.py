@@ -164,6 +164,17 @@ def _concat_routes_df(
 ) -> DataFrame[CircuitRoutesConcatOut]:
     """Concatenate the routes DataFrames from the plan stops lists."""
     routes_df = pd.DataFrame(plan_stops_list)
+
+    return routes_df
+
+
+@schema_error_handler
+@pa.check_types(with_pydantic=True, lazy=True)
+def _transform_routes_df(
+    routes_df: DataFrame[CircuitRoutesTransformIn],
+    plans_df: DataFrame[CircuitRoutesConcatInPlans],
+) -> DataFrame[CircuitRoutesTransformOut]:
+    """Transform the raw routes DataFrame."""
     routes_df = routes_df[
         [
             # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
@@ -180,16 +191,6 @@ def _concat_routes_df(
         ]
     ]
 
-    return routes_df
-
-
-@schema_error_handler
-@pa.check_types(with_pydantic=True, lazy=True)
-def _transform_routes_df(
-    routes_df: DataFrame[CircuitRoutesTransformIn],
-    plans_df: DataFrame[CircuitRoutesConcatInPlans],
-) -> DataFrame[CircuitRoutesTransformOut]:
-    """Transform the raw routes DataFrame."""
     routed_stops_mask = [
         isinstance(route_dict, dict) and route_dict.get(CircuitColumns.ID, "") != ""
         for route_dict in routes_df[CircuitColumns.ROUTE]
