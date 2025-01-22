@@ -30,6 +30,9 @@ NAME_FIELD = partial(_COERCE_FIELD, alias=Columns.NAME)
 NEIGHBORHOOD_FIELD = partial(_NULLABLE_FIELD, alias=Columns.NEIGHBORHOOD)
 NOTES_FIELD = partial(_NULLABLE_FIELD, alias=Columns.NOTES)
 ORDER_COUNT_FIELD = partial(_COERCE_FIELD, eq=1, alias=Columns.ORDER_COUNT)
+ORDER_INFO_FIELD = partial(
+    _COERCE_FIELD, item_in_field_dict=CircuitColumns.PRODUCTS, alias=CircuitColumns.ORDER_INFO
+)
 PHONE_FIELD = partial(_NULLABLE_FIELD, alias=Columns.PHONE)
 # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
 PLAN_ID_FIELD = partial(_COERCE_FIELD, str_startswith="plans/")
@@ -94,9 +97,7 @@ class CircuitRoutesConcatOut(pa.DataFrameModel):
         alias=CircuitColumns.ADDRESS, item_in_field_dict=CircuitColumns.PLACE_ID
     )
     notes: Series[str] = NOTES_FIELD(alias=CircuitColumns.NOTES)
-    orderInfo: Series[dict[str, Any]] = _COERCE_FIELD(
-        item_in_field_dict=CircuitColumns.PRODUCTS, alias=CircuitColumns.ORDER_INFO
-    )
+    orderInfo: Series[dict[str, Any]] = ORDER_INFO_FIELD()
     packageCount: Series[float] = _NULLABLE_FIELD(eq=1, alias=CircuitColumns.PACKAGE_COUNT)
 
     class Config:
@@ -158,6 +159,7 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
     # Ancillary columns.
     plan: Series[str] = PLAN_ID_FIELD(alias=CircuitColumns.PLAN)
     id: Series[str] = STOP_ID_FIELD()
+    orderInfo: Series[dict[str, Any]] = ORDER_INFO_FIELD(one_product=True)
     route_title: Series[str] = TITLE_FIELD(alias=IntermediateColumns.ROUTE_TITLE)
     placeId: Series[str] = _COERCE_FIELD(ne=DEPOT_PLACE_ID, alias=CircuitColumns.PLACE_ID)
 

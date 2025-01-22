@@ -3,6 +3,8 @@
 import pandas as pd
 import pandera.extensions as extensions
 
+from bfb_delivery.lib.constants import CircuitColumns
+
 
 @extensions.register_check_method(statistics=["flag"])
 def at_least_two_words(pandas_obj: pd.Series, flag: bool) -> bool:
@@ -42,3 +44,17 @@ def is_sorted(pandas_obj: pd.Series, check_sort: int) -> bool:
 def item_in_field_dict(pandas_obj: pd.Series, item_name: str) -> bool:
     """Check that a dictionary field has an item in it."""
     return all(item_name in val.keys() for val in pandas_obj)
+
+
+@extensions.register_check_method(statistics=["flag"])
+def one_product(pandas_obj: pd.Series, flag: bool) -> bool:
+    """Ensure one and only one product per stop."""
+    return (
+        all(
+            isinstance(val.get(CircuitColumns.PRODUCTS), list)
+            and len(val.get(CircuitColumns.PRODUCTS)) == 1  # noqa: W503
+            for val in pandas_obj
+        )
+        if flag
+        else True
+    )
