@@ -20,6 +20,7 @@ _NULLABLE_FIELD = partial(_COERCE_FIELD, nullable=True)
 _UNIQUE_FIELD = partial(_COERCE_FIELD, unique=True)
 
 ADDRESS_FIELD = partial(_COERCE_FIELD, alias=Columns.ADDRESS)
+# TODO: Maybe just warn about missing box types? Waiting on user preference.
 BOX_TYPE_FIELD = partial(
     _COERCE_FIELD, alias=Columns.BOX_TYPE, in_list_case_insensitive={"category_list": BoxType}
 )
