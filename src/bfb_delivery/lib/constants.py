@@ -9,8 +9,6 @@ import pandas as pd
 
 ADDRESS_COLUMN_WIDTH: Final[float] = 40
 
-ALL_HHS_DRIVER: Final[str] = "All HHs"
-
 
 class BookOneDrivers(StrEnum):
     """Drivers for the first book.
@@ -54,6 +52,8 @@ class CircuitColumns:
     ADDRESS: Final[str] = "address"
     ADDRESS_LINE_1: Final[str] = "addressLineOne"
     ADDRESS_LINE_2: Final[str] = "addressLineTwo"
+    DRIVER: Final[str] = "driver"
+    DRIVERS: Final[str] = "drivers"
     EMAIL: Final[str] = "email"
     EXTERNAL_ID: Final[str] = "externalId"
     ID: Final[str] = "id"
@@ -116,12 +116,12 @@ class Defaults:
         "extra_notes_file": "",
     }
     CREATE_MANIFESTS_FROM_CIRCUIT: Final[dict[str, str | bool]] = {
-        "all_HHs": False,
         "start_date": "",
         "end_date": "",
         "output_dir": CREATE_MANIFESTS["output_dir"],
         "output_filename": CREATE_MANIFESTS["output_filename"],
         "circuit_output_dir": "",
+        "staff": False,
         "extra_notes_file": CREATE_MANIFESTS["extra_notes_file"],
     }
     FORMAT_COMBINED_ROUTES: Final[dict[str, str]] = {
@@ -224,4 +224,11 @@ SPLIT_ROUTE_COLUMNS: Final[list[str]] = [
     Columns.ORDER_COUNT,
     Columns.PRODUCT_TYPE,
     Columns.NEIGHBORHOOD,
+]
+
+
+STAFF_DRIVER_IDS: Final[list[str]] = [
+    "drivers/U8w1aupygraUlIegHLYI", # Melanie
+    "drivers/KkhF6E46MagWNszIs9sJ", # Sierra
+    "drivers/yMfGTXMJl8wTKHQ7xI7I", # Vann
 ]
