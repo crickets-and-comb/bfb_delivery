@@ -15,9 +15,9 @@ from requests.auth import HTTPBasicAuth
 from typeguard import typechecked
 
 from bfb_delivery.lib.constants import (
+    ALL_HHS_DRIVER,
     CIRCUIT_DOWNLOAD_COLUMNS,
     DEPOT_PLACE_ID,
-    STAFF_DRIVER_IDS,
     CircuitColumns,
     Columns,
     IntermediateColumns,
@@ -42,9 +42,8 @@ logger = logging.getLogger(__name__)
 
 
 @typechecked
-def get_route_files(start_date: str, end_date: str, output_dir: str, staff: bool | None) -> str:
+def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bool) -> str:
     """Get the route files for the given date.
-
 
     Args:
         start_date: The start date to get the routes for, as "YYYYMMDD".
@@ -54,8 +53,8 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, staff: bool
         output_dir: The directory to save the routes to.
             Empty string saves to "routes_{date}" directory in present working directory.
             If the directory does not exist, it is created. If it exists, it is overwritten.
-        staff: Flag to get only the staff routes. (For testing, or alternative to All HHs.)
-            False gets all routes except staff, the usual use case.
+        all_HHs: Flag to get only the "All HHs" route.
+            False gets all routes except "All HHs". True gets only the "All HHs" route.
 
     Returns:
         The path to the route files.
@@ -66,12 +65,16 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, staff: bool
         output_dir = os.getcwd() + "/routes_" + start_date
 
     plans_list = _get_raw_plans(start_date=start_date, end_date=end_date)
-    plans_df = _make_plans_df(plans_df=plans_list, staff=staff)
+    # TODO: Filter to only plans with routes to make sure we don't get plans that aren't
+    # routed. That would cause a validation problem when we check stops against routes.
+    plans_df = _make_plans_df(plans_df=plans_list, all_HHs=all_HHs)
     del plans_list
     # TODO: Add external ID for delivery day so we can filter stops by it in request?
     # After taking over upload.
     plan_stops_list = _get_raw_stops_lists(plan_ids=plans_df[CircuitColumns.ID].tolist())
-    routes_df = _concat_routes_df(plan_stops_list=plan_stops_list, staff=staff)
+    # TODO: Filter to only stops with a route id to ensure we don't get stops with a plan and
+    # no route. (I.e., not optimized and routed.)
+    routes_df = _concat_routes_df(plan_stops_list=plan_stops_list)
 
     routes_df = _transform_routes_df(
         routes_df=routes_df, plans_df=plans_df[[CircuitColumns.ID, CircuitColumns.TITLE]]
@@ -90,7 +93,7 @@ def _get_raw_plans(start_date: str, end_date: str) -> list[dict[str, Any]]:
         f"&filter.startsLte={end_date}"
     )
     logger.info(f"Getting route plans from {url} \n ...")
-    plans = _get_responses(url=url)
+    plans = _get_responses(base_url=url)
     logger.info("Finished getting route plans.")
     plans_list = _concat_response_pages(page_list=plans, data_key="plans")
     return plans_list
@@ -104,31 +107,31 @@ def _get_raw_plans(start_date: str, end_date: str) -> list[dict[str, Any]]:
 # NOTE: with_pydantic allows check of other params.
 @pa.check_types(with_pydantic=True, lazy=True)
 def _make_plans_df(
-    plans_df: DataFrame[CircuitPlansFromDict], staff: bool
+    plans_df: DataFrame[CircuitPlansFromDict], all_HHs: bool
 ) -> DataFrame[CircuitPlansOut]:
     """Make the plans DataFrame from the plans."""
     # What we'd do if not using from_format config:
     # plans_df = pd.DataFrame(plans_list)
 
-    routed_plans_mask = [isinstance(val, list) and len(val) > 0 for val in plans_df["routes"]]
-    plans_df = plans_df[routed_plans_mask]
-
-    # TODO: We could drop All HHs in a few ways:
-    # 0. Previous method: Filter by title: "All HHs" in the title.
-    # 1. Current method: Filter by driver ID, but what if they decided to drive one day?
+    # TODO: We could drop All HHs in a few ways that are more robust.
+    # 1. Filter by driver ID, but we'd need to exclude the staff that use their driver IDs
+    # to test things out, and what if they decided to drive one day?
     # (Make new driver ID if that ever happens.)
     # 2. Pass an external ID to filter on.
     # 3. Create a dummy driver ID for the "All HHs" route.
     # 4. Pass title filter once we're confident in the title because we uploaded it
     # programmatically.
     # Worst to best in order.
+    # TODO: Should probably do #1 anyway.
     # TODO: Validate in pandera schema: split into wrapper with separate schema.
     # Can update the validation once we select on different condition.
-    has_staff_driver = lambda driver_list: any(driver_dict.get("id") in STAFF_DRIVER_IDS for driver_dict in driver_list)
-    if staff:
-        plans_df = plans_df[plans_df[CircuitColumns.DRIVERS].apply(has_staff_driver)]
+    if all_HHs:
+        plans_df = plans_df[plans_df[CircuitColumns.TITLE].str.contains(ALL_HHS_DRIVER)]
     else:
-        plans_df = plans_df[~(plans_df[CircuitColumns.DRIVERS].apply(has_staff_driver))]
+        plans_df = plans_df[~(plans_df[CircuitColumns.TITLE].str.contains(ALL_HHS_DRIVER))]
+
+    routed_plans_mask = [isinstance(val, list) and len(val) > 0 for val in plans_df["routes"]]
+    plans_df = plans_df[routed_plans_mask]
 
     return plans_df
 
@@ -141,7 +144,7 @@ def _get_raw_stops_lists(plan_ids: list[str]) -> list[dict[str, Any]]:
         # https://developer.team.getcircuit.com/api#tag/Stops/operation/listStops
         url = f"https://api.getcircuit.com/public/v0.2b/{plan_id}/stops"
         logger.info(f"Getting route from {url} \n ...")
-        stops_lists = _get_responses(url=url)
+        stops_lists = _get_responses(base_url=url)
         logger.info("Finished getting route.")
         plan_stops_list += _concat_response_pages(
             page_list=stops_lists, data_key=CircuitColumns.STOPS
@@ -153,19 +156,10 @@ def _get_raw_stops_lists(plan_ids: list[str]) -> list[dict[str, Any]]:
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
 def _concat_routes_df(
-    plan_stops_list: list[dict[str, Any]], staff: bool
+    plan_stops_list: list[dict[str, Any]]
 ) -> DataFrame[CircuitRoutesConcatOut]:
     """Concatenate the routes DataFrames from the plan stops lists."""
     routes_df = pd.DataFrame(plan_stops_list)
-
-    routes_df = routes_df[routes_df[CircuitColumns.ROUTE].apply(lambda route_dict: (route_dict.get(CircuitColumns.DRIVER) in STAFF_DRIVER_IDS) == staff)]
-
-    routed_stops_mask = [
-        isinstance(val, dict) and len(val) > 0 and val.get(CircuitColumns.ID, "") != ""
-        for val in routes_df[CircuitColumns.ROUTE]
-    ]
-    routes_df = routes_df[routed_stops_mask]
-    
     routes_df = routes_df[
         [
             # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
@@ -181,6 +175,12 @@ def _concat_routes_df(
             CircuitColumns.PACKAGE_COUNT,
         ]
     ]
+
+    routed_stops_mask = [
+        isinstance(val, dict) and len(val) > 0 and val.get(CircuitColumns.ID, "") != ""
+        for val in routes_df[CircuitColumns.ROUTE]
+    ]
+    routes_df = routes_df[routed_stops_mask]
 
     return routes_df
 
@@ -201,7 +201,7 @@ def _transform_routes_df(
         how="left",
         validate="m:1",
     )
-    
+
     routes_df.rename(
         columns={
             # Plan title is upload/download sheet name.
@@ -219,7 +219,7 @@ def _transform_routes_df(
         lambda address_dict: address_dict.get(CircuitColumns.PLACE_ID)
     )
     routes_df = routes_df[routes_df[CircuitColumns.PLACE_ID] != DEPOT_PLACE_ID]
-    
+
     routes_df[IntermediateColumns.ROUTE_TITLE] = routes_df[CircuitColumns.ROUTE].apply(
         lambda route_dict: route_dict.get(CircuitColumns.TITLE)
     )
@@ -268,7 +268,7 @@ def _transform_routes_df(
     routes_df.sort_values(
         by=[IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO], inplace=True
     )
-    
+
     return routes_df
 
 
@@ -312,15 +312,15 @@ def _write_route_df(route_df: DataFrame[CircuitRoutesWriteOut], fp: Path) -> Non
 # TODO: Pass params instead of forming URL first.
 # (Would need to then grab params URL for next page?)
 @typechecked
-def _get_responses(url: str) -> list[dict[str, Any]]:
+def _get_responses(base_url: str) -> list[dict[str, Any]]:
     wait_seconds = RateLimits.READ_SECONDS
     next_page = ""
     responses = []
 
     while next_page is not None:
-        page_url = url + str(next_page)
+        url = base_url + str(next_page)
         response = requests.get(
-            page_url,
+            url,
             auth=HTTPBasicAuth(get_circuit_key(), ""),
             timeout=RateLimits.READ_TIMEOUT_SECONDS,
         )
@@ -336,7 +336,7 @@ def _get_responses(url: str) -> list[dict[str, Any]]:
                     "additional_notes": "No-JSON response.",
                     "No-JSON response exception:": str(e),
                 }
-            err_msg = f"Got {response.status_code} reponse for {page_url}: {response_dict}"
+            err_msg = f"Got {response.status_code} reponse for {url}: {response_dict}"
 
             if response.status_code == 429:
                 wait_seconds = wait_seconds * 2
@@ -352,7 +352,7 @@ def _get_responses(url: str) -> list[dict[str, Any]]:
             next_page = stops.get("nextPageToken", None)
 
         if next_page or response.status_code == 429:
-            token_prefix = "?" if "?" not in url else "&"
+            token_prefix = "?" if "?" not in base_url else "&"
             next_page = f"{token_prefix}pageToken={next_page}"
             sleep(wait_seconds)
 

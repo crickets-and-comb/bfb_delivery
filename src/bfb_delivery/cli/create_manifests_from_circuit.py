@@ -65,13 +65,14 @@ logger = logging.getLogger(__name__)
     ),
 )
 @click.option(
-    "--staff",
+    "--all_hhs",
     type=bool,
     required=False,
-    default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["staff"],
+    default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["all_HHs"],
     help=(
-        "Flag to get only the staff routes. (For testing, or running the long route.)"
-        "False gets all routes except staff, the usual use case."
+        'Flag to get only the "All HHs" route.'
+        'False gets all routes except "All HHs". True gets only the "All HHs" route.'
+        "NOTE: True returns email column in CSVs, for reuploading after splitting."
     ),
 )
 @click.option(
@@ -91,7 +92,7 @@ def main(
     output_dir: str,
     output_filename: str,
     circuit_output_dir: str,
-    staff: bool,
+    all_hhs: bool,
     extra_notes_file: str,
 ) -> str:
     """See public docstring.
@@ -105,7 +106,7 @@ def main(
         output_dir=output_dir,
         output_filename=output_filename,
         circuit_output_dir=circuit_output_dir,
-        staff=staff,
+        all_HHs=all_hhs,
         extra_notes_file=extra_notes_file,
     )
     logger.info(f"Formatted workbook saved to:\n{final_manifest_path.resolve()}")
