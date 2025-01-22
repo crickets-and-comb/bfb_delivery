@@ -14,7 +14,7 @@ from bfb_delivery.lib.schema.checks.field_checks import (
     at_least_two_words,
     contiguous,
     in_list_case_insensitive,
-    is_list_of_at_least_one,
+    is_list_of_one_or_less,
     is_sorted,
     item_in_field_dict,
 )

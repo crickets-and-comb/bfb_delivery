@@ -27,10 +27,12 @@ def in_list_case_insensitive(pandas_obj: pd.Series, *, category_list: list[str])
 
 
 @extensions.register_check_method(statistics=["flag"])
-def is_list_of_at_least_one(pandas_obj: pd.Series, flag: bool) -> bool:
-    """Check that a column is a list of at least one item."""
+def is_list_of_one_or_less(pandas_obj: pd.Series, flag: bool) -> bool:
+    """Check that a column is a list of one item."""
     return (
-        all(isinstance(val, list) and len(val) >= 1 for val in pandas_obj) if flag else True
+        all(isinstance(val, list) and 0 <= len(val) <= 1 for val in pandas_obj)
+        if flag
+        else True
     )
 
 
