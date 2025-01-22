@@ -176,7 +176,11 @@ def _concat_routes_df(
         ]
     ]
 
-    # TODO: Filter to routes stops here, though.
+    routed_stops_mask = [
+        isinstance(val, dict) and len(val) > 0 and val.get(CircuitColumns.ID, "") != ""
+        for val in routes_df[CircuitColumns.ROUTE]
+    ]
+    routes_df = routes_df[routed_stops_mask]
 
     return routes_df
 
