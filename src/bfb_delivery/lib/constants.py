@@ -1,7 +1,5 @@
 """Constants used in the project."""
 
-# TODO: Use case-sensitive ordering, i.e. separate classes and constants.
-
 from enum import StrEnum
 from typing import Final
 

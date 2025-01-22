@@ -327,6 +327,7 @@ class CircuitRoutesWriteOut(pa.DataFrameModel):
     address: Series[str] = ADDRESS_FIELD()
     phone: Series[str] = PHONE_FIELD()
     notes: Series[str] = NOTES_FIELD()
+    order_count: Series[float] = ORDER_COUNT_FIELD()
     box_type: Series[pa.Category] = BOX_TYPE_FIELD()
     neighborhood: Series[str] = NEIGHBORHOOD_FIELD()
     email: Series[str] = EMAIL_FIELD()

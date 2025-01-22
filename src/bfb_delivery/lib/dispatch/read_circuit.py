@@ -65,15 +65,11 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
         output_dir = os.getcwd() + "/routes_" + start_date
 
     plans_list = _get_raw_plans(start_date=start_date, end_date=end_date)
-    # TODO: Filter to only plans with routes to make sure we don't get plans that aren't
-    # routed. That would cause a validation problem when we check stops against routes.
     plans_df = _make_plans_df(plans_df=plans_list, all_HHs=all_HHs)
     del plans_list
     # TODO: Add external ID for delivery day so we can filter stops by it in request?
     # After taking over upload.
     plan_stops_list = _get_raw_stops_lists(plan_ids=plans_df[CircuitColumns.ID].tolist())
-    # TODO: Filter to only stops with a route id to ensure we don't get stops with a plan and
-    # no route. (I.e., not optimized and routed.)
     routes_df = _concat_routes_df(plan_stops_list=plan_stops_list)
 
     routes_df = _transform_routes_df(
@@ -199,8 +195,6 @@ def _transform_routes_df(
     plans_df: DataFrame[CircuitRoutesConcatInPlans],
 ) -> DataFrame[CircuitRoutesTransformOut]:
     """Transform the raw routes DataFrame."""
-    # TODO: Further Pandera validations could include each and every tx step.
-    # So, always make a new column for each tx and check column equality.
     routes_df = routes_df.merge(
         plans_df.copy().rename(columns={CircuitColumns.ID: "plan_id"}),
         left_on=CircuitColumns.PLAN,
@@ -236,7 +230,6 @@ def _transform_routes_df(
     routes_df[Columns.NAME] = routes_df[CircuitColumns.RECIPIENT].apply(
         lambda recipient_dict: recipient_dict.get(CircuitColumns.NAME)
     )
-    # TODO: Split into helper to validate not null addressLineOne and addressLineTwo.
     routes_df[CircuitColumns.ADDRESS_LINE_1] = routes_df[Columns.ADDRESS].apply(
         lambda address_dict: address_dict.get(CircuitColumns.ADDRESS_LINE_1)
     )
