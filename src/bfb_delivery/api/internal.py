@@ -41,6 +41,7 @@ def create_manifests_from_circuit(
     output_filename: str,
     circuit_output_dir: str,
     all_HHs: bool,
+    verbose: bool,
     extra_notes_file: str,
 ) -> Path:
     """See public docstring.
@@ -52,6 +53,7 @@ def create_manifests_from_circuit(
         end_date=end_date,
         output_dir=circuit_output_dir,
         all_HHs=all_HHs,
+        verbose=verbose,
     )
     formatted_manifest_path = sheet_shaping.create_manifests(
         input_dir=input_dir,

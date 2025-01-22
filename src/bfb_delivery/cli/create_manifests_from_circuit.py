@@ -66,14 +66,19 @@ logger = logging.getLogger(__name__)
 )
 @click.option(
     "--all_hhs",
-    type=bool,
-    required=False,
+    is_flag=True,
     default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["all_HHs"],
     help=(
         'Flag to get only the "All HHs" route.'
         'False gets all routes except "All HHs". True gets only the "All HHs" route.'
         "NOTE: True returns email column in CSVs, for reuploading after splitting."
     ),
+)
+@click.option(
+    "--verbose",
+    is_flag=True,
+    default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["verbose"],
+    help="verbose: Flag to print verbose output.",
 )
 @click.option(
     "--extra_notes_file",
@@ -93,6 +98,7 @@ def main(
     output_filename: str,
     circuit_output_dir: str,
     all_hhs: bool,
+    verbose: bool,
     extra_notes_file: str,
 ) -> str:
     """See public docstring.
@@ -107,6 +113,7 @@ def main(
         output_filename=output_filename,
         circuit_output_dir=circuit_output_dir,
         all_HHs=all_hhs,
+        verbose=verbose,
         extra_notes_file=extra_notes_file,
     )
     logger.info(f"Formatted workbook saved to:\n{final_manifest_path.resolve()}")

@@ -41,7 +41,9 @@ logger = logging.getLogger(__name__)
 
 
 @typechecked
-def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bool) -> str:
+def get_route_files(
+    start_date: str, end_date: str, output_dir: str, all_HHs: bool, verbose: bool
+) -> str:
     """Get the route files for the given date.
 
     Args:
@@ -54,6 +56,7 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
             If the directory does not exist, it is created. If it exists, it is overwritten.
         all_HHs: Flag to get only the "All HHs" route.
             False gets all routes except "All HHs". True gets only the "All HHs" route.
+        verbose: Flag to print verbose output.
 
     Returns:
         The path to the route files.
@@ -69,14 +72,14 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
     if not output_dir:
         output_dir = os.getcwd() + "/routes_" + start_date
 
-    plans_list = _get_raw_plans(start_date=start_date, end_date=end_date)
-
+    plans_list = _get_raw_plans(start_date=start_date, end_date=end_date, verbose=verbose)
     plans_df = _make_plans_df(plans_list=plans_list, all_HHs=all_HHs)
     del plans_list
     # TODO: Add external ID for delivery day so we can filter stops by it in request?
     # After taking over upload.
-    plan_stops_list = _get_raw_stops_lists(plan_ids=plans_df[CircuitColumns.ID].tolist())
-
+    plan_stops_list = _get_raw_stops_lists(
+        plan_ids=plans_df[CircuitColumns.ID].tolist(), verbose=verbose
+    )
     routes_df = _transform_routes_df(plan_stops_list=plan_stops_list, plans_df=plans_df)
     _write_routes_dfs(routes_df=routes_df, output_dir=Path(output_dir))
 
@@ -84,14 +87,16 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
 
 
 @typechecked
-def _get_raw_plans(start_date: str, end_date: str) -> list[dict[str, Any]]:
+def _get_raw_plans(start_date: str, end_date: str, verbose: bool) -> list[dict[str, Any]]:
     """Call Circuit API to get the plans for the given date."""
     url = (
         "https://api.getcircuit.com/public/v0.2b/plans"
         f"?filter.startsGte={start_date}"
         f"&filter.startsLte={end_date}"
     )
-    logger.info(f"Getting route plans from {url} \n ...")
+    logger.info("Getting route plans from Circuit ...")
+    if verbose:
+        logger.info(f"Getting route plans from {url} ...")
     plans = _get_responses(url=url)
     logger.info("Finished getting route plans.")
     plans_list = _concat_response_pages(page_list=plans, data_key="plans")
@@ -178,13 +183,15 @@ def _make_plans_df(
 
 
 @typechecked
-def _get_raw_stops_lists(plan_ids: list[str]) -> list[dict[str, Any]]:
+def _get_raw_stops_lists(plan_ids: list[str], verbose: bool) -> list[dict[str, Any]]:
     """Get the raw stops list from Circuit."""
     plan_stops_list = []
+    logging.info("Getting stops from Circuit ...")
     for plan_id in plan_ids:
         # https://developer.team.getcircuit.com/api#tag/Stops/operation/listStops
         url = f"https://api.getcircuit.com/public/v0.2b/{plan_id}/stops"
-        logger.info(f"Getting stops from {url} \n ...")
+        if verbose:
+            logger.info(f"Getting stops from {url} ...")
         stops_lists = _get_responses(url=url)
         plan_stops_list += _concat_response_pages(
             page_list=stops_lists, data_key=CircuitColumns.STOPS

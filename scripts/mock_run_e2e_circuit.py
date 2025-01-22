@@ -58,14 +58,16 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
 )
 @click.option(
     "--all_hhs",
-    type=bool,
-    required=False,
+    is_flag=True,
     default=False,
     help=(
         'Flag to get only the "All HHs" route.'
         'False gets all routes except "All HHs". True gets only the "All HHs" route.'
         "NOTE: True returns email column in CSV, for reuploading after splitting."
     ),
+)
+@click.option(
+    "--verbose", is_flag=True, default=False, help="verbose: Flag to print verbose output."
 )
 @click.option(
     "--mock_raw_plans",
@@ -89,8 +91,7 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
 )
 @click.option(
     "--use_public",
-    type=bool,
-    required=False,
+    is_flag=True,
     default=False,
     help=(
         "Use the public API instead of walking through internal helpers. "
@@ -101,6 +102,7 @@ def main(  # noqa: C901
     start_date: str,
     end_date: str,
     all_hhs: bool,
+    verbose: bool,
     mock_raw_plans: bool,
     mock_raw_routes: bool,
     use_public: bool,
@@ -132,7 +134,9 @@ def main(  # noqa: C901
         if end_date:
             args_list += ["--end_date", end_date]
         if all_hhs:
-            args_list += ["--all_hhs", str(all_hhs).lower()]
+            args_list += ["--all_hhs"]
+        if verbose:
+            args_list += ["--verbose"]
         result = subprocess.run(["create_manifests_from_circuit"] + args_list)
         print(f"result: {result}")
 
@@ -142,7 +146,9 @@ def main(  # noqa: C901
             start_date = start_date if start_date else get_friday(fmt="%Y%m%d")
             end_date = end_date if end_date else start_date
 
-            plans_list = _get_raw_plans(start_date=start_date, end_date=end_date)
+            plans_list = _get_raw_plans(
+                start_date=start_date, end_date=end_date, verbose=verbose
+            )
             # with open(".test_data/sample_responses/plans_list.json", "w") as f:
             #     json.dump(plans_list, f, indent=4)
 

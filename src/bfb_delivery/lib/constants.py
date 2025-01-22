@@ -114,12 +114,13 @@ class Defaults:
         "extra_notes_file": "",
     }
     CREATE_MANIFESTS_FROM_CIRCUIT: Final[dict[str, str | bool]] = {
-        "all_HHs": False,
         "start_date": "",
         "end_date": "",
         "output_dir": CREATE_MANIFESTS["output_dir"],
         "output_filename": CREATE_MANIFESTS["output_filename"],
         "circuit_output_dir": "",
+        "all_HHs": False,
+        "verbose": False,
         "extra_notes_file": CREATE_MANIFESTS["extra_notes_file"],
     }
     FORMAT_COMBINED_ROUTES: Final[dict[str, str]] = {
