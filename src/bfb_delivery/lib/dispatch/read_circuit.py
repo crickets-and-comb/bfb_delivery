@@ -122,12 +122,20 @@ def _make_plans_df(
     # 4. Pass title filter once we're confident in the title because we uploaded it
     # programmatically.
     # Worst to best in order.
-    # TODO: Validate in pandera schema: split into wrapper with separate schema.
-    # Can update the validation once we select on different condition.
     if all_HHs:
-        plans_df = plans_df[plans_df[CircuitColumns.TITLE].str.contains(ALL_HHS_DRIVER)]
+        plans_df = plans_df[
+            [
+                ALL_HHS_DRIVER.upper() in title.upper()
+                for title in plans_df[CircuitColumns.TITLE]
+            ]
+        ]
     else:
-        plans_df = plans_df[~(plans_df[CircuitColumns.TITLE].str.contains(ALL_HHS_DRIVER))]
+        plans_df = plans_df[
+            [
+                ALL_HHS_DRIVER.upper() not in title.upper()
+                for title in plans_df[CircuitColumns.TITLE]
+            ]
+        ]
 
     routed_plans_mask = [isinstance(val, list) and len(val) > 0 for val in plans_df["routes"]]
     plans_df = plans_df[routed_plans_mask]
