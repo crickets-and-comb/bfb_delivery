@@ -439,6 +439,8 @@ def _set_routes_df_values(routes_df: pd.DataFrame) -> pd.DataFrame:
         + routes_df[CircuitColumns.ADDRESS_LINE_2]  # noqa: W503
     )
 
+    _split_multi_route_drivers(routes_df=routes_df)
+
     return routes_df
 
 
@@ -478,3 +480,31 @@ def _warn_and_impute(routes_df: pd.DataFrame) -> None:
         ),
         axis=1,
     )
+
+
+@typechecked
+def _split_multi_route_drivers(routes_df: pd.DataFrame) -> None:
+    """If a driver sheet name has multiple routes, split them into separate sheet names."""
+    many_routes_to_one_driver = routes_df.groupby(IntermediateColumns.DRIVER_SHEET_NAME)[
+        CircuitColumns.ROUTE
+    ].nunique()
+    many_routes_to_one_driver = many_routes_to_one_driver[
+        many_routes_to_one_driver > 1
+    ].index.tolist()
+    for sheet_name in many_routes_to_one_driver:
+        routes = routes_df[routes_df[IntermediateColumns.DRIVER_SHEET_NAME] == sheet_name][
+            CircuitColumns.ROUTE
+        ].unique()
+        route_count = len(routes)
+        logger.warning(
+            f'Manifest "{sheet_name}" has {route_count} routes. '  # noqa: B907
+            f'Renaming them to "{sheet_name} #<1-{route_count}>"'
+        )
+        for i, route in enumerate(routes):
+            for title_col in [
+                IntermediateColumns.DRIVER_SHEET_NAME,
+                IntermediateColumns.ROUTE_TITLE,
+            ]:
+                routes_df.loc[routes_df[CircuitColumns.ROUTE] == route, title_col] = (
+                    f"{sheet_name} #{i + 1}"
+                )
