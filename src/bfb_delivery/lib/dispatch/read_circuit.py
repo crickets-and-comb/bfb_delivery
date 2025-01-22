@@ -255,10 +255,8 @@ def _transform_routes_df(
 
     # TODO: Verify we want to warn/raise/impute.
     # Give plan ID and instruct to download the routes from Circuit.
-    # TODO: Validate that not null.
     _warn_and_impute(routes_df=routes_df)
 
-    # TODO: Move this ahead of warning and imputing.
     routes_df[Columns.ADDRESS] = (
         routes_df[CircuitColumns.ADDRESS_LINE_1]
         + ", "  # noqa: W503
@@ -309,7 +307,7 @@ def _write_route_df(route_df: DataFrame[CircuitRoutesWriteOut], fp: Path) -> Non
     route_df.to_csv(fp, index=False)
 
 
-# TODO: Pass params instead of forming URL first.
+# TODO: Pass params instead of forming URL first. ("params", not "json")
 # (Would need to then grab params URL for next page?)
 @typechecked
 def _get_responses(url: str) -> list[dict[str, Any]]:
@@ -382,7 +380,6 @@ def _warn_and_impute(routes_df: pd.DataFrame) -> None:
     routes_df[Columns.ORDER_COUNT] = routes_df[Columns.ORDER_COUNT].fillna(1)
 
     # TODO: Verify we want to do this. Ask, if we want to just overwrite the neighborhood.
-    # TODO: Handle if neighborhood is missing from address, too.
     missing_neighborhood = routes_df[Columns.NEIGHBORHOOD].isna()
     if missing_neighborhood.any():
         logger.warning(

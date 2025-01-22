@@ -51,7 +51,6 @@ class CircuitPlansOut(pa.DataFrameModel):
     """
 
     # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
-    # TODO: Use ID field and pass unique
     id: Series[str] = PLAN_ID_FIELD(unique=True, alias=CircuitColumns.ID)
     # e.g. "1.17 Andy W":
     title: Series[str] = TITLE_FIELD(alias=CircuitColumns.TITLE)
@@ -82,8 +81,6 @@ class CircuitRoutesConcatOut(pa.DataFrameModel):
 
     bfb_delivery.lib.dispatch.read_circuit._concat_routes_df output.
     """
-
-    # TODO: Validate single box count and single type.
 
     plan: Series[str] = PLAN_ID_FIELD(alias=CircuitColumns.PLAN)
     route: Series[dict[str, Any]] = ROUTE_FIELD(item_in_field_dict=CircuitColumns.ID)
