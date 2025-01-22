@@ -156,6 +156,7 @@ def _get_raw_stops_lists(plan_ids: list[str]) -> list[dict[str, Any]]:
     return plan_stops_list
 
 
+# TODO: Just do all this in tx.
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
 def _concat_routes_df(
@@ -179,12 +180,6 @@ def _concat_routes_df(
         ]
     ]
 
-    routed_stops_mask = [
-        isinstance(val, dict) and len(val) > 0 and val.get(CircuitColumns.ID, "") != ""
-        for val in routes_df[CircuitColumns.ROUTE]
-    ]
-    routes_df = routes_df[routed_stops_mask]
-
     return routes_df
 
 
@@ -195,6 +190,12 @@ def _transform_routes_df(
     plans_df: DataFrame[CircuitRoutesConcatInPlans],
 ) -> DataFrame[CircuitRoutesTransformOut]:
     """Transform the raw routes DataFrame."""
+    routed_stops_mask = [
+        isinstance(route_dict, dict) and route_dict.get(CircuitColumns.ID, "") != ""
+        for route_dict in routes_df[CircuitColumns.ROUTE]
+    ]
+    routes_df = routes_df[routed_stops_mask]
+
     routes_df = routes_df.merge(
         plans_df.copy().rename(columns={CircuitColumns.ID: "plan_id"}),
         left_on=CircuitColumns.PLAN,
@@ -215,6 +216,7 @@ def _transform_routes_df(
         inplace=True,
     )
 
+    # TODO: Move this filter above the rename and merge.
     # Drop depot.
     routes_df[CircuitColumns.PLACE_ID] = routes_df[Columns.ADDRESS].apply(
         lambda address_dict: address_dict.get(CircuitColumns.PLACE_ID)
