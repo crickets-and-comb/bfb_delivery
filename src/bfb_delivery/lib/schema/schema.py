@@ -44,11 +44,10 @@ STOP_ID_FIELD = partial(
 STOP_NO_FIELD = partial(_COERCE_FIELD, ge=1, alias=Columns.STOP_NO)
 
 
-# TODO: Swap these and validate filter on out.
-class CircuitPlansOut(pa.DataFrameModel):
-    """The schema for the Circuit plans data.
+class CircuitPlansFromDict(pa.DataFrameModel):
+    """The schema for the Circuit plans data from a JSON-esque dict.
 
-    bfb_delivery.lib.dispatch.read_circuit._make_plans_df output.
+    bfb_delivery.lib.dispatch.read_circuit._make_plans_df input.
     """
 
     # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
@@ -57,17 +56,22 @@ class CircuitPlansOut(pa.DataFrameModel):
     title: Series[str] = TITLE_FIELD(alias=CircuitColumns.TITLE)
     routes: Series[list[str]] = _COERCE_FIELD(is_list_of_at_least_one=True)
 
+    class Config:
+        """The configuration for the schema."""
 
-class CircuitPlansFromDict(CircuitPlansOut):
-    """The schema for the Circuit plans data from a JSON-esque dict.
+        from_format = "dict"
 
-    bfb_delivery.lib.dispatch.read_circuit._make_plans_df input.
+
+class CircuitPlansOut(CircuitPlansFromDict):
+    """The schema for the Circuit plans data.
+
+    bfb_delivery.lib.dispatch.read_circuit._make_plans_df output.
     """
 
     class Config:
         """The configuration for the schema."""
 
-        from_format = "dict"
+        from_format = None
 
 
 class CircuitPlansTransformIn(CircuitPlansOut):

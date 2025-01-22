@@ -117,6 +117,7 @@ def _make_plans_df(
     # 4. Pass title filter once we're confident in the title because we uploaded it
     # programmatically.
     # Worst to best in order.
+    # TODO: Set validation once we've settled on filter method.
     if all_HHs:
         plans_df = plans_df[
             [
