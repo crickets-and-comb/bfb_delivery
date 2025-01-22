@@ -57,6 +57,12 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
 
     Returns:
         The path to the route files.
+
+    Raises:
+        ValueError: If no plans are found for the given date range.
+        ValueError: If no plans with routes are found.
+        ValueError: If no stops are found for the given plans.
+        ValueError: If no routed stops are found for the given plans.
     """
     start_date = start_date if start_date else get_friday(fmt="%Y%m%d")
     end_date = end_date if end_date else start_date
@@ -64,6 +70,7 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
         output_dir = os.getcwd() + "/routes_" + start_date
 
     plans_list = _get_raw_plans(start_date=start_date, end_date=end_date)
+
     plans_df = _make_plans_df(plans_df=plans_list, all_HHs=all_HHs)
     del plans_list
     # TODO: Add external ID for delivery day so we can filter stops by it in request?
@@ -88,6 +95,9 @@ def _get_raw_plans(start_date: str, end_date: str) -> list[dict[str, Any]]:
     plans = _get_responses(url=url)
     logger.info("Finished getting route plans.")
     plans_list = _concat_response_pages(page_list=plans, data_key="plans")
+
+    if not plans_list:
+        raise ValueError(f"No plans found for {start_date} to {end_date}.")
     return plans_list
 
 
@@ -115,7 +125,9 @@ def _make_plans_df(
     # programmatically.
     # Worst to best in order.
     # TODO: Set validation once we've settled on filter method.
+    plan_count = len(plans_df)
     if all_HHs:
+        logger.info(f'Getting only the "{ALL_HHS_DRIVER}" plan.')  # noqa: B907
         plans_df = plans_df[
             [
                 ALL_HHS_DRIVER.upper() in title.upper()
@@ -123,15 +135,42 @@ def _make_plans_df(
             ]
         ]
     else:
+        logger.info(f'Getting all plans except "{ALL_HHS_DRIVER}".')  # noqa: B907
         plans_df = plans_df[
             [
                 ALL_HHS_DRIVER.upper() not in title.upper()
                 for title in plans_df[CircuitColumns.TITLE]
             ]
         ]
+    dropped_count = plan_count - len(plans_df)
+    if not all_HHs and dropped_count != 1:
+        logger.warning(f"Dropped {dropped_count} plans.")
+    elif dropped_count:
+        logger.info(f"Dropped {dropped_count} plan.")
+    else:
+        logger.info("Dropped no plans.")
 
+    plan_count = len(plans_df)
+    if all_HHs and plan_count != 1:
+        logger.warning(
+            f'Got {plan_count} "{ALL_HHS_DRIVER}" plans. Expected 1.'  # noqa: B907
+        )
+
+    logger.info("Filtering out plans with no routes.")
+    plan_count = len(plans_df)
     routed_plans_mask = [isinstance(val, list) and len(val) > 0 for val in plans_df["routes"]]
     plans_df = plans_df[routed_plans_mask]
+    dropped_count = plan_count - len(plans_df)
+    if dropped_count:
+        logger.warning(f"Dropped {dropped_count} plans without routes.")
+    else:
+        logger.info("Dropped no plans.")
+
+    plan_count = len(plans_df)
+    if not plan_count:
+        raise ValueError("No routes found for the given date range.")
+    else:
+        logger.info(f"Left with {plan_count} plans.")
 
     plans_df = plans_df[[CircuitColumns.ID, CircuitColumns.TITLE]]
 
@@ -151,6 +190,9 @@ def _get_raw_stops_lists(plan_ids: list[str]) -> list[dict[str, Any]]:
         plan_stops_list += _concat_response_pages(
             page_list=stops_lists, data_key=CircuitColumns.STOPS
         )
+
+    if not plan_stops_list:
+        raise ValueError(f"No stops found for plans {plan_ids}.")
 
     return plan_stops_list
 
@@ -311,16 +353,33 @@ def _pare_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
         ]
     ]
 
+    logger.info("Filtering out stops without routes.")
+    stop_count = len(routes_df)
     routed_stops_mask = [
         isinstance(route_dict, dict) and route_dict.get(CircuitColumns.ID, "") != ""
         for route_dict in routes_df[CircuitColumns.ROUTE]
     ]
     routes_df = routes_df[routed_stops_mask]
+    dropped_count = stop_count - len(routes_df)
+    if dropped_count:
+        logger.warning(f"Dropped {dropped_count} stops without routes.")
+    else:
+        logger.info("Dropped no stops.")
 
+    logger.info("Filtering out depot stops.")
+    stop_count = len(routes_df)
     routes_df[CircuitColumns.PLACE_ID] = routes_df[CircuitColumns.ADDRESS].apply(
         lambda address_dict: address_dict.get(CircuitColumns.PLACE_ID)
     )
     routes_df = routes_df[routes_df[CircuitColumns.PLACE_ID] != DEPOT_PLACE_ID]
+    dropped_count = stop_count - len(routes_df)
+    logger.info(f"Dropped {dropped_count} stops.")
+
+    stop_count = len(routes_df)
+    if not stop_count:
+        raise ValueError("No routed stops found for the given plans.")
+    else:
+        logger.info(f"Left with {stop_count} routed stops.")
 
     return routes_df
 
