@@ -44,34 +44,36 @@ STOP_ID_FIELD = partial(
 STOP_NO_FIELD = partial(_COERCE_FIELD, ge=1, alias=Columns.STOP_NO)
 
 
-class CircuitPlansFromDict(pa.DataFrameModel):
-    """The schema for the Circuit plans data from a JSON-esque dict.
+class CircuitPlansOut(pa.DataFrameModel):
+    """The schema for the Circuit plans data.
 
-    bfb_delivery.lib.dispatch.read_circuit._make_plans_df input.
+    bfb_delivery.lib.dispatch.read_circuit._make_plans_df output.
     """
 
     # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
     id: Series[str] = PLAN_ID_FIELD(unique=True, alias=CircuitColumns.ID)
     # e.g. "1.17 Andy W":
     title: Series[str] = TITLE_FIELD(alias=CircuitColumns.TITLE)
+
+    class Config:
+        """The configuration for the schema."""
+
+        strict = True
+
+
+class CircuitPlansFromDict(CircuitPlansOut):
+    """The schema for the Circuit plans data from a JSON-esque dict.
+
+    bfb_delivery.lib.dispatch.read_circuit._make_plans_df input.
+    """
+
     routes: Series[list[str]] = _COERCE_FIELD(is_list_of_at_least_one=True)
 
     class Config:
         """The configuration for the schema."""
 
         from_format = "dict"
-
-
-class CircuitPlansOut(CircuitPlansFromDict):
-    """The schema for the Circuit plans data.
-
-    bfb_delivery.lib.dispatch.read_circuit._make_plans_df output.
-    """
-
-    class Config:
-        """The configuration for the schema."""
-
-        from_format = None
+        strict = False
 
 
 class CircuitPlansTransformIn(CircuitPlansOut):

@@ -70,10 +70,7 @@ def get_route_files(start_date: str, end_date: str, output_dir: str, all_HHs: bo
     # After taking over upload.
     plan_stops_list = _get_raw_stops_lists(plan_ids=plans_df[CircuitColumns.ID].tolist())
 
-    routes_df = _transform_routes_df(
-        plan_stops_list=plan_stops_list,
-        plans_df=plans_df[[CircuitColumns.ID, CircuitColumns.TITLE]],
-    )
+    routes_df = _transform_routes_df(plan_stops_list=plan_stops_list, plans_df=plans_df)
     _write_routes_dfs(routes_df=routes_df, output_dir=Path(output_dir))
 
     return output_dir
@@ -135,6 +132,8 @@ def _make_plans_df(
 
     routed_plans_mask = [isinstance(val, list) and len(val) > 0 for val in plans_df["routes"]]
     plans_df = plans_df[routed_plans_mask]
+
+    plans_df = plans_df[[CircuitColumns.ID, CircuitColumns.TITLE]]
 
     return plans_df
 
