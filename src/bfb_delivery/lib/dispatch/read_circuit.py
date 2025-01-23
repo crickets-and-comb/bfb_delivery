@@ -76,7 +76,7 @@ def get_route_files(
     plans_df = _make_plans_df(plans_list=plans_list, all_HHs=all_HHs)
     # TODO: Add external ID for delivery day so we can filter stops by it in request?
     # After taking over upload.
-    plan_stops_list = _get_raw_stops_lists(
+    plan_stops_list = _get_raw_stops(
         plan_ids=plans_df[CircuitColumns.ID].tolist(), verbose=verbose
     )
     routes_df = _transform_routes_df(plan_stops_list=plan_stops_list, plans_df=plans_df)
@@ -96,7 +96,7 @@ def _get_raw_plans(start_date: str, end_date: str, verbose: bool) -> list[dict[s
     logger.info("Getting route plans from Circuit ...")
     if verbose:
         logger.info(f"Getting route plans from {url} ...")
-    plans = _get_responses(url=url)
+    plans = _get_plan_responses(url=url)
     logger.info("Finished getting route plans.")
     plans_list = _concat_response_pages(page_list=plans, data_key="plans")
 
@@ -182,24 +182,35 @@ def _make_plans_df(
 
 
 @typechecked
-def _get_raw_stops_lists(plan_ids: list[str], verbose: bool) -> list[dict[str, Any]]:
+def _get_raw_stops(plan_ids: list[str], verbose: bool) -> list[dict[str, Any]]:
     """Get the raw stops list from Circuit."""
+    logger.info("Getting stops from Circuit ...")
+    stops_lists_list = _get_raw_stops_list(plan_ids=plan_ids, verbose=verbose)
+    logger.info("Finished getting stops.")
+
     plan_stops_list = []
-    logging.info("Getting stops from Circuit ...")
+    for stop_lists in stops_lists_list:
+        plan_stops_list += _concat_response_pages(
+            page_list=stop_lists, data_key=CircuitColumns.STOPS
+        )
+    if not plan_stops_list:
+        raise ValueError(f"No stops found for plans {plan_ids}.")
+
+    return plan_stops_list
+
+
+@typechecked
+def _get_raw_stops_list(plan_ids: list[str], verbose: bool) -> list[Any]:
+    stops_lists_list = []
     for plan_id in plan_ids:
         # https://developer.team.getcircuit.com/api#tag/Stops/operation/listStops
         url = f"https://api.getcircuit.com/public/v0.2b/{plan_id}/stops"
         if verbose:
             logger.info(f"Getting stops from {url} ...")
-        stops_lists = _get_responses(url=url)
-        plan_stops_list += _concat_response_pages(
-            page_list=stops_lists, data_key=CircuitColumns.STOPS
-        )
-    logger.info("Finished getting stops.")
-    if not plan_stops_list:
-        raise ValueError(f"No stops found for plans {plan_ids}.")
+        stops_lists = _get_stops_responses(url=url)
+        stops_lists_list.append(stops_lists)
 
-    return plan_stops_list
+    return stops_lists_list
 
 
 @schema_error_handler
@@ -276,6 +287,16 @@ def _write_routes_dfs(routes_df: DataFrame[CircuitRoutesWriteIn], output_dir: Pa
 @pa.check_types(with_pydantic=True, lazy=True)
 def _write_route_df(route_df: DataFrame[CircuitRoutesWriteOut], fp: Path) -> None:
     route_df.to_csv(fp, index=False)
+
+
+@typechecked
+def _get_plan_responses(url: str) -> list[dict[str, Any]]:
+    return _get_responses(url=url)
+
+
+@typechecked
+def _get_stops_responses(url: str) -> list[dict[str, Any]]:
+    return _get_responses(url=url)
 
 
 # TODO: Pass params instead of forming URL first. ("params", not "json")
