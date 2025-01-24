@@ -19,8 +19,11 @@ from bfb_delivery.cli import (
 )
 from bfb_delivery.lib.constants import (
     ALL_HHS_DRIVER,
+    BOX_TYPE_COLOR_MAP,
     FILE_DATE_FORMAT,
     FORMATTED_ROUTES_COLUMNS,
+    NOTES_COLUMN_WIDTH,
+    BoxType,
     CellColors,
     Columns,
 )
@@ -29,6 +32,8 @@ from bfb_delivery.lib.formatting.data_cleaning import (
     _format_and_validate_name,
     _format_and_validate_phone,
 )
+from bfb_delivery.lib.formatting.sheet_shaping import _aggregate_route_data
+from bfb_delivery.lib.formatting.utils import get_extra_notes
 
 TEST_START_DATE: Final[str] = "2025-01-17"
 MANIFEST_DATE: Final[str] = "1.17"
@@ -437,3 +442,110 @@ class TestCreateManifestsFromCircuit:
             driver_name = sheet_name.replace(f"{MANIFEST_DATE} ", "")
             assert ws["A5"].value == f"Driver: {driver_name}"
             assert driver_name.upper() in drivers
+
+    def test_agg_cells(
+        self, basic_manifest_workbook: Workbook, basic_outputs: tuple[Path, Path]
+    ) -> None:
+        """Test that the aggregated cells are correct."""
+        for sheet_name in sorted(basic_manifest_workbook.sheetnames):
+            input_df = pd.read_csv(basic_outputs[1] / f"{sheet_name}.csv")
+            ws = basic_manifest_workbook[sheet_name]
+
+            input_df.rename(columns={Columns.PRODUCT_TYPE: Columns.BOX_TYPE}, inplace=True)
+            agg_dict = _aggregate_route_data(
+                df=input_df, extra_notes_df=get_extra_notes(file_path="")
+            )
+
+            neighborhoods = ", ".join(agg_dict["neighborhoods"])
+            assert ws["A7"].value == f"Neighborhoods: {neighborhoods.upper()}"
+            assert ws["E3"].value == BoxType.BASIC
+            assert ws["F3"].value == agg_dict["box_counts"][BoxType.BASIC]
+            assert ws["E4"].value == BoxType.GF
+            assert ws["F4"].value == agg_dict["box_counts"][BoxType.GF]
+            assert ws["E5"].value == BoxType.LA
+            assert ws["F5"].value == agg_dict["box_counts"][BoxType.LA]
+            assert ws["E6"].value == BoxType.VEGAN
+            assert ws["F6"].value == agg_dict["box_counts"][BoxType.VEGAN]
+            assert ws["E7"].value == "TOTAL BOX COUNT="
+            assert ws["F7"].value == agg_dict["total_box_count"]
+            assert ws["E8"].value == "PROTEIN COUNT="
+            assert ws["F8"].value == agg_dict["protein_box_count"]
+
+    def test_box_type_cell_colors(self, basic_manifest_workbook: Workbook) -> None:
+        """Test that the box type cells conditionally formatted with fill color."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            for cell in ws["F"]:
+                if cell.row > 9:
+                    assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
+            for cell in ws["E"]:
+                if cell.row > 2 and cell.row < 7:
+                    assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
+
+    def test_notes_column_width(self, basic_manifest_workbook: Workbook) -> None:
+        """Test that the notes column width is correct."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            assert ws["E9"].value == Columns.NOTES
+            assert ws.column_dimensions["E"].width == NOTES_COLUMN_WIDTH
+
+    @pytest.mark.parametrize(
+        "cell",
+        [
+            # Header row.
+            "A1",
+            "B1",
+            "C1",
+            "D1",
+            "E1",
+            "F1",
+            # Aggregated data.
+            "A3",
+            "A5",
+            "A7",
+            "E3",
+            "E4",
+            "E5",
+            "E6",
+            "E7",
+            "E8",
+            "F3",
+            "F4",
+            "F5",
+            "F6",
+            "F7",
+            "F8",
+            # Data header.
+            "A9",
+            "B9",
+            "C9",
+            "D9",
+            "E9",
+            "F9",
+        ],
+    )
+    def test_bold_cells(self, cell: str, basic_manifest_workbook: Workbook) -> None:
+        """Test that the cells are bold."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            assert ws[cell].font.bold
+
+    def test_cell_right_alignment(self, basic_manifest_workbook: Workbook) -> None:
+        """Test right-aligned cells."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            right_aligned_cells = [ws["D1"], ws["F1"]] + [
+                cell for row in ws["E3:F8"] for cell in row
+            ]
+            for cell in right_aligned_cells:
+                assert cell.alignment.horizontal == "right"
+
+    def test_cell_left_alignment(self, basic_manifest_workbook: Workbook) -> None:
+        """Test left-aligned cells."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            left_aligned_cells = [cell for row in ws["A1:A8"] for cell in row] + [
+                cell for row in ws["A9:F9"] for cell in row
+            ]
+            for cell in left_aligned_cells:
+                assert cell.alignment.horizontal == "left"
