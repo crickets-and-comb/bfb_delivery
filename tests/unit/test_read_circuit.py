@@ -78,6 +78,35 @@ def mock_stops_responses_all_hhs_false() -> (
         return json.load(f)
 
 
+# @pytest.fixture(scope="class")
+# @typechecked
+# def mock_basic_stops_responses() -> (
+#     list[
+#         list[
+#             dict[
+#                 str,
+#                 str
+#                 | list[
+#                     dict[
+#                         str,
+#                         str
+#                         | int
+#                         | dict[
+#                             str, str | int | dict[str, str | int | list[str] | None] | None
+#                         ]
+#                         | None,
+#                     ]
+#                 ]
+#                 | None,
+#             ]
+#         ]
+#     ]
+# ):
+#     """Return a list of stops responses, as from _get_raw_stops_list."""
+#     with open("tests/unit/fixtures/stops_responses.json") as f:
+#         return json.load(f)
+
+
 @pytest.fixture()
 @typechecked
 def mock_stops_responses_all_hhs_true() -> (
@@ -165,27 +194,13 @@ def mock_driver_sheet_names_all_hhs_true(
     for page_dict in mock_plan_responses:
         for plan_dict in page_dict["plans"]:
             if (
-                isinstance(plan_dict, dict)  # To satisisfy pytype.
-                and isinstance(plan_dict["title"], str)  # To satisisfy pytype.
+                isinstance(plan_dict, dict)  # To satisfy pytype.
+                and isinstance(plan_dict["title"], str)  # To satisfy pytype.
                 and ALL_HHS_DRIVER in plan_dict["title"]
             ):
                 driver_sheet_names.append(plan_dict["title"])
 
     return driver_sheet_names
-
-
-@pytest.fixture()
-def mock_phonenumbers_parse() -> Iterator[None]:
-    """Mock phonenumbers.parse."""
-    with patch("phonenumbers.parse", side_effect=lambda x, *_: x):
-        yield
-
-
-@pytest.fixture()
-def mock_phonenumbers_is_valid_number() -> Iterator[None]:
-    """Mock phonenumbers.is_valid_number."""
-    with patch("phonenumbers.is_valid_number", return_value=True):
-        yield
 
 
 @pytest.fixture()
@@ -198,8 +213,6 @@ def mock_os_getcwd(tmp_path: Path) -> Iterator[str]:
 
 @pytest.mark.usefixtures(
     "mock_get_plan_responses",
-    "mock_phonenumbers_parse",
-    "mock_phonenumbers_is_valid_number",
     "mock_os_getcwd",
 )
 class TestCreateManifestsFromCircuit:
@@ -207,15 +220,16 @@ class TestCreateManifestsFromCircuit:
 
     @pytest.fixture()
     def basic_outputs(
-        self, mock_stops_responses_all_hhs_false: list, tmp_path: Path
+        self, mock_stops_responses_all_hhs_false: list, tmp_path_factory: pytest.TempPathFactory
     ) -> tuple[Path, Path]:
         """Create a basic manifest scoped to class for reuse."""
+        output_dir = str(tmp_path_factory.mktemp("output"))
         with patch(
             "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
             return_value=mock_stops_responses_all_hhs_false,
         ):
             manifest_path, circuit_sheets_dir = create_manifests_from_circuit(
-                start_date=TEST_START_DATE, output_dir=str(tmp_path)
+                start_date=TEST_START_DATE, output_dir=output_dir
             )
         return manifest_path, circuit_sheets_dir
 

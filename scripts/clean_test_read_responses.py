@@ -2,6 +2,8 @@
 
 import json
 
+import phonenumbers
+
 from bfb_delivery.lib.constants import ALL_HHS_DRIVER
 
 LEAVE_ALONE = [ALL_HHS_DRIVER, "Warehouse"]
@@ -77,7 +79,9 @@ for all_hhs in ["_all_hhs", ""]:
                             "orderInfo": {"products": stop["orderInfo"]["products"]},
                             "recipient": {
                                 "name": f"stop-{i}-{j} recipient",
-                                "phone": f"stop-{i}-{j} phone",
+                                "phone": phonenumbers.example_number(
+                                    region_code="US"
+                                ).national_number,
                             },
                             "plan": stop["plan"],
                             "route": {
