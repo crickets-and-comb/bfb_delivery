@@ -1,5 +1,6 @@
 """Unit tests for sheet_shaping.py."""
 
+# TODO: Make fixtures class-scoped again, at least for the basic calls, here and elsewhere.
 import glob
 import re
 import subprocess
