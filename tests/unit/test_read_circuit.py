@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Final
 from unittest.mock import patch
 
+# import pandas as pd
 import pytest
 from click.testing import CliRunner
 from typeguard import typechecked
@@ -206,6 +207,10 @@ class TestCreateManifestsFromCircuit:
         expected_circuit_output_dir = Path(circuit_output_dir)
         expected_files = [f"{sheet_name}.csv" for sheet_name in driver_sheet_names]
 
+        Path(circuit_output_dir).mkdir(parents=True, exist_ok=True)
+        with open(f"{expected_circuit_output_dir}/dummy_file.txt", "w") as f:
+            f.write("Dummy file. The function should remove this file.")
+
         with patch(
             "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
             return_value=stops_response_data,
@@ -241,3 +246,39 @@ class TestCreateManifestsFromCircuit:
         assert str(output_path) == str(expected_output_path)
         assert expected_output_path.exists()
         assert sorted(circuit_files) == sorted(expected_files)
+
+    # @pytest.mark.parametrize(
+    #     "all_HHs, mock_stops_responses_fixture, mock_driver_sheet_names_fixture",
+    #     [
+    #         (
+    #             True,
+    #             "mock_stops_responses_all_hhs_true",
+    #             "mock_driver_sheet_names_all_hhs_true",
+    #         ),
+    #         (
+    #             False,
+    #             "mock_stops_responses_all_hhs_false",
+    #             "mock_driver_sheet_names_all_hhs_false",
+    #         ),
+    #     ],
+    # )
+    # def test_all_drivers_have_a_sheet(
+    #     self,
+    #     tmp_path: Path,
+    #     all_HHs: bool,
+    #     mock_stops_responses_fixture: str,
+    #     mock_driver_sheet_names_fixture: str,
+    #     request: pytest.FixtureRequest,
+    # ) -> None:
+    #     """Test that all drivers have a sheet in the formatted workbook. And date works."""
+    #     stops_response_data = request.getfixturevalue(mock_stops_responses_fixture)
+    #     driver_sheet_names = request.getfixturevalue(mock_driver_sheet_names_fixture)
+    #     with patch(
+    #         "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
+    #         return_value=stops_response_data,
+    #     ):
+    #         output_path = create_manifests_from_circuit(
+    #             start_date=TEST_START_DATE, output_dir=str(tmp_path), all_HHs=all_HHs
+    #         )
+    #     workbook = pd.ExcelFile(output_path)
+    #     assert set(workbook.sheet_names) == set(driver_sheet_names)
