@@ -107,7 +107,7 @@ def main(
     :py:func:`bfb_delivery.api.public.create_manifests_from_circuit`.
 
     """
-    final_manifest_path = create_manifests_from_circuit(
+    final_manifest_path, new_circuit_output_dir = create_manifests_from_circuit(
         start_date=start_date,
         end_date=end_date,
         output_dir=output_dir,
@@ -120,5 +120,6 @@ def main(
     logger.info(f"Formatted workbook saved to:\n{final_manifest_path.resolve()}")
     # Print statement to capture in tests.
     print(str(final_manifest_path))
+    print(str(new_circuit_output_dir))
 
     return str(final_manifest_path)

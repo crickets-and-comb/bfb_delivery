@@ -82,12 +82,13 @@ def create_manifests_from_circuit(
     start_date: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["start_date"],
     end_date: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["end_date"],
     output_dir: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["output_dir"],
+    # TODO: Standardize to Path for all i/o except CLI input.
     output_filename: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["output_filename"],
     circuit_output_dir: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["circuit_output_dir"],
     all_HHs: bool = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["all_HHs"],
     verbose: bool = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["verbose"],
     extra_notes_file: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["extra_notes_file"],
-) -> Path:
+) -> tuple[Path, Path]:
     """Gets optimized routes from Circuit, creates driver manifest workbook ready to print.
 
     This is used after uploading and optimizing the routes. Reads routes CSVs from Circuit,
@@ -121,8 +122,9 @@ def create_manifests_from_circuit(
             Empty string (default) saves to the `input_dir` directory.
         output_filename: The name of the output workbook.
             Empty string (default) sets filename to "final_manifests_{date}.xlsx".
-        circuit_output_dir: The directory to save the Circuit route CSVs to.
-            Empty string saves to "routes_{date}" directory in present working directory.
+        circuit_output_dir: The directory to create a subdir to save the routes to.
+            Creates "routes_{date}" directory within the `circuit_output_dir`.
+            Empty string uses `output_dir`.
             If the directory does not exist, it is created. If it exists, it is overwritten.
         all_HHs: Flag to get only the "All HHs" route.
             False gets all routes except "All HHs". True gets only the "All HHs" route.
@@ -134,7 +136,7 @@ def create_manifests_from_circuit(
     Returns:
         Path to the final manifest workbook.
     """
-    final_manifest_path = internal.create_manifests_from_circuit(
+    final_manifest_path, new_circuit_output_dir = internal.create_manifests_from_circuit(
         start_date=start_date,
         end_date=end_date,
         output_dir=output_dir,
@@ -145,7 +147,7 @@ def create_manifests_from_circuit(
         extra_notes_file=extra_notes_file,
     )
 
-    return final_manifest_path
+    return final_manifest_path, new_circuit_output_dir
 
 
 @typechecked

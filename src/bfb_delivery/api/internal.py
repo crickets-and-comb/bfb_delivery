@@ -43,12 +43,12 @@ def create_manifests_from_circuit(
     all_HHs: bool,
     verbose: bool,
     extra_notes_file: str,
-) -> Path:
+) -> tuple[Path, Path]:
     """See public docstring.
 
     :py:func:`bfb_delivery.api.public.create_manifests_from_circuit`.
     """
-    input_dir = get_route_files(
+    circuit_output_dir = get_route_files(
         start_date=start_date,
         end_date=end_date,
         output_dir=circuit_output_dir,
@@ -56,13 +56,13 @@ def create_manifests_from_circuit(
         verbose=verbose,
     )
     formatted_manifest_path = sheet_shaping.create_manifests(
-        input_dir=input_dir,
+        input_dir=circuit_output_dir,
         output_dir=output_dir,
         output_filename=output_filename,
         extra_notes_file=extra_notes_file,
     )
 
-    return formatted_manifest_path
+    return formatted_manifest_path, Path(circuit_output_dir)
 
 
 @typechecked

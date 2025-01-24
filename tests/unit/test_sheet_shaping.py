@@ -1091,6 +1091,7 @@ class TestCreateManifests:
             yield xls
 
     @pytest.mark.parametrize("output_dir_type", [Path, str])
+    # TODO: This doesn't really test anything. Mock os.getcwd?
     @pytest.mark.parametrize("output_dir", ["", "dummy_output"])
     def test_set_output_dir(
         self,

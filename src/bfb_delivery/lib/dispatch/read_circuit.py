@@ -51,8 +51,9 @@ def get_route_files(
             Empty string uses the soonest Friday.
         end_date: The end date to get the routes for, as "YYYYMMDD".
             Empty string uses the start date.
-        output_dir: The directory to save the routes to.
-            Empty string saves to "routes_{date}" directory in present working directory.
+        output_dir: The directory to create a subdir to save the routes to.
+            Creates "routes_{date}" directory within the `output_dir`.
+            Empty string uses the current working directory.
             If the directory does not exist, it is created. If it exists, it is overwritten.
         all_HHs: Flag to get only the "All HHs" route.
             False gets all routes except "All HHs". True gets only the "All HHs" route.
@@ -69,8 +70,10 @@ def get_route_files(
     """
     start_date = start_date if start_date else get_friday(fmt="%Y%m%d")
     end_date = end_date if end_date else start_date
-    if not output_dir:
-        output_dir = os.getcwd() + "/routes_" + start_date
+    sub_dir = "routes_" + start_date
+    output_dir = (
+        str(Path(output_dir) / sub_dir) if output_dir else str(Path(os.getcwd()) / sub_dir)
+    )
 
     plans_list = _get_raw_plans(start_date=start_date, end_date=end_date, verbose=verbose)
     plans_df = _make_plans_df(plans_list=plans_list, all_HHs=all_HHs)

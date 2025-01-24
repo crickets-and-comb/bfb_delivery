@@ -18,7 +18,6 @@ from bfb_delivery.cli import (
 )
 from bfb_delivery.lib.constants import ALL_HHS_DRIVER, FILE_DATE_FORMAT
 
-# Don't really need this for tests right now, but it's the date of the test data.
 TEST_START_DATE: Final[str] = "2025-01-17"
 
 
@@ -159,14 +158,21 @@ def mock_phonenumbers_is_valid_number() -> Iterator[None]:
         yield
 
 
+@pytest.fixture()
+def mock_os_getcwd(tmp_path: Path) -> Iterator[str]:
+    """Mock os.getcwd."""
+    return_value = str(tmp_path)
+    with patch("os.getcwd", return_value=return_value):
+        yield return_value
+
+
 @pytest.mark.usefixtures(
     "mock_get_plan_responses", "mock_phonenumbers_parse", "mock_phonenumbers_is_valid_number"
 )
 class TestCreateManifestsFromCircuit:
     """Test create_manifests_from_circuit function."""
 
-    # TODO: Change circuit_output_dir default to subdir in output_dir.
-    # @pytest.mark.parametrize("circuit_output_dir", ["dummy_circuit_output", ""])
+    @pytest.mark.parametrize("circuit_output_dir", ["dummy_circuit_output", ""])
     @pytest.mark.parametrize(
         "all_HHs, mock_stops_responses_fixture, mock_driver_sheet_names_fixture",
         [
@@ -186,28 +192,38 @@ class TestCreateManifestsFromCircuit:
     @pytest.mark.parametrize("test_cli", [False, True])
     def test_set_output_dir(
         self,
+        circuit_output_dir: str,
         all_HHs: bool,
         mock_stops_responses_fixture: str,
         verbose: bool,
         mock_driver_sheet_names_fixture: str,
         test_cli: bool,
+        mock_os_getcwd: str,
         tmp_path: Path,
         request: pytest.FixtureRequest,
     ) -> None:
         """Test that the output directory can be set."""
-        output_dir = str(tmp_path / "dummy_output_dir")
-        circuit_output_dir = f"{output_dir}/dummy_circuit_output"
         stops_response_data = request.getfixturevalue(mock_stops_responses_fixture)
         driver_sheet_names = request.getfixturevalue(mock_driver_sheet_names_fixture)
 
+        output_dir = str(tmp_path / "dummy_output_dir")
         expected_output_filename = (
             f"final_manifests_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
         )
         expected_output_path = Path(output_dir) / expected_output_filename
-        expected_circuit_output_dir = Path(circuit_output_dir)
+
+        circuit_output_dir = (
+            str(tmp_path / circuit_output_dir) if circuit_output_dir else circuit_output_dir
+        )
+        circuit_sub_dir = "routes_" + TEST_START_DATE
+        expected_circuit_output_dir = (
+            Path(circuit_output_dir) / circuit_sub_dir
+            if circuit_output_dir
+            else Path(mock_os_getcwd) / circuit_sub_dir
+        )
         expected_files = [f"{sheet_name}.csv" for sheet_name in driver_sheet_names]
 
-        Path(circuit_output_dir).mkdir(parents=True, exist_ok=True)
+        Path(expected_circuit_output_dir).mkdir(parents=True, exist_ok=True)
         with open(f"{expected_circuit_output_dir}/dummy_file.txt", "w") as f:
             f.write("Dummy file. The function should remove this file.")
 
@@ -231,9 +247,11 @@ class TestCreateManifestsFromCircuit:
                     arg_list.append("--verbose")
                 result = cli_runner.invoke(create_manifests_from_circuit_cli.main, arg_list)
                 assert result.exit_code == 0
-                output_path = result.stdout_bytes.decode("utf-8").strip()
+                output_path, new_circuit_output_dir = (
+                    result.stdout_bytes.decode("utf-8").strip().split("\n")
+                )
             else:
-                output_path = create_manifests_from_circuit(
+                output_path, new_circuit_output_dir = create_manifests_from_circuit(
                     start_date=TEST_START_DATE,
                     output_dir=output_dir,
                     circuit_output_dir=circuit_output_dir,
@@ -243,6 +261,7 @@ class TestCreateManifestsFromCircuit:
 
         circuit_files = [path.name for path in list(expected_circuit_output_dir.glob("*"))]
 
+        assert str(new_circuit_output_dir) == str(expected_circuit_output_dir)
         assert str(output_path) == str(expected_output_path)
         assert expected_output_path.exists()
         assert sorted(circuit_files) == sorted(expected_files)
