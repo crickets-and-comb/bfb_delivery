@@ -18,7 +18,7 @@ from bfb_delivery.lib.constants import CircuitColumns
 # from bfb_delivery import create_manifests_from_circuit
 from bfb_delivery.lib.dispatch.read_circuit import (
     _get_raw_plans,
-    _get_raw_stops_lists,
+    _get_raw_stops,
     _make_plans_df,
     _transform_routes_df,
     _write_routes_dfs,
@@ -163,9 +163,7 @@ def main(  # noqa: C901
         #     plans_df.to_csv(".test_data/sample_responses/plans_df.csv", index=False)
 
         if not mock_raw_routes:
-            plan_stops_list = _get_raw_stops_lists(
-                plan_ids=plans_df[CircuitColumns.ID].to_list()
-            )
+            plan_stops_list = _get_raw_stops(plan_ids=plans_df[CircuitColumns.ID].to_list())
             # if all_hhs:
             #     with open(
             #         ".test_data/sample_responses/plan_stops_list_all_hhs.json", "w"

@@ -53,6 +53,7 @@ logger = logging.getLogger(__name__)
         '"formatted_routes_{date}.xlsx".'
     ),
 )
+# TODO: Change circuit_output_dir default to subdir in output_dir.
 @click.option(
     "--circuit_output_dir",
     type=str,
