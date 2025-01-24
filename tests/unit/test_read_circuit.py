@@ -21,6 +21,7 @@ from bfb_delivery.lib.constants import (
     ALL_HHS_DRIVER,
     FILE_DATE_FORMAT,
     FORMATTED_ROUTES_COLUMNS,
+    CellColors,
     Columns,
 )
 from bfb_delivery.lib.formatting.data_cleaning import (
@@ -30,6 +31,7 @@ from bfb_delivery.lib.formatting.data_cleaning import (
 )
 
 TEST_START_DATE: Final[str] = "2025-01-17"
+MANIFEST_DATE: Final[str] = "1.17"
 
 
 @pytest.fixture()
@@ -136,6 +138,18 @@ def mock_driver_sheet_names_all_hhs_false(
 
 @pytest.fixture()
 @typechecked
+def mock_driver_names_all_hhs_false(
+    mock_driver_sheet_names_all_hhs_false: list[str],
+) -> list[str]:
+    """Return a list of driver names."""
+    return [
+        " ".join(sheet_name.split(" ")[1:])
+        for sheet_name in mock_driver_sheet_names_all_hhs_false
+    ]
+
+
+@pytest.fixture()
+@typechecked
 def mock_driver_sheet_names_all_hhs_true(
     mock_plan_responses: list[
         dict[str, str | list[dict[str, str | list[str | dict[str, str]] | dict[str, int]]]]
@@ -171,9 +185,9 @@ def mock_phonenumbers_is_valid_number() -> Iterator[None]:
 
 @pytest.fixture()
 def mock_os_getcwd(tmp_path: Path) -> Iterator[str]:
-    """Mock os.getcwd."""
+    """Mock os.getcwd within the read_circuit module."""
     return_value = str(tmp_path)
-    with patch("os.getcwd", return_value=return_value):
+    with patch("bfb_delivery.lib.dispatch.read_circuit._getcwd", return_value=return_value):
         yield return_value
 
 
@@ -315,6 +329,7 @@ class TestCreateManifestsFromCircuit:
         all_HHs: bool,
         mock_stops_responses_fixture: str,
         mock_driver_sheet_names_fixture: str,
+        mock_os_getcwd: str,
         request: pytest.FixtureRequest,
     ) -> None:
         """Test that all drivers have a sheet in the formatted workbook. And date works."""
@@ -370,3 +385,55 @@ class TestCreateManifestsFromCircuit:
             input_phone_df = input_df[[Columns.PHONE]]
             _format_and_validate_phone(df=input_phone_df)
             assert input_phone_df.equals(output_df[[Columns.PHONE]])
+
+    @pytest.mark.parametrize(
+        "cell, expected_value",
+        [
+            ("A1", "DRIVER SUPPORT: 555-555-5555"),
+            ("B1", None),
+            ("C1", None),
+            ("D1", "RECIPIENT SUPPORT: 555-555-5555 x5"),
+            ("E1", None),
+            ("F1", "PLEASE SHRED MANIFEST AFTER COMPLETING ROUTE."),
+        ],
+    )
+    def test_header_row(
+        self, cell: str, expected_value: str, basic_manifest_workbook: Workbook
+    ) -> None:
+        """Test that the header row is correct."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            assert ws[cell].value == expected_value
+
+    def test_header_row_end(self, basic_manifest_workbook: Workbook) -> None:
+        """Test that the header row ends at F1."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            last_non_empty_col = max(
+                (cell.column for cell in ws[1] if cell.value), default=None
+            )
+            assert last_non_empty_col == 6
+
+    @pytest.mark.parametrize("cell", ["A1", "B1", "C1", "D1", "E1", "F1"])
+    def test_header_row_color(self, cell: str, basic_manifest_workbook: Workbook) -> None:
+        """Test the header row fill color."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            assert ws[cell].fill.start_color.rgb == f"{CellColors.HEADER}"
+
+    def test_date_cell(self, basic_manifest_workbook: Workbook) -> None:
+        """Test that the date cell is correct."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            assert ws["A3"].value == f"Date: {MANIFEST_DATE}"
+
+    def test_driver_cell(
+        self, mock_driver_names_all_hhs_false: list[str], basic_manifest_workbook: Workbook
+    ) -> None:
+        """Test that the driver cell is correct."""
+        drivers = [driver.upper() for driver in mock_driver_names_all_hhs_false]
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            driver_name = sheet_name.replace(f"{MANIFEST_DATE} ", "")
+            assert ws["A5"].value == f"Driver: {driver_name}"
+            assert driver_name.upper() in drivers

@@ -72,7 +72,7 @@ def get_route_files(
     end_date = end_date if end_date else start_date
     sub_dir = "routes_" + start_date
     output_dir = (
-        str(Path(output_dir) / sub_dir) if output_dir else str(Path(os.getcwd()) / sub_dir)
+        str(Path(output_dir) / sub_dir) if output_dir else str(Path(_getcwd()) / sub_dir)
     )
 
     plans_list = _get_raw_plans(start_date=start_date, end_date=end_date, verbose=verbose)
@@ -86,6 +86,11 @@ def get_route_files(
     _write_routes_dfs(routes_df=routes_df, output_dir=Path(output_dir))
 
     return output_dir
+
+
+def _getcwd() -> str:
+    """Wrapping to allow restricted mocking."""
+    return os.getcwd()
 
 
 @typechecked
