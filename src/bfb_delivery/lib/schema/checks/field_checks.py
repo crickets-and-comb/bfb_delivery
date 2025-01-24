@@ -9,7 +9,7 @@ from bfb_delivery.lib.constants import CircuitColumns
 @extensions.register_check_method(statistics=["flag"])
 def at_least_two_words(pandas_obj: pd.Series, flag: bool) -> bool:
     """Check that a string has at least two words."""
-    return all(len(val.split()) >= 2 for val in pandas_obj) if flag else True
+    return all(len(val.split(" ")) >= 2 for val in pandas_obj) if flag else True
 
 
 @extensions.register_check_method(statistics=["start_idx"])
