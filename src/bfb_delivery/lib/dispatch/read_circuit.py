@@ -505,7 +505,7 @@ def _warn_and_impute(routes_df: pd.DataFrame) -> None:
         lambda row: (
             row[Columns.NEIGHBORHOOD]
             if row[Columns.NEIGHBORHOOD]
-            else row[Columns.ADDRESS].get(CircuitColumns.ADDRESS).split(",")[1]
+            else row[Columns.ADDRESS].get(CircuitColumns.ADDRESS).split(",")[1].strip()
         ),
         axis=1,
     )
