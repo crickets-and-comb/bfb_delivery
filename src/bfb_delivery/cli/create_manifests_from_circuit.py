@@ -118,5 +118,7 @@ def main(
         extra_notes_file=extra_notes_file,
     )
     logger.info(f"Formatted workbook saved to:\n{final_manifest_path.resolve()}")
+    # Print statement to capture in tests.
+    print(str(final_manifest_path))
 
     return str(final_manifest_path)

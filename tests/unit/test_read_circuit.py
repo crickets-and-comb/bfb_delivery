@@ -8,18 +8,14 @@ from typing import Final
 from unittest.mock import patch
 
 import pytest
-
-# from click.testing import CliRunner
+from click.testing import CliRunner
 from typeguard import typechecked
 
 from bfb_delivery import create_manifests_from_circuit
-
-# from bfb_delivery.cli import (
-#     create_manifests_from_circuit as create_manifests_from_circuit_cli,
-# )
+from bfb_delivery.cli import (
+    create_manifests_from_circuit as create_manifests_from_circuit_cli,
+)
 from bfb_delivery.lib.constants import ALL_HHS_DRIVER, FILE_DATE_FORMAT
-
-# from bfb_delivery.lib.constants import ALL_HHS_DRIVER, FILE_DATE_FORMAT
 
 # Don't really need this for tests right now, but it's the date of the test data.
 TEST_START_DATE: Final[str] = "2025-01-17"
@@ -168,6 +164,8 @@ def mock_phonenumbers_is_valid_number() -> Iterator[None]:
 class TestCreateManifestsFromCircuit:
     """Test create_manifests_from_circuit function."""
 
+    # TODO: Change circuit_output_dir default to subdir in output_dir.
+    # @pytest.mark.parametrize("circuit_output_dir", ["dummy_circuit_output", ""])
     @pytest.mark.parametrize(
         "all_HHs, mock_stops_responses_fixture, mock_driver_sheet_names_fixture",
         [
@@ -184,12 +182,14 @@ class TestCreateManifestsFromCircuit:
         ],
     )
     @pytest.mark.parametrize("verbose", [True, False])
+    @pytest.mark.parametrize("test_cli", [False, True])
     def test_set_output_dir(
         self,
         all_HHs: bool,
         mock_stops_responses_fixture: str,
         verbose: bool,
         mock_driver_sheet_names_fixture: str,
+        test_cli: bool,
         tmp_path: Path,
         request: pytest.FixtureRequest,
     ) -> None:
@@ -199,79 +199,45 @@ class TestCreateManifestsFromCircuit:
         stops_response_data = request.getfixturevalue(mock_stops_responses_fixture)
         driver_sheet_names = request.getfixturevalue(mock_driver_sheet_names_fixture)
 
-        with patch(
-            "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
-            return_value=stops_response_data,
-        ):
-            output_path = create_manifests_from_circuit(
-                start_date=TEST_START_DATE,
-                output_dir=output_dir,
-                circuit_output_dir=circuit_output_dir,
-                all_HHs=all_HHs,
-                verbose=verbose,
-            )
-
         expected_output_filename = (
             f"final_manifests_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
         )
         expected_output_path = Path(output_dir) / expected_output_filename
-        assert str(output_path) == str(expected_output_path)
-        assert expected_output_path.exists()
-
         expected_circuit_output_dir = Path(circuit_output_dir)
-        assert expected_circuit_output_dir.exists()
+        expected_files = [f"{sheet_name}.csv" for sheet_name in driver_sheet_names]
+
+        with patch(
+            "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
+            return_value=stops_response_data,
+        ):
+            if test_cli:
+                cli_runner = CliRunner()
+                arg_list = [
+                    "--start_date",
+                    TEST_START_DATE,
+                    "--output_dir",
+                    output_dir,
+                    "--circuit_output_dir",
+                    circuit_output_dir,
+                ]
+                if all_HHs:
+                    arg_list.append("--all_hhs")
+                if verbose:
+                    arg_list.append("--verbose")
+                result = cli_runner.invoke(create_manifests_from_circuit_cli.main, arg_list)
+                assert result.exit_code == 0
+                output_path = result.stdout_bytes.decode("utf-8").strip()
+            else:
+                output_path = create_manifests_from_circuit(
+                    start_date=TEST_START_DATE,
+                    output_dir=output_dir,
+                    circuit_output_dir=circuit_output_dir,
+                    all_HHs=all_HHs,
+                    verbose=verbose,
+                )
 
         circuit_files = [path.name for path in list(expected_circuit_output_dir.glob("*"))]
-        expected_files = [f"{sheet_name}.csv" for sheet_name in driver_sheet_names]
+
+        assert str(output_path) == str(expected_output_path)
+        assert expected_output_path.exists()
         assert sorted(circuit_files) == sorted(expected_files)
-
-    # @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
-    # # TODO: Change circuit_output_dir default to subdir in output_dir.
-    # # @pytest.mark.parametrize("circuit_output_dir", ["dummy_circuit_output", ""])
-    # # @pytest.mark.parametrize("all_hhs", [True, False])
-    # @pytest.mark.parametrize("verbose", [True, False])
-    # @typechecked
-    # def test_cli(
-    #     self,
-    #     output_filename: str,
-    #     # all_hhs: bool,
-    #     verbose: bool,
-    #     mock_driver_sheet_names_all_hhs_false: list[str],
-    #     cli_runner: CliRunner,
-    #     tmp_path: Path,
-    # ) -> None:
-    #     """Test CLI works."""
-    #     output_dir = str(tmp_path / "dummy_output_dir")
-    #     circuit_output_dir = f"{output_dir}/dummy_circuit_output"
-    #     arg_list = [
-    #         "--start_date",
-    #         TEST_START_DATE,
-    #         "--output_dir",
-    #         output_dir,
-    #         "--output_filename",
-    #         output_filename,
-    #         "--circuit_output_dir",
-    #         circuit_output_dir,
-    #     ]
-    #     # if all_hhs:
-    #     #     arg_list.append("--all_hhs")
-    #     if verbose:
-    #         arg_list.append("--verbose")
-
-    #     result = cli_runner.invoke(create_manifests_from_circuit_cli.main, arg_list)
-    #     assert result.exit_code == 0
-
-    #     expected_output_filename = (
-    #         f"final_manifests_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
-    #         if output_filename == ""
-    #         else output_filename
-    #     )
-    #     expected_output_path = Path(output_dir)
-    #     assert (expected_output_path / expected_output_filename).exists()
-
-    #     expected_circuit_output_dir = Path(circuit_output_dir)
-    #     assert expected_circuit_output_dir.exists()
-    #     circuit_files = expected_circuit_output_dir.glob("*")
-    #     assert sorted(circuit_files) == sorted(
-    #         f"{sheet_name}.csv" for sheet_name in mock_driver_sheet_names_all_hhs_false
-    #     )
