@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Final
 from unittest.mock import patch
 
-# import pandas as pd
+import pandas as pd
 import pytest
 from click.testing import CliRunner
 from typeguard import typechecked
@@ -167,25 +167,20 @@ def mock_os_getcwd(tmp_path: Path) -> Iterator[str]:
 
 
 @pytest.mark.usefixtures(
-    "mock_get_plan_responses", "mock_phonenumbers_parse", "mock_phonenumbers_is_valid_number"
+    "mock_get_plan_responses",
+    "mock_phonenumbers_parse",
+    "mock_phonenumbers_is_valid_number",
+    "mock_os_getcwd",
 )
 class TestCreateManifestsFromCircuit:
     """Test create_manifests_from_circuit function."""
 
     @pytest.mark.parametrize("circuit_output_dir", ["dummy_circuit_output", ""])
     @pytest.mark.parametrize(
-        "all_HHs, mock_stops_responses_fixture, mock_driver_sheet_names_fixture",
+        "all_HHs, mock_stops_responses_fixture",
         [
-            (
-                True,
-                "mock_stops_responses_all_hhs_true",
-                "mock_driver_sheet_names_all_hhs_true",
-            ),
-            (
-                False,
-                "mock_stops_responses_all_hhs_false",
-                "mock_driver_sheet_names_all_hhs_false",
-            ),
+            (True, "mock_stops_responses_all_hhs_true"),
+            (False, "mock_stops_responses_all_hhs_false"),
         ],
     )
     @pytest.mark.parametrize("verbose", [True, False])
@@ -196,7 +191,6 @@ class TestCreateManifestsFromCircuit:
         all_HHs: bool,
         mock_stops_responses_fixture: str,
         verbose: bool,
-        mock_driver_sheet_names_fixture: str,
         test_cli: bool,
         mock_os_getcwd: str,
         tmp_path: Path,
@@ -204,7 +198,6 @@ class TestCreateManifestsFromCircuit:
     ) -> None:
         """Test that the output directory can be set."""
         stops_response_data = request.getfixturevalue(mock_stops_responses_fixture)
-        driver_sheet_names = request.getfixturevalue(mock_driver_sheet_names_fixture)
 
         output_dir = str(tmp_path / "dummy_output_dir")
         expected_output_filename = (
@@ -221,7 +214,6 @@ class TestCreateManifestsFromCircuit:
             if circuit_output_dir
             else Path(mock_os_getcwd) / circuit_sub_dir
         )
-        expected_files = [f"{sheet_name}.csv" for sheet_name in driver_sheet_names]
 
         Path(expected_circuit_output_dir).mkdir(parents=True, exist_ok=True)
         with open(f"{expected_circuit_output_dir}/dummy_file.txt", "w") as f:
@@ -259,45 +251,45 @@ class TestCreateManifestsFromCircuit:
                     verbose=verbose,
                 )
 
-        circuit_files = [path.name for path in list(expected_circuit_output_dir.glob("*"))]
-
         assert str(new_circuit_output_dir) == str(expected_circuit_output_dir)
         assert str(output_path) == str(expected_output_path)
         assert expected_output_path.exists()
-        assert sorted(circuit_files) == sorted(expected_files)
 
-    # @pytest.mark.parametrize(
-    #     "all_HHs, mock_stops_responses_fixture, mock_driver_sheet_names_fixture",
-    #     [
-    #         (
-    #             True,
-    #             "mock_stops_responses_all_hhs_true",
-    #             "mock_driver_sheet_names_all_hhs_true",
-    #         ),
-    #         (
-    #             False,
-    #             "mock_stops_responses_all_hhs_false",
-    #             "mock_driver_sheet_names_all_hhs_false",
-    #         ),
-    #     ],
-    # )
-    # def test_all_drivers_have_a_sheet(
-    #     self,
-    #     tmp_path: Path,
-    #     all_HHs: bool,
-    #     mock_stops_responses_fixture: str,
-    #     mock_driver_sheet_names_fixture: str,
-    #     request: pytest.FixtureRequest,
-    # ) -> None:
-    #     """Test that all drivers have a sheet in the formatted workbook. And date works."""
-    #     stops_response_data = request.getfixturevalue(mock_stops_responses_fixture)
-    #     driver_sheet_names = request.getfixturevalue(mock_driver_sheet_names_fixture)
-    #     with patch(
-    #         "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
-    #         return_value=stops_response_data,
-    #     ):
-    #         output_path = create_manifests_from_circuit(
-    #             start_date=TEST_START_DATE, output_dir=str(tmp_path), all_HHs=all_HHs
-    #         )
-    #     workbook = pd.ExcelFile(output_path)
-    #     assert set(workbook.sheet_names) == set(driver_sheet_names)
+    @pytest.mark.parametrize(
+        "all_HHs, mock_stops_responses_fixture, mock_driver_sheet_names_fixture",
+        [
+            (
+                True,
+                "mock_stops_responses_all_hhs_true",
+                "mock_driver_sheet_names_all_hhs_true",
+            ),
+            (
+                False,
+                "mock_stops_responses_all_hhs_false",
+                "mock_driver_sheet_names_all_hhs_false",
+            ),
+        ],
+    )
+    def test_all_drivers_have_a_sheet(
+        self,
+        tmp_path: Path,
+        all_HHs: bool,
+        mock_stops_responses_fixture: str,
+        mock_driver_sheet_names_fixture: str,
+        request: pytest.FixtureRequest,
+    ) -> None:
+        """Test that all drivers have a sheet in the formatted workbook. And date works."""
+        stops_response_data = request.getfixturevalue(mock_stops_responses_fixture)
+        driver_sheet_names = request.getfixturevalue(mock_driver_sheet_names_fixture)
+        with patch(
+            "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
+            return_value=stops_response_data,
+        ):
+            output_path, circuit_output_dir = create_manifests_from_circuit(
+                start_date=TEST_START_DATE, output_dir=str(tmp_path), all_HHs=all_HHs
+            )
+        workbook = pd.ExcelFile(output_path)
+        assert sorted(list(workbook.sheet_names)) == sorted(driver_sheet_names)
+        assert sorted([path.name for path in list(circuit_output_dir.glob("*"))]) == sorted(
+            [f"{sheet_name}.csv" for sheet_name in driver_sheet_names]
+        )
