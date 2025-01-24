@@ -10,14 +10,24 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 from click.testing import CliRunner
-from openpyxl import load_workbook
+from openpyxl import Workbook, load_workbook
 from typeguard import typechecked
 
 from bfb_delivery import create_manifests_from_circuit
 from bfb_delivery.cli import (
     create_manifests_from_circuit as create_manifests_from_circuit_cli,
 )
-from bfb_delivery.lib.constants import ALL_HHS_DRIVER, FILE_DATE_FORMAT
+from bfb_delivery.lib.constants import (
+    ALL_HHS_DRIVER,
+    FILE_DATE_FORMAT,
+    FORMATTED_ROUTES_COLUMNS,
+    Columns,
+)
+from bfb_delivery.lib.formatting.data_cleaning import (
+    _format_and_validate_box_type,
+    _format_and_validate_name,
+    _format_and_validate_phone,
+)
 
 TEST_START_DATE: Final[str] = "2025-01-17"
 
@@ -176,6 +186,34 @@ def mock_os_getcwd(tmp_path: Path) -> Iterator[str]:
 class TestCreateManifestsFromCircuit:
     """Test create_manifests_from_circuit function."""
 
+    @pytest.fixture()
+    def basic_outputs(
+        self, mock_stops_responses_all_hhs_false: list, tmp_path: Path
+    ) -> tuple[Path, Path]:
+        """Create a basic manifest scoped to class for reuse."""
+        with patch(
+            "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
+            return_value=mock_stops_responses_all_hhs_false,
+        ):
+            manifest_path, circuit_sheets_dir = create_manifests_from_circuit(
+                start_date=TEST_START_DATE, output_dir=str(tmp_path)
+            )
+        return manifest_path, circuit_sheets_dir
+
+    @pytest.fixture()
+    def basic_manifest_workbook(self, basic_outputs: tuple[Path, Path]) -> Workbook:
+        """Create a basic manifest workbook scoped to class for reuse."""
+        workbook = load_workbook(basic_outputs[0])
+        return workbook
+
+    @pytest.fixture()
+    def basic_manifest_ExcelFile(
+        self, basic_outputs: tuple[Path, Path]
+    ) -> Iterator[pd.ExcelFile]:
+        """Create a basic manifest workbook scoped to class for reuse."""
+        with pd.ExcelFile(basic_outputs[0]) as xls:
+            yield xls
+
     @pytest.mark.parametrize("circuit_output_dir", ["dummy_circuit_output", ""])
     @pytest.mark.parametrize(
         "all_HHs, mock_stops_responses_fixture",
@@ -295,20 +333,40 @@ class TestCreateManifestsFromCircuit:
             [f"{sheet_name}.csv" for sheet_name in driver_sheet_names]
         )
 
-    def test_date_field_matches_sheet_date(
-        self, mock_stops_responses_all_hhs_false: list, tmp_path: Path
-    ) -> None:
+    def test_date_field_matches_sheet_date(self, basic_manifest_workbook: Workbook) -> None:
         """Test that the date field matches the sheet date."""
-        with patch(
-            "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
-            return_value=mock_stops_responses_all_hhs_false,
-        ):
-            output_path, _ = create_manifests_from_circuit(
-                start_date=TEST_START_DATE, output_dir=str(tmp_path)
-            )
-        workbook = load_workbook(output_path)
-        for sheet_name in workbook.sheetnames:
-            ws = workbook[sheet_name]
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
             field_date = ws["A3"].value.split(" ")[1]
             sheet_name_date = sheet_name.split(" ")[0]
             assert field_date == sheet_name_date
+
+    def test_df_is_same(
+        self, basic_outputs: tuple[Path, Path], basic_manifest_ExcelFile: pd.ExcelFile
+    ) -> None:
+        """All the input data is in the formatted workbook."""
+        for sheet_name in sorted(basic_manifest_ExcelFile.sheet_names):
+            input_df = pd.read_csv(basic_outputs[1] / f"{sheet_name}.csv")
+            output_df = pd.read_excel(
+                basic_manifest_ExcelFile, sheet_name=sheet_name, skiprows=8
+            )
+
+            # Hacky, but need to make sure formatted values haven't fundamentally changed.
+            formatted_columns = [Columns.BOX_TYPE, Columns.NAME, Columns.PHONE]
+            unformatted_columns = [
+                col for col in FORMATTED_ROUTES_COLUMNS if col not in formatted_columns
+            ]
+            assert input_df[unformatted_columns].equals(output_df[unformatted_columns])
+
+            input_df.rename(columns={Columns.PRODUCT_TYPE: Columns.BOX_TYPE}, inplace=True)
+            input_box_type_df = input_df[[Columns.BOX_TYPE]]
+            _format_and_validate_box_type(df=input_box_type_df)
+            assert input_box_type_df.equals(output_df[[Columns.BOX_TYPE]])
+
+            input_name_df = input_df[[Columns.NAME]]
+            _format_and_validate_name(df=input_name_df)
+            assert input_name_df.equals(output_df[[Columns.NAME]])
+
+            input_phone_df = input_df[[Columns.PHONE]]
+            _format_and_validate_phone(df=input_phone_df)
+            assert input_phone_df.equals(output_df[[Columns.PHONE]])
