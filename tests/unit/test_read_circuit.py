@@ -4,7 +4,7 @@ import json
 from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
-from typing import Final
+from typing import Any, Final
 from unittest.mock import patch
 
 import pandas as pd
@@ -25,7 +25,16 @@ from bfb_delivery.lib.constants import (
     NOTES_COLUMN_WIDTH,
     BoxType,
     CellColors,
+    CircuitColumns,
     Columns,
+    IntermediateColumns,
+)
+from bfb_delivery.lib.dispatch.read_circuit import (
+    _get_raw_plans,
+    _get_raw_stops,
+    _make_plans_df,
+    _transform_routes_df,
+    _write_routes_dfs,
 )
 from bfb_delivery.lib.formatting.data_cleaning import (
     _format_and_validate_box_type,
@@ -434,6 +443,40 @@ class TestCreateManifestsFromCircuitClassScoped:
         with pd.ExcelFile(basic_outputs[0]) as xls:
             yield xls
 
+    @pytest.fixture(scope="class")
+    def basic_plans_list(self) -> list[dict[str, Any]]:
+        """_get_raw_plans."""
+        return _get_raw_plans(
+            start_date=TEST_START_DATE, end_date=TEST_START_DATE, verbose=False
+        )
+
+    @pytest.fixture(scope="class")
+    def basic_plans_df(self, basic_plans_list: list[dict[str, Any]]) -> pd.DataFrame:
+        """_make_plans_df."""
+        return _make_plans_df(plans_list=basic_plans_list, all_HHs=False)
+
+    @pytest.fixture(scope="class")
+    def basic_plan_stops_list(
+        self, mock_basic_stops_responses: list, basic_plans_df: pd.DataFrame
+    ) -> list[dict[str, Any]]:
+        """_get_raw_stops."""
+        with patch(
+            "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
+            return_value=mock_basic_stops_responses,
+        ):
+            return _get_raw_stops(
+                plan_ids=basic_plans_df[CircuitColumns.ID].tolist(), verbose=False
+            )
+
+    @pytest.fixture(scope="class")
+    def basic_transformed_routes_df(
+        self, basic_plan_stops_list: list[dict[str, Any]], basic_plans_df: pd.DataFrame
+    ) -> pd.DataFrame:
+        """_transform_routes_df."""
+        return _transform_routes_df(
+            plan_stops_list=basic_plan_stops_list, plans_df=basic_plans_df
+        )
+
     def test_date_field_matches_sheet_date(self, basic_manifest_workbook: Workbook) -> None:
         """Test that the date field matches the sheet date."""
         for sheet_name in basic_manifest_workbook.sheetnames:
@@ -630,3 +673,23 @@ class TestCreateManifestsFromCircuitClassScoped:
             ]
             for cell in left_aligned_cells:
                 assert cell.alignment.horizontal == "left"
+
+    # TODO: How to test extra notes here?
+
+    def test_write_routes_dfs_title(
+        self,
+        basic_transformed_routes_df: pd.DataFrame,
+        tmp_path_factory: pytest.TempPathFactory,
+    ) -> None:
+        """Test that raises an error if has a title with less than two words."""
+        bad_df = basic_transformed_routes_df.copy()
+        bad_df.loc[0, IntermediateColumns.DRIVER_SHEET_NAME] = "OneWord"
+        output_dir = str(tmp_path_factory.mktemp("output"))
+        with pytest.raises(
+            ValueError,
+            match=(
+                "Column 'driver_sheet_name' failed series or dataframe validator"
+                ".*Check at_least_two_words"
+            ),
+        ):
+            _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
