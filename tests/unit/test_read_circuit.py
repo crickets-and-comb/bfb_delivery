@@ -683,9 +683,10 @@ class TestCreateManifestsFromCircuitClassScoped:
         tmp_path_factory: pytest.TempPathFactory,
     ) -> None:
         """Test that raises an error if has a title with less than two words."""
+        output_dir = str(tmp_path_factory.mktemp("output"))
+
         bad_df = basic_transformed_routes_df.copy()
         bad_df.loc[0, IntermediateColumns.DRIVER_SHEET_NAME] = "OneWord"
-        output_dir = str(tmp_path_factory.mktemp("output"))
         with pytest.raises(
             ValueError,
             match=(
@@ -701,14 +702,34 @@ class TestCreateManifestsFromCircuitClassScoped:
         tmp_path_factory: pytest.TempPathFactory,
     ) -> None:
         """Test that raises an error if has stop no less than 1."""
+        output_dir = str(tmp_path_factory.mktemp("output"))
+
         bad_df = basic_transformed_routes_df.copy()
         bad_df.loc[0, Columns.STOP_NO] = 0
-        output_dir = str(tmp_path_factory.mktemp("output"))
         with pytest.raises(
             ValueError,
             match=re.escape(
                 f"Column '{Columns.STOP_NO}' "  # noqa: B907
                 "failed element-wise validator number 0: greater_than_or_equal_to(1)"
+            ),
+        ):
+            _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
+
+    def test_write_routes_dfs_name_not_null(
+        self,
+        basic_transformed_routes_df: pd.DataFrame,
+        tmp_path_factory: pytest.TempPathFactory,
+    ) -> None:
+        """Test that raises an error if has null name."""
+        output_dir = str(tmp_path_factory.mktemp("output"))
+
+        bad_df = basic_transformed_routes_df.copy()
+        bad_df.loc[0, Columns.NAME] = None
+        with pytest.raises(
+            ValueError,
+            match=re.escape(
+                f"non-nullable series '{Columns.NAME}' "  # noqa: B907
+                "contains null values"
             ),
         ):
             _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
