@@ -10,6 +10,7 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 from click.testing import CliRunner
+from openpyxl import load_workbook
 from typeguard import typechecked
 
 from bfb_delivery import create_manifests_from_circuit
@@ -293,3 +294,21 @@ class TestCreateManifestsFromCircuit:
         assert sorted([path.name for path in list(circuit_output_dir.glob("*"))]) == sorted(
             [f"{sheet_name}.csv" for sheet_name in driver_sheet_names]
         )
+
+    def test_date_field_matches_sheet_date(
+        self, mock_stops_responses_all_hhs_false: list, tmp_path: Path
+    ) -> None:
+        """Test that the date field matches the sheet date."""
+        with patch(
+            "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
+            return_value=mock_stops_responses_all_hhs_false,
+        ):
+            output_path, _ = create_manifests_from_circuit(
+                start_date=TEST_START_DATE, output_dir=str(tmp_path)
+            )
+        workbook = load_workbook(output_path)
+        for sheet_name in workbook.sheetnames:
+            ws = workbook[sheet_name]
+            field_date = ws["A3"].value.split(" ")[1]
+            sheet_name_date = sheet_name.split(" ")[0]
+            assert field_date == sheet_name_date
