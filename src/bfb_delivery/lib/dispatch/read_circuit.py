@@ -307,6 +307,7 @@ def _get_stops_responses(url: str) -> list[dict[str, Any]]:
     return _get_responses(url=url)
 
 
+# TODO: Move to utils.
 # TODO: Pass params instead of forming URL first. ("params", not "json")
 # (Would need to then grab params URL for next page?)
 @typechecked
@@ -327,28 +328,25 @@ def _get_responses(url: str) -> list[dict[str, Any]]:
         try:
             response.raise_for_status()
         except requests.exceptions.HTTPError as http_e:
-            try:
-                response_dict: dict = response.json()
-            except Exception as e:
-                response_dict = {
-                    "reason": response.reason,
-                    "additional_notes": "No-JSON response.",
-                    "No-JSON response exception:": str(e),
-                }
+            response_dict = _get_response_dict(response=response)
             err_msg = f"Got {response.status_code} reponse for {page_url}: {response_dict}"
             raise requests.exceptions.HTTPError(err_msg) from http_e
 
         else:
             if response.status_code == 429:
-                breakpoint()
                 wait_seconds = wait_seconds * 2
                 logger.warning(
                     f"Rate-limited. Doubling per-request wait time to {wait_seconds} seconds."
                 )
-            else:
+            elif response.status_code == 200:
                 stops = response.json()
                 responses.append(stops)
                 next_page = stops.get("nextPageToken", None)
+            else:
+                response_dict = _get_response_dict(response=response)
+                raise ValueError(
+                    f"Unexpected response {response.status_code}: {response_dict}"
+                )
 
         if next_page:
             token_prefix = "?" if "?" not in url else "&"
@@ -357,6 +355,19 @@ def _get_responses(url: str) -> list[dict[str, Any]]:
         sleep(wait_seconds)
 
     return responses
+
+
+@typechecked
+def _get_response_dict(response: requests.Response) -> dict[str, Any]:
+    try:
+        response_dict: dict = response.json()
+    except Exception as e:
+        response_dict = {
+            "reason": response.reason,
+            "additional_notes": "No-JSON response.",
+            "No-JSON response exception:": str(e),
+        }
+    return response_dict
 
 
 @typechecked
