@@ -842,7 +842,7 @@ class TestCreateManifestsFromCircuitClassScoped:
     def test_write_routes_dfs_increasing_by(
         self, transformed_routes_df: pd.DataFrame, tmp_path_factory: pytest.TempPathFactory
     ) -> None:
-        """Raises if not sorted by driver_sheet_name and stop_no."""
+        """Raises if not sorted by stop_no within driver_sheet_name."""
         output_dir = str(tmp_path_factory.mktemp("output"))
 
         bad_df = transformed_routes_df.copy()
@@ -855,4 +855,15 @@ class TestCreateManifestsFromCircuitClassScoped:
         ] = list(reversed(first_group_vals))
 
         with pytest.raises(ValidationError, match="increasing_by"):
+            _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
+
+    def test_write_routes_dfs_many_to_one(
+        self, transformed_routes_df: pd.DataFrame, tmp_path_factory: pytest.TempPathFactory
+    ) -> None:
+        """Raises if driver_sheet_name:stop_id not m:1."""
+        output_dir = str(tmp_path_factory.mktemp("output"))
+
+        bad_df = transformed_routes_df.copy()
+        bad_df.loc[0, CircuitColumns.ID] = bad_df.loc[len(bad_df) - 1, CircuitColumns.ID]
+        with pytest.raises(ValidationError, match="many_to_one"):
             _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
