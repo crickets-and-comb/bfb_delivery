@@ -951,6 +951,15 @@ class TestCreateManifestsFromCircuitClassScoped:
         with expected_error:
             _ = CircuitRoutesTransformInFromDict.validate(bad_df)
 
+    def test_transform_routes_df_id_unique(
+        self, plan_stops_list: list[dict[str, Any]]
+    ) -> None:
+        """Raises if id not unique."""
+        bad_df = pd.DataFrame(plan_stops_list)
+        bad_df.loc[0, CircuitColumns.ID] = bad_df.loc[1, CircuitColumns.ID]
+        with pytest.raises(SchemaError, match="contains duplicate value"):
+            _ = CircuitRoutesTransformInFromDict.validate(bad_df)
+
     # TODO: Test:
     # id: Series[str] = STOP_ID_FIELD()
     # route: Series[dict[str, Any]] = ROUTE_FIELD(item_in_field_dict=CircuitColumns.ID)
