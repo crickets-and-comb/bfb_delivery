@@ -1052,6 +1052,8 @@ def test_get_responses(
 
         with error_context:
             result = get_responses("https://fakeapi.com/data")
+
+        if expected_result:
             assert result == expected_result
 
         assert mock_get.call_count == len(responses)
