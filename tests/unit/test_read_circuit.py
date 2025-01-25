@@ -980,7 +980,7 @@ class TestCreateManifestsFromCircuitClassScoped:
 
 
 @pytest.mark.parametrize(
-    "mock_responses, expected_result",
+    "mock_responses, expected_result, error_context",
     [
         (
             [
@@ -990,6 +990,7 @@ class TestCreateManifestsFromCircuitClassScoped:
                 }
             ],
             [{"data": [1, 2, 3], "nextPageToken": None}],
+            nullcontext(),
         ),
         (
             [
@@ -1003,6 +1004,7 @@ class TestCreateManifestsFromCircuitClassScoped:
                 },
             ],
             [{"data": [1], "nextPageToken": "abc"}, {"data": [2], "nextPageToken": None}],
+            nullcontext(),
         ),
         (
             [
@@ -1013,25 +1015,47 @@ class TestCreateManifestsFromCircuitClassScoped:
                 },
             ],
             [{"data": [3], "nextPageToken": None}],
+            nullcontext(),
         ),
-        ([{"json.return_value": {}, "status_code": 400}], requests.exceptions.HTTPError),
-        ([{"json.return_value": {}, "status_code": 401}], requests.exceptions.HTTPError),
-        ([{"json.return_value": {}, "status_code": 403}], requests.exceptions.HTTPError),
-        ([{"json.return_value": {}, "status_code": 404}], requests.exceptions.HTTPError),
-        ([{"json.return_value": {}, "status_code": 500}], requests.exceptions.HTTPError),
+        (
+            [{"json.return_value": {}, "status_code": 400}],
+            None,
+            pytest.raises(requests.exceptions.HTTPError),
+        ),
+        (
+            [{"json.return_value": {}, "status_code": 401}],
+            None,
+            pytest.raises(requests.exceptions.HTTPError),
+        ),
+        (
+            [{"json.return_value": {}, "status_code": 403}],
+            None,
+            pytest.raises(requests.exceptions.HTTPError),
+        ),
+        (
+            [{"json.return_value": {}, "status_code": 404}],
+            None,
+            pytest.raises(requests.exceptions.HTTPError),
+        ),
+        (
+            [{"json.return_value": {}, "status_code": 500}],
+            None,
+            pytest.raises(requests.exceptions.HTTPError),
+        ),
     ],
 )
-def test_get_responses(mock_responses: list[dict[str, Any]], expected_result: Any) -> None:
+def test_get_responses(
+    mock_responses: list[dict[str, Any]],
+    expected_result: list[dict[str, Any]],
+    error_context: AbstractContextManager,
+) -> None:
     """Test _get_responses function."""
     url = "https://fakeapi.com/data"
 
     with patch("bfb_delivery.lib.dispatch.read_circuit.requests.get") as mock_get:
         mock_get.side_effect = [Mock(**resp) for resp in mock_responses]
 
-        if isinstance(expected_result, type) and issubclass(expected_result, Exception):
-            with pytest.raises(expected_result):
-                _ = _get_responses(url)
-        else:
+        with error_context:
             result = _get_responses(url)
             assert result == expected_result
 
