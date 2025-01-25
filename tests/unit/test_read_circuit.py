@@ -951,7 +951,7 @@ class TestCreateManifestsFromCircuitClassScoped:
         with expected_error:
             _ = CircuitRoutesTransformInFromDict.validate(bad_df)
 
-    def test_transform_routes_df_id_unique(
+    def test_transform_routes_df_stop_id_unique(
         self, plan_stops_list: list[dict[str, Any]]
     ) -> None:
         """Raises if id not unique."""
@@ -960,8 +960,20 @@ class TestCreateManifestsFromCircuitClassScoped:
         with pytest.raises(SchemaError, match="contains duplicate value"):
             _ = CircuitRoutesTransformInFromDict.validate(bad_df)
 
+    @pytest.mark.parametrize(
+        "id, error_match",
+        [("asdg/stops/asdg", "str_startswith"), ("plans/afasdf/sdfsa", "str_contains")],
+    )
+    def test_transform_routes_df_stop_id_regex(
+        self, id: str, error_match: str, plan_stops_list: list[dict[str, Any]]
+    ) -> None:
+        """Raises if id doesn't fit pattern."""
+        bad_df = pd.DataFrame(plan_stops_list)
+        bad_df.loc[0, CircuitColumns.ID] = id
+        with pytest.raises(SchemaError, match=error_match):
+            _ = CircuitRoutesTransformInFromDict.validate(bad_df)
+
     # TODO: Test:
-    # id: Series[str] = STOP_ID_FIELD()
     # route: Series[dict[str, Any]] = ROUTE_FIELD(item_in_field_dict=CircuitColumns.ID)
     # recipient: Series[dict[str, Any]] = _COERCE_FIELD(
     #     item_in_field_dict=CircuitColumns.NAME, alias=CircuitColumns.RECIPIENT
@@ -969,8 +981,6 @@ class TestCreateManifestsFromCircuitClassScoped:
     # address: Series[dict[str, Any]] = ADDRESS_FIELD(
     #     item_in_field_dict=CircuitColumns.PLACE_ID, alias=CircuitColumns.ADDRESS
     # )
-
-
-#     ORDER_INFO_FIELD = partial(
-#     _COERCE_FIELD, item_in_field_dict=CircuitColumns.PRODUCTS, alias=CircuitColumns.ORDER_INFO # noqa: E501
-# )
+    #     ORDER_INFO_FIELD = partial(
+    #     _COERCE_FIELD, item_in_field_dict=CircuitColumns.PRODUCTS, alias=CircuitColumns.ORDER_INFO # noqa: E501
+    # )
