@@ -91,6 +91,39 @@ def mock_os_getcwd(tmp_path: Path) -> Iterator[str]:
         yield return_value
 
 
+@pytest.fixture(scope="class")
+@typechecked
+def mock_plan_responses_class_scoped() -> (
+    list[dict[str, str | list[dict[str, str | dict[str, int]] | None]]]
+):
+    """Return a list of plan responses, as from _get_plan_responses."""
+    with open("tests/unit/fixtures/plan_responses.json") as f:
+        return json.load(f)
+
+
+@pytest.fixture(scope="class")
+@typechecked
+def mock_get_plan_responses_class_scoped(
+    mock_plan_responses_class_scoped: list[
+        dict[str, str | list[dict[str, str | dict[str, int]] | None]]
+    ]
+) -> Iterator[None]:
+    """Mock _get_plan_responses."""
+    with patch(
+        "bfb_delivery.lib.dispatch.read_circuit._get_plan_responses",
+        return_value=mock_plan_responses_class_scoped,
+    ):
+        yield
+
+
+@pytest.fixture(scope="class")
+def mock_getcwd_class_scoped(tmp_path_factory: pytest.TempPathFactory) -> Iterator[str]:
+    """Mock os.getcwd within the read_circuit module."""
+    return_value = str(tmp_path_factory.mktemp("cwd"))
+    with patch("bfb_delivery.lib.dispatch.read_circuit._getcwd", return_value=return_value):
+        yield return_value
+
+
 @pytest.mark.usefixtures("mock_get_plan_responses", "mock_os_getcwd")
 class TestCreateManifestsFromCircuit:
     """Test create_manifests_from_circuit function."""
@@ -328,48 +361,15 @@ class TestCreateManifestsFromCircuit:
         )
 
 
-@pytest.fixture(scope="class")
-@typechecked
-def mock_plan_responses_basic() -> (
-    list[dict[str, str | list[dict[str, str | dict[str, int]] | None]]]
-):
-    """Return a list of plan responses, as from _get_plan_responses."""
-    with open("tests/unit/fixtures/plan_responses.json") as f:
-        return json.load(f)
-
-
-@pytest.fixture(scope="class")
-@typechecked
-def mock_get_plan_responses_basic(
-    mock_plan_responses_basic: list[
-        dict[str, str | list[dict[str, str | dict[str, int]] | None]]
-    ]
-) -> Iterator[None]:
-    """Mock _get_plan_responses."""
-    with patch(
-        "bfb_delivery.lib.dispatch.read_circuit._get_plan_responses",
-        return_value=mock_plan_responses_basic,
-    ):
-        yield
-
-
-@pytest.fixture(scope="class")
-def mock_os_getcwd_class_scope(tmp_path_factory: pytest.TempPathFactory) -> Iterator[str]:
-    """Mock os.getcwd within the read_circuit module."""
-    return_value = str(tmp_path_factory.mktemp("cwd"))
-    with patch("bfb_delivery.lib.dispatch.read_circuit._getcwd", return_value=return_value):
-        yield return_value
-
-
-@pytest.mark.usefixtures("mock_get_plan_responses_basic", "mock_os_getcwd_class_scope")
+@pytest.mark.usefixtures("mock_get_plan_responses_class_scoped", "mock_getcwd_class_scoped")
 class TestCreateManifestsFromCircuitClassScoped:
     """Test create_manifests_from_circuit function."""
 
     @pytest.fixture(scope="class")
     @typechecked
-    def mock_driver_sheet_names_basic(
+    def mock_driver_sheet_names(
         self,
-        mock_plan_responses_basic: list[
+        mock_plan_responses_class_scoped: list[
             dict[
                 str, str | list[dict[str, str | list[str | dict[str, str]] | dict[str, int]]]
             ]
@@ -377,7 +377,7 @@ class TestCreateManifestsFromCircuitClassScoped:
     ) -> list[str]:
         """Return a list of driver sheet names."""
         driver_sheet_names = []
-        for page_dict in mock_plan_responses_basic:
+        for page_dict in mock_plan_responses_class_scoped:
             for plan_dict in page_dict["plans"]:
                 if (
                     isinstance(plan_dict, dict)  # To satisisfy pytype.
@@ -390,16 +390,13 @@ class TestCreateManifestsFromCircuitClassScoped:
 
     @pytest.fixture(scope="class")
     @typechecked
-    def mock_driver_names_basic(self, mock_driver_sheet_names_basic: list[str]) -> list[str]:
+    def mock_driver_names(self, mock_driver_sheet_names: list[str]) -> list[str]:
         """Return a list of driver names."""
-        return [
-            " ".join(sheet_name.split(" ")[1:])
-            for sheet_name in mock_driver_sheet_names_basic
-        ]
+        return [" ".join(sheet_name.split(" ")[1:]) for sheet_name in mock_driver_sheet_names]
 
     @pytest.fixture(scope="class")
     @typechecked
-    def mock_basic_stops_responses(
+    def mock_stops_responses(
         self,
     ) -> list[
         list[
@@ -427,13 +424,13 @@ class TestCreateManifestsFromCircuitClassScoped:
 
     @pytest.fixture(scope="class")
     def outputs(
-        self, mock_basic_stops_responses: list, tmp_path_factory: pytest.TempPathFactory
+        self, mock_stops_responses: list, tmp_path_factory: pytest.TempPathFactory
     ) -> tuple[Path, Path]:
         """Create a basic manifest scoped to class for reuse."""
         output_dir = str(tmp_path_factory.mktemp("output"))
         with patch(
             "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
-            return_value=mock_basic_stops_responses,
+            return_value=mock_stops_responses,
         ):
             manifest_path, circuit_sheets_dir = create_manifests_from_circuit(
                 start_date=TEST_START_DATE, output_dir=output_dir
@@ -467,12 +464,12 @@ class TestCreateManifestsFromCircuitClassScoped:
 
     @pytest.fixture(scope="class")
     def plan_stops_list(
-        self, mock_basic_stops_responses: list, plans_df: pd.DataFrame
+        self, mock_stops_responses: list, plans_df: pd.DataFrame
     ) -> list[dict[str, Any]]:
         """_get_raw_stops."""
         with patch(
             "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
-            return_value=mock_basic_stops_responses,
+            return_value=mock_stops_responses,
         ):
             return _get_raw_stops(
                 plan_ids=plans_df[CircuitColumns.ID].tolist(), verbose=False
@@ -563,10 +560,10 @@ class TestCreateManifestsFromCircuitClassScoped:
             assert ws["A3"].value == f"Date: {MANIFEST_DATE}"
 
     def test_driver_cell(
-        self, mock_driver_names_basic: list[str], manifest_workbook: Workbook
+        self, mock_driver_names: list[str], manifest_workbook: Workbook
     ) -> None:
         """Test that the driver cell is correct."""
-        drivers = [driver.upper() for driver in mock_driver_names_basic]
+        drivers = [driver.upper() for driver in mock_driver_names]
         for sheet_name in manifest_workbook.sheetnames:
             ws = manifest_workbook[sheet_name]
             driver_name = sheet_name.replace(f"{MANIFEST_DATE} ", "")
