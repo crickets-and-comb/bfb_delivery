@@ -336,24 +336,25 @@ def _get_responses(url: str) -> list[dict[str, Any]]:
                     "No-JSON response exception:": str(e),
                 }
             err_msg = f"Got {response.status_code} reponse for {page_url}: {response_dict}"
-
-            if response.status_code == 429:
-                wait_seconds = wait_seconds * 2
-                logger.warning(
-                    f"{err_msg} . Doubling per-request wait time to {wait_seconds} seconds."
-                )
-            else:
-                raise requests.exceptions.HTTPError(err_msg) from http_e
+            raise requests.exceptions.HTTPError(err_msg) from http_e
 
         else:
-            stops = response.json()
-            responses.append(stops)
-            next_page = stops.get("nextPageToken", None)
+            if response.status_code == 429:
+                breakpoint()
+                wait_seconds = wait_seconds * 2
+                logger.warning(
+                    f"Rate-limited. Doubling per-request wait time to {wait_seconds} seconds."
+                )
+            else:
+                stops = response.json()
+                responses.append(stops)
+                next_page = stops.get("nextPageToken", None)
 
-        if next_page or response.status_code == 429:
+        if next_page:
             token_prefix = "?" if "?" not in url else "&"
             next_page = f"{token_prefix}pageToken={next_page}"
-            sleep(wait_seconds)
+
+        sleep(wait_seconds)
 
     return responses
 
