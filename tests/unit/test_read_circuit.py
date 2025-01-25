@@ -826,3 +826,25 @@ class TestCreateManifestsFromCircuitClassScoped:
         bad_df.loc[0, column] = bad_df.loc[len(bad_df) - 1, column]
         with pytest.raises(ValidationError, match="not unique"):
             _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
+
+    def test_write_routes_dfs_contiguous_group(
+        self,
+        basic_transformed_routes_df: pd.DataFrame,
+        tmp_path_factory: pytest.TempPathFactory,
+    ) -> None:
+        """Raises if stop_no not continguous within driver_sheet_name group."""
+        output_dir = str(tmp_path_factory.mktemp("output"))
+
+        bad_df = basic_transformed_routes_df.copy()
+        first_group = bad_df[IntermediateColumns.DRIVER_SHEET_NAME].iloc[0]
+        max_first_group = bad_df[
+            bad_df[IntermediateColumns.DRIVER_SHEET_NAME] == first_group
+        ][Columns.STOP_NO].max()
+        bad_df.loc[
+            (bad_df[IntermediateColumns.DRIVER_SHEET_NAME] == first_group)
+            & (bad_df[Columns.STOP_NO] == max_first_group),
+            Columns.STOP_NO,
+        ] = (max_first_group + 1)
+
+        with pytest.raises(ValidationError, match="contiguous_group"):
+            _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
