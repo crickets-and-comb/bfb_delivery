@@ -163,7 +163,9 @@ def main(  # noqa: C901
         #     plans_df.to_csv(".test_data/sample_responses/plans_df.csv", index=False)
 
         if not mock_raw_routes:
-            plan_stops_list = _get_raw_stops(plan_ids=plans_df[CircuitColumns.ID].to_list())
+            plan_stops_list = _get_raw_stops(
+                plan_ids=plans_df[CircuitColumns.ID].to_list(), verbose=verbose
+            )
             # if all_hhs:
             #     with open(
             #         ".test_data/sample_responses/plan_stops_list_all_hhs.json", "w"

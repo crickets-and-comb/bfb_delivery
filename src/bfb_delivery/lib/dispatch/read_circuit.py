@@ -316,6 +316,7 @@ def _get_responses(url: str) -> list[dict[str, Any]]:
     responses = []
 
     while next_page is not None:
+        # TODO: Pull this out more so we can test setting page_url and wait_seconds.
         page_url = url + str(next_page)
         response = requests.get(
             page_url,
