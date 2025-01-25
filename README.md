@@ -2,7 +2,7 @@
 
 ## Summary
 
-This set of tools cuts some cruft around creating delivery route manifests. It's made from the `reference_package` template repo: https://github.com/crickets-and-comb/reference_package. See the docs: https://crickets-and-comb.github.io/bfb_delivery/.
+This set of command-line tools cuts some cruft around creating delivery route manifests. It's made from the `reference_package` template repo: https://github.com/crickets-and-comb/reference_package. See the docs: https://crickets-and-comb.github.io/bfb_delivery/.
 
 The plan is to continue to build this package out to take on more of the tasks food-bank staff do manually to plan the delivery routes.
 
@@ -52,6 +52,10 @@ We have no intention or desire to replace Circuit. In addition to optimizing rou
 - GUI: There's no real plan to develop a GUI, but it might be a good portfolio project to try out Vercel or something.
 
 The plan of attack has been to start with the low-hanging fruit of ETL before moving onto the bigger problem of chunking. Fully integrating with the Circuit API is the last step before taking on the chunking, and the integration is now halfway done with read capability.
+
+### Comment on the piecemeal nature
+
+The tools thus far are a series of small tools that were then wrapped by bigger tools, which were then wrapped by a larger tool, etc. This is a natural developmental result of incrementally and tentatively taking over this workflow as a volunteer as I gained trust and access to the org's data, information, and resources. Also, the project was largely unsolicited (but fully approved), so I was hesitant to ask too much of the staff to define and clarify requirements etc. It hasn't been used yet by staff in production (though certainly tested live), so I haven't yet discovered any of the improvements or mistaken assumptions that real users will find. As such, there are some optmizations that could happen to reduce the unnecessary output etc., but I am hesitant to do that until we find what works best for the users.
 
 ## Structure
 
