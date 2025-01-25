@@ -41,10 +41,10 @@ from bfb_delivery.lib.constants import (
 from bfb_delivery.lib.dispatch.read_circuit import (
     _get_raw_plans,
     _get_raw_stops,
-    _get_responses,
     _make_plans_df,
     _transform_routes_df,
     _write_routes_dfs,
+    get_responses,
 )
 from bfb_delivery.lib.formatting.data_cleaning import (
     _format_and_validate_box_type,
@@ -977,7 +977,7 @@ class TestCreateManifestsFromCircuitClassScoped:
 
 
 @pytest.mark.parametrize(
-    "mock_responses, expected_result, error_context",
+    "responses, expected_result, error_context",
     [
         (
             [
@@ -1042,16 +1042,16 @@ class TestCreateManifestsFromCircuitClassScoped:
     ],
 )
 def test_get_responses(
-    mock_responses: list[dict[str, Any]],
+    responses: list[dict[str, Any]],
     expected_result: list[dict[str, Any]],
     error_context: AbstractContextManager,
 ) -> None:
-    """Test _get_responses function."""
-    with patch("bfb_delivery.lib.dispatch.read_circuit.requests.get") as mock_get:
-        mock_get.side_effect = [Mock(**resp) for resp in mock_responses]
+    """Test get_responses function."""
+    with patch("requests.get") as mock_get:
+        mock_get.side_effect = [Mock(**resp) for resp in responses]
 
         with error_context:
-            result = _get_responses("https://fakeapi.com/data")
+            result = get_responses("https://fakeapi.com/data")
             assert result == expected_result
 
-        assert mock_get.call_count == len(mock_responses)
+        assert mock_get.call_count == len(responses)
