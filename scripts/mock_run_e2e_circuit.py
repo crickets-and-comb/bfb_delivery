@@ -70,20 +70,18 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
     "--verbose", is_flag=True, default=False, help="verbose: Flag to print verbose output."
 )
 @click.option(
-    "--mock_raw_plans",
-    type=bool,
-    required=False,
-    default=True,
+    "--get_raw_plans",
+    is_flag=True,
+    default=False,
     help=(
         "Use mock plan data instead of querying the Circuit API. "
         "Only relevant if not using the public API, which will query Circuit."
     ),
 )
 @click.option(
-    "--mock_raw_routes",
-    type=bool,
-    required=False,
-    default=True,
+    "--get_raw_routes",
+    is_flag=True,
+    default=False,
     help=(
         "Use mock routes data instead of querying the Circuit API. "
         "Only relevant if not using the public API, which will query Circuit."
@@ -103,8 +101,8 @@ def main(  # noqa: C901
     end_date: str,
     all_hhs: bool,
     verbose: bool,
-    mock_raw_plans: bool,
-    mock_raw_routes: bool,
+    get_raw_plans: bool,
+    get_raw_routes: bool,
     use_public: bool,
 ) -> None:
     """Mock run of the end-to-end Circuit integration."""
@@ -142,7 +140,7 @@ def main(  # noqa: C901
 
     else:
         # BEGIN: get_route_files-ish
-        if not mock_raw_plans:
+        if get_raw_plans:
             start_date = start_date if start_date else get_friday(fmt="%Y%m%d")
             end_date = end_date if end_date else start_date
 
@@ -162,7 +160,7 @@ def main(  # noqa: C901
         # else:
         #     plans_df.to_csv(".test_data/sample_responses/plans_df.csv", index=False)
 
-        if not mock_raw_routes:
+        if get_raw_routes:
             plan_stops_list = _get_raw_stops(
                 plan_ids=plans_df[CircuitColumns.ID].to_list(), verbose=verbose
             )
