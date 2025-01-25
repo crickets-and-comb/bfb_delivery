@@ -1050,13 +1050,11 @@ def test_get_responses(
     error_context: AbstractContextManager,
 ) -> None:
     """Test _get_responses function."""
-    url = "https://fakeapi.com/data"
-
     with patch("bfb_delivery.lib.dispatch.read_circuit.requests.get") as mock_get:
         mock_get.side_effect = [Mock(**resp) for resp in mock_responses]
 
         with error_context:
-            result = _get_responses(url)
+            result = _get_responses("https://fakeapi.com/data")
             assert result == expected_result
 
         assert mock_get.call_count == len(mock_responses)
