@@ -275,6 +275,10 @@ class CircuitRoutesWriteIn(pa.DataFrameModel):
             "col_a": CircuitColumns.ROUTE,
             "col_b": IntermediateColumns.DRIVER_SHEET_NAME,
         }
+        many_to_one = {
+            "many_col": CircuitColumns.ID,
+            "one_col": IntermediateColumns.DRIVER_SHEET_NAME,
+        }
         at_least_one_in_group = {
             "group_col": CircuitColumns.ROUTE,
             "at_least_one_col": IntermediateColumns.DRIVER_SHEET_NAME,
