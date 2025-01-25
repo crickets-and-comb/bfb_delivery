@@ -37,6 +37,7 @@ from bfb_delivery.lib.dispatch.utils import get_responses
             [{"data": [1], "nextPageToken": "abc"}, {"data": [2], "nextPageToken": None}],
             nullcontext(),
         ),
+        # TODO: Test multiple pages with 429 status code.
         (
             [
                 {"json.return_value": {}, "status_code": 429},
@@ -105,7 +106,7 @@ from bfb_delivery.lib.dispatch.utils import get_responses
         ),
     ],
 )
-def test_get_responses(
+def test_get_responses_returns(
     responses: list[dict[str, Any]],
     expected_result: list[dict[str, Any]],
     error_context: AbstractContextManager,
@@ -120,6 +121,36 @@ def test_get_responses(
             assert result == expected_result
 
         assert mock_get.call_count == len(responses)
+
+
+@pytest.mark.parametrize(
+    "responses",
+    [
+        [
+            {
+                "json.return_value": {"data": [1, 2, 3], "nextPageToken": None},
+                "status_code": 200,
+            }
+        ],
+        [
+            {"json.return_value": {"data": [1], "nextPageToken": "abc"}, "status_code": 200},
+            {"json.return_value": {"data": [2], "nextPageToken": None}, "status_code": 200},
+        ],
+        # TODO: Test multiple pages with 429 status code.
+        [
+            {"json.return_value": {}, "status_code": 429},
+            {"json.return_value": {"data": [3], "nextPageToken": None}, "status_code": 200},
+        ],
+        # TODO: Test with params.
+    ],
+)
+def test_get_responses_urls(responses: list[dict[str, Any]]) -> None:
+    """Test get_responses function."""
+    base_url = "http://example.com/api/v1/stops"
+    with patch("requests.get") as mock_get:
+        mock_get.side_effect = [Mock(**resp) for resp in responses]
+
+        _ = get_responses(base_url)
 
         expected_urls = [base_url]
         for resp in responses:
@@ -136,3 +167,6 @@ def test_get_responses(
         assert (
             actual_urls == expected_urls
         ), f"Expected {expected_urls}, but got {actual_urls}"
+
+
+# TODO: Test wait time.
