@@ -48,6 +48,7 @@ from bfb_delivery.lib.formatting.data_cleaning import (
 )
 from bfb_delivery.lib.formatting.sheet_shaping import _aggregate_route_data
 from bfb_delivery.lib.formatting.utils import get_extra_notes
+from bfb_delivery.lib.schema.checks import one_to_one
 
 TEST_START_DATE: Final[str] = "2025-01-17"
 MANIFEST_DATE: Final[str] = "1.17"
@@ -723,7 +724,7 @@ class TestCreateManifestsFromCircuitClassScoped:
         basic_transformed_routes_df: pd.DataFrame,
         tmp_path_factory: pytest.TempPathFactory,
     ) -> None:
-        """Test that raises an error if has null name."""
+        """Raises for field violations."""
         output_dir = str(tmp_path_factory.mktemp("output"))
 
         bad_df = basic_transformed_routes_df.copy()
@@ -766,4 +767,23 @@ class TestCreateManifestsFromCircuitClassScoped:
         with expected_error:
             _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
 
-    # TODO: Do the first fields null test too.
+    # Datafrane checks are tested at a lower level to isolate them. Some checks are run first
+    # and will always raise when you try to test another test.
+
+    @pytest.mark.parametrize(
+        "column", [CircuitColumns.ROUTE, IntermediateColumns.DRIVER_SHEET_NAME]
+    )
+    def test_write_routes_dfs_one_to_one(
+        self, column: str, basic_transformed_routes_df: pd.DataFrame
+    ) -> None:
+        """Raises if route:driver_sheet_name not 1:1."""
+        bad_df = basic_transformed_routes_df.copy()
+        bad_df.loc[0, column] = bad_df.loc[len(bad_df) - 1, column]
+        assert (
+            one_to_one(
+                df=bad_df,
+                col_a=CircuitColumns.ROUTE,
+                col_b=IntermediateColumns.DRIVER_SHEET_NAME,
+            )
+            is np.False_
+        )
