@@ -48,7 +48,7 @@ from bfb_delivery.lib.formatting.data_cleaning import (
 )
 from bfb_delivery.lib.formatting.sheet_shaping import _aggregate_route_data
 from bfb_delivery.lib.formatting.utils import get_extra_notes
-from bfb_delivery.lib.schema.checks import one_to_one
+from bfb_delivery.lib.schema.checks import at_least_one_in_group, one_to_one
 
 TEST_START_DATE: Final[str] = "2025-01-17"
 MANIFEST_DATE: Final[str] = "1.17"
@@ -786,4 +786,25 @@ class TestCreateManifestsFromCircuitClassScoped:
                 col_b=IntermediateColumns.DRIVER_SHEET_NAME,
             )
             is np.False_
+        )
+
+    @pytest.mark.parametrize(
+        "group_col, at_least_one_col",
+        [
+            (CircuitColumns.ROUTE, IntermediateColumns.DRIVER_SHEET_NAME),
+            (IntermediateColumns.DRIVER_SHEET_NAME, CircuitColumns.ROUTE),
+            (IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO),
+        ],
+    )
+    def test_write_routes_dfs_at_least_one_in_group(
+        self, group_col: str, at_least_one_col: str, basic_transformed_routes_df: pd.DataFrame
+    ) -> None:
+        """Raises if at least one in group is not true."""
+        bad_df = basic_transformed_routes_df.copy()
+        bad_df.loc[bad_df[group_col] == bad_df.loc[0, group_col], at_least_one_col] = None
+        assert (
+            at_least_one_in_group(
+                df=bad_df, group_col=group_col, at_least_one_col=at_least_one_col
+            )
+            is False
         )
