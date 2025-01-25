@@ -130,36 +130,70 @@ def test_get_responses_returns(
 
 
 @pytest.mark.parametrize(
-    "responses",
+    "params, responses",
     [
-        [
-            {
-                "json.return_value": {"data": [1, 2, 3], "nextPageToken": None},
-                "status_code": 200,
-            }
-        ],
-        [
-            {"json.return_value": {"data": [1], "nextPageToken": "abc"}, "status_code": 200},
-            {"json.return_value": {"data": [2], "nextPageToken": None}, "status_code": 200},
-        ],
-        [
-            {"json.return_value": {}, "status_code": 429},
-            {"json.return_value": {}, "status_code": 429},
-            {"json.return_value": {"data": [3], "nextPageToken": "asfg"}, "status_code": 200},
-            {"json.return_value": {}, "status_code": 429},
-            {"json.return_value": {"data": [54], "nextPageToken": None}, "status_code": 200},
-        ],
-        # TODO: Test with params.
+        (
+            "",
+            [
+                {
+                    "json.return_value": {"data": [1, 2, 3], "nextPageToken": None},
+                    "status_code": 200,
+                }
+            ],
+        ),
+        (
+            "",
+            [
+                {
+                    "json.return_value": {"data": [1], "nextPageToken": "abc"},
+                    "status_code": 200,
+                },
+                {
+                    "json.return_value": {"data": [2], "nextPageToken": None},
+                    "status_code": 200,
+                },
+            ],
+        ),
+        (
+            "",
+            [
+                {"json.return_value": {}, "status_code": 429},
+                {"json.return_value": {}, "status_code": 429},
+                {
+                    "json.return_value": {"data": [3], "nextPageToken": "asfg"},
+                    "status_code": 200,
+                },
+                {"json.return_value": {}, "status_code": 429},
+                {
+                    "json.return_value": {"data": [54], "nextPageToken": None},
+                    "status_code": 200,
+                },
+            ],
+        ),
+        (
+            "?filter.startsGte=2015-12-12&filter.startsLTE=2021-06-25",
+            [
+                {
+                    "json.return_value": {"data": [1], "nextPageToken": "abc"},
+                    "status_code": 200,
+                },
+                {
+                    "json.return_value": {"data": [2], "nextPageToken": None},
+                    "status_code": 200,
+                },
+            ],
+        ),
     ],
 )
-def test_get_responses_urls(responses: list[dict[str, Any]]) -> None:
+def test_get_responses_urls(responses: list[dict[str, Any]], params: str) -> None:
     """Test get_responses function."""
+    base_url = f"{BASE_URL}{params}"
     with patch("requests.get") as mock_get:
         mock_get.side_effect = [Mock(**resp) for resp in responses]
 
-        _ = get_responses(BASE_URL)
+        _ = get_responses(base_url)
 
-        expected_urls = [BASE_URL]
+        expected_urls = [base_url]
         last_next_page_token = None
         for resp in responses:
             next_page_token = resp["json.return_value"].get("nextPageToken")
@@ -168,11 +202,11 @@ def test_get_responses_urls(responses: list[dict[str, Any]]) -> None:
                     next_page_token = last_next_page_token
                 last_next_page_token = next_page_token
 
-                token_prefix = "?" if "?" not in BASE_URL else "&"
+                token_prefix = "?" if "?" not in base_url else "&"
                 token = (
                     f"{token_prefix}pageToken={next_page_token}" if next_page_token else ""
                 )
-                expected_urls.append(f"{BASE_URL}{token}")
+                expected_urls.append(f"{base_url}{token}")
 
         actual_urls = [call.args[0] for call in mock_get.call_args_list]
 
