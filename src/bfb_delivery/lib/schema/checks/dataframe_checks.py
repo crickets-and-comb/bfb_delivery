@@ -11,11 +11,7 @@ import pandera.extensions as extensions
 @extensions.register_check_method(statistics=["group_col", "at_least_one_col"])
 def at_least_one_in_group(df: pd.DataFrame, group_col: str, at_least_one_col: str) -> bool:
     """Check that at least one value in a group is not null or empty."""
-    return all(
-        len(vals.to_list())
-        == len([val for val in vals.to_list() if val and not pd.isna(val)])  # noqa: W503
-        for _, vals in df.groupby(group_col)[at_least_one_col]
-    )
+    return all(df.groupby(group_col)[at_least_one_col].count() > 0)
 
 
 @extensions.register_check_method(statistics=["group_col", "contiguous_col", "start_idx"])
