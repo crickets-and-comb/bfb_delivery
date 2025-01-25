@@ -16,6 +16,7 @@ import pandera as pa
 import pytest
 from click.testing import CliRunner
 from openpyxl import Workbook, load_workbook
+from pandera.errors import SchemaError
 from pandera.typing import Series
 from pydantic_core import ValidationError
 from typeguard import typechecked
@@ -50,6 +51,7 @@ from bfb_delivery.lib.formatting.data_cleaning import (
 )
 from bfb_delivery.lib.formatting.sheet_shaping import _aggregate_route_data
 from bfb_delivery.lib.formatting.utils import get_extra_notes
+from bfb_delivery.lib.schema import CircuitRoutesTransformInFromDict
 from bfb_delivery.lib.schema.checks import at_least_one_in_group, one_to_one
 
 TEST_START_DATE: Final[str] = "2025-01-17"
@@ -890,3 +892,76 @@ class TestCreateManifestsFromCircuitClassScoped:
         bad_plan_stops_list[0][CircuitColumns.ADDRESS].pop(column)
         with pytest.raises(ValidationError, match=check_name):
             _transform_routes_df(plan_stops_list=bad_plan_stops_list, plans_df=plans_df)
+
+    @pytest.mark.parametrize(
+        "field, bad_value, expected_error",
+        [
+            (
+                CircuitColumns.PLAN,
+                None,
+                pytest.raises(SchemaError, match="contains null values"),
+            ),
+            (
+                CircuitColumns.ROUTE,
+                None,
+                pytest.raises(SchemaError, match="contains null values"),
+            ),
+            (
+                CircuitColumns.ID,
+                None,
+                pytest.raises(SchemaError, match="contains null values"),
+            ),
+            (
+                CircuitColumns.STOP_POSITION,
+                None,
+                pytest.raises(SchemaError, match="Could not coerce"),
+            ),
+            (
+                CircuitColumns.STOP_POSITION,
+                -1,
+                pytest.raises(SchemaError, match=re.escape("greater_than_or_equal_to(0)")),
+            ),
+            (
+                CircuitColumns.RECIPIENT,
+                None,
+                pytest.raises(SchemaError, match="contains null values"),
+            ),
+            (
+                CircuitColumns.ADDRESS,
+                None,
+                pytest.raises(SchemaError, match="contains null values"),
+            ),
+            (
+                CircuitColumns.PACKAGE_COUNT,
+                0,
+                pytest.raises(SchemaError, match=re.escape("equal_to(1)")),
+            ),
+        ],
+    )
+    def test_transform_routes_df_field_checks(
+        self,
+        field: str,
+        bad_value: Any | None,
+        expected_error: AbstractContextManager,
+        plan_stops_list: list[dict[str, Any]],
+    ) -> None:
+        """Raises for field violations."""
+        bad_df = pd.DataFrame(plan_stops_list)
+        bad_df.loc[0, field] = bad_value
+        with expected_error:
+            _ = CircuitRoutesTransformInFromDict.validate(bad_df)
+
+    # TODO: Test:
+    # id: Series[str] = STOP_ID_FIELD()
+    # route: Series[dict[str, Any]] = ROUTE_FIELD(item_in_field_dict=CircuitColumns.ID)
+    # recipient: Series[dict[str, Any]] = _COERCE_FIELD(
+    #     item_in_field_dict=CircuitColumns.NAME, alias=CircuitColumns.RECIPIENT
+    # )
+    # address: Series[dict[str, Any]] = ADDRESS_FIELD(
+    #     item_in_field_dict=CircuitColumns.PLACE_ID, alias=CircuitColumns.ADDRESS
+    # )
+
+
+#     ORDER_INFO_FIELD = partial(
+#     _COERCE_FIELD, item_in_field_dict=CircuitColumns.PRODUCTS, alias=CircuitColumns.ORDER_INFO # noqa: E501
+# )

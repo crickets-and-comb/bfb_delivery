@@ -99,7 +99,7 @@ class CircuitRoutesTransformInFromDict(pa.DataFrameModel):
         item_in_field_dict=CircuitColumns.NAME, alias=CircuitColumns.RECIPIENT
     )
     address: Series[dict[str, Any]] = ADDRESS_FIELD(
-        alias=CircuitColumns.ADDRESS, item_in_field_dict=CircuitColumns.PLACE_ID
+        item_in_field_dict=CircuitColumns.PLACE_ID, alias=CircuitColumns.ADDRESS
     )
     notes: Series[str] = NOTES_FIELD(alias=CircuitColumns.NOTES)
     orderInfo: Series[dict[str, Any]] = ORDER_INFO_FIELD()
