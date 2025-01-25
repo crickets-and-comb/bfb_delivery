@@ -7,6 +7,7 @@ from unittest.mock import Mock, patch
 import pytest
 import requests
 
+from bfb_delivery.lib.constants import RateLimits
 from bfb_delivery.lib.dispatch.utils import get_responses
 
 BASE_URL: Final[str] = "http://example.com/api/v2/stops"
@@ -119,7 +120,7 @@ def test_get_responses_returns(
     error_context: AbstractContextManager,
 ) -> None:
     """Test get_responses function."""
-    with patch("requests.get") as mock_get:
+    with patch("requests.get") as mock_get, patch("bfb_delivery.lib.dispatch.utils.sleep"):
         mock_get.side_effect = [Mock(**resp) for resp in responses]
 
         with error_context:
@@ -188,7 +189,7 @@ def test_get_responses_returns(
 def test_get_responses_urls(responses: list[dict[str, Any]], params: str) -> None:
     """Test get_responses function."""
     base_url = f"{BASE_URL}{params}"
-    with patch("requests.get") as mock_get:
+    with patch("requests.get") as mock_get, patch("bfb_delivery.lib.dispatch.utils.sleep"):
         mock_get.side_effect = [Mock(**resp) for resp in responses]
 
         _ = get_responses(base_url)
@@ -213,4 +214,29 @@ def test_get_responses_urls(responses: list[dict[str, Any]], params: str) -> Non
         assert actual_urls == expected_urls
 
 
-# TODO: Test wait time.
+def test_get_responses_wait_time() -> None:
+    """Test get_responses doubles wait times passed to requests.get after 429 response."""
+    responses = [
+        {"json.return_value": {}, "status_code": 429},
+        {"json.return_value": {}, "status_code": 429},
+        {"json.return_value": {"data": [3], "nextPageToken": "asfg"}, "status_code": 200},
+        {"json.return_value": {}, "status_code": 429},
+        {"json.return_value": {"data": [54], "nextPageToken": None}, "status_code": 200},
+    ]
+    with patch("requests.get") as mock_get, patch(
+        "bfb_delivery.lib.dispatch.utils.sleep"
+    ) as mock_sleep:
+        mock_get.side_effect = [Mock(**resp) for resp in responses]
+
+        _ = get_responses(BASE_URL)
+
+        expected_sleep_calls = []
+        wait_time = RateLimits.READ_SECONDS
+        for resp in responses:
+            if resp["status_code"] == 429:
+                wait_time *= 2
+            expected_sleep_calls.append(wait_time)
+
+        actual_sleep_calls = [call.args[0] for call in mock_sleep.call_args_list]
+
+        assert actual_sleep_calls == expected_sleep_calls
