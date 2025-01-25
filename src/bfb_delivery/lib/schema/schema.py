@@ -155,46 +155,17 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
     class Config:
         """The configuration for the schema."""
 
-        # These are redundant in combination, and the "true" relationships aren't explicitly
-        # defined as circularly in Circuit, but the data set is small, so not a real cost to
-        # be this clear and robust.
-        # Also, the Circuit plan:route relationship is 1:m, but we only ever want 1:1.
-        unique = [CircuitColumns.PLAN, Columns.STOP_NO]
-        unique = [CircuitColumns.ROUTE, Columns.STOP_NO]
-        unique = [IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO]
+        # NOTE, the Circuit plan:route relationship is 1:m, but we only ever want 1:1.
         one_to_one = {"col_a": CircuitColumns.ROUTE, "col_b": CircuitColumns.PLAN}
-        one_to_one = {
-            "col_a": CircuitColumns.ROUTE,
-            "col_b": IntermediateColumns.DRIVER_SHEET_NAME,
-        }
-        one_to_one = {
-            "col_a": CircuitColumns.PLAN,
-            "col_b": IntermediateColumns.DRIVER_SHEET_NAME,
-        }
+        one_to_one_route_sheet = True
         at_least_one_in_group = {
             "group_col": CircuitColumns.PLAN,
             "at_least_one_col": IntermediateColumns.DRIVER_SHEET_NAME,
         }
-        at_least_one_in_group = {
-            "group_col": IntermediateColumns.DRIVER_SHEET_NAME,
-            "at_least_one_col": CircuitColumns.PLAN,
-        }
-        at_least_one_in_group = {
-            "group_col": CircuitColumns.ROUTE,
-            "at_least_one_col": IntermediateColumns.DRIVER_SHEET_NAME,
-        }
-        at_least_one_in_group = {
-            "group_col": IntermediateColumns.DRIVER_SHEET_NAME,
-            "at_least_one_col": CircuitColumns.ROUTE,
-        }
-        at_least_one_in_group = {
-            "group_col": CircuitColumns.ROUTE,
-            "at_least_one_col": CircuitColumns.PLAN,
-        }
-        at_least_one_in_group = {
-            "group_col": CircuitColumns.PLAN,
-            "at_least_one_col": CircuitColumns.ROUTE,
-        }
+        at_least_one_in_group_sheet_plan = True
+        at_least_one_in_group_route_sheet = True
+        at_least_one_in_group_sheet_route = True
+
         # TODO: Was violated on 10/4. Investigate, but ignore for now.
         # plans/jEvjLs3ViQkKPBcJVduF, routes/z9AmJkUnuQXUGHGsoxyG
         # Had route title "10.11 Sara" and driver sheet name (plan title) "10.4 Sara"
@@ -203,37 +174,12 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
         #     "col_b": IntermediateColumns.DRIVER_SHEET_NAME,
         # }
 
-        many_to_one = {"many_col": CircuitColumns.ID, "one_col": CircuitColumns.PLAN}
-        many_to_one = {"many_col": CircuitColumns.ID, "one_col": CircuitColumns.ROUTE}
         many_to_one = {
             "many_col": CircuitColumns.ID,
             "one_col": IntermediateColumns.DRIVER_SHEET_NAME,
         }
-        at_least_one_in_group = {
-            "group_col": CircuitColumns.PLAN,
-            "at_least_one_col": CircuitColumns.ID,
-        }
-        at_least_one_in_group = {
-            "group_col": CircuitColumns.ROUTE,
-            "at_least_one_col": CircuitColumns.ID,
-        }
-        at_least_one_in_group = {
-            "group_col": IntermediateColumns.DRIVER_SHEET_NAME,
-            "at_least_one_col": CircuitColumns.ID,
-        }
-        at_least_one_in_group = {
-            "group_col": CircuitColumns.PLAN,
-            "at_least_one_col": Columns.STOP_NO,
-        }
-        at_least_one_in_group = {
-            "group_col": CircuitColumns.ROUTE,
-            "at_least_one_col": Columns.STOP_NO,
-        }
-        at_least_one_in_group = {
-            "group_col": IntermediateColumns.DRIVER_SHEET_NAME,
-            "at_least_one_col": Columns.STOP_NO,
-        }
-
+        unique = [IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO]
+        at_least_one_in_group_sheet_stop = True
         contiguous_group = {
             "group_col": IntermediateColumns.DRIVER_SHEET_NAME,
             "contiguous_col": Columns.STOP_NO,
@@ -270,20 +216,11 @@ class CircuitRoutesWriteIn(pa.DataFrameModel):
             "many_col": CircuitColumns.ID,
             "one_col": IntermediateColumns.DRIVER_SHEET_NAME,
         }
-        at_least_one_in_group = {
-            "group_col": CircuitColumns.ROUTE,
-            "at_least_one_col": IntermediateColumns.DRIVER_SHEET_NAME,
-        }
-        at_least_one_in_group = {
-            "group_col": IntermediateColumns.DRIVER_SHEET_NAME,
-            "at_least_one_col": CircuitColumns.ROUTE,
-        }
-        unique = [IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO]
-        at_least_one_in_group = {
-            "group_col": IntermediateColumns.DRIVER_SHEET_NAME,
-            "at_least_one_col": Columns.STOP_NO,
-        }
+        at_least_one_in_group_route_sheet = True
+        at_least_one_in_group_sheet_route = True
 
+        unique = [IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO]
+        at_least_one_in_group_sheet_stop = True
         contiguous_group = {
             "group_col": IntermediateColumns.DRIVER_SHEET_NAME,
             "contiguous_col": Columns.STOP_NO,
