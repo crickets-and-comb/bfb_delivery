@@ -111,11 +111,28 @@ def test_get_responses(
     error_context: AbstractContextManager,
 ) -> None:
     """Test get_responses function."""
+    base_url = "http://example.com/api/v1/stops"
     with patch("requests.get") as mock_get:
         mock_get.side_effect = [Mock(**resp) for resp in responses]
 
         with error_context:
-            result = get_responses("https://fakeapi.com/data")
+            result = get_responses(base_url)
             assert result == expected_result
 
         assert mock_get.call_count == len(responses)
+
+        expected_urls = [base_url]
+        for resp in responses:
+            next_page_token = resp["json.return_value"].get("nextPageToken")
+            if next_page_token or (not next_page_token and resp["status_code"] == 429):
+                token_prefix = "?" if "?" not in base_url else "&"
+                token = (
+                    f"{token_prefix}pageToken={next_page_token}" if next_page_token else ""
+                )
+                expected_urls.append(f"{base_url}{token}")
+
+        actual_urls = [call.args[0] for call in mock_get.call_args_list]
+
+        assert (
+            actual_urls == expected_urls
+        ), f"Expected {expected_urls}, but got {actual_urls}"
