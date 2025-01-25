@@ -9,6 +9,8 @@ import requests
 
 from bfb_delivery.lib.dispatch.utils import get_responses
 
+BASE_URL = "http://example.com/api/v2/stops"
+
 
 @pytest.mark.parametrize(
     "responses, expected_result, error_context",
@@ -37,16 +39,21 @@ from bfb_delivery.lib.dispatch.utils import get_responses
             [{"data": [1], "nextPageToken": "abc"}, {"data": [2], "nextPageToken": None}],
             nullcontext(),
         ),
-        # TODO: Test multiple pages with 429 status code.
         (
             [
                 {"json.return_value": {}, "status_code": 429},
+                {"json.return_value": {}, "status_code": 429},
                 {
-                    "json.return_value": {"data": [3], "nextPageToken": None},
+                    "json.return_value": {"data": [3], "nextPageToken": "asfg"},
+                    "status_code": 200,
+                },
+                {"json.return_value": {}, "status_code": 429},
+                {
+                    "json.return_value": {"data": [54], "nextPageToken": None},
                     "status_code": 200,
                 },
             ],
-            [{"data": [3], "nextPageToken": None}],
+            [{"data": [3], "nextPageToken": "asfg"}, {"data": [54], "nextPageToken": None}],
             nullcontext(),
         ),
         (
@@ -112,12 +119,11 @@ def test_get_responses_returns(
     error_context: AbstractContextManager,
 ) -> None:
     """Test get_responses function."""
-    base_url = "http://example.com/api/v1/stops"
     with patch("requests.get") as mock_get:
         mock_get.side_effect = [Mock(**resp) for resp in responses]
 
         with error_context:
-            result = get_responses(base_url)
+            result = get_responses(BASE_URL)
             assert result == expected_result
 
         assert mock_get.call_count == len(responses)
@@ -146,21 +152,20 @@ def test_get_responses_returns(
 )
 def test_get_responses_urls(responses: list[dict[str, Any]]) -> None:
     """Test get_responses function."""
-    base_url = "http://example.com/api/v1/stops"
     with patch("requests.get") as mock_get:
         mock_get.side_effect = [Mock(**resp) for resp in responses]
 
-        _ = get_responses(base_url)
+        _ = get_responses(BASE_URL)
 
-        expected_urls = [base_url]
+        expected_urls = [BASE_URL]
         for resp in responses:
             next_page_token = resp["json.return_value"].get("nextPageToken")
             if next_page_token or (not next_page_token and resp["status_code"] == 429):
-                token_prefix = "?" if "?" not in base_url else "&"
+                token_prefix = "?" if "?" not in BASE_URL else "&"
                 token = (
                     f"{token_prefix}pageToken={next_page_token}" if next_page_token else ""
                 )
-                expected_urls.append(f"{base_url}{token}")
+                expected_urls.append(f"{BASE_URL}{token}")
 
         actual_urls = [call.args[0] for call in mock_get.call_args_list]
 
