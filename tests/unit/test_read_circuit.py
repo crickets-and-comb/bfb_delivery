@@ -872,24 +872,27 @@ class TestCreateManifestsFromCircuitClassScoped:
             _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
 
     @pytest.mark.parametrize(
-        "column, check_name",
+        "field, item, check_name",
         [
-            (CircuitColumns.ADDRESS_LINE_1, "address1_in_address"),
-            (CircuitColumns.ADDRESS_LINE_2, "address2_in_address"),
-            # item_in_field_dict interferes, but we know the check will work:
-            # (CircuitColumns.PLACE_ID, "place_id_in_address"),
+            (CircuitColumns.ADDRESS, CircuitColumns.ADDRESS_LINE_1, "address1_in_address"),
+            (CircuitColumns.ADDRESS, CircuitColumns.ADDRESS_LINE_2, "address2_in_address"),
+            (CircuitColumns.ADDRESS, CircuitColumns.PLACE_ID, "item_in_field_dict"),
+            (CircuitColumns.ROUTE, CircuitColumns.ID, "item_in_field_dict"),
+            (CircuitColumns.RECIPIENT, CircuitColumns.NAME, "item_in_field_dict"),
+            (CircuitColumns.ORDER_INFO, CircuitColumns.PRODUCTS, "item_in_field_dict"),
         ],
     )
-    def test_transform_routes_df_address_items_present(
+    def test_transform_routes_df_item_in_field_dict(
         self,
-        column: str,
+        field: str,
+        item: str,
         check_name: str,
         plans_df: pd.DataFrame,
         plan_stops_list: list[dict[str, Any]],
     ) -> None:
         """Raises if item not in address column dict."""
         bad_plan_stops_list = copy.deepcopy(plan_stops_list)
-        bad_plan_stops_list[0][CircuitColumns.ADDRESS].pop(column)
+        bad_plan_stops_list[0][field].pop(item)
         with pytest.raises(ValidationError, match=check_name):
             _transform_routes_df(plan_stops_list=bad_plan_stops_list, plans_df=plans_df)
 
@@ -972,15 +975,3 @@ class TestCreateManifestsFromCircuitClassScoped:
         bad_df.loc[0, CircuitColumns.ID] = id
         with pytest.raises(SchemaError, match=error_match):
             _ = CircuitRoutesTransformInFromDict.validate(bad_df)
-
-    # TODO: Test:
-    # route: Series[dict[str, Any]] = ROUTE_FIELD(item_in_field_dict=CircuitColumns.ID)
-    # recipient: Series[dict[str, Any]] = _COERCE_FIELD(
-    #     item_in_field_dict=CircuitColumns.NAME, alias=CircuitColumns.RECIPIENT
-    # )
-    # address: Series[dict[str, Any]] = ADDRESS_FIELD(
-    #     item_in_field_dict=CircuitColumns.PLACE_ID, alias=CircuitColumns.ADDRESS
-    # )
-    #     ORDER_INFO_FIELD = partial(
-    #     _COERCE_FIELD, item_in_field_dict=CircuitColumns.PRODUCTS, alias=CircuitColumns.ORDER_INFO # noqa: E501
-    # )

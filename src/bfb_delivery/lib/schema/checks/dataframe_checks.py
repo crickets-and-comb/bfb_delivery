@@ -127,18 +127,6 @@ def address2_in_address(df: pd.DataFrame, flag: bool) -> bool:
     )
 
 
-@extensions.register_check_method(statistics=["flag"])
-def place_id_in_address(df: pd.DataFrame, flag: bool) -> bool:
-    """Check that a place ID one in address."""
-    return (
-        item_in_dict_col(
-            df=df, col_name=CircuitColumns.ADDRESS, item_name=CircuitColumns.PLACE_ID
-        )
-        if flag
-        else True
-    )
-
-
 @extensions.register_check_method(statistics=["col_name", "item_name"])
 def item_in_dict_col(df: pd.DataFrame, col_name: str, item_name: str) -> bool:
     """Check that a dictionary field has an item in it."""

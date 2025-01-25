@@ -13,7 +13,6 @@ from bfb_delivery.lib.schema.checks.dataframe_checks import (
     many_to_one,
     one_to_one,
     one_to_one_route_sheet,
-    place_id_in_address,
     unique_group,
 )
 from bfb_delivery.lib.schema.checks.field_checks import (

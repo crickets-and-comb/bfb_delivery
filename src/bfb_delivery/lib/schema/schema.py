@@ -120,7 +120,8 @@ class CircuitRoutesTransformInFromDict(pa.DataFrameModel):
             "contiguous_col": CircuitColumns.STOP_POSITION,
             "start_idx": 0,
         }
-        place_id_in_address = True
+        # TODO: Convert back to field checks now that we know they must be uniquely defined
+        # either way.
         address1_in_address = True
         address2_in_address = True
 
