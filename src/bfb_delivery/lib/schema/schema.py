@@ -120,18 +120,9 @@ class CircuitRoutesTransformInFromDict(pa.DataFrameModel):
             "contiguous_col": CircuitColumns.STOP_POSITION,
             "start_idx": 0,
         }
-        item_in_dict_col = {
-            "col_name": CircuitColumns.ADDRESS,
-            "item_name": CircuitColumns.PLACE_ID,
-        }
-        item_in_dict_col = {
-            "col_name": CircuitColumns.ADDRESS,
-            "item_name": CircuitColumns.ADDRESS_LINE_1,
-        }
-        item_in_dict_col = {
-            "col_name": CircuitColumns.ADDRESS,
-            "item_name": CircuitColumns.ADDRESS_LINE_2,
-        }
+        place_id_in_address = True
+        address1_in_address = True
+        address2_in_address = True
 
 
 class CircuitRoutesTransformOut(pa.DataFrameModel):

@@ -3,6 +3,8 @@
 import pandas as pd
 import pandera.extensions as extensions
 
+from bfb_delivery.lib.constants import CircuitColumns
+
 # NOTE: Registering as dataframe checks instead of field checks includes the columns in the
 # error message, whereas groupby field checks do not.
 # NOTE: There may be better a way to mock an RDB structure (spin up temp DB), but this works.
@@ -42,6 +44,42 @@ def increasing_by(df: pd.DataFrame, cols: list[str]) -> bool:
 
     return all(
         increasing_groupby(df, col_a=cols[i], col_b=cols[i + 1]) for i in range(len(cols) - 1)
+    )
+
+
+@extensions.register_check_method(statistics=["flag"])
+def address1_in_address(df: pd.DataFrame, flag: bool) -> bool:
+    """Check that a address line one in address."""
+    return (
+        item_in_dict_col(
+            df=df, col_name=CircuitColumns.ADDRESS, item_name=CircuitColumns.ADDRESS_LINE_1
+        )
+        if flag
+        else True
+    )
+
+
+@extensions.register_check_method(statistics=["flag"])
+def address2_in_address(df: pd.DataFrame, flag: bool) -> bool:
+    """Check that a address line two in address."""
+    return (
+        item_in_dict_col(
+            df=df, col_name=CircuitColumns.ADDRESS, item_name=CircuitColumns.ADDRESS_LINE_2
+        )
+        if flag
+        else True
+    )
+
+
+@extensions.register_check_method(statistics=["flag"])
+def place_id_in_address(df: pd.DataFrame, flag: bool) -> bool:
+    """Check that a place ID one in address."""
+    return (
+        item_in_dict_col(
+            df=df, col_name=CircuitColumns.ADDRESS, item_name=CircuitColumns.PLACE_ID
+        )
+        if flag
+        else True
     )
 
 
