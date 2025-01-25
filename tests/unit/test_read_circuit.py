@@ -3,15 +3,19 @@
 import json
 import re
 from collections.abc import Iterator
+from contextlib import AbstractContextManager, nullcontext
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Final
 from unittest.mock import patch
 
+import numpy as np
 import pandas as pd
+import pandera as pa
 import pytest
 from click.testing import CliRunner
 from openpyxl import Workbook, load_workbook
+from pandera.typing import Series
 from typeguard import typechecked
 
 from bfb_delivery import create_manifests_from_circuit
@@ -677,46 +681,45 @@ class TestCreateManifestsFromCircuitClassScoped:
 
     # TODO: How to test extra notes here?
 
-    def test_write_routes_dfs_title_two_words(
-        self,
-        basic_transformed_routes_df: pd.DataFrame,
-        tmp_path_factory: pytest.TempPathFactory,
-    ) -> None:
-        """Test that raises an error if has a title with less than two words."""
-        output_dir = str(tmp_path_factory.mktemp("output"))
-
-        bad_df = basic_transformed_routes_df.copy()
-        bad_df.loc[0, IntermediateColumns.DRIVER_SHEET_NAME] = "OneWord"
-        with pytest.raises(
-            ValueError,
-            match=(
-                f"Column '{IntermediateColumns.DRIVER_SHEET_NAME}' "  # noqa: B907
-                "failed series or dataframe validator.*Check at_least_two_words"
+    @pytest.mark.parametrize(
+        "field, bad_value, expected_error",
+        [
+            (
+                IntermediateColumns.DRIVER_SHEET_NAME,
+                None,
+                pytest.raises(ValueError, match="contains null values"),
             ),
-        ):
-            _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
-
-    def test_write_routes_dfs_stop_no_ge_1(
-        self,
-        basic_transformed_routes_df: pd.DataFrame,
-        tmp_path_factory: pytest.TempPathFactory,
-    ) -> None:
-        """Test that raises an error if has stop no less than 1."""
-        output_dir = str(tmp_path_factory.mktemp("output"))
-
-        bad_df = basic_transformed_routes_df.copy()
-        bad_df.loc[0, Columns.STOP_NO] = 0
-        with pytest.raises(
-            ValueError,
-            match=re.escape(
-                f"Column '{Columns.STOP_NO}' "  # noqa: B907
-                "failed element-wise validator number 0: greater_than_or_equal_to(1)"
+            (
+                IntermediateColumns.DRIVER_SHEET_NAME,
+                "OneWord",
+                pytest.raises(ValueError, match="at_least_two_words"),
             ),
-        ):
-            _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
-
-    def test_write_routes_dfs_name_not_null(
+            (Columns.STOP_NO, np.nan, pytest.raises(ValueError, match="Could not coerce")),
+            (
+                Columns.STOP_NO,
+                0,
+                pytest.raises(ValueError, match=re.escape("greater_than_or_equal_to(1)")),
+            ),
+            (Columns.NAME, None, pytest.raises(ValueError, match="contains null values")),
+            (Columns.ADDRESS, None, pytest.raises(ValueError, match="contains null values")),
+            (
+                Columns.ORDER_COUNT,
+                None,
+                pytest.raises(ValueError, match="contains null values"),
+            ),
+            (
+                Columns.ORDER_COUNT,
+                0,
+                pytest.raises(ValueError, match=re.escape("equal_to(1)")),
+            ),
+            (Columns.BOX_TYPE, None, pytest.raises(ValueError, match="contains null values")),
+        ],
+    )
+    def test_write_routes_dfs_field_checks(
         self,
+        field: str,
+        bad_value: Any | None,
+        expected_error: AbstractContextManager,
         basic_transformed_routes_df: pd.DataFrame,
         tmp_path_factory: pytest.TempPathFactory,
     ) -> None:
@@ -724,12 +727,43 @@ class TestCreateManifestsFromCircuitClassScoped:
         output_dir = str(tmp_path_factory.mktemp("output"))
 
         bad_df = basic_transformed_routes_df.copy()
-        bad_df.loc[0, Columns.NAME] = None
-        with pytest.raises(
-            ValueError,
-            match=re.escape(
-                f"non-nullable series '{Columns.NAME}' "  # noqa: B907
-                "contains null values"
-            ),
-        ):
+        bad_df.loc[0, field] = bad_value
+        with expected_error:
             _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
+
+    @pytest.mark.parametrize(
+        "value, expected_error",
+        [
+            (
+                "I am not a box type.",
+                pytest.raises(ValueError, match="in_list_case_insensitive"),
+            ),
+            (BoxType.BASIC, nullcontext()),
+            (BoxType.GF, nullcontext()),
+            (BoxType.LA, nullcontext()),
+            (BoxType.VEGAN, nullcontext()),
+        ],
+    )
+    def test_write_routes_dfs_box_type_inlist(
+        self,
+        value: str,
+        expected_error: AbstractContextManager,
+        basic_transformed_routes_df: pd.DataFrame,
+        tmp_path_factory: pytest.TempPathFactory,
+    ) -> None:
+        """Raises error of not a real box type."""
+        output_dir = str(tmp_path_factory.mktemp("output"))
+
+        bad_df = basic_transformed_routes_df.copy()
+        bad_df[Columns.BOX_TYPE] = bad_df[Columns.BOX_TYPE].astype(str)
+        bad_df.loc[0, Columns.BOX_TYPE] = value
+
+        class RecastSchema(pa.DataFrameModel):
+            BOX_TYPE: Series[pa.Category] = pa.Field(coerce=True, alias=Columns.BOX_TYPE)
+
+        bad_df = RecastSchema.validate(bad_df)
+
+        with expected_error:
+            _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
+
+    # TODO: Do the first fields null test too.

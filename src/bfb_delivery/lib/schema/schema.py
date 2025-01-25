@@ -22,7 +22,7 @@ _UNIQUE_FIELD = partial(_COERCE_FIELD, unique=True)
 ADDRESS_FIELD = partial(_COERCE_FIELD, alias=Columns.ADDRESS)
 # TODO: Maybe just warn about missing box types? Waiting on user preference.
 BOX_TYPE_FIELD = partial(
-    _COERCE_FIELD, alias=Columns.BOX_TYPE, in_list_case_insensitive={"category_list": BoxType}
+    _COERCE_FIELD, in_list_case_insensitive={"category_list": BoxType}, alias=Columns.BOX_TYPE
 )
 # Renamed CircuitColumns.TITLE column, e.g. "1.17 Andy W":
 EMAIL_FIELD = partial(_NULLABLE_FIELD, alias=Columns.EMAIL)
