@@ -848,3 +848,23 @@ class TestCreateManifestsFromCircuitClassScoped:
 
         with pytest.raises(ValidationError, match="contiguous_group"):
             _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
+
+    def test_write_routes_dfs_increasing_by(
+        self,
+        basic_transformed_routes_df: pd.DataFrame,
+        tmp_path_factory: pytest.TempPathFactory,
+    ) -> None:
+        """Raises if not sorted by driver_sheet_name and stop_no."""
+        output_dir = str(tmp_path_factory.mktemp("output"))
+
+        bad_df = basic_transformed_routes_df.copy()
+        first_group = bad_df[IntermediateColumns.DRIVER_SHEET_NAME].iloc[0]
+        first_group_vals = bad_df[
+            bad_df[IntermediateColumns.DRIVER_SHEET_NAME] == first_group
+        ][Columns.STOP_NO].to_list()
+        bad_df.loc[
+            bad_df[IntermediateColumns.DRIVER_SHEET_NAME] == first_group, Columns.STOP_NO
+        ] = list(reversed(first_group_vals))
+
+        with pytest.raises(ValidationError, match="increasing_by"):
+            _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
