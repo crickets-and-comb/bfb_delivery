@@ -1,5 +1,6 @@
 """Tests for read_circuit module."""
 
+import copy
 import json
 import re
 from collections.abc import Iterator
@@ -720,7 +721,7 @@ class TestCreateManifestsFromCircuitClassScoped:
         """Raises for field violations."""
         output_dir = str(tmp_path_factory.mktemp("output"))
 
-        bad_df = transformed_routes_df.copy()
+        bad_df = copy.deepcopy(transformed_routes_df)
         bad_df.loc[0, field] = bad_value
         with expected_error:
             _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
@@ -748,7 +749,7 @@ class TestCreateManifestsFromCircuitClassScoped:
         """Raises error of not a real box type."""
         output_dir = str(tmp_path_factory.mktemp("output"))
 
-        bad_df = transformed_routes_df.copy()
+        bad_df = copy.deepcopy(transformed_routes_df)
         bad_df[Columns.BOX_TYPE] = bad_df[Columns.BOX_TYPE].astype(str)
         bad_df.loc[0, Columns.BOX_TYPE] = value
 
@@ -770,7 +771,7 @@ class TestCreateManifestsFromCircuitClassScoped:
         self, column: str, transformed_routes_df: pd.DataFrame
     ) -> None:
         """Raises if route:driver_sheet_name not 1:1."""
-        bad_df = transformed_routes_df.copy()
+        bad_df = copy.deepcopy(transformed_routes_df)
         bad_df.loc[0, column] = bad_df.loc[len(bad_df) - 1, column]
         assert (
             one_to_one(
@@ -793,7 +794,7 @@ class TestCreateManifestsFromCircuitClassScoped:
         self, group_col: str, at_least_one_col: str, transformed_routes_df: pd.DataFrame
     ) -> None:
         """Raises if at least one in group is not true."""
-        bad_df = transformed_routes_df.copy()
+        bad_df = copy.deepcopy(transformed_routes_df)
         bad_df.loc[bad_df[group_col] == bad_df.loc[0, group_col], at_least_one_col] = None
         assert (
             at_least_one_in_group(
@@ -814,7 +815,7 @@ class TestCreateManifestsFromCircuitClassScoped:
         """Raises if driver_sheet_name:stop_no not unique."""
         output_dir = str(tmp_path_factory.mktemp("output"))
 
-        bad_df = transformed_routes_df.copy()
+        bad_df = copy.deepcopy(transformed_routes_df)
         bad_df.loc[0, column] = bad_df.loc[len(bad_df) - 1, column]
         with pytest.raises(ValidationError, match="not unique"):
             _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
@@ -825,7 +826,7 @@ class TestCreateManifestsFromCircuitClassScoped:
         """Raises if stop_no not continguous within driver_sheet_name group."""
         output_dir = str(tmp_path_factory.mktemp("output"))
 
-        bad_df = transformed_routes_df.copy()
+        bad_df = copy.deepcopy(transformed_routes_df)
         first_group = bad_df[IntermediateColumns.DRIVER_SHEET_NAME].iloc[0]
         max_first_group = bad_df[
             bad_df[IntermediateColumns.DRIVER_SHEET_NAME] == first_group
@@ -845,7 +846,7 @@ class TestCreateManifestsFromCircuitClassScoped:
         """Raises if not sorted by stop_no within driver_sheet_name."""
         output_dir = str(tmp_path_factory.mktemp("output"))
 
-        bad_df = transformed_routes_df.copy()
+        bad_df = copy.deepcopy(transformed_routes_df)
         first_group = bad_df[IntermediateColumns.DRIVER_SHEET_NAME].iloc[0]
         first_group_vals = bad_df[
             bad_df[IntermediateColumns.DRIVER_SHEET_NAME] == first_group
@@ -863,7 +864,29 @@ class TestCreateManifestsFromCircuitClassScoped:
         """Raises if driver_sheet_name:stop_id not m:1."""
         output_dir = str(tmp_path_factory.mktemp("output"))
 
-        bad_df = transformed_routes_df.copy()
+        bad_df = copy.deepcopy(transformed_routes_df)
         bad_df.loc[0, CircuitColumns.ID] = bad_df.loc[len(bad_df) - 1, CircuitColumns.ID]
         with pytest.raises(ValidationError, match="many_to_one"):
             _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
+
+    @pytest.mark.parametrize(
+        "column, check_name",
+        [
+            (CircuitColumns.ADDRESS_LINE_1, "address1_in_address"),
+            (CircuitColumns.ADDRESS_LINE_2, "address2_in_address"),
+            # item_in_field_dict interferes, but we know the check will work:
+            # (CircuitColumns.PLACE_ID, "place_id_in_address"),
+        ],
+    )
+    def test_transform_routes_df_address_items_present(
+        self,
+        column: str,
+        check_name: str,
+        plans_df: pd.DataFrame,
+        plan_stops_list: list[dict[str, Any]],
+    ) -> None:
+        """Raises if item not in address column dict."""
+        bad_plan_stops_list = copy.deepcopy(plan_stops_list)
+        bad_plan_stops_list[0][CircuitColumns.ADDRESS].pop(column)
+        with pytest.raises(ValidationError, match=check_name):
+            _transform_routes_df(plan_stops_list=bad_plan_stops_list, plans_df=plans_df)
