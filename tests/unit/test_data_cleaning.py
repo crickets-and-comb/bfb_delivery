@@ -472,9 +472,9 @@ class TestFormatAndValidateData:
                 pd.DataFrame(
                     {
                         Columns.PHONE: INVALID_NUMBERS
-                        + [  # noqa: W503
+                        + [
                             "+1"
-                            + str(  # noqa: W503
+                            + str(
                                 phonenumbers.example_number(region_code="US").national_number
                             )
                         ]

@@ -699,7 +699,7 @@ class TestCombineRouteTables:
             combined_output_data[[Columns.NAME, Columns.ADDRESS, Columns.PHONE]]
             .duplicated()
             .sum()
-            == 0  # noqa: W503
+            == 0
         )
 
     def test_complete_contents(

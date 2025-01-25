@@ -156,7 +156,7 @@ def one_to_one(df: pd.DataFrame, col_a: str, col_b: str) -> bool:
     """Assert that columns have a 1:1 relationship."""
     return (
         df.groupby(col_a)[col_b].nunique().eq(1).all()
-        and df.groupby(col_b)[col_a].nunique().eq(1).all()  # noqa: W503
+        and df.groupby(col_b)[col_a].nunique().eq(1).all()
     )
 
 

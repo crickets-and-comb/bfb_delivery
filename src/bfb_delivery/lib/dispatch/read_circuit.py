@@ -464,8 +464,8 @@ def _set_routes_df_values(routes_df: pd.DataFrame) -> pd.DataFrame:
 
     routes_df[Columns.ADDRESS] = (
         routes_df[CircuitColumns.ADDRESS_LINE_1]
-        + ", "  # noqa: W503
-        + routes_df[CircuitColumns.ADDRESS_LINE_2]  # noqa: W503
+        + ", "
+        + routes_df[CircuitColumns.ADDRESS_LINE_2]
     )
 
     _split_multi_route_drivers(routes_df=routes_df)
