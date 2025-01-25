@@ -16,6 +16,7 @@ import pytest
 from click.testing import CliRunner
 from openpyxl import Workbook, load_workbook
 from pandera.typing import Series
+from pydantic_core import ValidationError
 from typeguard import typechecked
 
 from bfb_delivery import create_manifests_from_circuit
@@ -808,3 +809,20 @@ class TestCreateManifestsFromCircuitClassScoped:
             )
             is False
         )
+
+    @pytest.mark.parametrize(
+        "column", [IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO]
+    )
+    def test_write_routes_dfs_unique(
+        self,
+        column: str,
+        basic_transformed_routes_df: pd.DataFrame,
+        tmp_path_factory: pytest.TempPathFactory,
+    ) -> None:
+        """Raises if driver_sheet_name:stop_no not unique."""
+        output_dir = str(tmp_path_factory.mktemp("output"))
+
+        bad_df = basic_transformed_routes_df.copy()
+        bad_df.loc[0, column] = bad_df.loc[len(bad_df) - 1, column]
+        with pytest.raises(ValidationError, match="not unique"):
+            _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
