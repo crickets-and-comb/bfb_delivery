@@ -421,7 +421,7 @@ class TestCreateManifestsFromCircuitClassScoped:
             return json.load(f)
 
     @pytest.fixture(scope="class")
-    def basic_outputs(
+    def outputs(
         self, mock_basic_stops_responses: list, tmp_path_factory: pytest.TempPathFactory
     ) -> tuple[Path, Path]:
         """Create a basic manifest scoped to class for reuse."""
@@ -437,34 +437,32 @@ class TestCreateManifestsFromCircuitClassScoped:
         return manifest_path, circuit_sheets_dir
 
     @pytest.fixture(scope="class")
-    def basic_manifest_workbook(self, basic_outputs: tuple[Path, Path]) -> Workbook:
+    def manifest_workbook(self, outputs: tuple[Path, Path]) -> Workbook:
         """Create a basic manifest workbook scoped to class for reuse."""
-        workbook = load_workbook(basic_outputs[0])
+        workbook = load_workbook(outputs[0])
         return workbook
 
     @pytest.fixture(scope="class")
-    def basic_manifest_ExcelFile(
-        self, basic_outputs: tuple[Path, Path]
-    ) -> Iterator[pd.ExcelFile]:
+    def manifest_ExcelFile(self, outputs: tuple[Path, Path]) -> Iterator[pd.ExcelFile]:
         """Create a basic manifest workbook scoped to class for reuse."""
-        with pd.ExcelFile(basic_outputs[0]) as xls:
+        with pd.ExcelFile(outputs[0]) as xls:
             yield xls
 
     @pytest.fixture(scope="class")
-    def basic_plans_list(self) -> list[dict[str, Any]]:
+    def plans_list(self) -> list[dict[str, Any]]:
         """_get_raw_plans."""
         return _get_raw_plans(
             start_date=TEST_START_DATE, end_date=TEST_START_DATE, verbose=False
         )
 
     @pytest.fixture(scope="class")
-    def basic_plans_df(self, basic_plans_list: list[dict[str, Any]]) -> pd.DataFrame:
+    def plans_df(self, plans_list: list[dict[str, Any]]) -> pd.DataFrame:
         """_make_plans_df."""
-        return _make_plans_df(plans_list=basic_plans_list, all_HHs=False)
+        return _make_plans_df(plans_list=plans_list, all_HHs=False)
 
     @pytest.fixture(scope="class")
-    def basic_plan_stops_list(
-        self, mock_basic_stops_responses: list, basic_plans_df: pd.DataFrame
+    def plan_stops_list(
+        self, mock_basic_stops_responses: list, plans_df: pd.DataFrame
     ) -> list[dict[str, Any]]:
         """_get_raw_stops."""
         with patch(
@@ -472,35 +470,31 @@ class TestCreateManifestsFromCircuitClassScoped:
             return_value=mock_basic_stops_responses,
         ):
             return _get_raw_stops(
-                plan_ids=basic_plans_df[CircuitColumns.ID].tolist(), verbose=False
+                plan_ids=plans_df[CircuitColumns.ID].tolist(), verbose=False
             )
 
     @pytest.fixture(scope="class")
-    def basic_transformed_routes_df(
-        self, basic_plan_stops_list: list[dict[str, Any]], basic_plans_df: pd.DataFrame
+    def transformed_routes_df(
+        self, plan_stops_list: list[dict[str, Any]], plans_df: pd.DataFrame
     ) -> pd.DataFrame:
         """_transform_routes_df."""
-        return _transform_routes_df(
-            plan_stops_list=basic_plan_stops_list, plans_df=basic_plans_df
-        )
+        return _transform_routes_df(plan_stops_list=plan_stops_list, plans_df=plans_df)
 
-    def test_date_field_matches_sheet_date(self, basic_manifest_workbook: Workbook) -> None:
+    def test_date_field_matches_sheet_date(self, manifest_workbook: Workbook) -> None:
         """Test that the date field matches the sheet date."""
-        for sheet_name in basic_manifest_workbook.sheetnames:
-            ws = basic_manifest_workbook[sheet_name]
+        for sheet_name in manifest_workbook.sheetnames:
+            ws = manifest_workbook[sheet_name]
             field_date = ws["A3"].value.split(" ")[1]
             sheet_name_date = sheet_name.split(" ")[0]
             assert field_date == sheet_name_date
 
     def test_df_is_same(
-        self, basic_outputs: tuple[Path, Path], basic_manifest_ExcelFile: pd.ExcelFile
+        self, outputs: tuple[Path, Path], manifest_ExcelFile: pd.ExcelFile
     ) -> None:
         """All the input data is in the formatted workbook."""
-        for sheet_name in sorted(basic_manifest_ExcelFile.sheet_names):
-            input_df = pd.read_csv(basic_outputs[1] / f"{sheet_name}.csv")
-            output_df = pd.read_excel(
-                basic_manifest_ExcelFile, sheet_name=sheet_name, skiprows=8
-            )
+        for sheet_name in sorted(manifest_ExcelFile.sheet_names):
+            input_df = pd.read_csv(outputs[1] / f"{sheet_name}.csv")
+            output_df = pd.read_excel(manifest_ExcelFile, sheet_name=sheet_name, skiprows=8)
 
             # Hacky, but need to make sure formatted values haven't fundamentally changed.
             formatted_columns = [Columns.BOX_TYPE, Columns.NAME, Columns.PHONE]
@@ -534,53 +528,51 @@ class TestCreateManifestsFromCircuitClassScoped:
         ],
     )
     def test_header_row(
-        self, cell: str, expected_value: str, basic_manifest_workbook: Workbook
+        self, cell: str, expected_value: str, manifest_workbook: Workbook
     ) -> None:
         """Test that the header row is correct."""
-        for sheet_name in basic_manifest_workbook.sheetnames:
-            ws = basic_manifest_workbook[sheet_name]
+        for sheet_name in manifest_workbook.sheetnames:
+            ws = manifest_workbook[sheet_name]
             assert ws[cell].value == expected_value
 
-    def test_header_row_end(self, basic_manifest_workbook: Workbook) -> None:
+    def test_header_row_end(self, manifest_workbook: Workbook) -> None:
         """Test that the header row ends at F1."""
-        for sheet_name in basic_manifest_workbook.sheetnames:
-            ws = basic_manifest_workbook[sheet_name]
+        for sheet_name in manifest_workbook.sheetnames:
+            ws = manifest_workbook[sheet_name]
             last_non_empty_col = max(
                 (cell.column for cell in ws[1] if cell.value), default=None
             )
             assert last_non_empty_col == 6
 
     @pytest.mark.parametrize("cell", ["A1", "B1", "C1", "D1", "E1", "F1"])
-    def test_header_row_color(self, cell: str, basic_manifest_workbook: Workbook) -> None:
+    def test_header_row_color(self, cell: str, manifest_workbook: Workbook) -> None:
         """Test the header row fill color."""
-        for sheet_name in basic_manifest_workbook.sheetnames:
-            ws = basic_manifest_workbook[sheet_name]
+        for sheet_name in manifest_workbook.sheetnames:
+            ws = manifest_workbook[sheet_name]
             assert ws[cell].fill.start_color.rgb == f"{CellColors.HEADER}"
 
-    def test_date_cell(self, basic_manifest_workbook: Workbook) -> None:
+    def test_date_cell(self, manifest_workbook: Workbook) -> None:
         """Test that the date cell is correct."""
-        for sheet_name in basic_manifest_workbook.sheetnames:
-            ws = basic_manifest_workbook[sheet_name]
+        for sheet_name in manifest_workbook.sheetnames:
+            ws = manifest_workbook[sheet_name]
             assert ws["A3"].value == f"Date: {MANIFEST_DATE}"
 
     def test_driver_cell(
-        self, mock_driver_names_basic: list[str], basic_manifest_workbook: Workbook
+        self, mock_driver_names_basic: list[str], manifest_workbook: Workbook
     ) -> None:
         """Test that the driver cell is correct."""
         drivers = [driver.upper() for driver in mock_driver_names_basic]
-        for sheet_name in basic_manifest_workbook.sheetnames:
-            ws = basic_manifest_workbook[sheet_name]
+        for sheet_name in manifest_workbook.sheetnames:
+            ws = manifest_workbook[sheet_name]
             driver_name = sheet_name.replace(f"{MANIFEST_DATE} ", "")
             assert ws["A5"].value == f"Driver: {driver_name}"
             assert driver_name.upper() in drivers
 
-    def test_agg_cells(
-        self, basic_manifest_workbook: Workbook, basic_outputs: tuple[Path, Path]
-    ) -> None:
+    def test_agg_cells(self, manifest_workbook: Workbook, outputs: tuple[Path, Path]) -> None:
         """Test that the aggregated cells are correct."""
-        for sheet_name in sorted(basic_manifest_workbook.sheetnames):
-            input_df = pd.read_csv(basic_outputs[1] / f"{sheet_name}.csv")
-            ws = basic_manifest_workbook[sheet_name]
+        for sheet_name in sorted(manifest_workbook.sheetnames):
+            input_df = pd.read_csv(outputs[1] / f"{sheet_name}.csv")
+            ws = manifest_workbook[sheet_name]
 
             input_df.rename(columns={Columns.PRODUCT_TYPE: Columns.BOX_TYPE}, inplace=True)
             agg_dict = _aggregate_route_data(
@@ -602,10 +594,10 @@ class TestCreateManifestsFromCircuitClassScoped:
             assert ws["E8"].value == "PROTEIN COUNT="
             assert ws["F8"].value == agg_dict["protein_box_count"]
 
-    def test_box_type_cell_colors(self, basic_manifest_workbook: Workbook) -> None:
+    def test_box_type_cell_colors(self, manifest_workbook: Workbook) -> None:
         """Test that the box type cells conditionally formatted with fill color."""
-        for sheet_name in basic_manifest_workbook.sheetnames:
-            ws = basic_manifest_workbook[sheet_name]
+        for sheet_name in manifest_workbook.sheetnames:
+            ws = manifest_workbook[sheet_name]
             for cell in ws["F"]:
                 if cell.row > 9:
                     assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
@@ -613,10 +605,10 @@ class TestCreateManifestsFromCircuitClassScoped:
                 if cell.row > 2 and cell.row < 7:
                     assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
 
-    def test_notes_column_width(self, basic_manifest_workbook: Workbook) -> None:
+    def test_notes_column_width(self, manifest_workbook: Workbook) -> None:
         """Test that the notes column width is correct."""
-        for sheet_name in basic_manifest_workbook.sheetnames:
-            ws = basic_manifest_workbook[sheet_name]
+        for sheet_name in manifest_workbook.sheetnames:
+            ws = manifest_workbook[sheet_name]
             assert ws["E9"].value == Columns.NOTES
             assert ws.column_dimensions["E"].width == NOTES_COLUMN_WIDTH
 
@@ -655,26 +647,26 @@ class TestCreateManifestsFromCircuitClassScoped:
             "F9",
         ],
     )
-    def test_bold_cells(self, cell: str, basic_manifest_workbook: Workbook) -> None:
+    def test_bold_cells(self, cell: str, manifest_workbook: Workbook) -> None:
         """Test that the cells are bold."""
-        for sheet_name in basic_manifest_workbook.sheetnames:
-            ws = basic_manifest_workbook[sheet_name]
+        for sheet_name in manifest_workbook.sheetnames:
+            ws = manifest_workbook[sheet_name]
             assert ws[cell].font.bold
 
-    def test_cell_right_alignment(self, basic_manifest_workbook: Workbook) -> None:
+    def test_cell_right_alignment(self, manifest_workbook: Workbook) -> None:
         """Test right-aligned cells."""
-        for sheet_name in basic_manifest_workbook.sheetnames:
-            ws = basic_manifest_workbook[sheet_name]
+        for sheet_name in manifest_workbook.sheetnames:
+            ws = manifest_workbook[sheet_name]
             right_aligned_cells = [ws["D1"], ws["F1"]] + [
                 cell for row in ws["E3:F8"] for cell in row
             ]
             for cell in right_aligned_cells:
                 assert cell.alignment.horizontal == "right"
 
-    def test_cell_left_alignment(self, basic_manifest_workbook: Workbook) -> None:
+    def test_cell_left_alignment(self, manifest_workbook: Workbook) -> None:
         """Test left-aligned cells."""
-        for sheet_name in basic_manifest_workbook.sheetnames:
-            ws = basic_manifest_workbook[sheet_name]
+        for sheet_name in manifest_workbook.sheetnames:
+            ws = manifest_workbook[sheet_name]
             left_aligned_cells = [cell for row in ws["A1:A8"] for cell in row] + [
                 cell for row in ws["A9:F9"] for cell in row
             ]
@@ -722,13 +714,13 @@ class TestCreateManifestsFromCircuitClassScoped:
         field: str,
         bad_value: Any | None,
         expected_error: AbstractContextManager,
-        basic_transformed_routes_df: pd.DataFrame,
+        transformed_routes_df: pd.DataFrame,
         tmp_path_factory: pytest.TempPathFactory,
     ) -> None:
         """Raises for field violations."""
         output_dir = str(tmp_path_factory.mktemp("output"))
 
-        bad_df = basic_transformed_routes_df.copy()
+        bad_df = transformed_routes_df.copy()
         bad_df.loc[0, field] = bad_value
         with expected_error:
             _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
@@ -750,13 +742,13 @@ class TestCreateManifestsFromCircuitClassScoped:
         self,
         value: str,
         expected_error: AbstractContextManager,
-        basic_transformed_routes_df: pd.DataFrame,
+        transformed_routes_df: pd.DataFrame,
         tmp_path_factory: pytest.TempPathFactory,
     ) -> None:
         """Raises error of not a real box type."""
         output_dir = str(tmp_path_factory.mktemp("output"))
 
-        bad_df = basic_transformed_routes_df.copy()
+        bad_df = transformed_routes_df.copy()
         bad_df[Columns.BOX_TYPE] = bad_df[Columns.BOX_TYPE].astype(str)
         bad_df.loc[0, Columns.BOX_TYPE] = value
 
@@ -775,10 +767,10 @@ class TestCreateManifestsFromCircuitClassScoped:
         "column", [CircuitColumns.ROUTE, IntermediateColumns.DRIVER_SHEET_NAME]
     )
     def test_write_routes_dfs_one_to_one(
-        self, column: str, basic_transformed_routes_df: pd.DataFrame
+        self, column: str, transformed_routes_df: pd.DataFrame
     ) -> None:
         """Raises if route:driver_sheet_name not 1:1."""
-        bad_df = basic_transformed_routes_df.copy()
+        bad_df = transformed_routes_df.copy()
         bad_df.loc[0, column] = bad_df.loc[len(bad_df) - 1, column]
         assert (
             one_to_one(
@@ -798,10 +790,10 @@ class TestCreateManifestsFromCircuitClassScoped:
         ],
     )
     def test_write_routes_dfs_at_least_one_in_group(
-        self, group_col: str, at_least_one_col: str, basic_transformed_routes_df: pd.DataFrame
+        self, group_col: str, at_least_one_col: str, transformed_routes_df: pd.DataFrame
     ) -> None:
         """Raises if at least one in group is not true."""
-        bad_df = basic_transformed_routes_df.copy()
+        bad_df = transformed_routes_df.copy()
         bad_df.loc[bad_df[group_col] == bad_df.loc[0, group_col], at_least_one_col] = None
         assert (
             at_least_one_in_group(
@@ -816,26 +808,24 @@ class TestCreateManifestsFromCircuitClassScoped:
     def test_write_routes_dfs_unique(
         self,
         column: str,
-        basic_transformed_routes_df: pd.DataFrame,
+        transformed_routes_df: pd.DataFrame,
         tmp_path_factory: pytest.TempPathFactory,
     ) -> None:
         """Raises if driver_sheet_name:stop_no not unique."""
         output_dir = str(tmp_path_factory.mktemp("output"))
 
-        bad_df = basic_transformed_routes_df.copy()
+        bad_df = transformed_routes_df.copy()
         bad_df.loc[0, column] = bad_df.loc[len(bad_df) - 1, column]
         with pytest.raises(ValidationError, match="not unique"):
             _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
 
     def test_write_routes_dfs_contiguous_group(
-        self,
-        basic_transformed_routes_df: pd.DataFrame,
-        tmp_path_factory: pytest.TempPathFactory,
+        self, transformed_routes_df: pd.DataFrame, tmp_path_factory: pytest.TempPathFactory
     ) -> None:
         """Raises if stop_no not continguous within driver_sheet_name group."""
         output_dir = str(tmp_path_factory.mktemp("output"))
 
-        bad_df = basic_transformed_routes_df.copy()
+        bad_df = transformed_routes_df.copy()
         first_group = bad_df[IntermediateColumns.DRIVER_SHEET_NAME].iloc[0]
         max_first_group = bad_df[
             bad_df[IntermediateColumns.DRIVER_SHEET_NAME] == first_group
@@ -850,14 +840,12 @@ class TestCreateManifestsFromCircuitClassScoped:
             _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
 
     def test_write_routes_dfs_increasing_by(
-        self,
-        basic_transformed_routes_df: pd.DataFrame,
-        tmp_path_factory: pytest.TempPathFactory,
+        self, transformed_routes_df: pd.DataFrame, tmp_path_factory: pytest.TempPathFactory
     ) -> None:
         """Raises if not sorted by driver_sheet_name and stop_no."""
         output_dir = str(tmp_path_factory.mktemp("output"))
 
-        bad_df = basic_transformed_routes_df.copy()
+        bad_df = transformed_routes_df.copy()
         first_group = bad_df[IntermediateColumns.DRIVER_SHEET_NAME].iloc[0]
         first_group_vals = bad_df[
             bad_df[IntermediateColumns.DRIVER_SHEET_NAME] == first_group
