@@ -53,7 +53,7 @@ We have no intention or desire to replace Circuit. In addition to optimizing rou
 
 The plan of attack has been to start with the low-hanging fruit of ETL before moving onto the bigger problem of chunking. Fully integrating with the Circuit API is the last step before taking on the chunking, and the integration is now halfway done with read capability.
 
-### Comment on the piecemeal nature
+### Frankenstein's "Agile" caveat
 
 The tools thus far are a series of small tools that were then wrapped by bigger tools, which were then wrapped by a larger tool, etc. This is a natural developmental result of incrementally and tentatively taking over this workflow as a volunteer as I gained trust and access to the org's data, information, and resources. Also, the project was largely unsolicited (but fully approved), so I was hesitant to ask too much of the staff to define and clarify requirements etc. It hasn't been used yet by staff in production (though certainly tested live), so I haven't yet discovered any of the improvements or mistaken assumptions that real users will find. As such, there are some optmizations that could happen to reduce the unnecessary output etc., but I am hesitant to do that until we find what works best for the users.
 
