@@ -41,7 +41,6 @@ def get_responses(url: str) -> list[dict[str, Any]]:
     responses = []
 
     while next_page_token is not None:
-        # TODO: Pull this out more so we can test setting page_url and wait_seconds.
         page_url = url + str(next_page_cookie)
         response = requests.get(
             page_url,

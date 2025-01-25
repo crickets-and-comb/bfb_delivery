@@ -119,7 +119,7 @@ class Defaults:
         "output_dir": CREATE_MANIFESTS["output_dir"],
         "output_filename": CREATE_MANIFESTS["output_filename"],
         "circuit_output_dir": "",
-        "all_HHs": False,
+        "all_hhs": False,
         "verbose": False,
         "extra_notes_file": CREATE_MANIFESTS["extra_notes_file"],
     }

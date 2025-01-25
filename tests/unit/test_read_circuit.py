@@ -241,7 +241,7 @@ class TestCreateManifestsFromCircuit:
 
     @pytest.mark.parametrize("circuit_output_dir", ["dummy_circuit_output", ""])
     @pytest.mark.parametrize(
-        "all_HHs, mock_stops_responses_fixture",
+        "all_hhs, mock_stops_responses_fixture",
         [
             (True, "mock_stops_responses_all_hhs_true"),
             (False, "mock_stops_responses_all_hhs_false"),
@@ -252,7 +252,7 @@ class TestCreateManifestsFromCircuit:
     def test_set_output_dir(
         self,
         circuit_output_dir: str,
-        all_HHs: bool,
+        all_hhs: bool,
         mock_stops_responses_fixture: str,
         verbose: bool,
         test_cli: bool,
@@ -297,7 +297,7 @@ class TestCreateManifestsFromCircuit:
                     "--circuit_output_dir",
                     circuit_output_dir,
                 ]
-                if all_HHs:
+                if all_hhs:
                     arg_list.append("--all_hhs")
                 if verbose:
                     arg_list.append("--verbose")
@@ -311,7 +311,7 @@ class TestCreateManifestsFromCircuit:
                     start_date=TEST_START_DATE,
                     output_dir=output_dir,
                     circuit_output_dir=circuit_output_dir,
-                    all_HHs=all_HHs,
+                    all_hhs=all_hhs,
                     verbose=verbose,
                 )
 
@@ -320,7 +320,7 @@ class TestCreateManifestsFromCircuit:
         assert expected_output_path.exists()
 
     @pytest.mark.parametrize(
-        "all_HHs, mock_stops_responses_fixture, mock_driver_sheet_names_fixture",
+        "all_hhs, mock_stops_responses_fixture, mock_driver_sheet_names_fixture",
         [
             (
                 True,
@@ -337,7 +337,7 @@ class TestCreateManifestsFromCircuit:
     def test_all_drivers_have_a_sheet(
         self,
         tmp_path: Path,
-        all_HHs: bool,
+        all_hhs: bool,
         mock_stops_responses_fixture: str,
         mock_driver_sheet_names_fixture: str,
         request: pytest.FixtureRequest,
@@ -350,7 +350,7 @@ class TestCreateManifestsFromCircuit:
             return_value=stops_response_data,
         ):
             output_path, circuit_output_dir = create_manifests_from_circuit(
-                start_date=TEST_START_DATE, output_dir=str(tmp_path), all_HHs=all_HHs
+                start_date=TEST_START_DATE, output_dir=str(tmp_path), all_hhs=all_hhs
             )
         workbook = pd.ExcelFile(output_path)
         assert sorted(list(workbook.sheet_names)) == sorted(driver_sheet_names)
@@ -458,7 +458,7 @@ class TestCreateManifestsFromCircuitClassScoped:
     @pytest.fixture(scope="class")
     def plans_df(self, plans_list: list[dict[str, Any]]) -> pd.DataFrame:
         """_make_plans_df."""
-        return _make_plans_df(plans_list=plans_list, all_HHs=False)
+        return _make_plans_df(plans_list=plans_list, all_hhs=False)
 
     @pytest.fixture(scope="class")
     def plan_stops_list(

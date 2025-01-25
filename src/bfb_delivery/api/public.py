@@ -85,7 +85,7 @@ def create_manifests_from_circuit(
     # TODO: Standardize to Path for all i/o except CLI input.
     output_filename: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["output_filename"],
     circuit_output_dir: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["circuit_output_dir"],
-    all_HHs: bool = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["all_HHs"],
+    all_hhs: bool = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["all_hhs"],
     verbose: bool = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["verbose"],
     extra_notes_file: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["extra_notes_file"],
 ) -> tuple[Path, Path]:
@@ -126,7 +126,7 @@ def create_manifests_from_circuit(
             Creates "routes_{date}" directory within the `circuit_output_dir`.
             Empty string uses `output_dir`.
             If the directory does not exist, it is created. If it exists, it is overwritten.
-        all_HHs: Flag to get only the "All HHs" route.
+        all_hhs: Flag to get only the "All HHs" route.
             False gets all routes except "All HHs". True gets only the "All HHs" route.
             NOTE: True returns email column in CSV, for reuploading after splitting.
         verbose: Flag to print verbose output.
@@ -142,7 +142,7 @@ def create_manifests_from_circuit(
         output_dir=output_dir,
         output_filename=output_filename,
         circuit_output_dir=circuit_output_dir,
-        all_HHs=all_HHs,
+        all_hhs=all_hhs,
         verbose=verbose,
         extra_notes_file=extra_notes_file,
     )

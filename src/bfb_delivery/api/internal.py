@@ -40,7 +40,7 @@ def create_manifests_from_circuit(
     output_dir: str,
     output_filename: str,
     circuit_output_dir: str,
-    all_HHs: bool,
+    all_hhs: bool,
     verbose: bool,
     extra_notes_file: str,
 ) -> tuple[Path, Path]:
@@ -52,7 +52,7 @@ def create_manifests_from_circuit(
         start_date=start_date,
         end_date=end_date,
         output_dir=circuit_output_dir,
-        all_HHs=all_HHs,
+        all_hhs=all_hhs,
         verbose=verbose,
     )
     formatted_manifest_path = sheet_shaping.create_manifests(

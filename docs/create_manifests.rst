@@ -1,6 +1,6 @@
-================================================
-Create Printable Manifests from Optimized Routes
-================================================
+===========================================================
+Create Printable Manifests from Downloaded Optimized Routes
+===========================================================
 
 After you have optimized each driver's route in Circuit, you will need to combine the optimized routes back into a single workbook of driver manifest sheets ready to print. You can do this with the :code:`create_manifests` tool.
 
@@ -49,7 +49,7 @@ With CLI:
 
     create_manifests --input_dir path/to/input/
 
-The function will return the filepath to the combined file. If you're using the CLI, the filepath will be printed to the console.
+The function will return the filepath to the final manifest file. If you're using the CLI, the filepath will print to the console.
 
 Optional arguments
 ^^^^^^^^^^^^^^^^^^
@@ -109,9 +109,9 @@ Use the optional argument :code:`extra_notes_file` to specify a CSV file with ex
     tag,note
     Cedarwood Apartments special instructions *,Please call the recipient when you arrive.
 
-This file will put the note "Please call the recipient when you arrive." at the bottom of the manifest (once) if a stop has a note that contains the text "Cedarwood Apartments special instructions \*".
+This file will put the note "Please call the recipient when you arrive." at the bottom of the manifest (once) if any stops have a note that contains the text "Cedarwood Apartments special instructions \*".
 
-If :code:`extra_notes_file` is not provided, the tool will use the constant notes in the codebase: :py:data:`bfb_delivery.lib.constants.ExtraNotes`.
+If you don't provide :code:`extra_notes_file`, the tool will use the constant notes in the codebase: :py:data:`bfb_delivery.lib.constants.ExtraNotes` (currently empty).
 
 In Python:
 

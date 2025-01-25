@@ -6,35 +6,52 @@ This set of tools cuts some cruft around creating delivery route manifests. It's
 
 The plan is to continue to build this package out to take on more of the tasks food-bank staff do manually to plan the delivery routes.
 
-They use Circuit (https://getcircuit.com) to create optimized routes from lists of addresses, but there are some tedious tasks to prepare the data for Circuit and then to format the optimized routes into manifests for printing. They upload all the stops they need to Circuit to produce a single huge route, then they manually "chunk" the route by driver (assign stops to drivers according to how many boxes a driver can carry, what is a sensible set of stops, per-driver constraints, etc.), then they upload those smaller routes to Circuit again to optimize them, and then they combine the output CSVs into a single Excel workbook with a worksheet for each route, and finally they format the sheets into printable manifests. They spend several hours each week on the manual pieces of this, the chunking alone taking about four hours.
+They use Circuit (https://getcircuit.com) to create optimized routes from lists of addresses and products, but there are some tedious tasks to prepare the data for Circuit and then to format the optimized routes into manifests for printing:
 
-At this point, the `bfb_delivery` package will do everything but allocate deliveries to drivers (chunk up the route) and interface with Circuit. That functionality is on the way.
+0. Put all the stops in a single spreadsheet.
+1. Upload stop to Circuit to produce a single huge route as a starting point.
+2. Download the optimized route.
+3. Manually "chunk" the route by driver (assign stops to drivers according to how many boxes a driver can carry, what is a sensible set of stops, per-driver constraints, etc.).
+4. Split those routes into separate worksheets.
+5. Upload those smaller routes to Circuit again to optimize them.
+6. Set attributes etc. and launch optimization.
+7. Download the optimized CSVs.
+8. Combine the output CSVs into a single Excel workbook with a worksheet for each route.
+9. Finally format the sheets into printable manifests with a combination of Excel macro and manual steps.
+
+Staff spend several hours each week on the manual pieces of this, the chunking alone taking about four hours.
 
 ## What it does so far
 
-1. Splits a spreadsheet of delivery stops labeled by driver into n workbooks (1 per staff member working on the route generation), one workbook sheet per driver. This allows staff to split the task of submitting unique driver routes to Circuit. The tool for this is called `split_chunked_route`. See below and/or docs for usage.
+At this point, the `bfb_delivery` package will:
 
-2. Combines route CSVs into a single workbook and formats the sheets into printable manifests. The tool for this is called `create_manifests`.
+2. Download the optimized route.
+4. Split those routes into separate worksheets.
+7. Download the optimized CSVs.
+8. Combine the output CSVs into a single Excel workbook with a worksheet for each route.
+9. Finally format the sheets into printable manifests with a combination of Excel macro and manual steps.
 
-See docs for usage: https://crickets-and-comb.github.io/bfb_delivery/.
+The last three steps exectue in a single command. Next up is wrapping that up into a single command that also uploads the routes and optimizes them on Circuit, dispatches them, and then creates the final manifests -- leaving only the "chunking" step (step 3) for the hoomans.
+
+See docs for more details: https://crickets-and-comb.github.io/bfb_delivery/.
 
 ## Dev plan
 
-We have no intention or desire to replace Circuit. In addition to optimizing routes, Circuit pushes routes to an app drivers can use. But, there are some processes outside of that to further automate/support:
+We have no intention or desire to replace Circuit. In addition to optimizing routes, Circuit pushes routes to an app drivers can use, etc. But, there are some processes outside of that to further automate/support:
 
-- Chunking by driver: This may be the most challenging piece. I'm only a little confident I can solve this well enough to justify using my solution. So, I will save it for after I've cleared the low-hanging fruit. My first plan of attack is to try using k-nearest neighbors (KNN) to group stops into potential routes.
+- Chunking by driver (step 3 above): This may be the most challenging piece. I'm only a little confident I can solve this well enough to justify using my solution. So, I will save it for after I've cleared the low-hanging fruit. My first inclination is to try using a sort of recursive k-nearest neighbors (KNN) to group stops into potential routes, but that may change once I research existing routing algorithms.
 
-- Implementing a mapping tool to check routes will be helpful in both dev and production. This would be essential to removing the first upload to Circuit to make a long dummy route, if we're able to build a sufficient a chunking solution.
+- To that end, implementing a mapping tool to check routes will be helpful in both dev and production. This would be essential to removing the first upload to Circuit to make a long dummy route, if we're able to build a sufficient a chunking solution. (That first upload doesn't cost the food bank anything but a trivial amount of time and fiddling around, but matching its sufficiency as a starting point is a good first benchmark.)
 
 - There are additional constraints to consider per driver. It may not be possible to encode all of them, but knocking out some of them may help cut down time, and doing this before chunking will better define the problem and add some validations.
 
-- The Circuit API likely supports uploading, optimizing, and exporting, which would enable wrapping more of the steps into a single ETL pipeline. But, we'll need to look more closely at the user workflow to see how and when that might be useful.
+- The Circuit API supports uploading, optimizing, and exporting, which enables wrapping more of the steps into a single ETL pipeline. We have built the required export segment of the pipeline, and now need to build the upload and optimizing segments. There may be limitations to what attribute mapping, entity updates, etc. can be done via API.
 
 - DB: There's no plan to develop, host, and support a DB. We're using Excel, CSVs, etc. to keep close to users' knowledge and skill bases, and existing workflow and resources. A DB would be especially useful for encoding driver restrictions etc., but a simple spreadsheet should suffice. If we did start using a DB, however, we'd need to create CRUD interfaces to it.
 
 - GUI: There's no real plan to develop a GUI, but it might be a good portfolio project to try out Vercel or something.
 
-The plan of attack has been to start with the low-hanging fruit of ETL before moving onto the bigger problem of chunking. Integrating with the Circuit API will likely come next if users think it would be useful.
+The plan of attack has been to start with the low-hanging fruit of ETL before moving onto the bigger problem of chunking. Fully integrating with the Circuit API is the last step before taking on the chunking, and the integration is now halfway done with read capability.
 
 ## Structure
 

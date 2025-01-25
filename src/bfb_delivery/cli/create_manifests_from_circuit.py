@@ -68,7 +68,7 @@ logger = logging.getLogger(__name__)
 @click.option(
     "--all_hhs",
     is_flag=True,
-    default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["all_HHs"],
+    default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["all_hhs"],
     help=(
         'Flag to get only the "All HHs" route.'
         'False gets all routes except "All HHs". True gets only the "All HHs" route.'
@@ -113,7 +113,7 @@ def main(
         output_dir=output_dir,
         output_filename=output_filename,
         circuit_output_dir=circuit_output_dir,
-        all_HHs=all_hhs,
+        all_hhs=all_hhs,
         verbose=verbose,
         extra_notes_file=extra_notes_file,
     )
