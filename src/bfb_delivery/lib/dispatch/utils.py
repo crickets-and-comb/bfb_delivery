@@ -35,12 +35,14 @@ def get_circuit_key() -> str:
 def get_responses(url: str) -> list[dict[str, Any]]:
     """Get all responses from a paginated API endpoint."""
     wait_seconds = RateLimits.READ_SECONDS
-    next_page = ""
+    next_page_token = ""
+    next_page_cookie = ""
+    last_next_page_token = ""
     responses = []
 
-    while next_page is not None:
+    while next_page_token is not None:
         # TODO: Pull this out more so we can test setting page_url and wait_seconds.
-        page_url = url + str(next_page)
+        page_url = url + str(next_page_cookie)
         response = requests.get(
             page_url,
             auth=HTTPBasicAuth(get_circuit_key(), ""),
@@ -58,21 +60,24 @@ def get_responses(url: str) -> list[dict[str, Any]]:
             if response.status_code == 200:
                 stops = response.json()
                 responses.append(stops)
-                next_page = stops.get("nextPageToken", None)
+                next_page_token = stops.get("nextPageToken", None)
             elif response.status_code == 429:
                 wait_seconds = wait_seconds * 2
                 logger.warning(
                     f"Rate-limited. Doubling per-request wait time to {wait_seconds} seconds."
                 )
+                next_page_token = last_next_page_token
             else:
                 response_dict = _get_response_dict(response=response)
                 raise ValueError(
                     f"Unexpected response {response.status_code}: {response_dict}"
                 )
 
-        if next_page:
-            token_prefix = "?" if "?" not in url else "&"
-            next_page = f"{token_prefix}pageToken={next_page}"
+            if next_page_token:
+                token_prefix = "?" if "?" not in url else "&"
+                next_page_cookie = f"{token_prefix}pageToken={next_page_token}"
+
+            last_next_page_token = next_page_token
 
         sleep(wait_seconds)
 

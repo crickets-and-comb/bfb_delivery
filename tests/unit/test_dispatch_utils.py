@@ -1,7 +1,7 @@
 """Test for the dispatch utils module."""
 
 from contextlib import AbstractContextManager, nullcontext
-from typing import Any
+from typing import Any, Final
 from unittest.mock import Mock, patch
 
 import pytest
@@ -9,7 +9,7 @@ import requests
 
 from bfb_delivery.lib.dispatch.utils import get_responses
 
-BASE_URL = "http://example.com/api/v2/stops"
+BASE_URL: Final[str] = "http://example.com/api/v2/stops"
 
 
 @pytest.mark.parametrize(
@@ -142,10 +142,12 @@ def test_get_responses_returns(
             {"json.return_value": {"data": [1], "nextPageToken": "abc"}, "status_code": 200},
             {"json.return_value": {"data": [2], "nextPageToken": None}, "status_code": 200},
         ],
-        # TODO: Test multiple pages with 429 status code.
         [
             {"json.return_value": {}, "status_code": 429},
-            {"json.return_value": {"data": [3], "nextPageToken": None}, "status_code": 200},
+            {"json.return_value": {}, "status_code": 429},
+            {"json.return_value": {"data": [3], "nextPageToken": "asfg"}, "status_code": 200},
+            {"json.return_value": {}, "status_code": 429},
+            {"json.return_value": {"data": [54], "nextPageToken": None}, "status_code": 200},
         ],
         # TODO: Test with params.
     ],
@@ -158,9 +160,14 @@ def test_get_responses_urls(responses: list[dict[str, Any]]) -> None:
         _ = get_responses(BASE_URL)
 
         expected_urls = [BASE_URL]
+        last_next_page_token = None
         for resp in responses:
             next_page_token = resp["json.return_value"].get("nextPageToken")
             if next_page_token or (not next_page_token and resp["status_code"] == 429):
+                if resp["status_code"] == 429:
+                    next_page_token = last_next_page_token
+                last_next_page_token = next_page_token
+
                 token_prefix = "?" if "?" not in BASE_URL else "&"
                 token = (
                     f"{token_prefix}pageToken={next_page_token}" if next_page_token else ""
@@ -169,9 +176,7 @@ def test_get_responses_urls(responses: list[dict[str, Any]]) -> None:
 
         actual_urls = [call.args[0] for call in mock_get.call_args_list]
 
-        assert (
-            actual_urls == expected_urls
-        ), f"Expected {expected_urls}, but got {actual_urls}"
+        assert actual_urls == expected_urls
 
 
 # TODO: Test wait time.
