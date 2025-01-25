@@ -55,15 +55,15 @@ def get_responses(url: str) -> list[dict[str, Any]]:
             raise requests.exceptions.HTTPError(err_msg) from http_e
 
         else:
-            if response.status_code == 429:
+            if response.status_code == 200:
+                stops = response.json()
+                responses.append(stops)
+                next_page = stops.get("nextPageToken", None)
+            elif response.status_code == 429:
                 wait_seconds = wait_seconds * 2
                 logger.warning(
                     f"Rate-limited. Doubling per-request wait time to {wait_seconds} seconds."
                 )
-            elif response.status_code == 200:
-                stops = response.json()
-                responses.append(stops)
-                next_page = stops.get("nextPageToken", None)
             else:
                 response_dict = _get_response_dict(response=response)
                 raise ValueError(
