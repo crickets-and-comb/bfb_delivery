@@ -49,27 +49,57 @@ from bfb_delivery.lib.dispatch.utils import get_responses
             nullcontext(),
         ),
         (
-            [{"json.return_value": {}, "status_code": 400}],
+            [
+                {
+                    "json.return_value": {},
+                    "status_code": 400,
+                    "raise_for_status.side_effect": requests.exceptions.HTTPError(),
+                }
+            ],
             None,
             pytest.raises(requests.exceptions.HTTPError),
         ),
         (
-            [{"json.return_value": {}, "status_code": 401}],
+            [
+                {
+                    "json.return_value": {},
+                    "status_code": 401,
+                    "raise_for_status.side_effect": requests.exceptions.HTTPError(),
+                }
+            ],
             None,
             pytest.raises(requests.exceptions.HTTPError),
         ),
         (
-            [{"json.return_value": {}, "status_code": 403}],
+            [
+                {
+                    "json.return_value": {},
+                    "status_code": 403,
+                    "raise_for_status.side_effect": requests.exceptions.HTTPError(),
+                }
+            ],
             None,
             pytest.raises(requests.exceptions.HTTPError),
         ),
         (
-            [{"json.return_value": {}, "status_code": 404}],
+            [
+                {
+                    "json.return_value": {},
+                    "status_code": 404,
+                    "raise_for_status.side_effect": requests.exceptions.HTTPError(),
+                }
+            ],
             None,
             pytest.raises(requests.exceptions.HTTPError),
         ),
         (
-            [{"json.return_value": {}, "status_code": 500}],
+            [
+                {
+                    "json.return_value": {},
+                    "status_code": 500,
+                    "raise_for_status.side_effect": requests.exceptions.HTTPError(),
+                }
+            ],
             None,
             pytest.raises(requests.exceptions.HTTPError),
         ),
