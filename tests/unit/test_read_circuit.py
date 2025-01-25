@@ -8,13 +8,12 @@ from contextlib import AbstractContextManager, nullcontext
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Final
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
 import pandera as pa
 import pytest
-import requests
 from click.testing import CliRunner
 from openpyxl import Workbook, load_workbook
 from pandera.errors import SchemaError
@@ -44,7 +43,6 @@ from bfb_delivery.lib.dispatch.read_circuit import (
     _make_plans_df,
     _transform_routes_df,
     _write_routes_dfs,
-    get_responses,
 )
 from bfb_delivery.lib.formatting.data_cleaning import (
     _format_and_validate_box_type,
@@ -974,86 +972,3 @@ class TestCreateManifestsFromCircuitClassScoped:
         bad_df.loc[0, CircuitColumns.ID] = id
         with pytest.raises(SchemaError, match=error_match):
             _ = CircuitRoutesTransformInFromDict.validate(bad_df)
-
-
-@pytest.mark.parametrize(
-    "responses, expected_result, error_context",
-    [
-        (
-            [
-                {
-                    "json.return_value": {"data": [1, 2, 3], "nextPageToken": None},
-                    "status_code": 200,
-                }
-            ],
-            [{"data": [1, 2, 3], "nextPageToken": None}],
-            nullcontext(),
-        ),
-        (
-            [
-                {
-                    "json.return_value": {"data": [1], "nextPageToken": "abc"},
-                    "status_code": 200,
-                },
-                {
-                    "json.return_value": {"data": [2], "nextPageToken": None},
-                    "status_code": 200,
-                },
-            ],
-            [{"data": [1], "nextPageToken": "abc"}, {"data": [2], "nextPageToken": None}],
-            nullcontext(),
-        ),
-        (
-            [
-                {"json.return_value": {}, "status_code": 429},
-                {
-                    "json.return_value": {"data": [3], "nextPageToken": None},
-                    "status_code": 200,
-                },
-            ],
-            [{"data": [3], "nextPageToken": None}],
-            nullcontext(),
-        ),
-        (
-            [{"json.return_value": {}, "status_code": 400}],
-            None,
-            pytest.raises(requests.exceptions.HTTPError),
-        ),
-        (
-            [{"json.return_value": {}, "status_code": 401}],
-            None,
-            pytest.raises(requests.exceptions.HTTPError),
-        ),
-        (
-            [{"json.return_value": {}, "status_code": 403}],
-            None,
-            pytest.raises(requests.exceptions.HTTPError),
-        ),
-        (
-            [{"json.return_value": {}, "status_code": 404}],
-            None,
-            pytest.raises(requests.exceptions.HTTPError),
-        ),
-        (
-            [{"json.return_value": {}, "status_code": 500}],
-            None,
-            pytest.raises(requests.exceptions.HTTPError),
-        ),
-    ],
-)
-def test_get_responses(
-    responses: list[dict[str, Any]],
-    expected_result: list[dict[str, Any]],
-    error_context: AbstractContextManager,
-) -> None:
-    """Test get_responses function."""
-    with patch("requests.get") as mock_get:
-        mock_get.side_effect = [Mock(**resp) for resp in responses]
-
-        with error_context:
-            result = get_responses("https://fakeapi.com/data")
-
-        if expected_result:
-            assert result == expected_result
-
-        assert mock_get.call_count == len(responses)
