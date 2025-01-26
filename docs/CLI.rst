@@ -17,6 +17,15 @@ See also :doc:`split_chunked_route` for the full documentation.
    :prog: split_chunked_route
    :nested: full
 
+create_manifests_from_circuit
+-----------------------------
+
+See also :doc:`create_manifests_from_circuit` for the full documentation.
+
+.. click:: bfb_delivery.cli.create_manifests_from_circuit:main
+   :prog: create_manifests_from_circuit
+   :nested: full
+
 create_manifests
 ----------------
 

@@ -1,5 +1,6 @@
 """Unit tests for the data_cleaning module."""
 
+import logging
 import re
 from collections.abc import Callable
 from contextlib import AbstractContextManager, nullcontext
@@ -397,35 +398,6 @@ class TestFormatAndValidateData:
                 ),
                 _validate_stop_no,
             ),
-            (
-                pd.DataFrame(
-                    {Columns.EMAIL: ["us@them..com", "u@s@them.com", "us@them.com"]}
-                ),
-                pytest.warns(
-                    UserWarning,
-                    match=re.escape(
-                        "Invalid email addresses found: ['us@them..com', 'u@s@them.com']"
-                    ),
-                ),
-                format_and_validate_data,
-            ),
-            (
-                pd.DataFrame(
-                    {
-                        Columns.PHONE: INVALID_NUMBERS
-                        + [  # noqa: W503
-                            "+1"
-                            + str(  # noqa: W503
-                                phonenumbers.example_number(region_code="US").national_number
-                            )
-                        ]
-                    }
-                ),
-                pytest.warns(
-                    UserWarning, match=f"Invalid phone numbers found: {INVALID_NUMBERS}"
-                ),
-                format_and_validate_data,
-            ),
             (pd.DataFrame({Columns.EMAIL: [""]}), nullcontext(), format_and_validate_data),
             (pd.DataFrame({Columns.PHONE: [""]}), nullcontext(), format_and_validate_data),
             (
@@ -492,3 +464,36 @@ class TestFormatAndValidateData:
                 format_and_validate_data(df=df, columns=df.columns.to_list())
             else:
                 validating_function(df=df)
+
+    @pytest.mark.parametrize(
+        "df, expected_warning",
+        [
+            (
+                pd.DataFrame(
+                    {
+                        Columns.PHONE: INVALID_NUMBERS
+                        + [
+                            "+1"
+                            + str(
+                                phonenumbers.example_number(region_code="US").national_number
+                            )
+                        ]
+                    }
+                ),
+                "Invalid phone numbers found:",
+            ),
+            (
+                pd.DataFrame(
+                    {Columns.EMAIL: ["us@them..com", "u@s@them.com", "us@them.com"]}
+                ),
+                "Invalid email addresses found:\n['us@them..com', 'u@s@them.com']",
+            ),
+        ],
+    )
+    def test_warnings(
+        self, df: pd.DataFrame, expected_warning: str, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """Test validations."""
+        with caplog.at_level(logging.WARNING):
+            format_and_validate_data(df=df, columns=df.columns.to_list())
+            assert expected_warning in caplog.text

@@ -2,24 +2,45 @@
 The Delivery-Planning Workflow
 ==============================
 
-Once you're set up (see :doc:`getting_started`), and you have a master list of chunked routes you want to split up and optimize in Circuit, you can begin using this tool. Here's the workflow.
+Once you're set up (see :doc:`getting_started`), and you have a master list of chunked routes you want to split up and optimize in Circuit, you can begin using :code:`bfb_delivery`. Here's the workflow.
 
 .. mermaid::
-   :caption: Delivery Planning Flowchart
+   :caption: Delivery Planning Workflow
 
    graph TD;
        get_long_route[Route all stops with Circuit.] --> chunk["Chunk" stops by driver.];
        chunk --> activate_env[Activate your env.];
-       activate_env --> split_chunked_route[Use **split_chunked_route** to create the workbook for upload to Circuit.];
-       split_chunked_route --> upload[Upload workbooks to Circuit, and download the optimized route CSVs.];
-       upload --> move_CSV[Move all the CSVs to a single directory.];
-       move_CSV --> make_manifests[Use **create_manifests** to create the manifests.];
+       activate_env --> split_chunked_route[Use **split_chunked_route** to create the workbooks for upload to Circuit.];
+       split_chunked_route --> upload[Upload workbooks to Circuit, and optimize.];
+       upload --> make_manifests[Use **create_manifests_from_circuit** to create the manifests.];
        make_manifests --> print[Review and print the manifests for your drivers.];
+
+Here's the workflow in more detail.
+
+Route all stops with Circuit
+----------------------------
+
+When you have all the stops for the day, upload them to Circuit and optimize them in a single route with the title "All HHs". You'll use this single route as a starting point to allocate stops to drivers.
+
+Typically you will download this from Circuit using the website, but you can use :code:`create_manifests_from_circuit` (primarily used later to make the final manifests) to download the routes into a single Excel workbook. (First follow "Activate your env" below.)
+
+.. code:: bash
+
+    create_manifests_from_circuit --start_date 1920-08-18 --all_hhs
+
+The filepath to the *combined workbook* will print to the console; ignore the filepath to the *final manifest*. You will not use it; it's the main output of the tool when you use it later to make the final manifests for the true routes, but the *combined workbook* is a byproduct of that process and the one you need now.
+
+Chunk the stops by driver
+-------------------------
+
+From the single optimized route of several hundred stops, you'll next allocate them to each of your roughly 40 drivers. This is a complicated hooman task. You're the hooman. Get a snack or three, make sure you're hydrated, and have a blast. You're gonna love it.
 
 Activate your env
 -----------------
 
-First, open your terminal (e.g., Anaconda Command Prompt), navigate to the correct directory (the one containing your ``config.ini`` file defined above), and activate your env:
+Phewf! You have your chunked routes. Now you need to upload it to Circuit and optimize the routes. You're going to split all those routes into their own worksheets grouped in multiple workbooks for several staff to upload to Circuit, and you can use :code:`split_chunked_route` to do that, but first you need to activate the :code:`bfb_delivery` conda environment to use it.
+
+First, open your terminal (e.g., Anaconda Command Prompt), navigate to the correct directory (the one containing your ``config.ini`` file you set up in :doc:`getting_started`), and activate your env:
 
 .. code:: bash
 
@@ -28,18 +49,20 @@ First, open your terminal (e.g., Anaconda Command Prompt), navigate to the corre
 
 See :doc:`getting_started` for more information.
 
+Now you're ready to use the command-line tools.
+
 Split the chunked route
 -----------------------
 
-Then, run the :code:`split_chunked_route` to split the chunked worksheet into individual driver worksheets divided into workbooks that staff can upload to Circuit:
+Now you split the chunked worksheet into separate spreadsheets ready to upload. Run the :code:`split_chunked_route` to split the chunked worksheet into individual driver worksheets divided into workbooks that staff can upload to Circuit:
 
 .. code:: bash
 
-    split_chunked_route --input_path path/to/input.xlsx
+    split_chunked_route --input_path path/to/chunked_routes.xlsx
 
 The paths to the workbooks will print to the console.
 
-See :doc:`split_chunked_route` for more information, e.g. how to set the number of workbooks.  Use `--help` to see all the optional arguments in the CLI.
+See :doc:`split_chunked_route` for more information, e.g. how to set the number of workbooks. You may also use `--help` to see all the optional arguments in the CLI.
 
 .. code:: bash
 
@@ -48,36 +71,29 @@ See :doc:`split_chunked_route` for more information, e.g. how to set the number 
 Upload and optimize routes
 --------------------------
 
-Next, upload the workbooks to Circuit and optimize the routes. If you split the routes among staff to upload and download separately, you'll need to move them all to a single directory.
-
-You can do this however you'd like, but one way is to use the command line:
-
-.. code:: bash
-
-    mv path/to/downloaded_1/*.csv path/to/single_directory/
-    mv path/to/downloaded_2/*.csv path/to/single_directory/
-    ...
+Next, each staff member will upload their workbook to Circuit and optimize their routes. See `Circuit documentation <https://help.getcircuit.com/en/collections/1889210-circuit-for-teams/>`_.
 
 Make manifests
 --------------
 
-Once you have the optimized routes saved as CSVs in a single directory (without other CSVs in it), run :code:`create_manifests` to combine the driver workbooks into a single workbook ready to print:
+Once everyone has the optimized routes in Circuit, one person can run :code:`create_manifests_from_circuit` to get the routes from Circuit and format them into an Excel workbook ready to print, with headers, aggregate data, and color-coded box types. Pass in the start date of the manifest as "YYYY-MM-DD":
 
 .. code:: bash
 
-    create_manifests --input_dir path/to/input/
+    create_manifests_from_circuit --start_date 2021-12-21
 
-The path to the combined and formatted workbook will print to the console.
+The path to the final manifest workbook will print to the console.
+
+
+See :doc:`create_manifests_from_circuit` for more information, e.g. how to set the output directory. You may also use `--help` to see all the optional arguments in the CLI:
+
+.. code:: bash
+
+    create_manifests_from_circuit --help
 
 .. note::
 
-    You should only put the CSVs you want to include in the manifest in the directory. The tool will combine all CSVs in the directory into a single workbook.
-
-See :doc:`create_manifests` for more information, e.g. how to set the date used in the manifest. Use `--help` to see all the optional arguments in the CLI.
-
-.. code:: bash
-
-    create_manifests --help
+    This takes about a minute to run as it downloads the routes from Circuit.
 
 Review and print manifests
 --------------------------
@@ -92,7 +108,7 @@ See Also
 
 :doc:`split_chunked_route`
 
-:doc:`create_manifests`
+:doc:`create_manifests_from_circuit`
 
 :doc:`CLI`
 

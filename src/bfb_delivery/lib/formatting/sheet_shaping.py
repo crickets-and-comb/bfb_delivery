@@ -1,5 +1,6 @@
 """Functions for shaping and formatting spreadsheets."""
 
+import logging
 import math
 import warnings
 from datetime import datetime
@@ -32,18 +33,21 @@ from bfb_delivery.lib.formatting.data_cleaning import (
     format_and_validate_data,
     format_column_names,
 )
-from bfb_delivery.lib.utils import (
+from bfb_delivery.lib.formatting.utils import (
     get_book_one_drivers,
     get_extra_notes,
     get_phone_number,
     map_columns,
 )
+from bfb_delivery.lib.utils import get_friday
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 # Silences warning for in-place operations on copied df slices.
 pd.options.mode.copy_on_write = True
 
 
-# TODO: When wrapping in final function, start calling it "make_manifest" or similar.
 # TODO: There's got to be a way to set the docstring as a constant.
 # TODO: Use Pandera.
 # TODO: Switch to or allow CSVs instead of Excel files.
@@ -61,9 +65,7 @@ def split_chunked_route(
         raise ValueError("n_books must be greater than 0.")
     # TODO: Make this accept input_path only as Path? Or only as str to simplify?
     input_path = Path(input_path)
-
-    friday = datetime.now() + pd.DateOffset(weekday=4)
-    date = date if date else friday.strftime(MANIFEST_DATE_FORMAT)
+    date = date if date else get_friday(fmt=MANIFEST_DATE_FORMAT)
 
     chunked_sheet: pd.DataFrame = pd.read_excel(input_path)
     chunked_sheet.columns = format_column_names(columns=chunked_sheet.columns.to_list())
@@ -92,14 +94,17 @@ def split_chunked_route(
     driver_sets = _get_driver_sets(
         drivers=drivers, n_books=n_books, book_one_drivers_file=book_one_drivers_file
     )
+
+    logger.info(f"Writing split chunked workbooks to {output_dir.resolve()}")
     for i, driver_set in enumerate(driver_sets):
         i_file_name = f"{base_output_filename.split('.')[0]}_{i + 1}.xlsx"
         split_workbook_path: Path = output_dir / i_file_name
         split_workbook_paths.append(split_workbook_path)
 
+        driver_set_df = chunked_sheet[chunked_sheet[Columns.DRIVER].isin(driver_set)]
+        driver_set_df.sort_values(by=[Columns.DRIVER, Columns.STOP_NO], inplace=True)
+
         with pd.ExcelWriter(split_workbook_path) as writer:
-            driver_set_df = chunked_sheet[chunked_sheet[Columns.DRIVER].isin(driver_set)]
-            driver_set_df.sort_values(by=[Columns.DRIVER, Columns.STOP_NO], inplace=True)
             for driver_name, data in driver_set_df.groupby(Columns.DRIVER):
                 data[SPLIT_ROUTE_COLUMNS].to_excel(
                     writer, sheet_name=f"{date} {driver_name}", index=False
@@ -152,6 +157,7 @@ def combine_route_tables(
     output_path = output_dir / output_filename
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    logger.info(f"Writing combined routes to {output_path.resolve()}")
     with pd.ExcelWriter(output_path) as writer:
         for path in sorted(paths):
             route_df = pd.read_csv(path)
@@ -218,6 +224,7 @@ def format_combined_routes(
             )
 
     # Can check cell values, though. (Maye read dataframe from start row?)
+    logger.info(f"Writing formatted routes to {output_path.resolve()}")
     wb.save(output_path)
 
     return output_path.resolve()

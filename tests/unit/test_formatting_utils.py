@@ -1,5 +1,6 @@
 """Unit tests for the utility functions."""
 
+import logging
 import re
 from contextlib import AbstractContextManager, nullcontext
 from pathlib import Path
@@ -9,14 +10,14 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 
-from bfb_delivery.lib.utils import get_extra_notes, get_phone_number, map_columns
+from bfb_delivery.lib.formatting.utils import get_extra_notes, get_phone_number, map_columns
 
 
 @pytest.mark.parametrize(
     "key, config_path, expected, expected_warning",
     [
-        ("driver_support", "config.ini", "555-555-5555", nullcontext()),
-        ("recipient_support", "config.ini", "555-555-5555 x5", nullcontext()),
+        ("driver_support", "config.ini", "555-555-5555", ""),
+        ("recipient_support", "config.ini", "555-555-5555 x5", ""),
         (
             "bad_key",
             "config.ini",
@@ -24,10 +25,10 @@ from bfb_delivery.lib.utils import get_extra_notes, get_phone_number, map_column
                 "NO PHONE NUMBER. See warning in logs for instructions on setting up your "
                 "config file."
             ),
-            pytest.warns(UserWarning, match="bad_key not found in config file: "),
+            "bad_key not found in config file: ",
         ),
-        ("driver_support", None, "555-555-5555", nullcontext()),
-        ("recipient_support", None, "555-555-5555 x5", nullcontext()),
+        ("driver_support", None, "555-555-5555", ""),
+        ("recipient_support", None, "555-555-5555 x5", ""),
         (
             "bad_key",
             None,
@@ -35,7 +36,7 @@ from bfb_delivery.lib.utils import get_extra_notes, get_phone_number, map_column
                 "NO PHONE NUMBER. See warning in logs for instructions on setting up your "
                 "config file."
             ),
-            pytest.warns(UserWarning, match="bad_key not found in config file: "),
+            "bad_key not found in config file: ",
         ),
         (
             "driver_support",
@@ -44,7 +45,7 @@ from bfb_delivery.lib.utils import get_extra_notes, get_phone_number, map_column
                 "NO PHONE NUMBER. See warning in logs for instructions on setting up your "
                 "config file."
             ),
-            pytest.warns(UserWarning, match="Config file not found: "),
+            "Config file not found: ",
         ),
         (
             "recipient_support",
@@ -53,7 +54,7 @@ from bfb_delivery.lib.utils import get_extra_notes, get_phone_number, map_column
                 "NO PHONE NUMBER. See warning in logs for instructions on setting up your "
                 "config file."
             ),
-            pytest.warns(UserWarning, match="Config file not found: "),
+            "Config file not found: ",
         ),
         (
             "bad_key",
@@ -62,19 +63,28 @@ from bfb_delivery.lib.utils import get_extra_notes, get_phone_number, map_column
                 "NO PHONE NUMBER. See warning in logs for instructions on setting up your "
                 "config file."
             ),
-            pytest.warns(UserWarning, match="Config file not found: "),
+            "Config file not found: ",
         ),
     ],
 )
 def test_get_phone_number(
-    key: str, config_path: None | str, expected: str, expected_warning: AbstractContextManager
+    key: str,
+    config_path: None | str,
+    expected: str,
+    expected_warning: str,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Correct phone number returned, and warns on no config file or missing key."""
     kwargs = {"key": key}
     if config_path is not None:
         kwargs["config_path"] = config_path
-    with expected_warning:
+    if expected_warning:
+        with caplog.at_level(logging.WARNING):
+            returned_phone_number = get_phone_number(**kwargs)
+            assert expected_warning in caplog.text
+    else:
         returned_phone_number = get_phone_number(**kwargs)
+
     assert returned_phone_number == expected
 
 
@@ -145,7 +155,7 @@ def test_get_extra_notes(
             df: Final[pd.DataFrame] = extra_notes_df
 
         mock_extra_notes_context = patch(
-            "bfb_delivery.lib.utils.ExtraNotes", new=TestExtraNotes
+            "bfb_delivery.lib.formatting.utils.ExtraNotes", new=TestExtraNotes
         )
 
     with error_context, mock_extra_notes_context:

@@ -9,6 +9,7 @@ from pathlib import Path
 
 from typeguard import typechecked
 
+from bfb_delivery.lib.dispatch.read_circuit import get_route_files
 from bfb_delivery.lib.formatting import sheet_shaping
 
 
@@ -30,6 +31,38 @@ def split_chunked_route(
         book_one_drivers_file=book_one_drivers_file,
         date=date,
     )
+
+
+@typechecked
+def create_manifests_from_circuit(
+    start_date: str,
+    end_date: str,
+    output_dir: str,
+    output_filename: str,
+    circuit_output_dir: str,
+    all_hhs: bool,
+    verbose: bool,
+    extra_notes_file: str,
+) -> tuple[Path, Path]:
+    """See public docstring.
+
+    :py:func:`bfb_delivery.api.public.create_manifests_from_circuit`.
+    """
+    circuit_output_dir = get_route_files(
+        start_date=start_date,
+        end_date=end_date,
+        output_dir=circuit_output_dir,
+        all_hhs=all_hhs,
+        verbose=verbose,
+    )
+    formatted_manifest_path = sheet_shaping.create_manifests(
+        input_dir=circuit_output_dir,
+        output_dir=output_dir,
+        output_filename=output_filename,
+        extra_notes_file=extra_notes_file,
+    )
+
+    return formatted_manifest_path, Path(circuit_output_dir)
 
 
 @typechecked
@@ -57,7 +90,6 @@ def combine_route_tables(
     )
 
 
-# TODO: Remove defaults.
 @typechecked
 def format_combined_routes(
     input_path: Path | str,

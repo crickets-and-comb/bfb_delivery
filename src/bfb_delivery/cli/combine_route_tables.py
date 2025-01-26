@@ -1,10 +1,15 @@
 """combine_route_tables CLI. See :doc:`combine_route_tables` for more information."""
 
+import logging
+
 import click
 from typeguard import typechecked
 
 from bfb_delivery import combine_route_tables
 from bfb_delivery.lib.constants import Defaults
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 
 @click.command()
@@ -40,6 +45,6 @@ def main(input_dir: str, output_dir: str, output_filename: str) -> str:
     path = combine_route_tables(
         input_dir=input_dir, output_dir=output_dir, output_filename=output_filename
     )
-    path = str(path)
-    click.echo(f"Combined workbook saved to: {path}")
-    return path
+    logger.info(f"Combined workbook saved to:\n{path.resolve()}")
+
+    return str(path)
