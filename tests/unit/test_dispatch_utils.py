@@ -1,5 +1,6 @@
 """Test for the dispatch utils module."""
 
+from collections.abc import Iterator
 from contextlib import AbstractContextManager, nullcontext
 from typing import Any, Final
 from unittest.mock import Mock, patch
@@ -11,6 +12,13 @@ from bfb_delivery.lib.constants import RateLimits
 from bfb_delivery.lib.dispatch.utils import get_responses
 
 BASE_URL: Final[str] = "http://example.com/api/v2/stops"
+
+
+@pytest.fixture(autouse=True)
+def mock_get_circuit_key() -> Iterator:
+    """Mock get_circuit_key."""
+    with patch("bfb_delivery.lib.dispatch.utils.get_circuit_key", return_value="fakekey"):
+        yield
 
 
 @pytest.mark.parametrize(
