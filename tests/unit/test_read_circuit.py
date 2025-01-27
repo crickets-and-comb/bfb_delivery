@@ -2,6 +2,7 @@
 
 import copy
 import json
+import os
 import re
 from collections.abc import Iterator
 from contextlib import AbstractContextManager, nullcontext
@@ -64,7 +65,7 @@ def mock_plan_responses() -> (
     list[dict[str, str | list[dict[str, str | dict[str, int]] | None]]]
 ):
     """Return a list of plan responses, as from _get_plan_responses."""
-    with open("tests/unit/fixtures/plan_responses.json") as f:
+    with open(Path("tests/unit/fixtures/plan_responses.json")) as f:
         return json.load(f)
 
 
@@ -95,7 +96,7 @@ def mock_plan_responses_class_scoped() -> (
     list[dict[str, str | list[dict[str, str | dict[str, int]] | None]]]
 ):
     """Return a list of plan responses, as from _get_plan_responses."""
-    with open("tests/unit/fixtures/plan_responses.json") as f:
+    with open(Path("tests/unit/fixtures/plan_responses.json")) as f:
         return json.load(f)
 
 
@@ -151,7 +152,7 @@ class TestCreateManifestsFromCircuit:
         ]
     ]:
         """Return a list of stops responses, as from _get_raw_stops_list."""
-        with open("tests/unit/fixtures/stops_responses.json") as f:
+        with open(Path("tests/unit/fixtures/stops_responses.json")) as f:
             return json.load(f)
 
     @pytest.fixture()
@@ -179,7 +180,7 @@ class TestCreateManifestsFromCircuit:
         ]
     ]:
         """Return a list of stops responses, as from _get_raw_stops_list."""
-        with open("tests/unit/fixtures/stops_responses_all_hhs.json") as f:
+        with open(Path("tests/unit/fixtures/stops_responses_all_hhs.json")) as f:
             return json.load(f)
 
     @pytest.fixture()
@@ -280,7 +281,7 @@ class TestCreateManifestsFromCircuit:
         )
 
         Path(expected_circuit_output_dir).mkdir(parents=True, exist_ok=True)
-        with open(f"{expected_circuit_output_dir}/dummy_file.txt", "w") as f:
+        with open(expected_circuit_output_dir / "dummy_file.txt", "w") as f:
             f.write("Dummy file. The function should remove this file.")
 
         with patch(
@@ -303,9 +304,12 @@ class TestCreateManifestsFromCircuit:
                     arg_list.append("--verbose")
                 result = cli_runner.invoke(create_manifests_from_circuit_cli.main, arg_list)
                 assert result.exit_code == 0
+
+                split_char = "\r\n" if os.name == "nt" else "\n"
                 output_path, new_circuit_output_dir = (
-                    result.stdout_bytes.decode("utf-8").strip().split("\n")
+                    result.stdout_bytes.decode("utf-8").strip().split(split_char)
                 )
+
             else:
                 output_path, new_circuit_output_dir = create_manifests_from_circuit(
                     start_date=TEST_START_DATE,
@@ -417,7 +421,7 @@ class TestCreateManifestsFromCircuitClassScoped:
         ]
     ]:
         """Return a list of stops responses, as from _get_raw_stops_list."""
-        with open("tests/unit/fixtures/stops_responses.json") as f:
+        with open(Path("tests/unit/fixtures/stops_responses.json")) as f:
             return json.load(f)
 
     @pytest.fixture(scope="class")

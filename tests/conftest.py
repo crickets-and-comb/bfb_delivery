@@ -1,6 +1,7 @@
 """Tests conftest."""
 
 import os
+from pathlib import Path
 from typing import Any, List
 
 import pytest
@@ -8,9 +9,9 @@ import pytest
 
 def pytest_collection_modifyitems(config: Any, items: List[Any]) -> None:
     """Mark test types."""
-    unit_tests_dir = os.path.join(config.rootdir, "tests/unit")
-    integration_tests_dir = os.path.join(config.rootdir, "tests/integration")
-    e2e_tests_dir = os.path.join(config.rootdir, "tests/e2e")
+    unit_tests_dir = os.path.join(config.rootdir, Path("tests/unit"))
+    integration_tests_dir = os.path.join(config.rootdir, Path("tests/integration"))
+    e2e_tests_dir = os.path.join(config.rootdir, Path("tests/e2e"))
 
     for item in items:
         test_path = str(item.fspath)

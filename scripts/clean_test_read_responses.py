@@ -1,6 +1,7 @@
 """Sanitize sample responses from the test data to be used as fixtures for unit tests."""
 
 import json
+from pathlib import Path
 
 import phonenumbers
 
@@ -9,8 +10,8 @@ from bfb_delivery.lib.constants import ALL_HHS_DRIVER
 LEAVE_ALONE = [ALL_HHS_DRIVER, "Warehouse"]
 
 driver_name_dict = {}
-with open(".test_data/sample_responses/plan_responses_dirty.json", "r") as rf, open(
-    "tests/unit/fixtures/plan_responses.json", "w"
+with open(Path(".test_data/sample_responses/plan_responses_dirty.json"), "r") as rf, open(
+    Path("tests/unit/fixtures/plan_responses.json"), "w"
 ) as wf:
     plan_dicts = json.load(rf)
 
@@ -46,8 +47,8 @@ with open(".test_data/sample_responses/plan_responses_dirty.json", "r") as rf, o
 
 for all_hhs in ["_all_hhs", ""]:
     with open(
-        f".test_data/sample_responses/stops_responses_dirty{all_hhs}.json", "r"
-    ) as rf, open(f"tests/unit/fixtures/stops_responses{all_hhs}.json", "w") as wf:
+        Path(f".test_data/sample_responses/stops_responses_dirty{all_hhs}.json"), "r"
+    ) as rf, open(Path(f"tests/unit/fixtures/stops_responses{all_hhs}.json"), "w") as wf:
         stops_lists = json.load(rf)
 
         cleaned_stops_lists = []
