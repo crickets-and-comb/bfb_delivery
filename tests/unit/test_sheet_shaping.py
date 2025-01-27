@@ -594,17 +594,14 @@ class TestSplitChunkedRouteClassScoped:
             ]
             assert len(set(driver_set).intersection(set(driver_sets_sans_i))) == 0
 
-
-@pytest.mark.usefixtures("mock_is_valid_number")
-class TestSplitChunkedRoute:
-    """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
-
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_numbered_drivers_grouped(
-        self, n_books: int, mock_chunked_sheet_raw: Path
+        self, n_books: int, mock_chunked_sheet_raw_class_scoped: Path
     ) -> None:
         """Test that the numbered drivers are in the same workbook together."""
-        output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
+        output_paths = split_chunked_route(
+            input_path=mock_chunked_sheet_raw_class_scoped, n_books=n_books
+        )
         driver_d_sheets_found = False
         for output_path in output_paths:
             driver_d_sheets = [
@@ -618,6 +615,11 @@ class TestSplitChunkedRoute:
                 driver_d_sheets_found = True
 
         assert driver_d_sheets_found
+
+
+@pytest.mark.usefixtures("mock_is_valid_number")
+class TestSplitChunkedRoute:
+    """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
 
     @pytest.mark.parametrize("n_books", [1, 2, 3])
     @pytest.mark.parametrize(
