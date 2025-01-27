@@ -792,11 +792,6 @@ class TestSplitChunkedRouteClassScoped:
             )
             assert sheet_date.weekday() == 4
 
-
-@pytest.mark.usefixtures("mock_is_valid_number")
-class TestSplitChunkedRoute:
-    """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
-
     @pytest.mark.parametrize(
         "output_dir, output_filename, n_books",
         [("", "", 4), ("output", "", 3), ("", "output_filename.xlsx", 1)],
@@ -806,14 +801,15 @@ class TestSplitChunkedRoute:
         output_dir: str,
         output_filename: str,
         n_books: int,
-        mock_chunked_sheet_raw: Path,
-        tmp_path: Path,
+        mock_chunked_sheet_raw_class_scoped: Path,
+        tmp_path_factory: pytest.TempPathFactory,
     ) -> None:
         """Test CLI works."""
-        output_dir = str(tmp_path / output_dir) if output_dir else output_dir
+        tmp_output = tmp_path_factory.mktemp("output")
+        output_dir = str(tmp_output / output_dir) if output_dir else output_dir
         arg_list = [
             "--input_path",
-            str(mock_chunked_sheet_raw),
+            str(mock_chunked_sheet_raw_class_scoped),
             "--output_dir",
             output_dir,
             "--output_filename",
@@ -835,9 +831,14 @@ class TestSplitChunkedRoute:
                 )
             )
             expected_output_dir = (
-                Path(output_dir) if output_dir else mock_chunked_sheet_raw.parent
+                Path(output_dir) if output_dir else mock_chunked_sheet_raw_class_scoped.parent
             )
             assert (Path(expected_output_dir) / expected_filename).exists()
+
+
+@pytest.mark.usefixtures("mock_is_valid_number")
+class TestSplitChunkedRoute:
+    """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
 
     def test_output_columns(self, mock_chunked_sheet_raw: Path) -> None:
         """Test that the output columns match the SPLIT_ROUTE_COLUMNS constant."""
