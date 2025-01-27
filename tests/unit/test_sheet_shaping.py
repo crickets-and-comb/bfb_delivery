@@ -532,26 +532,26 @@ class TestSplitChunkedRouteClassScoped:
             )
             assert output_path.name == expected_filename
 
-
-@pytest.mark.usefixtures("mock_is_valid_number")
-class TestSplitChunkedRoute:
-    """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
-
     @pytest.mark.parametrize("n_books_passed", N_BOOKS_MATRIX + [None])
     def test_n_books_count(
-        self, n_books_passed: int | None, mock_chunked_sheet_raw: Path
+        self, n_books_passed: int | None, mock_chunked_sheet_raw_class_scoped: Path
     ) -> None:
         """Test that the number of workbooks is equal to n_books."""
         if n_books_passed is None:
-            output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw)
+            output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw_class_scoped)
             n_books = Defaults.SPLIT_CHUNKED_ROUTE["n_books"]
         else:
             n_books = n_books_passed
             output_paths = split_chunked_route(
-                input_path=mock_chunked_sheet_raw, n_books=n_books
+                input_path=mock_chunked_sheet_raw_class_scoped, n_books=n_books
             )
 
         assert len(output_paths) == n_books
+
+
+@pytest.mark.usefixtures("mock_is_valid_number")
+class TestSplitChunkedRoute:
+    """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_recipients_unique(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
