@@ -748,14 +748,11 @@ class TestSplitChunkedRouteClassScoped:
                 input_path=mock_chunked_sheet_raw_class_scoped, n_books=n_books
             )
 
-
-@pytest.mark.usefixtures("mock_is_valid_number")
-class TestSplitChunkedRoute:
-    """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
-
-    def test_invalid_n_books_driver_count(self, mock_chunked_sheet_raw: Path) -> None:
+    def test_invalid_n_books_driver_count(
+        self, mock_chunked_sheet_raw_class_scoped: Path
+    ) -> None:
         """Test that n_books greater than the number of drivers raises a ValueError."""
-        raw_sheet = pd.read_excel(mock_chunked_sheet_raw)
+        raw_sheet = pd.read_excel(mock_chunked_sheet_raw_class_scoped)
         driver_count = len(raw_sheet[Columns.DRIVER].unique())
         n_books = driver_count + 1
         with pytest.raises(
@@ -765,7 +762,14 @@ class TestSplitChunkedRoute:
                 f"driver_count: ({driver_count}), n_books: {n_books}."
             ),
         ):
-            _ = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
+            _ = split_chunked_route(
+                input_path=mock_chunked_sheet_raw_class_scoped, n_books=n_books
+            )
+
+
+@pytest.mark.usefixtures("mock_is_valid_number")
+class TestSplitChunkedRoute:
+    """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
 
     def test_date_added_to_sheet_names(self, mock_chunked_sheet_raw: Path) -> None:
         """Test that the date is added to the sheet names."""
