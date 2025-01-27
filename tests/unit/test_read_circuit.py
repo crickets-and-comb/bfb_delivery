@@ -2,6 +2,7 @@
 
 import copy
 import json
+import os
 import re
 from collections.abc import Iterator
 from contextlib import AbstractContextManager, nullcontext
@@ -303,9 +304,12 @@ class TestCreateManifestsFromCircuit:
                     arg_list.append("--verbose")
                 result = cli_runner.invoke(create_manifests_from_circuit_cli.main, arg_list)
                 assert result.exit_code == 0
+
+                split_char = "\r\n" if os.name == "nt" else "\n"
                 output_path, new_circuit_output_dir = (
-                    result.stdout_bytes.decode("utf-8").strip().split("\n")
+                    result.stdout_bytes.decode("utf-8").strip().split(split_char)
                 )
+
             else:
                 output_path, new_circuit_output_dir = create_manifests_from_circuit(
                     start_date=TEST_START_DATE,
