@@ -835,14 +835,9 @@ class TestSplitChunkedRouteClassScoped:
             )
             assert (Path(expected_output_dir) / expected_filename).exists()
 
-
-@pytest.mark.usefixtures("mock_is_valid_number")
-class TestSplitChunkedRoute:
-    """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
-
-    def test_output_columns(self, mock_chunked_sheet_raw: Path) -> None:
+    def test_output_columns(self, mock_chunked_sheet_raw_class_scoped: Path) -> None:
         """Test that the output columns match the SPLIT_ROUTE_COLUMNS constant."""
-        output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw)
+        output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw_class_scoped)
         for output_path in output_paths:
             workbook = pd.ExcelFile(output_path)
             for sheet_name in workbook.sheet_names:
