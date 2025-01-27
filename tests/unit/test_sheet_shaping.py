@@ -548,18 +548,17 @@ class TestSplitChunkedRouteClassScoped:
 
         assert len(output_paths) == n_books
 
-
-@pytest.mark.usefixtures("mock_is_valid_number")
-class TestSplitChunkedRoute:
-    """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
-
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
-    def test_recipients_unique(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
+    def test_recipients_unique(
+        self, n_books: int, mock_chunked_sheet_raw_class_scoped: Path
+    ) -> None:
         """Test that the recipients don't overlap between the split workbooks.
 
         By name, address, phone, and email.
         """
-        output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
+        output_paths = split_chunked_route(
+            input_path=mock_chunked_sheet_raw_class_scoped, n_books=n_books
+        )
 
         recipient_sets = []
         for output_path in output_paths:
@@ -571,6 +570,11 @@ class TestSplitChunkedRoute:
             )
         recipients_df = pd.concat(recipient_sets, ignore_index=True)
         assert recipients_df.duplicated().sum() == 0
+
+
+@pytest.mark.usefixtures("mock_is_valid_number")
+class TestSplitChunkedRoute:
+    """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_unique_drivers_across_books(
