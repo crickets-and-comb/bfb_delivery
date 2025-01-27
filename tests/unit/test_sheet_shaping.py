@@ -738,16 +738,20 @@ class TestSplitChunkedRouteClassScoped:
         _format_and_validate_neighborhood(df=neighborhood_df)
         assert neighborhood_df[Columns.NEIGHBORHOOD].equals(split_data[Columns.NEIGHBORHOOD])
 
+    @pytest.mark.parametrize("n_books", [0, -1])
+    def test_invalid_n_books(
+        self, n_books: int, mock_chunked_sheet_raw_class_scoped: Path
+    ) -> None:
+        """Test that an invalid n_books raises a ValueError."""
+        with pytest.raises(ValueError, match="n_books must be greater than 0."):
+            _ = split_chunked_route(
+                input_path=mock_chunked_sheet_raw_class_scoped, n_books=n_books
+            )
+
 
 @pytest.mark.usefixtures("mock_is_valid_number")
 class TestSplitChunkedRoute:
     """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
-
-    @pytest.mark.parametrize("n_books", [0, -1])
-    def test_invalid_n_books(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
-        """Test that an invalid n_books raises a ValueError."""
-        with pytest.raises(ValueError, match="n_books must be greater than 0."):
-            _ = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
 
     def test_invalid_n_books_driver_count(self, mock_chunked_sheet_raw: Path) -> None:
         """Test that n_books greater than the number of drivers raises a ValueError."""
