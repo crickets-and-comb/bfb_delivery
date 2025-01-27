@@ -310,17 +310,21 @@ def mock_extra_notes_df() -> pd.DataFrame:
     )
     return extra_notes_df
 
+
 @pytest.mark.usefixtures("mock_is_valid_number")
 class TestSplitChunkedRouteClassScoped:
     """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
 
     @pytest.fixture(scope="class")
-    def mock_chunked_sheet_raw(self, tmp_path_factory: pytest.TempPathFactory) -> Path:
+    def mock_chunked_sheet_raw_class_scoped(
+        self, tmp_path_factory: pytest.TempPathFactory
+    ) -> Path:
         """Save mock chunked route sheet and get path."""
         tmp_output = tmp_path_factory.mktemp("tmp_output")
         fp: Path = tmp_output / "mock_chunked_sheet_raw.xlsx"
         raw_chunked_sheet = pd.DataFrame(
-            columns=SPLIT_ROUTE_COLUMNS + [Columns.DRIVER, Columns.BOX_COUNT, Columns.STOP_NO],
+            columns=SPLIT_ROUTE_COLUMNS
+            + [Columns.DRIVER, Columns.BOX_COUNT, Columns.STOP_NO],
             data=[
                 (
                     "Recipient One",
@@ -484,7 +488,6 @@ class TestSplitChunkedRouteClassScoped:
 
         return fp
 
-
     @pytest.mark.parametrize("output_dir_type", [Path, str])
     @pytest.mark.parametrize("output_dir", ["", "dummy_output"])
     @pytest.mark.parametrize("n_books", [1, 4])
@@ -494,15 +497,18 @@ class TestSplitChunkedRouteClassScoped:
         output_dir: Path | str,
         n_books: int,
         tmp_path_factory: pytest.TempPathFactory,
-        mock_chunked_sheet_raw: Path,
+        mock_chunked_sheet_raw_class_scoped: Path,
     ) -> None:
         """Test that the output directory can be set."""
         tmp_output = tmp_path_factory.mktemp("output")
         output_dir = output_dir_type(tmp_output / output_dir)
         output_paths = split_chunked_route(
-            input_path=mock_chunked_sheet_raw, output_dir=output_dir, n_books=n_books
+            input_path=mock_chunked_sheet_raw_class_scoped,
+            output_dir=output_dir,
+            n_books=n_books,
         )
         assert all(str(output_path.parent) == str(output_dir) for output_path in output_paths)
+
 
 @pytest.mark.usefixtures("mock_is_valid_number")
 class TestSplitChunkedRoute:
