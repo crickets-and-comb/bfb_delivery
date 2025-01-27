@@ -616,11 +616,6 @@ class TestSplitChunkedRouteClassScoped:
 
         assert driver_d_sheets_found
 
-
-@pytest.mark.usefixtures("mock_is_valid_number")
-class TestSplitChunkedRoute:
-    """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
-
     @pytest.mark.parametrize("n_books", [1, 2, 3])
     @pytest.mark.parametrize(
         "test_book_one_drivers, exclude_drivers",
@@ -638,10 +633,10 @@ class TestSplitChunkedRoute:
     def test_book_one_drivers(
         self,
         n_books: int,
-        mock_chunked_sheet_raw: Path,
         test_book_one_drivers: list[str],
         exclude_drivers: list[str],
         book_one_drivers_file: str,
+        mock_chunked_sheet_raw_class_scoped: Path,
         tmp_path: Path,
     ) -> None:
         """Test that book-one drivers are in book one."""
@@ -670,7 +665,7 @@ class TestSplitChunkedRoute:
                 for driver in test_book_one_drivers:
                     f.write(f"{driver}\n")
 
-        mock_chunked_sheet_raw_df = pd.read_excel(mock_chunked_sheet_raw)
+        mock_chunked_sheet_raw_df = pd.read_excel(mock_chunked_sheet_raw_class_scoped)
         alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         mock_chunked_sheet_raw_df[Columns.DRIVER] = [
             f"Driver {alphabet[i]}" for i in range(len(mock_chunked_sheet_raw_df))
@@ -696,6 +691,11 @@ class TestSplitChunkedRoute:
 
         misincluded_drivers = set(book_one_drivers).intersection(set(exclude_drivers))
         assert len(misincluded_drivers) == 0
+
+
+@pytest.mark.usefixtures("mock_is_valid_number")
+class TestSplitChunkedRoute:
+    """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
 
     @pytest.mark.parametrize("n_books", [1, 2, 3])
     def test_complete_contents(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
