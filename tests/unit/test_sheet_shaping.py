@@ -884,6 +884,21 @@ class TestCombineRouteTablesClassScoped:
         )
         assert str(output_path.parent) == str(output_dir)
 
+    @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.csv"])
+    def test_set_output_filename(
+        self, output_filename: str, mock_route_tables_class_scoped: Path
+    ) -> None:
+        """Test that the output filename can be set."""
+        output_path = combine_route_tables(
+            input_dir=mock_route_tables_class_scoped, output_filename=output_filename
+        )
+        expected_filename = (
+            f"combined_routes_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
+            if output_filename == ""
+            else output_filename
+        )
+        assert output_path.name == expected_filename
+
 
 class TestCombineRouteTables:
     """combine_route_tables combines driver route CSVs into a single workbook."""
@@ -895,19 +910,6 @@ class TestCombineRouteTables:
         output_dir.mkdir()
         output_path = combine_route_tables(input_dir=mock_route_tables, output_dir=output_dir)
         return output_path
-
-    @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.csv"])
-    def test_set_output_filename(self, output_filename: str, mock_route_tables: Path) -> None:
-        """Test that the output filename can be set."""
-        output_path = combine_route_tables(
-            input_dir=mock_route_tables, output_filename=output_filename
-        )
-        expected_filename = (
-            f"combined_routes_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
-            if output_filename == ""
-            else output_filename
-        )
-        assert output_path.name == expected_filename
 
     def test_output_columns(self, basic_combined_routes: Path) -> None:
         """Test that the output columns match the COMBINED_ROUTES_COLUMNS constant."""
