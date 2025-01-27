@@ -509,19 +509,14 @@ class TestSplitChunkedRouteClassScoped:
         )
         assert all(str(output_path.parent) == str(output_dir) for output_path in output_paths)
 
-
-@pytest.mark.usefixtures("mock_is_valid_number")
-class TestSplitChunkedRoute:
-    """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
-
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
     @pytest.mark.parametrize("n_books", [1, 4])
     def test_set_output_filename(
-        self, output_filename: str, mock_chunked_sheet_raw: Path, n_books: int
+        self, output_filename: str, mock_chunked_sheet_raw_class_scoped: Path, n_books: int
     ) -> None:
         """Test that the output filename can be set."""
         output_paths = split_chunked_route(
-            input_path=mock_chunked_sheet_raw,
+            input_path=mock_chunked_sheet_raw_class_scoped,
             output_filename=output_filename,
             n_books=n_books,
         )
@@ -536,6 +531,11 @@ class TestSplitChunkedRoute:
                 )
             )
             assert output_path.name == expected_filename
+
+
+@pytest.mark.usefixtures("mock_is_valid_number")
+class TestSplitChunkedRoute:
+    """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
 
     @pytest.mark.parametrize("n_books_passed", N_BOOKS_MATRIX + [None])
     def test_n_books_count(
