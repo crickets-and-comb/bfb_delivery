@@ -312,7 +312,7 @@ def mock_extra_notes_df() -> pd.DataFrame:
 
 
 @pytest.mark.usefixtures("mock_is_valid_number")
-class TestSplitChunkedRouteClassScoped:
+class TestSplitChunkedRoute:
     """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
 
     @pytest.fixture(scope="class")
