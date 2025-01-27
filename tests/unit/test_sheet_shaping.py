@@ -777,14 +777,13 @@ class TestSplitChunkedRouteClassScoped:
             for sheet_name in pd.ExcelFile(output_path).sheet_names:
                 assert str(sheet_name).startswith(f"{MANIFEST_DATE} ")
 
-
-@pytest.mark.usefixtures("mock_is_valid_number")
-class TestSplitChunkedRoute:
-    """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
-
-    def test_sheetname_date_is_friday(self, mock_chunked_sheet_raw: Path) -> None:
+    def test_sheetname_date_is_friday(
+        self, mock_chunked_sheet_raw_class_scoped: Path
+    ) -> None:
         """Test that default date added is Friday."""
-        output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=1)
+        output_paths = split_chunked_route(
+            input_path=mock_chunked_sheet_raw_class_scoped, n_books=1
+        )
         workbook = pd.ExcelFile(output_paths[0])
         this_year = datetime.now().year.__str__()
         for sheet_name in workbook.sheet_names:
@@ -792,6 +791,11 @@ class TestSplitChunkedRoute:
                 str(sheet_name).split(" ")[0] + "." + this_year, MANIFEST_DATE_FORMAT + ".%Y"
             )
             assert sheet_date.weekday() == 4
+
+
+@pytest.mark.usefixtures("mock_is_valid_number")
+class TestSplitChunkedRoute:
+    """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
 
     @pytest.mark.parametrize(
         "output_dir, output_filename, n_books",
