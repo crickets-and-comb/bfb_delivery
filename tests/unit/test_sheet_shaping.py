@@ -766,19 +766,21 @@ class TestSplitChunkedRouteClassScoped:
                 input_path=mock_chunked_sheet_raw_class_scoped, n_books=n_books
             )
 
-
-@pytest.mark.usefixtures("mock_is_valid_number")
-class TestSplitChunkedRoute:
-    """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
-
-    def test_date_added_to_sheet_names(self, mock_chunked_sheet_raw: Path) -> None:
+    def test_date_added_to_sheet_names(
+        self, mock_chunked_sheet_raw_class_scoped: Path
+    ) -> None:
         """Test that the date is added to the sheet names."""
         output_paths = split_chunked_route(
-            input_path=mock_chunked_sheet_raw, date=MANIFEST_DATE
+            input_path=mock_chunked_sheet_raw_class_scoped, date=MANIFEST_DATE
         )
         for output_path in output_paths:
             for sheet_name in pd.ExcelFile(output_path).sheet_names:
                 assert str(sheet_name).startswith(f"{MANIFEST_DATE} ")
+
+
+@pytest.mark.usefixtures("mock_is_valid_number")
+class TestSplitChunkedRoute:
+    """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
 
     def test_sheetname_date_is_friday(self, mock_chunked_sheet_raw: Path) -> None:
         """Test that default date added is Friday."""
