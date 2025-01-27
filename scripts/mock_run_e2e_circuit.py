@@ -26,11 +26,13 @@ from bfb_delivery.lib.dispatch.read_circuit import (
 from bfb_delivery.lib.formatting import sheet_shaping
 from bfb_delivery.lib.utils import get_friday
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../.test_data")))
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), Path("../.test_data")))
+)
 
 OUTPUT_DIRS: Final[dict[str, str]] = {
-    "CIRCUIT_TABLES_DIR": ".test_data/circuit_tables",
-    "MANIFESTS_DIR": ".test_data/manifests",
+    "CIRCUIT_TABLES_DIR": str(Path(".test_data/circuit_tables")),
+    "MANIFESTS_DIR": str(Path(".test_data/manifests")),
 }
 
 
@@ -151,7 +153,7 @@ def main(  # noqa: C901
             #     json.dump(plans_list, f, indent=4)
 
         else:
-            with open(".test_data/sample_responses/plans_list.json") as f:
+            with open(Path(".test_data/sample_responses/plans_list.json")) as f:
                 plans_list = json.load(f)
 
         plans_df = _make_plans_df(plans_list=plans_list, all_hhs=all_hhs)
@@ -175,10 +177,12 @@ def main(  # noqa: C901
 
         else:
             if all_hhs:
-                with open(".test_data/sample_responses/plan_stops_list_all_hhs.json") as f:
+                with open(
+                    Path(".test_data/sample_responses/plan_stops_list_all_hhs.json")
+                ) as f:
                     plan_stops_list = json.load(f)
             else:
-                with open(".test_data/sample_responses/plan_stops_list.json") as f:
+                with open(Path(".test_data/sample_responses/plan_stops_list.json")) as f:
                     plan_stops_list = json.load(f)
 
         routes_df = _transform_routes_df(plan_stops_list=plan_stops_list, plans_df=plans_df)
