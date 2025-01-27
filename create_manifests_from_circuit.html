@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="CLI" href="CLI.html" /><link rel="prev" title="Split Chunked Route Sheet into Multiple Files" href="split_chunked_route.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Create Printable Manifests from Downloaded Optimized Routes - bfb_delivery 0.5.1 documentation</title>
+        <title>Create Printable Manifests from Optimized Routes from Circuit - bfb_delivery 0.5.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -198,11 +198,11 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul>
+  <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow.html">The Delivery-Planning Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="create_manifests_from_circuit.html">Create Printable Manifests from Optimized Routes from Circuit</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Create Printable Manifests from Optimized Routes from Circuit</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -242,7 +242,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="_sources/create_manifests.rst.txt" title="View this page">
+  <a class="muted-link" href="_sources/create_manifests_from_circuit.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -262,60 +262,89 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="create-printable-manifests-from-downloaded-optimized-routes">
-<h1>Create Printable Manifests from Downloaded Optimized Routes<a class="headerlink" href="#create-printable-manifests-from-downloaded-optimized-routes" title="Link to this heading">¶</a></h1>
-<p>After you have optimized each driver’s route in Circuit, you will need to combine the optimized routes back into a single workbook of driver manifest sheets ready to print. You can do this with the <code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code> tool.</p>
-<p>This tool replaces the manual task of copying each driver’s optimized route into a single workbook, running an Excel macro, and finishing up with some manual steps. It will combine all the optimized routes into a single workbook, with each driver’s route on a separate sheet, and format the sheets into manifests ready to print.</p>
+          <section id="create-printable-manifests-from-optimized-routes-from-circuit">
+<h1>Create Printable Manifests from Optimized Routes from Circuit<a class="headerlink" href="#create-printable-manifests-from-optimized-routes-from-circuit" title="Link to this heading">¶</a></h1>
+<p>After you have optimized each driver’s route in Circuit, you will need to combine the optimized routes back into a single workbook of driver manifests ready to print, with headers, aggregate data, and color-coded box types. You can do this with the <code class="code docutils literal notranslate"><span class="pre">create_manifests_from_circuit</span></code> tool.</p>
+<p>This tool replaces the manual task of downloading the optimized routes, copying each route into a single workbook, running an Excel macro, and finishing up with some manual steps. Instead, <code class="code docutils literal notranslate"><span class="pre">create_manifests_from_circuit</span></code> will download and combine all the optimized routes into a single workbook, with each driver’s route on a separate sheet, and format the sheets into manifests ready to print.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Uses the date of the front of each CSV name to set the manifest date field.
-I.e., each sheet should be named something like “07.17 Walt D”,
+<p>Uses the date of the front of each route’s title to set the manifest date field.
+I.e., each route should be titled something like “07.17 Walt D”,
 and, e.g., this would set the manifest date field to “Date: 07.17”.</p>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This wraps the two other tools <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> and <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code> into one tool. You can still use them if you wish, but you can instead use this tool. For instance, say you’ve found a bug when using <code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code>. You could try running <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> then passing its output to <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code>. For whichever of those steps fails you can revert to using your old method, but you can still ostensibly use the tool for the other piece that didn’t fail (e.g., <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> ran fine, but <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code> threw an error, so you reverted to using the Excel macro and manually formatting). See <a class="reference internal" href="combine_route_tables.html"><span class="doc">Combine Driver Route Tables into a Single Workbook</span></a> and <a class="reference internal" href="format_combined_routes.html"><span class="doc">Format Manifests</span></a>.</p>
-</div>
-<p>Python API documentation at <a class="reference internal" href="bfb_delivery.api.html#bfb_delivery.api.public.create_manifests" title="bfb_delivery.api.public.create_manifests"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.create_manifests()</span></code></a>.</p>
+<p>Python API documentation at <a class="reference internal" href="bfb_delivery.api.html#bfb_delivery.api.public.create_manifests_from_circuit" title="bfb_delivery.api.public.create_manifests_from_circuit"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.create_manifests_from_circuit()</span></code></a>.</p>
 <p>CLI documentation at <a class="reference internal" href="CLI.html"><span class="doc">CLI</span></a>.</p>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
-<p>You pass the directory containing the optimized route tables to <code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code>, along with any other optional arguments, and it will create a single workbook file with all the optimized routes formatted and ready to print. The tool then returns the filepath to that file.</p>
+<p>You call <code class="code docutils literal notranslate"><span class="pre">create_manifests_from_circuit</span></code> with (optionally) the start date of the routes, along with any other optional arguments, and it will create a single workbook file with all the optimized routes formatted and ready to print. The tool then returns the filepath to that file.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The route CSVs from Circuit should be in a single directory, with no other CSVs in it.</p>
+<p>The filepaths to some intermediate files will print to the console as well, before finally printing the filepath to the final workbook. In addition to the final manifest, there will route CSVs in a directory and an unformatted workbook of all the routes.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This will change the “Product Type” column name, per Circuit API, back to “Box Type” per food bank staff preferences.</p>
 </div>
-<p>You must at least pass <code class="code docutils literal notranslate"><span class="pre">input_dir</span></code> to <code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code>.</p>
 <p>In Python:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfb_delivery</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_manifests</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfb_delivery</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_manifests_from_circuit</span>
 
-<span class="n">create_manifests</span><span class="p">(</span><span class="n">input_dir</span><span class="o">=</span><span class="s2">&quot;path/to/input/&quot;</span><span class="p">)</span>
+<span class="n">create_manifests_from_circuit</span><span class="p">(</span><span class="n">start_date</span><span class="o">=</span><span class="s2">&quot;1903-12-17&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>With CLI:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests<span class="w"> </span>--input_dir<span class="w"> </span>path/to/input/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests_from_circuit<span class="w"> </span>--start_date<span class="w"> </span><span class="m">1919</span>-06-14
 </pre></div>
 </div>
-<p>The function will return the filepath to the final manifest file. If you’re using the CLI, the filepath will print to the console.</p>
+<p>The function will return the filepath to the final manifest. If you’re using the CLI, the filepath will print to the console.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This takes about a minute to run as it downloads the routes from Circuit.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You don’t need to pass in <code class="code docutils literal notranslate"><span class="pre">start_date</span></code>. If you don’t pass it in, the tool will assume the soonest Friday.</p>
+</div>
 <section id="optional-arguments">
 <h3>Optional arguments<a class="headerlink" href="#optional-arguments" title="Link to this heading">¶</a></h3>
-<p>You can use optional arguments specify a few things about the manifest workbook. Use <cite>–help</cite> to see all the optional arguments in the CLI.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests<span class="w"> </span>--help
+<p>You can use optional arguments to specify a few things about the manifest workbook. Use <cite>–help</cite> to see all the optional arguments in the CLI.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests_from_circuit<span class="w"> </span>--help
 </pre></div>
 </div>
-<section id="output-directory">
-<h4>Output directory<a class="headerlink" href="#output-directory" title="Link to this heading">¶</a></h4>
-<p>Use the optional argument <code class="code docutils literal notranslate"><span class="pre">output_dir</span></code> to specify the directory where the workbook file will be saved.</p>
-<p>In Python:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">create_manifests</span><span class="p">(</span><span class="n">input_dir</span><span class="o">=</span><span class="s2">&quot;path/to/input/&quot;</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;path/to/output_dir/&quot;</span><span class="p">)</span>
+<section id="start-date">
+<h4>Start date<a class="headerlink" href="#start-date" title="Link to this heading">¶</a></h4>
+<p>Use the optional argument <code class="code docutils literal notranslate"><span class="pre">start_date</span></code> to specify the beginning of the date range to search Circuit for routes. The default if not passed in is the soonest Friday.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfb_delivery</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_manifests_from_circuit</span>
+
+<span class="n">create_manifests_from_circuit</span><span class="p">(</span><span class="n">start_date</span><span class="o">=</span><span class="s2">&quot;1947-10-14&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>With CLI:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests<span class="w"> </span>--input_dir<span class="w"> </span>path/to/input/<span class="w"> </span>--output_dir<span class="w"> </span>path/to/output_dir/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests_from_circuit<span class="w"> </span>--start_date<span class="w"> </span><span class="m">1957</span>-10-04
+</pre></div>
+</div>
+</section>
+<section id="end-date">
+<h4>End date<a class="headerlink" href="#end-date" title="Link to this heading">¶</a></h4>
+<p>Use the optional argument <code class="code docutils literal notranslate"><span class="pre">end_date</span></code> to specify the end of the date range to search Circuit for routes. The default is the start date.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfb_delivery</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_manifests_from_circuit</span>
+
+<span class="n">create_manifests_from_circuit</span><span class="p">(</span><span class="n">end_date</span><span class="o">=</span><span class="s2">&quot;1961-04-12&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>With CLI:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests_from_circuit<span class="w"> </span>--end_date<span class="w"> </span><span class="m">1969</span>-07-20
+</pre></div>
+</div>
+</section>
+<section id="output-directory">
+<h4>Output directory<a class="headerlink" href="#output-directory" title="Link to this heading">¶</a></h4>
+<p>Use the optional argument <code class="code docutils literal notranslate"><span class="pre">output_dir</span></code> to specify the directory to save the workbook file in.</p>
+<p>In Python:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">create_manifests_from_circuit</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;path/to/output_dir/&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>With CLI:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests_from_circuit<span class="w"> </span>--output_dir<span class="w"> </span>path/to/output_dir/
 </pre></div>
 </div>
 </section>
@@ -323,16 +352,56 @@ and, e.g., this would set the manifest date field to “Date: 07.17”.</p>
 <h4>Output filename<a class="headerlink" href="#output-filename" title="Link to this heading">¶</a></h4>
 <p>Choose the filename with <code class="code docutils literal notranslate"><span class="pre">output_name</span></code>. The default filename will be <code class="code docutils literal notranslate"><span class="pre">final_manifests_{today's</span> <span class="pre">date}.xlsx</span></code> (e.g., <code class="code docutils literal notranslate"><span class="pre">final_manifests_19991231.xlsx</span></code>). But, you can pass a preferred name instead.</p>
 <p>In Python:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">create_manifests</span><span class="p">(</span><span class="n">input_dir</span><span class="o">=</span><span class="s2">&quot;path/to/input/&quot;</span><span class="p">,</span> <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;all_routes.xlsx&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">create_manifests_from_circuit</span><span class="p">(</span><span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;all_routes.xlsx&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>With CLI:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests<span class="w"> </span>--input_dir<span class="w"> </span>path/to/input/<span class="w"> </span>--output_name<span class="w"> </span>all_routes.xlsx
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests_from_circuit<span class="w"> </span>--output_name<span class="w"> </span>all_routes.xlsx
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>You can use both <cite>output_dir</cite> and <cite>output_name</cite> together to specify the directory and filename of the output workbook.</p>
+</div>
+</section>
+<section id="circuit-output-directory">
+<h4>Circuit output directory<a class="headerlink" href="#circuit-output-directory" title="Link to this heading">¶</a></h4>
+<p>Use the optional argument <code class="code docutils literal notranslate"><span class="pre">circuit_output_dir</span></code> to specify the directory in which to save the route CSVs downloaded from Circuit.</p>
+<p>In Python:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">create_manifests_from_circuit</span><span class="p">(</span><span class="n">circuit_output_dir</span><span class="o">=</span><span class="s2">&quot;path/to/circuit_output_dir/&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>With CLI:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests_from_circuit<span class="w"> </span>--circuit_output_dir<span class="w"> </span>path/to/circuit_output_dir/
+</pre></div>
+</div>
+</section>
+<section id="all-hhs">
+<h4>All HHs<a class="headerlink" href="#all-hhs" title="Link to this heading">¶</a></h4>
+<p>If you want to get the “All HHs” route that was optimized as a single route before chunking into driver routes, use the optional argument <code class="code docutils literal notranslate"><span class="pre">all_hhs</span></code>.</p>
+<p>In Python:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">create_manifests_from_circuit</span><span class="p">(</span><span class="n">all_hhs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>With CLI:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests_from_circuit<span class="w"> </span>--all_hhs
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you’re using this, you’re not likely using it to create a final manifest, but rather a plain spreadsheet to start chunking into separate routes. So, you’ll want look in the console for the filepath to the <em>combined workbook</em>, not the final manifest.</p>
+</div>
+</section>
+<section id="verbose-output">
+<h4>Verbose output<a class="headerlink" href="#verbose-output" title="Link to this heading">¶</a></h4>
+<p>Use the optional argument <code class="code docutils literal notranslate"><span class="pre">verbose</span></code> to print more information to the console.</p>
+<p>In Python:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">create_manifests_from_circuit</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>With CLI:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests_from_circuit<span class="w"> </span>--verbose
+</pre></div>
 </div>
 </section>
 <section id="supplying-extra-notes">
@@ -343,24 +412,39 @@ Cedarwood Apartments special instructions *,Please call the recipient when you a
 </pre></div>
 </div>
 <p>This file will put the note “Please call the recipient when you arrive.” at the bottom of the manifest (once) if any stops have a note that contains the text “Cedarwood Apartments special instructions *”.</p>
-<p>If you don’t provide <code class="code docutils literal notranslate"><span class="pre">extra_notes_file</span></code>, the tool will use the constant notes in the codebase: <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes" title="bfb_delivery.lib.constants.ExtraNotes"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.ExtraNotes</span></code></a> (currently empty).</p>
+<p>If you don’t provide <code class="code docutils literal notranslate"><span class="pre">extra_notes_file</span></code> provide, the tool will use the constant notes in the codebase: <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes" title="bfb_delivery.lib.constants.ExtraNotes"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.ExtraNotes</span></code></a> (currently empty).</p>
 <p>In Python:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">create_manifests</span><span class="p">(</span>
-    <span class="n">input_dir</span><span class="o">=</span><span class="s2">&quot;path/to/combined_workbook.xlsx&quot;</span><span class="p">,</span>
-    <span class="n">extra_notes_file</span><span class="o">=</span><span class="s2">&quot;path/to/extra_notes.csv&quot;</span><span class="p">,</span>
-<span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">create_manifests_from_circuit</span><span class="p">(</span><span class="n">extra_notes_file</span><span class="o">=</span><span class="s2">&quot;path/to/extra_notes.csv&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>With CLI:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests<span class="w"> </span>--input_dir<span class="w"> </span>path/to/combined_workbook.xlsx<span class="w"> </span>--extra_notes_file<span class="w"> </span>path/to/extra_notes.csv
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests_from_circuit<span class="w"> </span>--extra_notes_file<span class="w"> </span>path/to/extra_notes.csv
 </pre></div>
 </div>
 </section>
 </section>
+</section>
+<section id="note-on-tools-this-tool-wraps">
+<h2>Note on tools this tool wraps<a class="headerlink" href="#note-on-tools-this-tool-wraps" title="Link to this heading">¶</a></h2>
+<p><code class="code docutils literal notranslate"><span class="pre">create_manifests_from_circuit</span></code> wraps another tool, <code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code>, so you don’t have to download and move files around. <code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code> in turn wraps two other tools, <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> and <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code> into one tool. You can still use any of those tools if you wish, but you can instead just use <code class="code docutils literal notranslate"><span class="pre">create_manifests_from_circuit</span></code>.</p>
+<figure class="align-default" id="id1">
+<pre  class="mermaid">
+        graph TD;
+    A[**create_manifests_from_circuit**] --&gt; B[Gets routes from Circuit]
+    A --&gt; C[**create_manifests**]
+    C --&gt; D[**combine_route_tables**]
+    C --&gt; E[**format_combined_routes**]
+    </pre><figcaption>
+<p><span class="caption-text">Subtools wrapped and alternatively available for use</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>For instance, say you’ve found a bug when using <code class="code docutils literal notranslate"><span class="pre">create_manifests_from_circuit</span></code>. You could try downloading the routes manually and running <code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code>, or running <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> and passing its output to <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code>. For whichever of those steps fails you can revert to using your old method, but you can still ostensibly use the tool for the other piece that didn’t fail. For example, say <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> ran fine, but <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code> threw an error, so you reverted to using the old Excel macro and manually formatting. See <a class="reference internal" href="create_manifests.html"><span class="doc">Create Printable Manifests from Downloaded Optimized Routes</span></a>, <a class="reference internal" href="combine_route_tables.html"><span class="doc">Combine Driver Route Tables into a Single Workbook</span></a> and <a class="reference internal" href="format_combined_routes.html"><span class="doc">Format Manifests</span></a>.</p>
+<p>Most likely you’ll find that the tool works fine unless the underlying data schemata have changed, but it’s good to know you have options to explore instead of doing it all manually again.</p>
 </section>
 <section id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
 <p><a class="reference internal" href="workflow.html"><span class="doc">The Delivery-Planning Workflow</span></a></p>
+<p><a class="reference internal" href="create_manifests.html"><span class="doc">Create Printable Manifests from Downloaded Optimized Routes</span></a></p>
 <p><a class="reference internal" href="combine_route_tables.html"><span class="doc">Combine Driver Route Tables into a Single Workbook</span></a></p>
 <p><a class="reference internal" href="format_combined_routes.html"><span class="doc">Format Manifests</span></a></p>
 <p><a class="reference internal" href="CLI.html"><span class="doc">CLI</span></a></p>
@@ -373,8 +457,26 @@ Cedarwood Apartments special instructions *,Please call the recipient when you a
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="CLI.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">CLI</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="split_chunked_route.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Split Chunked Route Sheet into Multiple Files</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -405,16 +507,22 @@ Cedarwood Apartments special instructions *,Please call the recipient when you a
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Create Printable Manifests from Downloaded Optimized Routes</a><ul>
+<li><a class="reference internal" href="#">Create Printable Manifests from Optimized Routes from Circuit</a><ul>
 <li><a class="reference internal" href="#usage">Usage</a><ul>
 <li><a class="reference internal" href="#optional-arguments">Optional arguments</a><ul>
+<li><a class="reference internal" href="#start-date">Start date</a></li>
+<li><a class="reference internal" href="#end-date">End date</a></li>
 <li><a class="reference internal" href="#output-directory">Output directory</a></li>
 <li><a class="reference internal" href="#output-filename">Output filename</a></li>
+<li><a class="reference internal" href="#circuit-output-directory">Circuit output directory</a></li>
+<li><a class="reference internal" href="#all-hhs">All HHs</a></li>
+<li><a class="reference internal" href="#verbose-output">Verbose output</a></li>
 <li><a class="reference internal" href="#supplying-extra-notes">Supplying extra notes</a></li>
 </ul>
 </li>
 </ul>
 </li>
+<li><a class="reference internal" href="#note-on-tools-this-tool-wraps">Note on tools this tool wraps</a></li>
 <li><a class="reference internal" href="#see-also">See Also</a></li>
 </ul>
 </li>
@@ -431,5 +539,13 @@ Cedarwood Apartments special instructions *,Please call the recipient when you a
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
+window.addEventListener("load", () => mermaid.run());
+</script>
     </body>
 </html>

@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Split Chunked Route Sheet into Multiple Files" href="split_chunked_route.html" /><link rel="prev" title="Getting Started" href="getting_started.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>The Delivery-Planning Workflow - bfb_delivery 0.4.4 documentation</title>
+        <title>The Delivery-Planning Workflow - bfb_delivery 0.5.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.4.4 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.5.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.4.4 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.5.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -202,14 +202,19 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">The Delivery-Planning Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="create_manifests.html">Create Printable Manifests from Optimized Routes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="create_manifests_from_circuit.html">Create Printable Manifests from Optimized Routes from Circuit</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.api.html">bfb_delivery.api package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.cli.html">bfb_delivery.cli package</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="bfb_delivery.lib.html">bfb_delivery.lib package</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of bfb_delivery.lib package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html">bfb_delivery.lib.dispatch package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.formatting.html">bfb_delivery.lib.formatting package</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="bfb_delivery.lib.schema.html">bfb_delivery.lib.schema package</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of bfb_delivery.lib.schema package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html">bfb_delivery.lib.schema.checks package</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -259,66 +264,75 @@
         <article role="main" id="furo-main-content">
           <section id="the-delivery-planning-workflow">
 <h1>The Delivery-Planning Workflow<a class="headerlink" href="#the-delivery-planning-workflow" title="Link to this heading">¶</a></h1>
-<p>Once you’re set up (see <a class="reference internal" href="getting_started.html"><span class="doc">Getting Started</span></a>), and you have a master list of chunked routes you want to split up and optimize in Circuit, you can begin using this tool. Here’s the workflow.</p>
+<p>Once you’re set up (see <a class="reference internal" href="getting_started.html"><span class="doc">Getting Started</span></a>), and you have a master list of chunked routes you want to split up and optimize in Circuit, you can begin using <code class="code docutils literal notranslate"><span class="pre">bfb_delivery</span></code>. Here’s the workflow.</p>
 <figure class="align-default" id="id1">
 <pre  class="mermaid">
         graph TD;
     get_long_route[Route all stops with Circuit.] --&gt; chunk[&quot;Chunk&quot; stops by driver.];
     chunk --&gt; activate_env[Activate your env.];
-    activate_env --&gt; split_chunked_route[Use **split_chunked_route** to create the workbook for upload to Circuit.];
-    split_chunked_route --&gt; upload[Upload workbooks to Circuit, and download the optimized route CSVs.];
-    upload --&gt; move_CSV[Move all the CSVs to a single directory.];
-    move_CSV --&gt; make_manifests[Use **create_manifests** to create the manifests.];
+    activate_env --&gt; split_chunked_route[Use **split_chunked_route** to create the workbooks for upload to Circuit.];
+    split_chunked_route --&gt; upload[Upload workbooks to Circuit, and optimize.];
+    upload --&gt; make_manifests[Use **create_manifests_from_circuit** to create the manifests.];
     make_manifests --&gt; print[Review and print the manifests for your drivers.];
     </pre><figcaption>
-<p><span class="caption-text">Delivery Planning Flowchart</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
+<p><span class="caption-text">Delivery Planning Workflow</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
+<p>Here’s the workflow in more detail.</p>
+<section id="route-all-stops-with-circuit">
+<h2>Route all stops with Circuit<a class="headerlink" href="#route-all-stops-with-circuit" title="Link to this heading">¶</a></h2>
+<p>When you have all the stops for the day, upload them to Circuit and optimize them in a single route with the title “All HHs”. You’ll use this single route as a starting point to allocate stops to drivers.</p>
+<p>Typically you will download this from Circuit using the website, but you can use <code class="code docutils literal notranslate"><span class="pre">create_manifests_from_circuit</span></code> (primarily used later to make the final manifests) to download the routes into a single Excel workbook. (First follow “Activate your env” below.)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests_from_circuit<span class="w"> </span>--start_date<span class="w"> </span><span class="m">1920</span>-08-18<span class="w"> </span>--all_hhs
+</pre></div>
+</div>
+<p>The filepath to the <em>combined workbook</em> will print to the console; ignore the filepath to the <em>final manifest</em>. You will not use it; it’s the main output of the tool when you use it later to make the final manifests for the true routes, but the <em>combined workbook</em> is a byproduct of that process and the one you need now.</p>
+</section>
+<section id="chunk-the-stops-by-driver">
+<h2>Chunk the stops by driver<a class="headerlink" href="#chunk-the-stops-by-driver" title="Link to this heading">¶</a></h2>
+<p>From the single optimized route of several hundred stops, you’ll next allocate them to each of your roughly 40 drivers. This is a complicated hooman task. You’re the hooman. Get a snack or three, make sure you’re hydrated, and have a blast. You’re gonna love it.</p>
+</section>
 <section id="activate-your-env">
 <h2>Activate your env<a class="headerlink" href="#activate-your-env" title="Link to this heading">¶</a></h2>
-<p>First, open your terminal (e.g., Anaconda Command Prompt), navigate to the correct directory (the one containing your <code class="docutils literal notranslate"><span class="pre">config.ini</span></code> file defined above), and activate your env:</p>
+<p>Phewf! You have your chunked routes. Now you need to upload it to Circuit and optimize the routes. You’re going to split all those routes into their own worksheets grouped in multiple workbooks for several staff to upload to Circuit, and you can use <code class="code docutils literal notranslate"><span class="pre">split_chunked_route</span></code> to do that, but first you need to activate the <code class="code docutils literal notranslate"><span class="pre">bfb_delivery</span></code> conda environment to use it.</p>
+<p>First, open your terminal (e.g., Anaconda Command Prompt), navigate to the correct directory (the one containing your <code class="docutils literal notranslate"><span class="pre">config.ini</span></code> file you set up in <a class="reference internal" href="getting_started.html"><span class="doc">Getting Started</span></a>), and activate your env:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>path/to/bfb_delivery/dir
 conda<span class="w"> </span>activate<span class="w"> </span>my_bfb_delivery_env_name
 </pre></div>
 </div>
 <p>See <a class="reference internal" href="getting_started.html"><span class="doc">Getting Started</span></a> for more information.</p>
+<p>Now you’re ready to use the command-line tools.</p>
 </section>
 <section id="split-the-chunked-route">
 <h2>Split the chunked route<a class="headerlink" href="#split-the-chunked-route" title="Link to this heading">¶</a></h2>
-<p>Then, run the <code class="code docutils literal notranslate"><span class="pre">split_chunked_route</span></code> to split the chunked worksheet into individual driver worksheets divided into workbooks that staff can upload to Circuit:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>split_chunked_route<span class="w"> </span>--input_path<span class="w"> </span>path/to/input.xlsx
+<p>Now you split the chunked worksheet into separate spreadsheets ready to upload. Run the <code class="code docutils literal notranslate"><span class="pre">split_chunked_route</span></code> to split the chunked worksheet into individual driver worksheets divided into workbooks that staff can upload to Circuit:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>split_chunked_route<span class="w"> </span>--input_path<span class="w"> </span>path/to/chunked_routes.xlsx
 </pre></div>
 </div>
 <p>The paths to the workbooks will print to the console.</p>
-<p>See <a class="reference internal" href="split_chunked_route.html"><span class="doc">Split Chunked Route Sheet into Multiple Files</span></a> for more information, e.g. how to set the number of workbooks.  Use <cite>–help</cite> to see all the optional arguments in the CLI.</p>
+<p>See <a class="reference internal" href="split_chunked_route.html"><span class="doc">Split Chunked Route Sheet into Multiple Files</span></a> for more information, e.g. how to set the number of workbooks. You may also use <cite>–help</cite> to see all the optional arguments in the CLI.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>split_chunked_route<span class="w"> </span>--help
 </pre></div>
 </div>
 </section>
 <section id="upload-and-optimize-routes">
 <h2>Upload and optimize routes<a class="headerlink" href="#upload-and-optimize-routes" title="Link to this heading">¶</a></h2>
-<p>Next, upload the workbooks to Circuit and optimize the routes. If you split the routes among staff to upload and download separately, you’ll need to move them all to a single directory.</p>
-<p>You can do this however you’d like, but one way is to use the command line:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mv<span class="w"> </span>path/to/downloaded_1/*.csv<span class="w"> </span>path/to/single_directory/
-mv<span class="w"> </span>path/to/downloaded_2/*.csv<span class="w"> </span>path/to/single_directory/
-...
-</pre></div>
-</div>
+<p>Next, each staff member will upload their workbook to Circuit and optimize their routes. See <a class="reference external" href="https://help.getcircuit.com/en/collections/1889210-circuit-for-teams/">Circuit documentation</a>.</p>
 </section>
 <section id="make-manifests">
 <h2>Make manifests<a class="headerlink" href="#make-manifests" title="Link to this heading">¶</a></h2>
-<p>Once you have the optimized routes saved as CSVs in a single directory (without other CSVs in it), run <code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code> to combine the driver workbooks into a single workbook ready to print:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests<span class="w"> </span>--input_dir<span class="w"> </span>path/to/input/
+<p>Once everyone has the optimized routes in Circuit, one person can run <code class="code docutils literal notranslate"><span class="pre">create_manifests_from_circuit</span></code> to get the routes from Circuit and format them into an Excel workbook ready to print, with headers, aggregate data, and color-coded box types. Pass in the start date of the manifest as “YYYY-MM-DD”:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests_from_circuit<span class="w"> </span>--start_date<span class="w"> </span><span class="m">2021</span>-12-21
 </pre></div>
 </div>
-<p>The path to the combined and formatted workbook will print to the console.</p>
+<p>The path to the final manifest workbook will print to the console.</p>
+<p>See <a class="reference internal" href="create_manifests_from_circuit.html"><span class="doc">Create Printable Manifests from Optimized Routes from Circuit</span></a> for more information, e.g. how to set the output directory. You may also use <cite>–help</cite> to see all the optional arguments in the CLI:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests_from_circuit<span class="w"> </span>--help
+</pre></div>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>You should only put the CSVs you want to include in the manifest in the directory. The tool will combine all CSVs in the directory into a single workbook.</p>
-</div>
-<p>See <a class="reference internal" href="create_manifests.html"><span class="doc">Create Printable Manifests from Optimized Routes</span></a> for more information, e.g. how to set the date used in the manifest. Use <cite>–help</cite> to see all the optional arguments in the CLI.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>create_manifests<span class="w"> </span>--help
-</pre></div>
+<p>This takes about a minute to run as it downloads the routes from Circuit.</p>
 </div>
 </section>
 <section id="review-and-print-manifests">
@@ -329,7 +343,7 @@ mv<span class="w"> </span>path/to/downloaded_2/*.csv<span class="w"> </span>path
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
 <p><a class="reference internal" href="getting_started.html"><span class="doc">Getting Started</span></a></p>
 <p><a class="reference internal" href="split_chunked_route.html"><span class="doc">Split Chunked Route Sheet into Multiple Files</span></a></p>
-<p><a class="reference internal" href="create_manifests.html"><span class="doc">Create Printable Manifests from Optimized Routes</span></a></p>
+<p><a class="reference internal" href="create_manifests_from_circuit.html"><span class="doc">Create Printable Manifests from Optimized Routes from Circuit</span></a></p>
 <p><a class="reference internal" href="CLI.html"><span class="doc">CLI</span></a></p>
 <p><a class="reference internal" href="bfb_delivery.api.html"><span class="doc">bfb_delivery.api package</span></a></p>
 </section>
@@ -391,6 +405,8 @@ mv<span class="w"> </span>path/to/downloaded_2/*.csv<span class="w"> </span>path
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">The Delivery-Planning Workflow</a><ul>
+<li><a class="reference internal" href="#route-all-stops-with-circuit">Route all stops with Circuit</a></li>
+<li><a class="reference internal" href="#chunk-the-stops-by-driver">Chunk the stops by driver</a></li>
 <li><a class="reference internal" href="#activate-your-env">Activate your env</a></li>
 <li><a class="reference internal" href="#split-the-chunked-route">Split the chunked route</a></li>
 <li><a class="reference internal" href="#upload-and-optimize-routes">Upload and optimize routes</a></li>
@@ -408,7 +424,7 @@ mv<span class="w"> </span>path/to/downloaded_2/*.csv<span class="w"> </span>path
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=90733dfc"></script>
+</div><script src="_static/documentation_options.js?v=b9afe91b"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

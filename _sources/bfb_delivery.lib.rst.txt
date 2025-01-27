@@ -7,7 +7,9 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   bfb_delivery.lib.dispatch
    bfb_delivery.lib.formatting
+   bfb_delivery.lib.schema
 
 Submodules
 ----------

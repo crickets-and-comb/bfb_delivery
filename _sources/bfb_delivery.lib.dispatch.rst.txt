@@ -1,0 +1,29 @@
+bfb\_delivery.lib.dispatch package
+==================================
+
+Submodules
+----------
+
+bfb\_delivery.lib.dispatch.read\_circuit module
+-----------------------------------------------
+
+.. automodule:: bfb_delivery.lib.dispatch.read_circuit
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bfb\_delivery.lib.dispatch.utils module
+---------------------------------------
+
+.. automodule:: bfb_delivery.lib.dispatch.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: bfb_delivery.lib.dispatch
+   :members:
+   :undoc-members:
+   :show-inheritance:

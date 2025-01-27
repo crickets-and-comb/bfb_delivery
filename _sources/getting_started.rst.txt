@@ -18,6 +18,37 @@ This tool requires a local config file with phone numbers. We store them locally
     driver_support = 555-555-5555
     recipient_support = 555-555-5555 x5
 
+.env file setup
+^^^^^^^^^^^^^^^
+
+You need a Circuit API key to run the tools that interact with Circuit, and it needs to be in an a ``.env`` file adjacent to the ``config.ini`` file above.
+
+To get a key, log in to Circuit, click on "Settings" in the sidebar, under "Workspace" in that sidebar click on "Integrations," and under "API" click "Generate New Key." Copy that key and keep it safe, and never share it. The best way to keep it safe is by putting it in a protected file, like a ``.env`` file, which is what you need to do anyway.
+
+Make sure you don't already have a ``.env`` file:
+
+.. code:: bash
+
+    ls -a
+
+If you don't see a ``.env`` file, create one:
+
+.. code:: bash
+
+    touch .env
+
+Make it secure by setting to read and write only by you:
+
+.. code:: bash
+
+    chmod 600 .env
+
+Open the ``.env`` file in a text editor and add the following line:
+
+.. code:: bash
+
+    CIRCUIT_API_KEY=your_api_key_here
+
 First-time setup: Installing the package
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

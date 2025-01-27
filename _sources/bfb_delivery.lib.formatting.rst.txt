@@ -20,6 +20,14 @@ bfb\_delivery.lib.formatting.sheet\_shaping module
    :undoc-members:
    :show-inheritance:
 
+bfb\_delivery.lib.formatting.utils module
+-----------------------------------------
+
+.. automodule:: bfb_delivery.lib.formatting.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

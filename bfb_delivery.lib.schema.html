@@ -1,0 +1,1102 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="bfb_delivery.lib.schema.checks package" href="bfb_delivery.lib.schema.checks.html" /><link rel="prev" title="bfb_delivery.lib.formatting package" href="bfb_delivery.lib.formatting.html" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>bfb_delivery.lib.schema package - bfb_delivery 0.5.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">bfb_delivery 0.5.1 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">bfb_delivery 0.5.1 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow.html">The Delivery-Planning Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="create_manifests_from_circuit.html">Create Printable Manifests from Optimized Routes from Circuit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.api.html">bfb_delivery.api package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.cli.html">bfb_delivery.cli package</a></li>
+<li class="toctree-l3 current has-children"><a class="reference internal" href="bfb_delivery.lib.html">bfb_delivery.lib package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of bfb_delivery.lib package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html">bfb_delivery.lib.dispatch package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.formatting.html">bfb_delivery.lib.formatting package</a></li>
+<li class="toctree-l4 current has-children current-page"><a class="current reference internal" href="#">bfb_delivery.lib.schema package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of bfb_delivery.lib.schema package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html">bfb_delivery.lib.schema.checks package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="developers.html">Developer Resources</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/bfb_delivery.lib.schema.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="bfb-delivery-lib-schema-package">
+<h1>bfb_delivery.lib.schema package<a class="headerlink" href="#bfb-delivery-lib-schema-package" title="Link to this heading">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html">bfb_delivery.lib.schema.checks package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#module-bfb_delivery.lib.schema.checks.dataframe_checks">bfb_delivery.lib.schema.checks.dataframe_checks module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.dataframe_checks.address1_in_address"><code class="docutils literal notranslate"><span class="pre">address1_in_address()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.dataframe_checks.address2_in_address"><code class="docutils literal notranslate"><span class="pre">address2_in_address()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.dataframe_checks.at_least_one_in_group"><code class="docutils literal notranslate"><span class="pre">at_least_one_in_group()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.dataframe_checks.at_least_one_in_group_route_sheet"><code class="docutils literal notranslate"><span class="pre">at_least_one_in_group_route_sheet()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.dataframe_checks.at_least_one_in_group_sheet_plan"><code class="docutils literal notranslate"><span class="pre">at_least_one_in_group_sheet_plan()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.dataframe_checks.at_least_one_in_group_sheet_route"><code class="docutils literal notranslate"><span class="pre">at_least_one_in_group_sheet_route()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.dataframe_checks.at_least_one_in_group_sheet_stop"><code class="docutils literal notranslate"><span class="pre">at_least_one_in_group_sheet_stop()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.dataframe_checks.contiguous_group"><code class="docutils literal notranslate"><span class="pre">contiguous_group()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.dataframe_checks.equal_cols"><code class="docutils literal notranslate"><span class="pre">equal_cols()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.dataframe_checks.increasing_by"><code class="docutils literal notranslate"><span class="pre">increasing_by()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.dataframe_checks.item_in_dict_col"><code class="docutils literal notranslate"><span class="pre">item_in_dict_col()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.dataframe_checks.many_to_one"><code class="docutils literal notranslate"><span class="pre">many_to_one()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.dataframe_checks.one_to_one"><code class="docutils literal notranslate"><span class="pre">one_to_one()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.dataframe_checks.one_to_one_route_sheet"><code class="docutils literal notranslate"><span class="pre">one_to_one_route_sheet()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.dataframe_checks.unique_group"><code class="docutils literal notranslate"><span class="pre">unique_group()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#module-bfb_delivery.lib.schema.checks.field_checks">bfb_delivery.lib.schema.checks.field_checks module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.field_checks.at_least_two_words"><code class="docutils literal notranslate"><span class="pre">at_least_two_words()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.field_checks.contiguous"><code class="docutils literal notranslate"><span class="pre">contiguous()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.field_checks.in_list_case_insensitive"><code class="docutils literal notranslate"><span class="pre">in_list_case_insensitive()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.field_checks.is_list_of_one_or_less"><code class="docutils literal notranslate"><span class="pre">is_list_of_one_or_less()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.field_checks.is_sorted"><code class="docutils literal notranslate"><span class="pre">is_sorted()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.field_checks.item_in_field_dict"><code class="docutils literal notranslate"><span class="pre">item_in_field_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.field_checks.one_product"><code class="docutils literal notranslate"><span class="pre">one_product()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html#module-bfb_delivery.lib.schema.checks">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-bfb_delivery.lib.schema.schema">
+<span id="bfb-delivery-lib-schema-schema-module"></span><h2>bfb_delivery.lib.schema.schema module<a class="headerlink" href="#module-bfb_delivery.lib.schema.schema" title="Link to this heading">¶</a></h2>
+<p>The data schema for ETL steps.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitPlansFromDict">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitPlansFromDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitPlansFromDict" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitPlansOut" title="bfb_delivery.lib.schema.schema.CircuitPlansOut"><code class="xref py py-class docutils literal notranslate"><span class="pre">CircuitPlansOut</span></code></a></p>
+<p>The schema for the Circuit plans data from a JSON-esque dict.</p>
+<p>bfb_delivery.lib.dispatch.read_circuit._make_plans_df input.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitPlansFromDict.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitPlansFromDict.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The configuration for the schema.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitPlansFromDict.Config.from_format">
+<span class="sig-name descname"><span class="pre">from_format</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'dict'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitPlansFromDict.Config.from_format" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitPlansFromDict.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CircuitPlansFromDict'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitPlansFromDict.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitPlansFromDict.Config.strict">
+<span class="sig-name descname"><span class="pre">strict</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitPlansFromDict.Config.strict" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitPlansFromDict.routes">
+<span class="sig-name descname"><span class="pre">routes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'routes'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitPlansFromDict.routes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitPlansOut">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitPlansOut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitPlansOut" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameModel</span></code></p>
+<p>The schema for the Circuit plans data.</p>
+<p>bfb_delivery.lib.dispatch.read_circuit._make_plans_df output.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitPlansOut.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitPlansOut.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The configuration for the schema.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitPlansOut.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CircuitPlansOut'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitPlansOut.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitPlansOut.Config.strict">
+<span class="sig-name descname"><span class="pre">strict</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitPlansOut.Config.strict" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitPlansOut.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'id'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitPlansOut.id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitPlansOut.title">
+<span class="sig-name descname"><span class="pre">title</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'title'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitPlansOut.title" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitPlansTransformIn">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitPlansTransformIn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitPlansTransformIn" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitPlansOut" title="bfb_delivery.lib.schema.schema.CircuitPlansOut"><code class="xref py py-class docutils literal notranslate"><span class="pre">CircuitPlansOut</span></code></a></p>
+<p>The schema for the Circuit plans data.</p>
+<p>bfb_delivery.lib.dispatch.read_circuit._transform_routes_df input.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitPlansTransformIn.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitPlansTransformIn.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitPlansOut.Config" title="bfb_delivery.lib.schema.schema.CircuitPlansOut.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitPlansTransformIn.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CircuitPlansTransformIn'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitPlansTransformIn.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitRoutesTransformInFromDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameModel</span></code></p>
+<p>The schema for the Circuit routes data from a JSON-esque dict.</p>
+<p>bfb_delivery.lib.dispatch.read_circuit._transform_routes_df input.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The configuration for the schema.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config.address1_in_address">
+<span class="sig-name descname"><span class="pre">address1_in_address</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config.address1_in_address" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config.address2_in_address">
+<span class="sig-name descname"><span class="pre">address2_in_address</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config.address2_in_address" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config.contiguous_group">
+<span class="sig-name descname"><span class="pre">contiguous_group</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'contiguous_col':</span> <span class="pre">'stopPosition',</span> <span class="pre">'group_col':</span> <span class="pre">'plan',</span> <span class="pre">'start_idx':</span> <span class="pre">0}</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config.contiguous_group" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config.from_format">
+<span class="sig-name descname"><span class="pre">from_format</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'dict'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config.from_format" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config.many_to_one">
+<span class="sig-name descname"><span class="pre">many_to_one</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'many_col':</span> <span class="pre">'id',</span> <span class="pre">'one_col':</span> <span class="pre">'plan'}</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config.many_to_one" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CircuitRoutesTransformInFromDict'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config.unique_group">
+<span class="sig-name descname"><span class="pre">unique_group</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'group_col':</span> <span class="pre">'plan',</span> <span class="pre">'unique_col':</span> <span class="pre">'stopPosition'}</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config.unique_group" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.address">
+<span class="sig-name descname"><span class="pre">address</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'address'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.address" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'id'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.notes">
+<span class="sig-name descname"><span class="pre">notes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'notes'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.notes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.orderInfo">
+<span class="sig-name descname"><span class="pre">orderInfo</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'orderInfo'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.orderInfo" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.packageCount">
+<span class="sig-name descname"><span class="pre">packageCount</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'packageCount'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.packageCount" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.plan">
+<span class="sig-name descname"><span class="pre">plan</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'plan'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.plan" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.recipient">
+<span class="sig-name descname"><span class="pre">recipient</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'recipient'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.recipient" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.route">
+<span class="sig-name descname"><span class="pre">route</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'route'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.route" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.stopPosition">
+<span class="sig-name descname"><span class="pre">stopPosition</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'stopPosition'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.stopPosition" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitRoutesTransformOut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameModel</span></code></p>
+<p>The schema for the Circuit routes data after transformation.</p>
+<p>bfb_delivery.lib.dispatch.read_circuit._transform_routes_df output.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The configuration for the schema.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.at_least_one_in_group">
+<span class="sig-name descname"><span class="pre">at_least_one_in_group</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'at_least_one_col':</span> <span class="pre">'driver_sheet_name',</span> <span class="pre">'group_col':</span> <span class="pre">'plan'}</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.at_least_one_in_group" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.at_least_one_in_group_route_sheet">
+<span class="sig-name descname"><span class="pre">at_least_one_in_group_route_sheet</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.at_least_one_in_group_route_sheet" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.at_least_one_in_group_sheet_plan">
+<span class="sig-name descname"><span class="pre">at_least_one_in_group_sheet_plan</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.at_least_one_in_group_sheet_plan" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.at_least_one_in_group_sheet_route">
+<span class="sig-name descname"><span class="pre">at_least_one_in_group_sheet_route</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.at_least_one_in_group_sheet_route" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.at_least_one_in_group_sheet_stop">
+<span class="sig-name descname"><span class="pre">at_least_one_in_group_sheet_stop</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.at_least_one_in_group_sheet_stop" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.contiguous_group">
+<span class="sig-name descname"><span class="pre">contiguous_group</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'contiguous_col':</span> <span class="pre">'Stop</span> <span class="pre">#',</span> <span class="pre">'group_col':</span> <span class="pre">'driver_sheet_name',</span> <span class="pre">'start_idx':</span> <span class="pre">1}</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.contiguous_group" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.increasing_by">
+<span class="sig-name descname"><span class="pre">increasing_by</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'cols':</span> <span class="pre">['driver_sheet_name',</span> <span class="pre">'Stop</span> <span class="pre">#']}</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.increasing_by" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.many_to_one">
+<span class="sig-name descname"><span class="pre">many_to_one</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'many_col':</span> <span class="pre">'id',</span> <span class="pre">'one_col':</span> <span class="pre">'driver_sheet_name'}</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.many_to_one" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CircuitRoutesTransformOut'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.one_to_one">
+<span class="sig-name descname"><span class="pre">one_to_one</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'col_a':</span> <span class="pre">'route',</span> <span class="pre">'col_b':</span> <span class="pre">'plan'}</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.one_to_one" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.one_to_one_route_sheet">
+<span class="sig-name descname"><span class="pre">one_to_one_route_sheet</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.one_to_one_route_sheet" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.unique">
+<span class="sig-name descname"><span class="pre">unique</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['driver_sheet_name',</span> <span class="pre">'Stop</span> <span class="pre">#']</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.unique" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.address">
+<span class="sig-name descname"><span class="pre">address</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Address'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.address" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.box_type">
+<span class="sig-name descname"><span class="pre">box_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Category</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Box</span> <span class="pre">Type'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.box_type" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.driver_sheet_name">
+<span class="sig-name descname"><span class="pre">driver_sheet_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'driver_sheet_name'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.driver_sheet_name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.email">
+<span class="sig-name descname"><span class="pre">email</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Email'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.email" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'id'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Name'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.neighborhood">
+<span class="sig-name descname"><span class="pre">neighborhood</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Neighborhood'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.neighborhood" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.notes">
+<span class="sig-name descname"><span class="pre">notes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Notes'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.notes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.orderInfo">
+<span class="sig-name descname"><span class="pre">orderInfo</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'orderInfo'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.orderInfo" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.order_count">
+<span class="sig-name descname"><span class="pre">order_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Order</span> <span class="pre">Count'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.order_count" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.phone">
+<span class="sig-name descname"><span class="pre">phone</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Phone'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.phone" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.placeId">
+<span class="sig-name descname"><span class="pre">placeId</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'placeId'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.placeId" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.plan">
+<span class="sig-name descname"><span class="pre">plan</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'plan'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.plan" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.route">
+<span class="sig-name descname"><span class="pre">route</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'route'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.route" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.route_title">
+<span class="sig-name descname"><span class="pre">route_title</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'route_title'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.route_title" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.stop_no">
+<span class="sig-name descname"><span class="pre">stop_no</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Stop</span> <span class="pre">#'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.stop_no" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitRoutesWriteIn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameModel</span></code></p>
+<p>The schema for the Circuit routes data before writing.</p>
+<p>bfb_delivery.lib.dispatch.read_circuit._write_routes_df input.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The configuration for the schema.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.at_least_one_in_group_route_sheet">
+<span class="sig-name descname"><span class="pre">at_least_one_in_group_route_sheet</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.at_least_one_in_group_route_sheet" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.at_least_one_in_group_sheet_route">
+<span class="sig-name descname"><span class="pre">at_least_one_in_group_sheet_route</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.at_least_one_in_group_sheet_route" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.at_least_one_in_group_sheet_stop">
+<span class="sig-name descname"><span class="pre">at_least_one_in_group_sheet_stop</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.at_least_one_in_group_sheet_stop" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.contiguous_group">
+<span class="sig-name descname"><span class="pre">contiguous_group</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'contiguous_col':</span> <span class="pre">'Stop</span> <span class="pre">#',</span> <span class="pre">'group_col':</span> <span class="pre">'driver_sheet_name',</span> <span class="pre">'start_idx':</span> <span class="pre">1}</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.contiguous_group" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.increasing_by">
+<span class="sig-name descname"><span class="pre">increasing_by</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'cols':</span> <span class="pre">['driver_sheet_name',</span> <span class="pre">'Stop</span> <span class="pre">#']}</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.increasing_by" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.many_to_one">
+<span class="sig-name descname"><span class="pre">many_to_one</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'many_col':</span> <span class="pre">'id',</span> <span class="pre">'one_col':</span> <span class="pre">'driver_sheet_name'}</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.many_to_one" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CircuitRoutesWriteIn'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.one_to_one">
+<span class="sig-name descname"><span class="pre">one_to_one</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'col_a':</span> <span class="pre">'route',</span> <span class="pre">'col_b':</span> <span class="pre">'driver_sheet_name'}</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.one_to_one" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.unique">
+<span class="sig-name descname"><span class="pre">unique</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['driver_sheet_name',</span> <span class="pre">'Stop</span> <span class="pre">#']</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.unique" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.address">
+<span class="sig-name descname"><span class="pre">address</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Address'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.address" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.box_type">
+<span class="sig-name descname"><span class="pre">box_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Category</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Box</span> <span class="pre">Type'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.box_type" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.driver_sheet_name">
+<span class="sig-name descname"><span class="pre">driver_sheet_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'driver_sheet_name'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.driver_sheet_name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.email">
+<span class="sig-name descname"><span class="pre">email</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Email'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.email" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Name'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.neighborhood">
+<span class="sig-name descname"><span class="pre">neighborhood</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Neighborhood'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.neighborhood" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.notes">
+<span class="sig-name descname"><span class="pre">notes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Notes'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.notes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.order_count">
+<span class="sig-name descname"><span class="pre">order_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Order</span> <span class="pre">Count'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.order_count" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.phone">
+<span class="sig-name descname"><span class="pre">phone</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Phone'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.phone" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.stop_no">
+<span class="sig-name descname"><span class="pre">stop_no</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Stop</span> <span class="pre">#'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.stop_no" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteInAllHHs">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitRoutesWriteInAllHHs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteInAllHHs" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn" title="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn"><code class="xref py py-class docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn</span></code></a></p>
+<p>The schema for the Circuit routes data before writing for “All HHs”.</p>
+<p>bfb_delivery.lib.dispatch.read_circuit._write_routes_df_all_hhs input.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteInAllHHs.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteInAllHHs.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The configuration for the schema.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteInAllHHs.Config.many_to_one">
+<span class="sig-name descname"><span class="pre">many_to_one</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'many_col':</span> <span class="pre">'Stop</span> <span class="pre">#',</span> <span class="pre">'one_col':</span> <span class="pre">'driver_sheet_name'}</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteInAllHHs.Config.many_to_one" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteInAllHHs.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CircuitRoutesWriteInAllHHs'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteInAllHHs.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteInAllHHs.email">
+<span class="sig-name descname"><span class="pre">email</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Email'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteInAllHHs.email" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitRoutesWriteOut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameModel</span></code></p>
+<p>The schema for the Circuit routes data after writing.</p>
+<p>bfb_delivery.lib.dispatch.read_circuit._write_routes_df input,
+called within _write_routes_df as its “output.”</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The configuration for the schema.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CircuitRoutesWriteOut'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.Config.unique">
+<span class="sig-name descname"><span class="pre">unique</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Name',</span> <span class="pre">'Address',</span> <span class="pre">'Box</span> <span class="pre">Type']</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.Config.unique" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.address">
+<span class="sig-name descname"><span class="pre">address</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Address'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.address" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.box_type">
+<span class="sig-name descname"><span class="pre">box_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Category</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Box</span> <span class="pre">Type'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.box_type" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.email">
+<span class="sig-name descname"><span class="pre">email</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Email'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.email" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Name'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.neighborhood">
+<span class="sig-name descname"><span class="pre">neighborhood</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Neighborhood'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.neighborhood" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.notes">
+<span class="sig-name descname"><span class="pre">notes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Notes'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.notes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.order_count">
+<span class="sig-name descname"><span class="pre">order_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Order</span> <span class="pre">Count'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.order_count" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.phone">
+<span class="sig-name descname"><span class="pre">phone</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Phone'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.phone" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.stop_no">
+<span class="sig-name descname"><span class="pre">stop_no</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Stop</span> <span class="pre">#'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.stop_no" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-bfb_delivery.lib.schema.utils">
+<span id="bfb-delivery-lib-schema-utils-module"></span><h2>bfb_delivery.lib.schema.utils module<a class="headerlink" href="#module-bfb_delivery.lib.schema.utils" title="Link to this heading">¶</a></h2>
+<p>Utility functions for schema validation.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.utils.schema_error_handler">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.utils.</span></span><span class="sig-name descname"><span class="pre">schema_error_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.schema.utils.schema_error_handler" title="Link to this definition">¶</a></dt>
+<dd><p>Custom error handler for the schema validation errors.</p>
+<p>Use as decorator to wrap pa.check_types decorator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-bfb_delivery.lib.schema">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bfb_delivery.lib.schema" title="Link to this heading">¶</a></h2>
+<p>schema module.</p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="bfb_delivery.lib.schema.checks.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">bfb_delivery.lib.schema.checks package</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="bfb_delivery.lib.formatting.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">bfb_delivery.lib.formatting package</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, Kaleb Coberly
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">bfb_delivery.lib.schema package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-bfb_delivery.lib.schema.schema">bfb_delivery.lib.schema.schema module</a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitPlansFromDict"><code class="docutils literal notranslate"><span class="pre">CircuitPlansFromDict</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitPlansFromDict.Config"><code class="docutils literal notranslate"><span class="pre">CircuitPlansFromDict.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitPlansFromDict.Config.from_format"><code class="docutils literal notranslate"><span class="pre">CircuitPlansFromDict.Config.from_format</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitPlansFromDict.Config.name"><code class="docutils literal notranslate"><span class="pre">CircuitPlansFromDict.Config.name</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitPlansFromDict.Config.strict"><code class="docutils literal notranslate"><span class="pre">CircuitPlansFromDict.Config.strict</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitPlansFromDict.routes"><code class="docutils literal notranslate"><span class="pre">CircuitPlansFromDict.routes</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitPlansOut"><code class="docutils literal notranslate"><span class="pre">CircuitPlansOut</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitPlansOut.Config"><code class="docutils literal notranslate"><span class="pre">CircuitPlansOut.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitPlansOut.Config.name"><code class="docutils literal notranslate"><span class="pre">CircuitPlansOut.Config.name</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitPlansOut.Config.strict"><code class="docutils literal notranslate"><span class="pre">CircuitPlansOut.Config.strict</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitPlansOut.id"><code class="docutils literal notranslate"><span class="pre">CircuitPlansOut.id</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitPlansOut.title"><code class="docutils literal notranslate"><span class="pre">CircuitPlansOut.title</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitPlansTransformIn"><code class="docutils literal notranslate"><span class="pre">CircuitPlansTransformIn</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitPlansTransformIn.Config"><code class="docutils literal notranslate"><span class="pre">CircuitPlansTransformIn.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitPlansTransformIn.Config.name"><code class="docutils literal notranslate"><span class="pre">CircuitPlansTransformIn.Config.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformInFromDict</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformInFromDict.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config.address1_in_address"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformInFromDict.Config.address1_in_address</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config.address2_in_address"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformInFromDict.Config.address2_in_address</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config.contiguous_group"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformInFromDict.Config.contiguous_group</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config.from_format"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformInFromDict.Config.from_format</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config.many_to_one"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformInFromDict.Config.many_to_one</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config.name"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformInFromDict.Config.name</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config.unique_group"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformInFromDict.Config.unique_group</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.address"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformInFromDict.address</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.id"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformInFromDict.id</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.notes"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformInFromDict.notes</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.orderInfo"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformInFromDict.orderInfo</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.packageCount"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformInFromDict.packageCount</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.plan"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformInFromDict.plan</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.recipient"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformInFromDict.recipient</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.route"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformInFromDict.route</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.stopPosition"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformInFromDict.stopPosition</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.at_least_one_in_group"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.Config.at_least_one_in_group</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.at_least_one_in_group_route_sheet"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.Config.at_least_one_in_group_route_sheet</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.at_least_one_in_group_sheet_plan"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.Config.at_least_one_in_group_sheet_plan</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.at_least_one_in_group_sheet_route"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.Config.at_least_one_in_group_sheet_route</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.at_least_one_in_group_sheet_stop"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.Config.at_least_one_in_group_sheet_stop</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.contiguous_group"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.Config.contiguous_group</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.increasing_by"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.Config.increasing_by</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.many_to_one"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.Config.many_to_one</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.name"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.Config.name</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.one_to_one"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.Config.one_to_one</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.one_to_one_route_sheet"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.Config.one_to_one_route_sheet</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.unique"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.Config.unique</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.address"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.address</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.box_type"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.box_type</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.driver_sheet_name"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.driver_sheet_name</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.email"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.email</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.id"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.id</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.name"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.name</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.neighborhood"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.neighborhood</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.notes"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.notes</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.orderInfo"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.orderInfo</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.order_count"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.order_count</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.phone"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.phone</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.placeId"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.placeId</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.plan"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.plan</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.route"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.route</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.route_title"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.route_title</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.stop_no"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesTransformOut.stop_no</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.at_least_one_in_group_route_sheet"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn.Config.at_least_one_in_group_route_sheet</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.at_least_one_in_group_sheet_route"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn.Config.at_least_one_in_group_sheet_route</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.at_least_one_in_group_sheet_stop"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn.Config.at_least_one_in_group_sheet_stop</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.contiguous_group"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn.Config.contiguous_group</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.increasing_by"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn.Config.increasing_by</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.many_to_one"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn.Config.many_to_one</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.name"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn.Config.name</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.one_to_one"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn.Config.one_to_one</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.unique"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn.Config.unique</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.address"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn.address</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.box_type"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn.box_type</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.driver_sheet_name"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn.driver_sheet_name</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.email"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn.email</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.name"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn.name</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.neighborhood"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn.neighborhood</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.notes"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn.notes</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.order_count"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn.order_count</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.phone"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn.phone</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.stop_no"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn.stop_no</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteInAllHHs"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteInAllHHs</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteInAllHHs.Config"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteInAllHHs.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteInAllHHs.Config.many_to_one"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteInAllHHs.Config.many_to_one</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteInAllHHs.Config.name"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteInAllHHs.Config.name</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteInAllHHs.email"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteInAllHHs.email</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteOut</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.Config"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteOut.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.Config.name"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteOut.Config.name</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.Config.unique"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteOut.Config.unique</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.address"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteOut.address</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.box_type"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteOut.box_type</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.email"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteOut.email</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.name"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteOut.name</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.neighborhood"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteOut.neighborhood</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.notes"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteOut.notes</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.order_count"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteOut.order_count</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.phone"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteOut.phone</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.stop_no"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteOut.stop_no</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-bfb_delivery.lib.schema.utils">bfb_delivery.lib.schema.utils module</a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.utils.schema_error_handler"><code class="docutils literal notranslate"><span class="pre">schema_error_handler()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-bfb_delivery.lib.schema">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=b9afe91b"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    </body>
+</html>

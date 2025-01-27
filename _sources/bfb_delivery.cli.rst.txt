@@ -20,6 +20,14 @@ bfb\_delivery.cli.create\_manifests module
    :undoc-members:
    :show-inheritance:
 
+bfb\_delivery.cli.create\_manifests\_from\_circuit module
+---------------------------------------------------------
+
+.. automodule:: bfb_delivery.cli.create_manifests_from_circuit
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bfb\_delivery.cli.format\_combined\_routes module
 -------------------------------------------------
 

@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Developer Resources" href="developers.html" /><link rel="prev" title="bfb_delivery.lib package" href="bfb_delivery.lib.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="bfb_delivery.lib.schema package" href="bfb_delivery.lib.schema.html" /><link rel="prev" title="bfb_delivery.lib.dispatch package" href="bfb_delivery.lib.dispatch.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>bfb_delivery.lib.formatting package - bfb_delivery 0.4.4 documentation</title>
+        <title>bfb_delivery.lib.formatting package - bfb_delivery 0.5.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.4.4 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.5.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.4.4 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.5.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -202,14 +202,19 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow.html">The Delivery-Planning Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="create_manifests.html">Create Printable Manifests from Optimized Routes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="create_manifests_from_circuit.html">Create Printable Manifests from Optimized Routes from Circuit</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.api.html">bfb_delivery.api package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.cli.html">bfb_delivery.cli package</a></li>
 <li class="toctree-l3 current has-children"><a class="reference internal" href="bfb_delivery.lib.html">bfb_delivery.lib package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of bfb_delivery.lib package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html">bfb_delivery.lib.dispatch package</a></li>
 <li class="toctree-l4 current current-page"><a class="current reference internal" href="#">bfb_delivery.lib.formatting package</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="bfb_delivery.lib.schema.html">bfb_delivery.lib.schema package</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of bfb_delivery.lib.schema package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="bfb_delivery.lib.schema.checks.html">bfb_delivery.lib.schema.checks package</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -359,6 +364,83 @@
 </dd></dl>
 
 </section>
+<section id="module-bfb_delivery.lib.formatting.utils">
+<span id="bfb-delivery-lib-formatting-utils-module"></span><h2>bfb_delivery.lib.formatting.utils module<a class="headerlink" href="#module-bfb_delivery.lib.formatting.utils" title="Link to this heading">¶</a></h2>
+<p>Utility functions for the formatting module.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="bfb_delivery.lib.formatting.utils.get_book_one_drivers">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.formatting.utils.</span></span><span class="sig-name descname"><span class="pre">get_book_one_drivers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.formatting.utils.get_book_one_drivers" title="Link to this definition">¶</a></dt>
+<dd><p>Get the drivers from the book-one driver’s file, or the constant if no path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Path to the book-one driver’s file. If empty, uses a constant list.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The drivers to include in book one of split chunked routes.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bfb_delivery.lib.formatting.utils.get_extra_notes">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.formatting.utils.</span></span><span class="sig-name descname"><span class="pre">get_extra_notes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.formatting.utils.get_extra_notes" title="Link to this definition">¶</a></dt>
+<dd><p>Get the extra notes from the file, or the constant if no path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Path to the extra notes file. If empty, uses a constant DataFrame.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The extra notes to include in the combined routes.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bfb_delivery.lib.formatting.utils.get_phone_number">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.formatting.utils.</span></span><span class="sig-name descname"><span class="pre">get_phone_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'config.ini'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.formatting.utils.get_phone_number" title="Link to this definition">¶</a></dt>
+<dd><p>Get the phone number from the config file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The key in the config file.</p></li>
+<li><p><strong>config_path</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The path to the config file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The phone number.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bfb_delivery.lib.formatting.utils.map_columns">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.formatting.utils.</span></span><span class="sig-name descname"><span class="pre">map_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_name_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invert_map</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.formatting.utils.map_columns" title="Link to this definition">¶</a></dt>
+<dd><p>Map column names in a DataFrame.</p>
+<p>Operates in place.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></span>) – The DataFrame to map.</p></li>
+<li><p><strong>column_name_map</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>) – The mapping of column names.</p></li>
+<li><p><strong>invert_map</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to invert the mapping.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 <section id="module-bfb_delivery.lib.formatting">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bfb_delivery.lib.formatting" title="Link to this heading">¶</a></h2>
 <p>Formatting module.</p>
@@ -370,23 +452,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="developers.html">
+          <a class="next-page" href="bfb_delivery.lib.schema.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Developer Resources</div>
+                <div class="title">bfb_delivery.lib.schema package</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="bfb_delivery.lib.html">
+          <a class="prev-page" href="bfb_delivery.lib.dispatch.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">bfb_delivery.lib package</div>
+                <div class="title">bfb_delivery.lib.dispatch package</div>
                 
               </div>
             </a>
@@ -434,6 +516,13 @@
 <li><a class="reference internal" href="#bfb_delivery.lib.formatting.sheet_shaping.split_chunked_route"><code class="docutils literal notranslate"><span class="pre">split_chunked_route()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#module-bfb_delivery.lib.formatting.utils">bfb_delivery.lib.formatting.utils module</a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.formatting.utils.get_book_one_drivers"><code class="docutils literal notranslate"><span class="pre">get_book_one_drivers()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.formatting.utils.get_extra_notes"><code class="docutils literal notranslate"><span class="pre">get_extra_notes()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.formatting.utils.get_phone_number"><code class="docutils literal notranslate"><span class="pre">get_phone_number()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.formatting.utils.map_columns"><code class="docutils literal notranslate"><span class="pre">map_columns()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#module-bfb_delivery.lib.formatting">Module contents</a></li>
 </ul>
 </li>
@@ -446,7 +535,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=90733dfc"></script>
+</div><script src="_static/documentation_options.js?v=b9afe91b"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

@@ -7,7 +7,7 @@ Library and CLI for Bellingham Food Bank Delivery.
 So far, you can use this package to cut some cruft around creating delivery route manifests:
 
     1. Split a driver-labeled route spreadsheet into individual driver spreadsheets. See :doc:`split_chunked_route` for more information.
-    2. Create printable manifests. See :doc:`create_manifests` for more information.
+    2. Create printable manifests. See :doc:`create_manifests_from_circuit` for more information.
 
 
 Contents
@@ -19,7 +19,7 @@ Contents
    getting_started
    workflow
    split_chunked_route
-   create_manifests
+   create_manifests_from_circuit
    CLI
    modules
    developers
