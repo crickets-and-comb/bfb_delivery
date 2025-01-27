@@ -692,17 +692,16 @@ class TestSplitChunkedRouteClassScoped:
         misincluded_drivers = set(book_one_drivers).intersection(set(exclude_drivers))
         assert len(misincluded_drivers) == 0
 
-
-@pytest.mark.usefixtures("mock_is_valid_number")
-class TestSplitChunkedRoute:
-    """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
-
     @pytest.mark.parametrize("n_books", [1, 2, 3])
-    def test_complete_contents(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
+    def test_complete_contents(
+        self, n_books: int, mock_chunked_sheet_raw_class_scoped: Path
+    ) -> None:
         """Test that the input data is all covered in the split workbooks."""
-        output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw, n_books=n_books)
+        output_paths = split_chunked_route(
+            input_path=mock_chunked_sheet_raw_class_scoped, n_books=n_books
+        )
 
-        full_data = pd.read_excel(mock_chunked_sheet_raw)
+        full_data = pd.read_excel(mock_chunked_sheet_raw_class_scoped)
 
         driver_sheets = _get_driver_sheets(output_paths=output_paths)
         split_data = pd.concat(driver_sheets, ignore_index=True)
@@ -738,6 +737,11 @@ class TestSplitChunkedRoute:
         neighborhood_df = full_data[[Columns.NEIGHBORHOOD]].copy()
         _format_and_validate_neighborhood(df=neighborhood_df)
         assert neighborhood_df[Columns.NEIGHBORHOOD].equals(split_data[Columns.NEIGHBORHOOD])
+
+
+@pytest.mark.usefixtures("mock_is_valid_number")
+class TestSplitChunkedRoute:
+    """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
 
     @pytest.mark.parametrize("n_books", [0, -1])
     def test_invalid_n_books(self, n_books: int, mock_chunked_sheet_raw: Path) -> None:
