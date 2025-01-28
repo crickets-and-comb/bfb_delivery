@@ -251,6 +251,27 @@ def mock_route_tables(tmp_path: Path, mock_chunked_sheet_raw: Path) -> Path:
     return output_dir
 
 
+@pytest.fixture(scope="class")
+def mock_route_tables_class_scoped(
+    tmp_path_factory: pytest.TempPathFactory, mock_chunked_sheet_raw_class_scoped: Path
+) -> Path:
+    """Mock the driver route tables returned by Circuit."""
+    tmp_output = tmp_path_factory.mktemp("output")
+    output_dir = tmp_output / "mock_route_tables"
+    output_dir.mkdir()
+
+    output_cols = [Columns.STOP_NO] + SPLIT_ROUTE_COLUMNS
+    chunked_df = pd.read_excel(mock_chunked_sheet_raw_class_scoped)
+    chunked_df.rename(columns={Columns.BOX_TYPE: Columns.PRODUCT_TYPE}, inplace=True)
+    for driver in chunked_df[Columns.DRIVER].unique():
+        output_path = output_dir / f"{MANIFEST_DATE} {driver}.csv"
+        driver_df = chunked_df[chunked_df[Columns.DRIVER] == driver]
+        driver_df[Columns.STOP_NO] = [i + 1 for i in range(len(driver_df))]
+        driver_df[output_cols].to_csv(output_dir / output_path, index=False)
+
+    return output_dir
+
+
 @pytest.fixture()
 def mock_combined_routes(tmp_path: Path) -> Path:
     """Mock the combined routes table."""
@@ -846,28 +867,6 @@ class TestSplitChunkedRoute:
 class TestCombineRouteTablesClassScoped:
     """combine_route_tables combines driver route CSVs into a single workbook."""
 
-    @pytest.fixture(scope="class")
-    def mock_route_tables_class_scoped(
-        self,
-        tmp_path_factory: pytest.TempPathFactory,
-        mock_chunked_sheet_raw_class_scoped: Path,
-    ) -> Path:
-        """Mock the driver route tables returned by Circuit."""
-        tmp_output = tmp_path_factory.mktemp("output")
-        output_dir = tmp_output / "mock_route_tables"
-        output_dir.mkdir()
-
-        output_cols = [Columns.STOP_NO] + SPLIT_ROUTE_COLUMNS
-        chunked_df = pd.read_excel(mock_chunked_sheet_raw_class_scoped)
-        chunked_df.rename(columns={Columns.BOX_TYPE: Columns.PRODUCT_TYPE}, inplace=True)
-        for driver in chunked_df[Columns.DRIVER].unique():
-            output_path = output_dir / f"{MANIFEST_DATE} {driver}.csv"
-            driver_df = chunked_df[chunked_df[Columns.DRIVER] == driver]
-            driver_df[Columns.STOP_NO] = [i + 1 for i in range(len(driver_df))]
-            driver_df[output_cols].to_csv(output_dir / output_path, index=False)
-
-        return output_dir
-
     @pytest.mark.parametrize("output_dir_type", [Path, str])
     @pytest.mark.parametrize("output_dir", ["", "dummy_output"])
     def test_set_output_dir(
@@ -1378,6 +1377,28 @@ class TestFormatCombinedRoutes:
         )
 
 
+class TestCreateManifestsClassScoped:
+    """create_manifests formats the route tables CSVs."""
+
+    @pytest.mark.parametrize("output_dir_type", [Path, str])
+    # TODO: This doesn't really test anything. Mock os.getcwd?
+    @pytest.mark.parametrize("output_dir", ["", "dummy_output"])
+    def test_set_output_dir(
+        self,
+        output_dir_type: type[Path | str],
+        output_dir: Path | str,
+        tmp_path_factory: pytest.TempPathFactory,
+        mock_route_tables_class_scoped: Path,
+    ) -> None:
+        """Test that the output directory can be set."""
+        tmp_output = tmp_path_factory.mktemp("output")
+        output_dir = output_dir_type(tmp_output / output_dir)
+        output_path = create_manifests(
+            input_dir=mock_route_tables_class_scoped, output_dir=output_dir
+        )
+        assert str(output_path.parent) == str(output_dir)
+
+
 class TestCreateManifests:
     """create_manifests formats the route tables CSVs."""
 
@@ -1398,21 +1419,6 @@ class TestCreateManifests:
         """Create a basic manifest workbook scoped to class for reuse."""
         with pd.ExcelFile(basic_manifest) as xls:
             yield xls
-
-    @pytest.mark.parametrize("output_dir_type", [Path, str])
-    # TODO: This doesn't really test anything. Mock os.getcwd?
-    @pytest.mark.parametrize("output_dir", ["", "dummy_output"])
-    def test_set_output_dir(
-        self,
-        output_dir_type: type[Path | str],
-        output_dir: Path | str,
-        tmp_path: Path,
-        mock_route_tables: Path,
-    ) -> None:
-        """Test that the output directory can be set."""
-        output_dir = output_dir_type(tmp_path / output_dir)
-        output_path = create_manifests(input_dir=mock_route_tables, output_dir=output_dir)
-        assert str(output_path.parent) == str(output_dir)
 
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.csv"])
     def test_set_output_filename(self, output_filename: str, mock_route_tables: Path) -> None:
