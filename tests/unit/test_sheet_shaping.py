@@ -1058,6 +1058,39 @@ class TestFormatCombinedRoutesClassScoped:
             [f"{MANIFEST_DATE} {driver}" for driver in DRIVERS]
         )
 
+    @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
+    @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
+    def test_cli(
+        self,
+        output_dir: str,
+        output_filename: str,
+        mock_combined_routes_class_scoped: Path,
+        tmp_path: Path,
+    ) -> None:
+        """Test CLI works."""
+        output_dir = str(tmp_path / output_dir) if output_dir else output_dir
+        arg_list = [
+            "--input_path",
+            str(mock_combined_routes_class_scoped),
+            "--output_dir",
+            output_dir,
+            "--output_filename",
+            output_filename,
+        ]
+
+        result = subprocess.run(["format_combined_routes"] + arg_list, capture_output=True)
+        assert result.returncode == 0
+
+        expected_output_filename = (
+            f"formatted_routes_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
+            if output_filename == ""
+            else output_filename
+        )
+        expected_output_dir = (
+            Path(output_dir) if output_dir else mock_combined_routes_class_scoped.parent
+        )
+        assert (expected_output_dir / expected_output_filename).exists()
+
 
 class TestFormatCombinedRoutes:
     """format_combined_routes formats the combined routes table."""
@@ -1073,37 +1106,6 @@ class TestFormatCombinedRoutes:
         """Create a basic manifest workbook scoped to class for reuse."""
         workbook = load_workbook(basic_manifest)
         return workbook
-
-    @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
-    @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
-    def test_cli(
-        self,
-        output_dir: str,
-        output_filename: str,
-        mock_combined_routes: Path,
-        tmp_path: Path,
-    ) -> None:
-        """Test CLI works."""
-        output_dir = str(tmp_path / output_dir) if output_dir else output_dir
-        arg_list = [
-            "--input_path",
-            str(mock_combined_routes),
-            "--output_dir",
-            output_dir,
-            "--output_filename",
-            output_filename,
-        ]
-
-        result = subprocess.run(["format_combined_routes"] + arg_list, capture_output=True)
-        assert result.returncode == 0
-
-        expected_output_filename = (
-            f"formatted_routes_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
-            if output_filename == ""
-            else output_filename
-        )
-        expected_output_dir = Path(output_dir) if output_dir else mock_combined_routes.parent
-        assert (expected_output_dir / expected_output_filename).exists()
 
     def test_df_is_same(
         self, mock_combined_routes_ExcelFile: pd.ExcelFile, basic_manifest: Path
