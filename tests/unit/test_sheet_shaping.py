@@ -1281,6 +1281,16 @@ class TestFormatCombinedRoutesClassScoped:
             ws = basic_manifest_workbook[sheet_name]
             assert ws[cell].font.bold
 
+    def test_cell_right_alignment(self, basic_manifest_workbook: Workbook) -> None:
+        """Test right-aligned cells."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            right_aligned_cells = [ws["D1"], ws["F1"]] + [
+                cell for row in ws["E3:F8"] for cell in row
+            ]
+            for cell in right_aligned_cells:
+                assert cell.alignment.horizontal == "right"
+
 
 class TestFormatCombinedRoutes:
     """format_combined_routes formats the combined routes table."""
@@ -1296,16 +1306,6 @@ class TestFormatCombinedRoutes:
         """Create a basic manifest workbook scoped to class for reuse."""
         workbook = load_workbook(basic_manifest)
         return workbook
-
-    def test_cell_right_alignment(self, basic_manifest_workbook: Workbook) -> None:
-        """Test right-aligned cells."""
-        for sheet_name in basic_manifest_workbook.sheetnames:
-            ws = basic_manifest_workbook[sheet_name]
-            right_aligned_cells = [ws["D1"], ws["F1"]] + [
-                cell for row in ws["E3:F8"] for cell in row
-            ]
-            for cell in right_aligned_cells:
-                assert cell.alignment.horizontal == "right"
 
     def test_cell_left_alignment(self, basic_manifest_workbook: Workbook) -> None:
         """Test left-aligned cells."""
