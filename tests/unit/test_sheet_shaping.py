@@ -1032,6 +1032,12 @@ class TestFormatCombinedRoutesClassScoped:
         output_path = format_combined_routes(input_path=mock_combined_routes_class_scoped)
         return output_path
 
+    @pytest.fixture(scope="class")
+    def basic_manifest_workbook(self, basic_manifest: Path) -> Workbook:
+        """Create a basic manifest workbook scoped to class for reuse."""
+        workbook = load_workbook(basic_manifest)
+        return workbook
+
     @pytest.mark.parametrize("output_dir_type", [Path, str])
     @pytest.mark.parametrize("output_dir", ["", "dummy_output"])
     def test_set_output_dir(
@@ -1135,22 +1141,6 @@ class TestFormatCombinedRoutesClassScoped:
             _format_and_validate_phone(df=input_phone_df)
             assert input_phone_df.equals(output_df[[Columns.PHONE]])
 
-
-class TestFormatCombinedRoutes:
-    """format_combined_routes formats the combined routes table."""
-
-    @pytest.fixture()
-    def basic_manifest(self, mock_combined_routes: Path) -> Path:
-        """Create a basic manifest scoped to class for reuse."""
-        output_path = format_combined_routes(input_path=mock_combined_routes)
-        return output_path
-
-    @pytest.fixture()
-    def basic_manifest_workbook(self, basic_manifest: Path) -> Workbook:
-        """Create a basic manifest workbook scoped to class for reuse."""
-        workbook = load_workbook(basic_manifest)
-        return workbook
-
     @pytest.mark.parametrize(
         "cell, expected_value",
         [
@@ -1169,6 +1159,22 @@ class TestFormatCombinedRoutes:
         for sheet_name in basic_manifest_workbook.sheetnames:
             ws = basic_manifest_workbook[sheet_name]
             assert ws[cell].value == expected_value
+
+
+class TestFormatCombinedRoutes:
+    """format_combined_routes formats the combined routes table."""
+
+    @pytest.fixture()
+    def basic_manifest(self, mock_combined_routes: Path) -> Path:
+        """Create a basic manifest scoped to class for reuse."""
+        output_path = format_combined_routes(input_path=mock_combined_routes)
+        return output_path
+
+    @pytest.fixture()
+    def basic_manifest_workbook(self, basic_manifest: Path) -> Workbook:
+        """Create a basic manifest workbook scoped to class for reuse."""
+        workbook = load_workbook(basic_manifest)
+        return workbook
 
     def test_header_row_end(self, basic_manifest_workbook: Workbook) -> None:
         """Test that the header row ends at F1."""
