@@ -1240,22 +1240,6 @@ class TestFormatCombinedRoutesClassScoped:
             assert ws["E9"].value == Columns.NOTES
             assert ws.column_dimensions["E"].width == NOTES_COLUMN_WIDTH
 
-
-class TestFormatCombinedRoutes:
-    """format_combined_routes formats the combined routes table."""
-
-    @pytest.fixture()
-    def basic_manifest(self, mock_combined_routes: Path) -> Path:
-        """Create a basic manifest scoped to class for reuse."""
-        output_path = format_combined_routes(input_path=mock_combined_routes)
-        return output_path
-
-    @pytest.fixture()
-    def basic_manifest_workbook(self, basic_manifest: Path) -> Workbook:
-        """Create a basic manifest workbook scoped to class for reuse."""
-        workbook = load_workbook(basic_manifest)
-        return workbook
-
     @pytest.mark.parametrize(
         "cell",
         [
@@ -1296,6 +1280,22 @@ class TestFormatCombinedRoutes:
         for sheet_name in basic_manifest_workbook.sheetnames:
             ws = basic_manifest_workbook[sheet_name]
             assert ws[cell].font.bold
+
+
+class TestFormatCombinedRoutes:
+    """format_combined_routes formats the combined routes table."""
+
+    @pytest.fixture()
+    def basic_manifest(self, mock_combined_routes: Path) -> Path:
+        """Create a basic manifest scoped to class for reuse."""
+        output_path = format_combined_routes(input_path=mock_combined_routes)
+        return output_path
+
+    @pytest.fixture()
+    def basic_manifest_workbook(self, basic_manifest: Path) -> Workbook:
+        """Create a basic manifest workbook scoped to class for reuse."""
+        workbook = load_workbook(basic_manifest)
+        return workbook
 
     def test_cell_right_alignment(self, basic_manifest_workbook: Workbook) -> None:
         """Test right-aligned cells."""
