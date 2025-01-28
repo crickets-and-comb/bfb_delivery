@@ -1018,6 +1018,20 @@ class TestFormatCombinedRoutesClassScoped:
 
         return output_path
 
+    @pytest.fixture(scope="class")
+    def mock_combined_routes_ExcelFile_class_scoped(
+        self, mock_combined_routes_class_scoped: Path
+    ) -> Iterator[pd.ExcelFile]:
+        """Mock the combined routes table ExcelFile."""
+        with pd.ExcelFile(mock_combined_routes_class_scoped) as xls:
+            yield xls
+
+    @pytest.fixture()
+    def basic_manifest(self, mock_combined_routes_class_scoped: Path) -> Path:
+        """Create a basic manifest scoped to class for reuse."""
+        output_path = format_combined_routes(input_path=mock_combined_routes_class_scoped)
+        return output_path
+
     @pytest.mark.parametrize("output_dir_type", [Path, str])
     @pytest.mark.parametrize("output_dir", ["", "dummy_output"])
     def test_set_output_dir(
@@ -1091,28 +1105,14 @@ class TestFormatCombinedRoutesClassScoped:
         )
         assert (expected_output_dir / expected_output_filename).exists()
 
-
-class TestFormatCombinedRoutes:
-    """format_combined_routes formats the combined routes table."""
-
-    @pytest.fixture()
-    def basic_manifest(self, mock_combined_routes: Path) -> Path:
-        """Create a basic manifest scoped to class for reuse."""
-        output_path = format_combined_routes(input_path=mock_combined_routes)
-        return output_path
-
-    @pytest.fixture()
-    def basic_manifest_workbook(self, basic_manifest: Path) -> Workbook:
-        """Create a basic manifest workbook scoped to class for reuse."""
-        workbook = load_workbook(basic_manifest)
-        return workbook
-
     def test_df_is_same(
-        self, mock_combined_routes_ExcelFile: pd.ExcelFile, basic_manifest: Path
+        self, mock_combined_routes_ExcelFile_class_scoped: pd.ExcelFile, basic_manifest: Path
     ) -> None:
         """All the input data is in the formatted workbook."""
-        for sheet_name in sorted(mock_combined_routes_ExcelFile.sheet_names):
-            input_df = pd.read_excel(mock_combined_routes_ExcelFile, sheet_name=sheet_name)
+        for sheet_name in sorted(mock_combined_routes_ExcelFile_class_scoped.sheet_names):
+            input_df = pd.read_excel(
+                mock_combined_routes_ExcelFile_class_scoped, sheet_name=sheet_name
+            )
             input_df.sort_values(by=[Columns.STOP_NO], inplace=True)
             output_df = pd.read_excel(basic_manifest, sheet_name=sheet_name, skiprows=8)
 
@@ -1134,6 +1134,22 @@ class TestFormatCombinedRoutes:
             input_phone_df = input_df[[Columns.PHONE]]
             _format_and_validate_phone(df=input_phone_df)
             assert input_phone_df.equals(output_df[[Columns.PHONE]])
+
+
+class TestFormatCombinedRoutes:
+    """format_combined_routes formats the combined routes table."""
+
+    @pytest.fixture()
+    def basic_manifest(self, mock_combined_routes: Path) -> Path:
+        """Create a basic manifest scoped to class for reuse."""
+        output_path = format_combined_routes(input_path=mock_combined_routes)
+        return output_path
+
+    @pytest.fixture()
+    def basic_manifest_workbook(self, basic_manifest: Path) -> Workbook:
+        """Create a basic manifest workbook scoped to class for reuse."""
+        workbook = load_workbook(basic_manifest)
+        return workbook
 
     @pytest.mark.parametrize(
         "cell, expected_value",
