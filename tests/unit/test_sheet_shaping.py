@@ -252,87 +252,6 @@ def mock_route_tables(tmp_path: Path, mock_chunked_sheet_raw: Path) -> Path:
 
 
 @pytest.fixture(scope="class")
-def mock_route_tables_class_scoped(
-    tmp_path_factory: pytest.TempPathFactory, mock_chunked_sheet_raw_class_scoped: Path
-) -> Path:
-    """Mock the driver route tables returned by Circuit."""
-    tmp_output = tmp_path_factory.mktemp("output")
-    output_dir = tmp_output / "mock_route_tables"
-    output_dir.mkdir()
-
-    output_cols = [Columns.STOP_NO] + SPLIT_ROUTE_COLUMNS
-    chunked_df = pd.read_excel(mock_chunked_sheet_raw_class_scoped)
-    chunked_df.rename(columns={Columns.BOX_TYPE: Columns.PRODUCT_TYPE}, inplace=True)
-    for driver in chunked_df[Columns.DRIVER].unique():
-        output_path = output_dir / f"{MANIFEST_DATE} {driver}.csv"
-        driver_df = chunked_df[chunked_df[Columns.DRIVER] == driver]
-        driver_df[Columns.STOP_NO] = [i + 1 for i in range(len(driver_df))]
-        driver_df[output_cols].to_csv(output_dir / output_path, index=False)
-
-    return output_dir
-
-
-@pytest.fixture()
-def mock_combined_routes(tmp_path: Path) -> Path:
-    """Mock the combined routes table."""
-    output_path = tmp_path / "combined_routes.xlsx"
-    with pd.ExcelWriter(output_path) as writer:
-        for driver in DRIVERS:
-            df = pd.DataFrame(columns=COMBINED_ROUTES_COLUMNS)
-            stops = [stop_no + 1 for stop_no in range(9)]
-            df[Columns.STOP_NO] = stops
-            df[Columns.NAME] = [f"{driver} Recipient {stop_no}" for stop_no in stops]
-            df[Columns.ADDRESS] = [f"{driver} stop {stop_no} address" for stop_no in stops]
-            df[Columns.PHONE] = ["13607345215"] * len(stops)
-            df[Columns.NOTES] = [f"{driver} stop {stop_no} notes" for stop_no in stops]
-            df[Columns.ORDER_COUNT] = [1] * len(stops)
-            df[Columns.BOX_TYPE] = [BOX_TYPES[i % len(BOX_TYPES)] for i in range(len(stops))]
-            df[Columns.NEIGHBORHOOD] = [
-                NEIGHBORHOODS[i % len(NEIGHBORHOODS)] for i in range(len(stops))
-            ]
-
-            assert df.isna().sum().sum() == 0
-            assert set(df.columns.to_list()) == set(COMBINED_ROUTES_COLUMNS)
-
-            df.to_excel(writer, sheet_name=f"{MANIFEST_DATE} {driver}", index=False)
-
-    return output_path
-
-
-@pytest.fixture()
-def mock_combined_routes_ExcelFile(mock_combined_routes: Path) -> Iterator[pd.ExcelFile]:
-    """Mock the combined routes table ExcelFile."""
-    with pd.ExcelFile(mock_combined_routes) as xls:
-        yield xls
-
-
-@pytest.fixture()
-def mock_extra_notes_df() -> pd.DataFrame:
-    """Mock the extra notes DataFrame."""
-    extra_notes_df = pd.DataFrame(
-        columns=["tag", "note"],
-        data=[
-            (
-                "Test extra notes tag 1 *",
-                (
-                    "Test extra notes note 1. "
-                    "This is a dummy note. It is really long and should be so that we can "
-                    "test out column width and word wrapping. It should be long enough to "
-                    "wrap around to the next line. And, it should be long enough to wrap "
-                    "around to the next line. And, it should be long enough to wrap around "
-                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
-                    "is long enough. Further, hopefully, this is long enough. Additionally, "
-                    "it will help test out word wrapping merged cells."
-                ),
-            ),
-            ("Test extra notes tag 2 *", "Test extra notes note 2"),
-            ("Test extra notes tag 3 *", "Test extra notes note 3"),
-        ],
-    )
-    return extra_notes_df
-
-
-@pytest.fixture(scope="class")
 def mock_chunked_sheet_raw_class_scoped(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Save mock chunked route sheet and get path."""
     tmp_output = tmp_path_factory.mktemp("tmp_output")
@@ -501,6 +420,53 @@ def mock_chunked_sheet_raw_class_scoped(tmp_path_factory: pytest.TempPathFactory
     raw_chunked_sheet.to_excel(fp, index=False)
 
     return fp
+
+
+@pytest.fixture(scope="class")
+def mock_route_tables_class_scoped(
+    tmp_path_factory: pytest.TempPathFactory, mock_chunked_sheet_raw_class_scoped: Path
+) -> Path:
+    """Mock the driver route tables returned by Circuit."""
+    tmp_output = tmp_path_factory.mktemp("output")
+    output_dir = tmp_output / "mock_route_tables"
+    output_dir.mkdir()
+
+    output_cols = [Columns.STOP_NO] + SPLIT_ROUTE_COLUMNS
+    chunked_df = pd.read_excel(mock_chunked_sheet_raw_class_scoped)
+    chunked_df.rename(columns={Columns.BOX_TYPE: Columns.PRODUCT_TYPE}, inplace=True)
+    for driver in chunked_df[Columns.DRIVER].unique():
+        output_path = output_dir / f"{MANIFEST_DATE} {driver}.csv"
+        driver_df = chunked_df[chunked_df[Columns.DRIVER] == driver]
+        driver_df[Columns.STOP_NO] = [i + 1 for i in range(len(driver_df))]
+        driver_df[output_cols].to_csv(output_dir / output_path, index=False)
+
+    return output_dir
+
+
+@pytest.fixture()
+def mock_extra_notes_df() -> pd.DataFrame:
+    """Mock the extra notes DataFrame."""
+    extra_notes_df = pd.DataFrame(
+        columns=["tag", "note"],
+        data=[
+            (
+                "Test extra notes tag 1 *",
+                (
+                    "Test extra notes note 1. "
+                    "This is a dummy note. It is really long and should be so that we can "
+                    "test out column width and word wrapping. It should be long enough to "
+                    "wrap around to the next line. And, it should be long enough to wrap "
+                    "around to the next line. And, it should be long enough to wrap around "
+                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
+                    "is long enough. Further, hopefully, this is long enough. Additionally, "
+                    "it will help test out word wrapping merged cells."
+                ),
+            ),
+            ("Test extra notes tag 2 *", "Test extra notes note 2"),
+            ("Test extra notes tag 3 *", "Test extra notes note 3"),
+        ],
+    )
+    return extra_notes_df
 
 
 @pytest.mark.usefixtures("mock_is_valid_number")
@@ -1414,6 +1380,8 @@ class TestCreateManifestsClassScoped:
         assert output_path.name == expected_output_filename
 
 
+# TODO: Revisit moving the rest to class scope once output dirs cconsolidated.
+# Conflicts now.
 class TestCreateManifests:
     """create_manifests formats the route tables CSVs."""
 
@@ -1709,71 +1677,6 @@ class TestCreateManifests:
         )
 
 
-def _get_extra_notes(
-    extra_notes_file: str, extra_notes_dir: str, extra_notes_df: pd.DataFrame
-) -> tuple[AbstractContextManager, str]:
-    mock_extra_notes_context = nullcontext()
-    if extra_notes_file:
-        extra_notes_file = f"{extra_notes_dir}/{extra_notes_file}"
-        extra_notes_df.to_csv(extra_notes_file, index=False)
-    else:
-
-        class TestExtraNotes:
-            df: Final[pd.DataFrame] = extra_notes_df
-
-        mock_extra_notes_context = patch(
-            "bfb_delivery.lib.formatting.utils.ExtraNotes", new=TestExtraNotes
-        )
-
-    return mock_extra_notes_context, extra_notes_file
-
-
-def _set_extra_notes(
-    first_df: pd.DataFrame, second_df: pd.DataFrame, extra_notes_df: pd.DataFrame
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-    first_df[Columns.NOTES] = [
-        extra_notes_df["tag"].iloc[0],
-        extra_notes_df["tag"].iloc[1],
-        extra_notes_df["tag"].iloc[1],
-    ] + first_df[Columns.NOTES].to_list()[3:]
-
-    second_df[Columns.NOTES] = [extra_notes_df["tag"].iloc[2]] + second_df[
-        Columns.NOTES
-    ].to_list()[1:]
-
-    return first_df, second_df
-
-
-def _assert_extra_notes(
-    manifests_path: Path,
-    first_sheet_name: str,
-    second_sheet_name: str,
-    extra_notes_df: pd.DataFrame,
-    first_df: pd.DataFrame,
-    second_df: pd.DataFrame,
-) -> None:
-    manifests_workbook = load_workbook(manifests_path)
-    first_ws = manifests_workbook[first_sheet_name]
-    second_ws = manifests_workbook[second_sheet_name]
-    start_first_notes = 11 + len(first_df)
-    start_second_notes = 11 + len(second_df)
-
-    assert first_ws[f"E{start_first_notes}"].value.startswith(
-        "* " + extra_notes_df["tag"].iloc[0].replace("*", "").strip() + ": "
-    )
-    assert extra_notes_df["note"].iloc[0] in first_ws[f"E{start_first_notes}"].value
-    assert first_ws[f"E{start_first_notes + 1}"].value.startswith(
-        "* " + extra_notes_df["tag"].iloc[1].replace("*", "").strip() + ": "
-    )
-    assert extra_notes_df["note"].iloc[1] in first_ws[f"E{start_first_notes + 1}"].value
-    assert second_ws[f"E{start_second_notes}"].value.startswith(
-        "* " + extra_notes_df["tag"].iloc[2].replace("*", "").strip() + ": "
-    )
-    assert extra_notes_df["note"].iloc[2] in second_ws[f"E{start_second_notes}"].value
-
-    return
-
-
 @pytest.mark.parametrize(
     "route_df, extra_notes_df, expected_agg_dict, error_context",
     [
@@ -1944,6 +1847,71 @@ def test_get_driver_sets_group_numbered(
         drivers=drivers, n_books=n_books, book_one_drivers_file=""
     )
     assert returned_driver_sets == expected_driver_sets
+
+
+def _get_extra_notes(
+    extra_notes_file: str, extra_notes_dir: str, extra_notes_df: pd.DataFrame
+) -> tuple[AbstractContextManager, str]:
+    mock_extra_notes_context = nullcontext()
+    if extra_notes_file:
+        extra_notes_file = f"{extra_notes_dir}/{extra_notes_file}"
+        extra_notes_df.to_csv(extra_notes_file, index=False)
+    else:
+
+        class TestExtraNotes:
+            df: Final[pd.DataFrame] = extra_notes_df
+
+        mock_extra_notes_context = patch(
+            "bfb_delivery.lib.formatting.utils.ExtraNotes", new=TestExtraNotes
+        )
+
+    return mock_extra_notes_context, extra_notes_file
+
+
+def _set_extra_notes(
+    first_df: pd.DataFrame, second_df: pd.DataFrame, extra_notes_df: pd.DataFrame
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    first_df[Columns.NOTES] = [
+        extra_notes_df["tag"].iloc[0],
+        extra_notes_df["tag"].iloc[1],
+        extra_notes_df["tag"].iloc[1],
+    ] + first_df[Columns.NOTES].to_list()[3:]
+
+    second_df[Columns.NOTES] = [extra_notes_df["tag"].iloc[2]] + second_df[
+        Columns.NOTES
+    ].to_list()[1:]
+
+    return first_df, second_df
+
+
+def _assert_extra_notes(
+    manifests_path: Path,
+    first_sheet_name: str,
+    second_sheet_name: str,
+    extra_notes_df: pd.DataFrame,
+    first_df: pd.DataFrame,
+    second_df: pd.DataFrame,
+) -> None:
+    manifests_workbook = load_workbook(manifests_path)
+    first_ws = manifests_workbook[first_sheet_name]
+    second_ws = manifests_workbook[second_sheet_name]
+    start_first_notes = 11 + len(first_df)
+    start_second_notes = 11 + len(second_df)
+
+    assert first_ws[f"E{start_first_notes}"].value.startswith(
+        "* " + extra_notes_df["tag"].iloc[0].replace("*", "").strip() + ": "
+    )
+    assert extra_notes_df["note"].iloc[0] in first_ws[f"E{start_first_notes}"].value
+    assert first_ws[f"E{start_first_notes + 1}"].value.startswith(
+        "* " + extra_notes_df["tag"].iloc[1].replace("*", "").strip() + ": "
+    )
+    assert extra_notes_df["note"].iloc[1] in first_ws[f"E{start_first_notes + 1}"].value
+    assert second_ws[f"E{start_second_notes}"].value.startswith(
+        "* " + extra_notes_df["tag"].iloc[2].replace("*", "").strip() + ": "
+    )
+    assert extra_notes_df["note"].iloc[2] in second_ws[f"E{start_second_notes}"].value
+
+    return
 
 
 def _get_driver_sheets(output_paths: list[Path]) -> list[pd.DataFrame]:
