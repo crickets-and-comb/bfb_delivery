@@ -1160,6 +1160,15 @@ class TestFormatCombinedRoutesClassScoped:
             ws = basic_manifest_workbook[sheet_name]
             assert ws[cell].value == expected_value
 
+    def test_header_row_end(self, basic_manifest_workbook: Workbook) -> None:
+        """Test that the header row ends at F1."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            last_non_empty_col = max(
+                (cell.column for cell in ws[1] if cell.value), default=None
+            )
+            assert last_non_empty_col == 6
+
 
 class TestFormatCombinedRoutes:
     """format_combined_routes formats the combined routes table."""
@@ -1175,15 +1184,6 @@ class TestFormatCombinedRoutes:
         """Create a basic manifest workbook scoped to class for reuse."""
         workbook = load_workbook(basic_manifest)
         return workbook
-
-    def test_header_row_end(self, basic_manifest_workbook: Workbook) -> None:
-        """Test that the header row ends at F1."""
-        for sheet_name in basic_manifest_workbook.sheetnames:
-            ws = basic_manifest_workbook[sheet_name]
-            last_non_empty_col = max(
-                (cell.column for cell in ws[1] if cell.value), default=None
-            )
-            assert last_non_empty_col == 6
 
     @pytest.mark.parametrize("cell", ["A1", "B1", "C1", "D1", "E1", "F1"])
     def test_header_row_color(self, cell: str, basic_manifest_workbook: Workbook) -> None:
