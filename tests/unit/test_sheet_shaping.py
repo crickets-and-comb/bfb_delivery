@@ -1291,6 +1291,16 @@ class TestFormatCombinedRoutesClassScoped:
             for cell in right_aligned_cells:
                 assert cell.alignment.horizontal == "right"
 
+    def test_cell_left_alignment(self, basic_manifest_workbook: Workbook) -> None:
+        """Test left-aligned cells."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            left_aligned_cells = [cell for row in ws["A1:A8"] for cell in row] + [
+                cell for row in ws["A9:F9"] for cell in row
+            ]
+            for cell in left_aligned_cells:
+                assert cell.alignment.horizontal == "left"
+
 
 class TestFormatCombinedRoutes:
     """format_combined_routes formats the combined routes table."""
@@ -1306,16 +1316,6 @@ class TestFormatCombinedRoutes:
         """Create a basic manifest workbook scoped to class for reuse."""
         workbook = load_workbook(basic_manifest)
         return workbook
-
-    def test_cell_left_alignment(self, basic_manifest_workbook: Workbook) -> None:
-        """Test left-aligned cells."""
-        for sheet_name in basic_manifest_workbook.sheetnames:
-            ws = basic_manifest_workbook[sheet_name]
-            left_aligned_cells = [cell for row in ws["A1:A8"] for cell in row] + [
-                cell for row in ws["A9:F9"] for cell in row
-            ]
-            for cell in left_aligned_cells:
-                assert cell.alignment.horizontal == "left"
 
     @pytest.mark.parametrize("extra_notes_file", ["", "dummy_extra_notes.csv"])
     def test_extra_notes(
