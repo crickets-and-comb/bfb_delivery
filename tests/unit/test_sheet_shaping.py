@@ -1182,6 +1182,15 @@ class TestFormatCombinedRoutesClassScoped:
             ws = basic_manifest_workbook[sheet_name]
             assert ws["A3"].value == f"Date: {MANIFEST_DATE}"
 
+    def test_driver_cell(self, basic_manifest_workbook: Workbook) -> None:
+        """Test that the driver cell is correct."""
+        drivers = [driver.upper() for driver in DRIVERS]
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            driver_name = sheet_name.replace(f"{MANIFEST_DATE} ", "")
+            assert ws["A5"].value == f"Driver: {driver_name}"
+            assert driver_name.upper() in drivers
+
 
 class TestFormatCombinedRoutes:
     """format_combined_routes formats the combined routes table."""
@@ -1197,15 +1206,6 @@ class TestFormatCombinedRoutes:
         """Create a basic manifest workbook scoped to class for reuse."""
         workbook = load_workbook(basic_manifest)
         return workbook
-
-    def test_driver_cell(self, basic_manifest_workbook: Workbook) -> None:
-        """Test that the driver cell is correct."""
-        drivers = [driver.upper() for driver in DRIVERS]
-        for sheet_name in basic_manifest_workbook.sheetnames:
-            ws = basic_manifest_workbook[sheet_name]
-            driver_name = sheet_name.replace(f"{MANIFEST_DATE} ", "")
-            assert ws["A5"].value == f"Driver: {driver_name}"
-            assert driver_name.upper() in drivers
 
     def test_agg_cells(
         self,
