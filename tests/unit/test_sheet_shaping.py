@@ -1176,6 +1176,12 @@ class TestFormatCombinedRoutesClassScoped:
             ws = basic_manifest_workbook[sheet_name]
             assert ws[cell].fill.start_color.rgb == f"{CellColors.HEADER}"
 
+    def test_date_cell(self, basic_manifest_workbook: Workbook) -> None:
+        """Test that the date cell is correct."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            assert ws["A3"].value == f"Date: {MANIFEST_DATE}"
+
 
 class TestFormatCombinedRoutes:
     """format_combined_routes formats the combined routes table."""
@@ -1191,12 +1197,6 @@ class TestFormatCombinedRoutes:
         """Create a basic manifest workbook scoped to class for reuse."""
         workbook = load_workbook(basic_manifest)
         return workbook
-
-    def test_date_cell(self, basic_manifest_workbook: Workbook) -> None:
-        """Test that the date cell is correct."""
-        for sheet_name in basic_manifest_workbook.sheetnames:
-            ws = basic_manifest_workbook[sheet_name]
-            assert ws["A3"].value == f"Date: {MANIFEST_DATE}"
 
     def test_driver_cell(self, basic_manifest_workbook: Workbook) -> None:
         """Test that the driver cell is correct."""
