@@ -1026,7 +1026,7 @@ class TestFormatCombinedRoutesClassScoped:
         with pd.ExcelFile(mock_combined_routes_class_scoped) as xls:
             yield xls
 
-    @pytest.fixture()
+    @pytest.fixture(scope="class")
     def basic_manifest(self, mock_combined_routes_class_scoped: Path) -> Path:
         """Create a basic manifest scoped to class for reuse."""
         output_path = format_combined_routes(input_path=mock_combined_routes_class_scoped)
