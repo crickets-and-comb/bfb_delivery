@@ -1233,6 +1233,13 @@ class TestFormatCombinedRoutesClassScoped:
                 if cell.row > 2 and cell.row < 7:
                     assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
 
+    def test_notes_column_width(self, basic_manifest_workbook: Workbook) -> None:
+        """Test that the notes column width is correct."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            assert ws["E9"].value == Columns.NOTES
+            assert ws.column_dimensions["E"].width == NOTES_COLUMN_WIDTH
+
 
 class TestFormatCombinedRoutes:
     """format_combined_routes formats the combined routes table."""
@@ -1248,13 +1255,6 @@ class TestFormatCombinedRoutes:
         """Create a basic manifest workbook scoped to class for reuse."""
         workbook = load_workbook(basic_manifest)
         return workbook
-
-    def test_notes_column_width(self, basic_manifest_workbook: Workbook) -> None:
-        """Test that the notes column width is correct."""
-        for sheet_name in basic_manifest_workbook.sheetnames:
-            ws = basic_manifest_workbook[sheet_name]
-            assert ws["E9"].value == Columns.NOTES
-            assert ws.column_dimensions["E"].width == NOTES_COLUMN_WIDTH
 
     @pytest.mark.parametrize(
         "cell",
