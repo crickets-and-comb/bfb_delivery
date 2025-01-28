@@ -985,7 +985,7 @@ class TestCombineRouteTables:
 class TestFormatCombinedRoutesClassScoped:
     """format_combined_routes formats the combined routes table."""
 
-    @pytest.fixture()
+    @pytest.fixture(scope="class")
     def mock_combined_routes_class_scoped(
         self, tmp_path_factory: pytest.TempPathFactory
     ) -> Path:
