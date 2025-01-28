@@ -982,7 +982,7 @@ class TestCombineRouteTables:
         assert (expected_output_dir / expected_output_filename).exists()
 
 
-class TestFormatCombinedRoutesClassScoped:
+class TestFormatCombinedRoutes:
     """format_combined_routes formats the combined routes table."""
 
     @pytest.fixture(scope="class")
@@ -1037,6 +1037,32 @@ class TestFormatCombinedRoutesClassScoped:
         """Create a basic manifest workbook scoped to class for reuse."""
         workbook = load_workbook(basic_manifest)
         return workbook
+
+    @pytest.fixture(scope="class")
+    def mock_extra_notes_df_class_scoped(self) -> pd.DataFrame:
+        """Mock the extra notes DataFrame."""
+        extra_notes_df = pd.DataFrame(
+            columns=["tag", "note"],
+            data=[
+                (
+                    "Test extra notes tag 1 *",
+                    (
+                        "Test extra notes note 1. "
+                        "This is a dummy note. It is really long and should be so that we "
+                        "can test out column width and word wrapping. It should be long "
+                        "enough to wrap around to the next line. And, it should be long "
+                        "enough to wrap around to the next line. And, it should be long "
+                        "enough to wrap around to the next line. Hopefully, this is long "
+                        "enough. Also, hopefully, this is long enough. Further, hopefully, "
+                        "this is long enough. Additionally, it will help test out word "
+                        "wrapping merged cells."
+                    ),
+                ),
+                ("Test extra notes tag 2 *", "Test extra notes note 2"),
+                ("Test extra notes tag 3 *", "Test extra notes note 3"),
+            ],
+        )
+        return extra_notes_df
 
     @pytest.mark.parametrize("output_dir_type", [Path, str])
     @pytest.mark.parametrize("output_dir", ["", "dummy_output"])
@@ -1301,47 +1327,33 @@ class TestFormatCombinedRoutesClassScoped:
             for cell in left_aligned_cells:
                 assert cell.alignment.horizontal == "left"
 
-
-class TestFormatCombinedRoutes:
-    """format_combined_routes formats the combined routes table."""
-
-    @pytest.fixture()
-    def basic_manifest(self, mock_combined_routes: Path) -> Path:
-        """Create a basic manifest scoped to class for reuse."""
-        output_path = format_combined_routes(input_path=mock_combined_routes)
-        return output_path
-
-    @pytest.fixture()
-    def basic_manifest_workbook(self, basic_manifest: Path) -> Workbook:
-        """Create a basic manifest workbook scoped to class for reuse."""
-        workbook = load_workbook(basic_manifest)
-        return workbook
-
     @pytest.mark.parametrize("extra_notes_file", ["", "dummy_extra_notes.csv"])
     def test_extra_notes(
         self,
         extra_notes_file: str,
-        mock_combined_routes: Path,
-        mock_extra_notes_df: pd.DataFrame,
+        mock_combined_routes_class_scoped: Path,
+        mock_extra_notes_df_class_scoped: pd.DataFrame,
     ) -> None:
         """Test that extra notes are added to the manifest."""
         mock_extra_notes_context, extra_notes_file = _get_extra_notes(
             extra_notes_file=extra_notes_file,
-            extra_notes_dir=str(mock_combined_routes.parent),
-            extra_notes_df=mock_extra_notes_df,
+            extra_notes_dir=str(mock_combined_routes_class_scoped.parent),
+            extra_notes_df=mock_extra_notes_df_class_scoped,
         )
 
         new_mock_combined_routes_path = (
-            mock_combined_routes.parent / "new_mock_combined_routes.xlsx"
+            mock_combined_routes_class_scoped.parent / "new_mock_combined_routes.xlsx"
         )
-        mock_combined_routes_file = pd.ExcelFile(mock_combined_routes)
+        mock_combined_routes_file = pd.ExcelFile(mock_combined_routes_class_scoped)
 
         first_sheet_name = str(mock_combined_routes_file.sheet_names[0])
         first_df = mock_combined_routes_file.parse(sheet_name=first_sheet_name)
         second_sheet_name = str(mock_combined_routes_file.sheet_names[1])
         second_df = mock_combined_routes_file.parse(sheet_name=second_sheet_name)
         first_df, second_df = _set_extra_notes(
-            first_df=first_df, second_df=second_df, extra_notes_df=mock_extra_notes_df
+            first_df=first_df,
+            second_df=second_df,
+            extra_notes_df=mock_extra_notes_df_class_scoped,
         )
 
         with pd.ExcelWriter(new_mock_combined_routes_path) as writer:
@@ -1360,7 +1372,7 @@ class TestFormatCombinedRoutes:
             manifests_path=manifests_path,
             first_sheet_name=first_sheet_name,
             second_sheet_name=second_sheet_name,
-            extra_notes_df=mock_extra_notes_df,
+            extra_notes_df=mock_extra_notes_df_class_scoped,
             first_df=first_df,
             second_df=second_df,
         )
