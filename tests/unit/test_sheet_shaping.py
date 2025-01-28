@@ -1050,6 +1050,14 @@ class TestFormatCombinedRoutesClassScoped:
         )
         assert output_path.name == expected_output_filename
 
+    def test_all_drivers_have_a_sheet(self, mock_combined_routes_class_scoped: Path) -> None:
+        """Test that all drivers have a sheet in the formatted workbook. And date works."""
+        output_path = format_combined_routes(input_path=mock_combined_routes_class_scoped)
+        workbook = pd.ExcelFile(output_path)
+        assert set(workbook.sheet_names) == set(
+            [f"{MANIFEST_DATE} {driver}" for driver in DRIVERS]
+        )
+
 
 class TestFormatCombinedRoutes:
     """format_combined_routes formats the combined routes table."""
@@ -1065,14 +1073,6 @@ class TestFormatCombinedRoutes:
         """Create a basic manifest workbook scoped to class for reuse."""
         workbook = load_workbook(basic_manifest)
         return workbook
-
-    def test_all_drivers_have_a_sheet(self, mock_combined_routes: Path) -> None:
-        """Test that all drivers have a sheet in the formatted workbook. And date works."""
-        output_path = format_combined_routes(input_path=mock_combined_routes)
-        workbook = pd.ExcelFile(output_path)
-        assert set(workbook.sheet_names) == set(
-            [f"{MANIFEST_DATE} {driver}" for driver in DRIVERS]
-        )
 
     @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
