@@ -1398,6 +1398,21 @@ class TestCreateManifestsClassScoped:
         )
         assert str(output_path.parent) == str(output_dir)
 
+    @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.csv"])
+    def test_set_output_filename(
+        self, output_filename: str, mock_route_tables_class_scoped: Path
+    ) -> None:
+        """Test that the output filename can be set."""
+        output_path = create_manifests(
+            input_dir=mock_route_tables_class_scoped, output_filename=output_filename
+        )
+        expected_output_filename = (
+            f"final_manifests_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
+            if output_filename == ""
+            else output_filename
+        )
+        assert output_path.name == expected_output_filename
+
 
 class TestCreateManifests:
     """create_manifests formats the route tables CSVs."""
@@ -1419,19 +1434,6 @@ class TestCreateManifests:
         """Create a basic manifest workbook scoped to class for reuse."""
         with pd.ExcelFile(basic_manifest) as xls:
             yield xls
-
-    @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.csv"])
-    def test_set_output_filename(self, output_filename: str, mock_route_tables: Path) -> None:
-        """Test that the output filename can be set."""
-        output_path = create_manifests(
-            input_dir=mock_route_tables, output_filename=output_filename
-        )
-        expected_output_filename = (
-            f"final_manifests_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
-            if output_filename == ""
-            else output_filename
-        )
-        assert output_path.name == expected_output_filename
 
     def test_all_drivers_have_a_sheet(self, mock_route_tables: Path) -> None:
         """Test that all drivers have a sheet in the formatted workbook. And date works."""
