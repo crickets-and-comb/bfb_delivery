@@ -900,6 +900,8 @@ class TestCombineRouteTablesClassScoped:
         assert output_path.name == expected_filename
 
 
+# TODO: Revisit moving the rest to class scope once output directories better organized.
+# Too many conflicts now.
 class TestCombineRouteTables:
     """combine_route_tables combines driver route CSVs into a single workbook."""
 
@@ -980,6 +982,60 @@ class TestCombineRouteTables:
         assert (expected_output_dir / expected_output_filename).exists()
 
 
+class TestFormatCombinedRoutesClassScoped:
+    """format_combined_routes formats the combined routes table."""
+
+    @pytest.fixture()
+    def mock_combined_routes_class_scoped(
+        self, tmp_path_factory: pytest.TempPathFactory
+    ) -> Path:
+        """Mock the combined routes table."""
+        tmp_output = tmp_path_factory.mktemp("output")
+        output_path = tmp_output / "combined_routes.xlsx"
+        with pd.ExcelWriter(output_path) as writer:
+            for driver in DRIVERS:
+                df = pd.DataFrame(columns=COMBINED_ROUTES_COLUMNS)
+                stops = [stop_no + 1 for stop_no in range(9)]
+                df[Columns.STOP_NO] = stops
+                df[Columns.NAME] = [f"{driver} Recipient {stop_no}" for stop_no in stops]
+                df[Columns.ADDRESS] = [
+                    f"{driver} stop {stop_no} address" for stop_no in stops
+                ]
+                df[Columns.PHONE] = ["13607345215"] * len(stops)
+                df[Columns.NOTES] = [f"{driver} stop {stop_no} notes" for stop_no in stops]
+                df[Columns.ORDER_COUNT] = [1] * len(stops)
+                df[Columns.BOX_TYPE] = [
+                    BOX_TYPES[i % len(BOX_TYPES)] for i in range(len(stops))
+                ]
+                df[Columns.NEIGHBORHOOD] = [
+                    NEIGHBORHOODS[i % len(NEIGHBORHOODS)] for i in range(len(stops))
+                ]
+
+                assert df.isna().sum().sum() == 0
+                assert set(df.columns.to_list()) == set(COMBINED_ROUTES_COLUMNS)
+
+                df.to_excel(writer, sheet_name=f"{MANIFEST_DATE} {driver}", index=False)
+
+        return output_path
+
+    @pytest.mark.parametrize("output_dir_type", [Path, str])
+    @pytest.mark.parametrize("output_dir", ["", "dummy_output"])
+    def test_set_output_dir(
+        self,
+        output_dir_type: type[Path | str],
+        output_dir: Path | str,
+        tmp_path_factory: pytest.TempPathFactory,
+        mock_combined_routes_class_scoped: Path,
+    ) -> None:
+        """Test that the output directory can be set."""
+        tmp_output = tmp_path_factory.mktemp("output")
+        output_dir = output_dir_type(tmp_output / output_dir)
+        output_path = format_combined_routes(
+            input_path=mock_combined_routes_class_scoped, output_dir=output_dir
+        )
+        assert str(output_path.parent) == str(output_dir)
+
+
 class TestFormatCombinedRoutes:
     """format_combined_routes formats the combined routes table."""
 
@@ -994,22 +1050,6 @@ class TestFormatCombinedRoutes:
         """Create a basic manifest workbook scoped to class for reuse."""
         workbook = load_workbook(basic_manifest)
         return workbook
-
-    @pytest.mark.parametrize("output_dir_type", [Path, str])
-    @pytest.mark.parametrize("output_dir", ["", "dummy_output"])
-    def test_set_output_dir(
-        self,
-        output_dir_type: type[Path | str],
-        output_dir: Path | str,
-        tmp_path: Path,
-        mock_combined_routes: Path,
-    ) -> None:
-        """Test that the output directory can be set."""
-        output_dir = output_dir_type(tmp_path / output_dir)
-        output_path = format_combined_routes(
-            input_path=mock_combined_routes, output_dir=output_dir
-        )
-        assert str(output_path.parent) == str(output_dir)
 
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.csv"])
     def test_set_output_filename(
