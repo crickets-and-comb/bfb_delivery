@@ -1413,19 +1413,7 @@ class TestCreateManifestsClassScoped:
         )
         assert output_path.name == expected_output_filename
 
-    def test_date_field_matches_sheet_date(self, mock_route_tables: Path) -> None:
-        """Test that the date field matches the sheet date."""
-        output_path = create_manifests(input_dir=mock_route_tables)
-        workbook = load_workbook(output_path)
-        for sheet_name in workbook.sheetnames:
-            ws = workbook[sheet_name]
-            field_date = ws["A3"].value.split(" ")[1]
-            sheet_name_date = sheet_name.split(" ")[0]
-            assert field_date == sheet_name_date
 
-
-# TODO: Revisit moving the rest to class scope once we've cleaned up the output directories.
-# Conflicts now.
 class TestCreateManifests:
     """create_manifests formats the route tables CSVs."""
 
@@ -1454,6 +1442,16 @@ class TestCreateManifests:
         assert set(workbook.sheet_names) == set(
             [f"{MANIFEST_DATE} {driver}" for driver in DRIVERS]
         )
+
+    def test_date_field_matches_sheet_date(self, mock_route_tables: Path) -> None:
+        """Test that the date field matches the sheet date."""
+        output_path = create_manifests(input_dir=mock_route_tables)
+        workbook = load_workbook(output_path)
+        for sheet_name in workbook.sheetnames:
+            ws = workbook[sheet_name]
+            field_date = ws["A3"].value.split(" ")[1]
+            sheet_name_date = sheet_name.split(" ")[0]
+            assert field_date == sheet_name_date
 
     @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
