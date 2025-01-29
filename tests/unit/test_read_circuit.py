@@ -142,7 +142,7 @@ class TestCreateManifestsFromCircuit:
 
     @pytest.fixture(scope="class")
     @typechecked
-    def mock_driver_names(
+    def mock_driver_names_all_hhs_false(
         self, mock_driver_sheet_names_all_hhs_false: list[str]
     ) -> list[str]:
         """Return a list of driver names."""
@@ -469,10 +469,10 @@ class TestCreateManifestsFromCircuit:
             assert ws["A3"].value == f"Date: {MANIFEST_DATE}"
 
     def test_driver_cell(
-        self, mock_driver_names: list[str], manifest_workbook: Workbook
+        self, mock_driver_names_all_hhs_false: list[str], manifest_workbook: Workbook
     ) -> None:
         """Test that the driver cell is correct."""
-        drivers = [driver.upper() for driver in mock_driver_names]
+        drivers = [driver.upper() for driver in mock_driver_names_all_hhs_false]
         for sheet_name in manifest_workbook.sheetnames:
             ws = manifest_workbook[sheet_name]
             driver_name = sheet_name.replace(f"{MANIFEST_DATE} ", "")
