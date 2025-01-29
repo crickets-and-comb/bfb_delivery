@@ -863,7 +863,7 @@ class TestSplitChunkedRoute:
                 assert driver_sheet.columns.to_list() == SPLIT_ROUTE_COLUMNS
 
 
-class TestCombineRouteTablesClassScoped:
+class TestCombineRouteTables:
     """combine_route_tables combines driver route CSVs into a single workbook."""
 
     @pytest.fixture(scope="class")
@@ -951,22 +951,20 @@ class TestCombineRouteTablesClassScoped:
 
         pd.testing.assert_frame_equal(full_input_data, combined_output_data)
 
-
-# TODO: Revisit moving the rest to class scope once output directories better organized.
-# Too many conflicts now.
-class TestCombineRouteTables:
-    """combine_route_tables combines driver route CSVs into a single workbook."""
-
     @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
     def test_cli(
-        self, output_dir: str, output_filename: str, mock_route_tables: Path, tmp_path: Path
+        self,
+        output_dir: str,
+        output_filename: str,
+        mock_route_tables_class_scoped: Path,
+        tmp_path: Path,
     ) -> None:
         """Test CLI works."""
         output_dir = str(tmp_path / output_dir) if output_dir else output_dir
         arg_list = [
             "--input_dir",
-            str(mock_route_tables),
+            str(mock_route_tables_class_scoped),
             "--output_dir",
             output_dir,
             "--output_filename",
@@ -981,7 +979,9 @@ class TestCombineRouteTables:
             if output_filename == ""
             else output_filename
         )
-        expected_output_dir = Path(output_dir) if output_dir else mock_route_tables
+        expected_output_dir = (
+            Path(output_dir) if output_dir else mock_route_tables_class_scoped
+        )
         assert (expected_output_dir / expected_output_filename).exists()
 
 
