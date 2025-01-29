@@ -6,13 +6,13 @@ import click
 from typeguard import typechecked
 
 from bfb_delivery import split_chunked_route
-from bfb_delivery.lib.constants import Defaults, DocStrings
+from bfb_delivery.lib.constants import Defaults, DocStringsCLI
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
-@click.command(help=DocStrings.SPLIT_CHUNKED_ROUTE)
+@click.command(help=DocStringsCLI.SPLIT_CHUNKED_ROUTE)
 @click.option(
     "--input_path",
     type=str,

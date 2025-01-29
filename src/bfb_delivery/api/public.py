@@ -9,7 +9,7 @@ from pathlib import Path
 from typeguard import typechecked
 
 from bfb_delivery.api import internal
-from bfb_delivery.lib.constants import Defaults, DocStrings
+from bfb_delivery.lib.constants import Defaults, DocStringsAPI
 
 
 @typechecked
@@ -31,7 +31,7 @@ def split_chunked_route(  # noqa: D103
     )
 
 
-split_chunked_route.__doc__ = DocStrings.SPLIT_CHUNKED_ROUTE
+split_chunked_route.__doc__ = DocStringsAPI.SPLIT_CHUNKED_ROUTE
 
 
 @typechecked
@@ -60,7 +60,7 @@ def create_manifests_from_circuit(  # noqa: D103
     return final_manifest_path, new_circuit_output_dir
 
 
-create_manifests_from_circuit.__doc__ = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT
+create_manifests_from_circuit.__doc__ = DocStringsAPI.CREATE_MANIFESTS_FROM_CIRCUIT
 
 
 @typechecked
@@ -80,7 +80,7 @@ def create_manifests(  # noqa: D103
     return formatted_manifest_path
 
 
-create_manifests.__doc__ = DocStrings.CREATE_MANIFESTS
+create_manifests.__doc__ = DocStringsAPI.CREATE_MANIFESTS
 
 
 @typechecked
@@ -94,7 +94,7 @@ def combine_route_tables(  # noqa: D103
     )
 
 
-combine_route_tables.__doc__ = DocStrings.COMBINE_ROUTE_TABLES
+combine_route_tables.__doc__ = DocStringsAPI.COMBINE_ROUTE_TABLES
 
 
 @typechecked
@@ -112,4 +112,4 @@ def format_combined_routes(  # noqa: D103
     )
 
 
-format_combined_routes.__doc__ = DocStrings.FORMAT_COMBINED_ROUTES
+format_combined_routes.__doc__ = DocStringsAPI.FORMAT_COMBINED_ROUTES

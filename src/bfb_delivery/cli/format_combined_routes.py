@@ -6,13 +6,13 @@ import click
 from typeguard import typechecked
 
 from bfb_delivery import format_combined_routes
-from bfb_delivery.lib.constants import Defaults, DocStrings
+from bfb_delivery.lib.constants import Defaults, DocStringsCLI
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
-@click.command(help=DocStrings.FORMAT_COMBINED_ROUTES)
+@click.command(help=DocStringsCLI.FORMAT_COMBINED_ROUTES)
 @click.option("--input_path", required=True, help="The path to the combined routes table.")
 @click.option(
     "--output_dir",

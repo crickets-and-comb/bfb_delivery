@@ -28,7 +28,7 @@ from bfb_delivery.lib.constants import (
     BoxType,
     CellColors,
     Columns,
-    DocStrings,
+    DocStringsAPI,
 )
 from bfb_delivery.lib.formatting.data_cleaning import (
     format_and_validate_data,
@@ -114,7 +114,7 @@ def split_chunked_route(  # noqa: D103
     return split_workbook_paths
 
 
-split_chunked_route.__doc__ = DocStrings.SPLIT_CHUNKED_ROUTE
+split_chunked_route.__doc__ = DocStringsAPI.SPLIT_CHUNKED_ROUTE
 
 
 @typechecked
@@ -141,7 +141,7 @@ def create_manifests(  # noqa: D103
     return formatted_manifest_path
 
 
-create_manifests.__doc__ = DocStrings.CREATE_MANIFESTS
+create_manifests.__doc__ = DocStringsAPI.CREATE_MANIFESTS
 
 
 @typechecked
@@ -173,7 +173,7 @@ def combine_route_tables(  # noqa: D103
     return output_path.resolve()
 
 
-combine_route_tables.__doc__ = DocStrings.COMBINE_ROUTE_TABLES
+combine_route_tables.__doc__ = DocStringsAPI.COMBINE_ROUTE_TABLES
 
 
 @typechecked
@@ -235,7 +235,7 @@ def format_combined_routes(  # noqa: D103
     return output_path.resolve()
 
 
-format_combined_routes.__doc__ = DocStrings.FORMAT_COMBINED_ROUTES
+format_combined_routes.__doc__ = DocStringsAPI.FORMAT_COMBINED_ROUTES
 
 
 @typechecked
