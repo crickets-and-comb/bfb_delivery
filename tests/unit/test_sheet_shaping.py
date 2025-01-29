@@ -1569,6 +1569,19 @@ class TestCreateManifestsClassScoped:
             )
             assert last_non_empty_col == 6
 
+    @pytest.mark.parametrize("cell", ["A1", "B1", "C1", "D1", "E1", "F1"])
+    def test_header_row_color(self, cell: str, basic_manifest_workbook: Workbook) -> None:
+        """Test the header row fill color."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            assert ws[cell].fill.start_color.rgb == f"{CellColors.HEADER}"
+
+    def test_date_cell(self, basic_manifest_workbook: Workbook) -> None:
+        """Test that the date cell is correct."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            assert ws["A3"].value == f"Date: {MANIFEST_DATE}"
+
 
 # TODO: Revisit moving the rest to class scope once output dirs cconsolidated.
 # Conflicts now.
@@ -1586,25 +1599,6 @@ class TestCreateManifests:
         """Create a basic manifest workbook scoped to class for reuse."""
         workbook = load_workbook(basic_manifest)
         return workbook
-
-    @pytest.fixture()
-    def basic_manifest_ExcelFile(self, basic_manifest: Path) -> Iterator[pd.ExcelFile]:
-        """Create a basic manifest workbook scoped to class for reuse."""
-        with pd.ExcelFile(basic_manifest) as xls:
-            yield xls
-
-    @pytest.mark.parametrize("cell", ["A1", "B1", "C1", "D1", "E1", "F1"])
-    def test_header_row_color(self, cell: str, basic_manifest_workbook: Workbook) -> None:
-        """Test the header row fill color."""
-        for sheet_name in basic_manifest_workbook.sheetnames:
-            ws = basic_manifest_workbook[sheet_name]
-            assert ws[cell].fill.start_color.rgb == f"{CellColors.HEADER}"
-
-    def test_date_cell(self, basic_manifest_workbook: Workbook) -> None:
-        """Test that the date cell is correct."""
-        for sheet_name in basic_manifest_workbook.sheetnames:
-            ws = basic_manifest_workbook[sheet_name]
-            assert ws["A3"].value == f"Date: {MANIFEST_DATE}"
 
     def test_driver_cell(self, basic_manifest_workbook: Workbook) -> None:
         """Test that the driver cell is correct."""
