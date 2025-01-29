@@ -1452,23 +1452,16 @@ class TestCreateManifests:
         )
         assert output_path.name == expected_output_filename
 
-    # TODO: Create basic fixtures for this call and after.
     def test_all_drivers_have_a_sheet(self, basic_manifest_ExcelFile: pd.ExcelFile) -> None:
         """Test that all drivers have a sheet in the formatted workbook. And date works."""
         assert set(basic_manifest_ExcelFile.sheet_names) == set(
             [f"{MANIFEST_DATE} {driver}" for driver in DRIVERS]
         )
 
-    def test_date_field_matches_sheet_date(
-        self, mock_route_tables_class_scoped: Path, tmp_path: Path
-    ) -> None:
+    def test_date_field_matches_sheet_date(self, basic_manifest_workbook: Workbook) -> None:
         """Test that the date field matches the sheet date."""
-        output_path = create_manifests(
-            input_dir=mock_route_tables_class_scoped, output_dir=tmp_path
-        )
-        workbook = load_workbook(output_path)
-        for sheet_name in workbook.sheetnames:
-            ws = workbook[sheet_name]
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
             field_date = ws["A3"].value.split(" ")[1]
             sheet_name_date = sheet_name.split(" ")[0]
             assert field_date == sheet_name_date
