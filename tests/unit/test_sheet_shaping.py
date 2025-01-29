@@ -1591,30 +1591,12 @@ class TestCreateManifestsClassScoped:
             assert ws["A5"].value == f"Driver: {driver_name}"
             assert driver_name.upper() in drivers
 
-
-# TODO: Revisit moving the rest to class scope once output dirs cconsolidated.
-# Conflicts now.
-class TestCreateManifests:
-    """create_manifests formats the route tables CSVs."""
-
-    @pytest.fixture()
-    def basic_manifest(self, mock_route_tables: Path) -> Path:
-        """Create a basic manifest scoped to class for reuse."""
-        output_path = create_manifests(input_dir=mock_route_tables)
-        return output_path
-
-    @pytest.fixture()
-    def basic_manifest_workbook(self, basic_manifest: Path) -> Workbook:
-        """Create a basic manifest workbook scoped to class for reuse."""
-        workbook = load_workbook(basic_manifest)
-        return workbook
-
     def test_agg_cells(
-        self, basic_manifest_workbook: Workbook, mock_route_tables: Path
+        self, basic_manifest_workbook: Workbook, mock_route_tables_class_scoped: Path
     ) -> None:
         """Test that the aggregated cells are correct."""
         for sheet_name in sorted(basic_manifest_workbook.sheetnames):
-            input_df = pd.read_csv(mock_route_tables / f"{sheet_name}.csv")
+            input_df = pd.read_csv(mock_route_tables_class_scoped / f"{sheet_name}.csv")
             ws = basic_manifest_workbook[sheet_name]
 
             input_df.rename(columns={Columns.PRODUCT_TYPE: Columns.BOX_TYPE}, inplace=True)
@@ -1636,6 +1618,24 @@ class TestCreateManifests:
             assert ws["F7"].value == agg_dict["total_box_count"]
             assert ws["E8"].value == "PROTEIN COUNT="
             assert ws["F8"].value == agg_dict["protein_box_count"]
+
+
+# TODO: Revisit moving the rest to class scope once output dirs cconsolidated.
+# Conflicts now.
+class TestCreateManifests:
+    """create_manifests formats the route tables CSVs."""
+
+    @pytest.fixture()
+    def basic_manifest(self, mock_route_tables: Path) -> Path:
+        """Create a basic manifest scoped to class for reuse."""
+        output_path = create_manifests(input_dir=mock_route_tables)
+        return output_path
+
+    @pytest.fixture()
+    def basic_manifest_workbook(self, basic_manifest: Path) -> Workbook:
+        """Create a basic manifest workbook scoped to class for reuse."""
+        workbook = load_workbook(basic_manifest)
+        return workbook
 
     def test_box_type_cell_colors(self, basic_manifest_workbook: Workbook) -> None:
         """Test that the box type cells conditionally formatted with fill color."""
