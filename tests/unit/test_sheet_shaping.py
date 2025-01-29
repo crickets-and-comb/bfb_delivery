@@ -970,9 +970,7 @@ class TestFormatCombinedRoutes:
             assert driver_name.upper() in drivers
 
     def test_agg_cells(
-        self,
-        mock_combined_routes_ExcelFile: pd.ExcelFile,
-        basic_manifest_workbook: Workbook,  # noqa: E501
+        self, mock_combined_routes_ExcelFile: pd.ExcelFile, basic_manifest_workbook: Workbook
     ) -> None:
         """Test that the aggregated cells are correct."""
         for sheet_name in sorted(mock_combined_routes_ExcelFile.sheet_names):
