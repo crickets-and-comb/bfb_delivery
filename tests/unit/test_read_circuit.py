@@ -60,29 +60,6 @@ MANIFEST_DATE: Final[str] = "1.17"
 
 
 @pytest.fixture()
-@typechecked
-def mock_plan_responses() -> (
-    list[dict[str, str | list[dict[str, str | dict[str, int]] | None]]]
-):
-    """Return a list of plan responses, as from _get_plan_responses."""
-    with open(Path("tests/unit/fixtures/plan_responses.json")) as f:
-        return json.load(f)
-
-
-@pytest.fixture()
-@typechecked
-def mock_get_plan_responses(
-    mock_plan_responses: list[dict[str, str | list[dict[str, str | dict[str, int]] | None]]]
-) -> Iterator[None]:
-    """Mock _get_plan_responses."""
-    with patch(
-        "bfb_delivery.lib.dispatch.read_circuit._get_plan_responses",
-        return_value=mock_plan_responses,
-    ):
-        yield
-
-
-@pytest.fixture()
 def mock_getcwd(tmp_path: Path) -> Iterator[str]:
     """Mock os.getcwd within the read_circuit module."""
     return_value = str(tmp_path)
@@ -917,5 +894,3 @@ class TestCreateManifestsFromCircuit:
         bad_df.loc[0, CircuitColumns.ID] = id
         with pytest.raises(SchemaError, match=error_match):
             _ = CircuitRoutesTransformInFromDict.validate(bad_df)
-
-    # TODO: How to test extra notes here?
