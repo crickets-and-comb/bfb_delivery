@@ -1453,15 +1453,9 @@ class TestCreateManifests:
         assert output_path.name == expected_output_filename
 
     # TODO: Create basic fixtures for this call and after.
-    def test_all_drivers_have_a_sheet(
-        self, mock_route_tables_class_scoped: Path, tmp_path: Path
-    ) -> None:
+    def test_all_drivers_have_a_sheet(self, basic_manifest_ExcelFile: pd.ExcelFile) -> None:
         """Test that all drivers have a sheet in the formatted workbook. And date works."""
-        output_path = create_manifests(
-            output_dir=tmp_path, input_dir=mock_route_tables_class_scoped
-        )
-        workbook = pd.ExcelFile(output_path)
-        assert set(workbook.sheet_names) == set(
+        assert set(basic_manifest_ExcelFile.sheet_names) == set(
             [f"{MANIFEST_DATE} {driver}" for driver in DRIVERS]
         )
 
