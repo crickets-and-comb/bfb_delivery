@@ -883,20 +883,6 @@ class TestCombineRouteTablesClassScoped:
             driver_sheet = pd.read_excel(workbook, sheet_name=sheet_name)
             assert driver_sheet.columns.to_list() == COMBINED_ROUTES_COLUMNS
 
-
-# TODO: Revisit moving the rest to class scope once output directories better organized.
-# Too many conflicts now.
-class TestCombineRouteTables:
-    """combine_route_tables combines driver route CSVs into a single workbook."""
-
-    @pytest.fixture()
-    def basic_combined_routes(self, mock_route_tables: Path) -> Path:
-        """Create a basic combined routes table scoped to class for reuse."""
-        output_dir = mock_route_tables.parent / "basic_combined_routes"
-        output_dir.mkdir()
-        output_path = combine_route_tables(input_dir=mock_route_tables, output_dir=output_dir)
-        return output_path
-
     def test_unique_recipients(self, basic_combined_routes: Path) -> None:
         """Test that the recipients don't overlap between the driver route tables.
 
@@ -910,6 +896,20 @@ class TestCombineRouteTables:
             .sum()
             == 0
         )
+
+
+# TODO: Revisit moving the rest to class scope once output directories better organized.
+# Too many conflicts now.
+class TestCombineRouteTables:
+    """combine_route_tables combines driver route CSVs into a single workbook."""
+
+    @pytest.fixture()
+    def basic_combined_routes(self, mock_route_tables: Path) -> Path:
+        """Create a basic combined routes table scoped to class for reuse."""
+        output_dir = mock_route_tables.parent / "basic_combined_routes"
+        output_dir.mkdir()
+        output_path = combine_route_tables(input_dir=mock_route_tables, output_dir=output_dir)
+        return output_path
 
     def test_complete_contents(
         self, mock_route_tables: Path, basic_combined_routes: Path
