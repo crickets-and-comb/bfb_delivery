@@ -1671,6 +1671,13 @@ class TestCreateManifestsClassScoped:
             ws = basic_manifest_workbook[sheet_name]
             assert ws[cell].font.bold
 
+    def test_notes_column_width(self, basic_manifest_workbook: Workbook) -> None:
+        """Test that the notes column width is correct."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            assert ws["E9"].value == Columns.NOTES
+            assert ws.column_dimensions["E"].width == NOTES_COLUMN_WIDTH
+
 
 # TODO: Revisit moving the rest to class scope once output dirs cconsolidated.
 # Conflicts now.
@@ -1688,13 +1695,6 @@ class TestCreateManifests:
         """Create a basic manifest workbook scoped to class for reuse."""
         workbook = load_workbook(basic_manifest)
         return workbook
-
-    def test_notes_column_width(self, basic_manifest_workbook: Workbook) -> None:
-        """Test that the notes column width is correct."""
-        for sheet_name in basic_manifest_workbook.sheetnames:
-            ws = basic_manifest_workbook[sheet_name]
-            assert ws["E9"].value == Columns.NOTES
-            assert ws.column_dimensions["E"].width == NOTES_COLUMN_WIDTH
 
     def test_cell_right_alignment(self, basic_manifest_workbook: Workbook) -> None:
         """Test right-aligned cells."""
