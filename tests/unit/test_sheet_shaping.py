@@ -1541,6 +1541,25 @@ class TestCreateManifestsClassScoped:
             _format_and_validate_phone(df=input_phone_df)
             assert input_phone_df.equals(output_df[[Columns.PHONE]])
 
+    @pytest.mark.parametrize(
+        "cell, expected_value",
+        [
+            ("A1", "DRIVER SUPPORT: 555-555-5555"),
+            ("B1", None),
+            ("C1", None),
+            ("D1", "RECIPIENT SUPPORT: 555-555-5555 x5"),
+            ("E1", None),
+            ("F1", "PLEASE SHRED MANIFEST AFTER COMPLETING ROUTE."),
+        ],
+    )
+    def test_header_row(
+        self, cell: str, expected_value: str, basic_manifest_workbook: Workbook
+    ) -> None:
+        """Test that the header row is correct."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            assert ws[cell].value == expected_value
+
 
 # TODO: Revisit moving the rest to class scope once output dirs cconsolidated.
 # Conflicts now.
@@ -1564,25 +1583,6 @@ class TestCreateManifests:
         """Create a basic manifest workbook scoped to class for reuse."""
         with pd.ExcelFile(basic_manifest) as xls:
             yield xls
-
-    @pytest.mark.parametrize(
-        "cell, expected_value",
-        [
-            ("A1", "DRIVER SUPPORT: 555-555-5555"),
-            ("B1", None),
-            ("C1", None),
-            ("D1", "RECIPIENT SUPPORT: 555-555-5555 x5"),
-            ("E1", None),
-            ("F1", "PLEASE SHRED MANIFEST AFTER COMPLETING ROUTE."),
-        ],
-    )
-    def test_header_row(
-        self, cell: str, expected_value: str, basic_manifest_workbook: Workbook
-    ) -> None:
-        """Test that the header row is correct."""
-        for sheet_name in basic_manifest_workbook.sheetnames:
-            ws = basic_manifest_workbook[sheet_name]
-            assert ws[cell].value == expected_value
 
     def test_header_row_end(self, basic_manifest_workbook: Workbook) -> None:
         """Test that the header row ends at F1."""
