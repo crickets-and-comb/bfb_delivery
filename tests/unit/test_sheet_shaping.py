@@ -233,24 +233,6 @@ def mock_chunked_sheet_raw(tmp_path: Path) -> Path:
     return fp
 
 
-@pytest.fixture()
-def mock_route_tables(tmp_path: Path, mock_chunked_sheet_raw: Path) -> Path:
-    """Mock the driver route tables returned by Circuit."""
-    output_dir = tmp_path / "mock_route_tables"
-    output_dir.mkdir()
-
-    output_cols = [Columns.STOP_NO] + SPLIT_ROUTE_COLUMNS
-    chunked_df = pd.read_excel(mock_chunked_sheet_raw)
-    chunked_df.rename(columns={Columns.BOX_TYPE: Columns.PRODUCT_TYPE}, inplace=True)
-    for driver in chunked_df[Columns.DRIVER].unique():
-        output_path = output_dir / f"{MANIFEST_DATE} {driver}.csv"
-        driver_df = chunked_df[chunked_df[Columns.DRIVER] == driver]
-        driver_df[Columns.STOP_NO] = [i + 1 for i in range(len(driver_df))]
-        driver_df[output_cols].to_csv(output_dir / output_path, index=False)
-
-    return output_dir
-
-
 @pytest.fixture(scope="class")
 def mock_chunked_sheet_raw_class_scoped(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Save mock chunked route sheet and get path."""
@@ -425,7 +407,7 @@ def mock_chunked_sheet_raw_class_scoped(tmp_path_factory: pytest.TempPathFactory
 
 
 @pytest.fixture(scope="class")
-def mock_route_tables_class_scoped(
+def mock_route_tables(
     tmp_path_factory: pytest.TempPathFactory, mock_chunked_sheet_raw_class_scoped: Path
 ) -> Path:
     """Mock the driver route tables returned by Circuit."""
@@ -895,13 +877,11 @@ class TestCombineRouteTables:
 
     @pytest.fixture(scope="class")
     def basic_combined_routes(
-        self, mock_route_tables_class_scoped: Path, tmp_path_factory: pytest.TempPathFactory
+        self, mock_route_tables: Path, tmp_path_factory: pytest.TempPathFactory
     ) -> Path:
         """Create a basic combined routes table scoped to class for reuse."""
         output_dir = tmp_path_factory.mktemp("tmp_basic_combined_routes", numbered=True)
-        output_path = combine_route_tables(
-            input_dir=mock_route_tables_class_scoped, output_dir=output_dir
-        )
+        output_path = combine_route_tables(input_dir=mock_route_tables, output_dir=output_dir)
         return output_path
 
     @pytest.mark.parametrize("output_dir_type", [Path, str])
@@ -911,24 +891,20 @@ class TestCombineRouteTables:
         output_dir_type: type[Path | str],
         output_dir: Path | str,
         tmp_path: Path,
-        mock_route_tables_class_scoped: Path,
+        mock_route_tables: Path,
     ) -> None:
         """Test that the output directory can be set."""
         output_dir = output_dir_type(tmp_path / output_dir)
-        output_path = combine_route_tables(
-            input_dir=mock_route_tables_class_scoped, output_dir=output_dir
-        )
+        output_path = combine_route_tables(input_dir=mock_route_tables, output_dir=output_dir)
         assert str(output_path.parent) == str(output_dir)
 
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
     def test_set_output_filename(
-        self, output_filename: str, mock_route_tables_class_scoped: Path, tmp_path: Path
+        self, output_filename: str, mock_route_tables: Path, tmp_path: Path
     ) -> None:
         """Test that the output filename can be set."""
         output_path = combine_route_tables(
-            output_dir=tmp_path,
-            input_dir=mock_route_tables_class_scoped,
-            output_filename=output_filename,
+            output_dir=tmp_path, input_dir=mock_route_tables, output_filename=output_filename
         )
         expected_filename = (
             f"combined_routes_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
@@ -959,10 +935,10 @@ class TestCombineRouteTables:
         )
 
     def test_complete_contents(
-        self, mock_route_tables_class_scoped: Path, basic_combined_routes: Path
+        self, mock_route_tables: Path, basic_combined_routes: Path
     ) -> None:
         """Test that the input data is all covered in the combined workbook."""
-        mock_table_paths = list(mock_route_tables_class_scoped.glob("*"))
+        mock_table_paths = list(mock_route_tables.glob("*"))
         full_input_data = pd.concat(
             [pd.read_csv(path) for path in mock_table_paths], ignore_index=True
         ).rename(columns={Columns.PRODUCT_TYPE: Columns.BOX_TYPE})[COMBINED_ROUTES_COLUMNS]
@@ -981,17 +957,13 @@ class TestCombineRouteTables:
     @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
     def test_cli(
-        self,
-        output_dir: str,
-        output_filename: str,
-        mock_route_tables_class_scoped: Path,
-        tmp_path: Path,
+        self, output_dir: str, output_filename: str, mock_route_tables: Path, tmp_path: Path
     ) -> None:
         """Test CLI works."""
         output_dir = str(tmp_path / output_dir) if output_dir else output_dir
         arg_list = [
             "--input_dir",
-            str(mock_route_tables_class_scoped),
+            str(mock_route_tables),
             "--output_dir",
             output_dir,
             "--output_filename",
@@ -1006,9 +978,7 @@ class TestCombineRouteTables:
             if output_filename == ""
             else output_filename
         )
-        expected_output_dir = (
-            Path(output_dir) if output_dir else mock_route_tables_class_scoped
-        )
+        expected_output_dir = Path(output_dir) if output_dir else mock_route_tables
         assert (expected_output_dir / expected_output_filename).exists()
 
 
@@ -1397,13 +1367,11 @@ class TestCreateManifests:
 
     @pytest.fixture(scope="class")
     def basic_manifest(
-        self, mock_route_tables_class_scoped: Path, tmp_path_factory: pytest.TempPathFactory
+        self, mock_route_tables: Path, tmp_path_factory: pytest.TempPathFactory
     ) -> Path:
         """Create a basic manifest scoped to class for reuse."""
         output_dir = tmp_path_factory.mktemp("tmp_basic_manifest", numbered=True)
-        output_path = create_manifests(
-            input_dir=mock_route_tables_class_scoped, output_dir=output_dir
-        )
+        output_path = create_manifests(input_dir=mock_route_tables, output_dir=output_dir)
         return output_path
 
     @pytest.fixture(scope="class")
@@ -1425,25 +1393,21 @@ class TestCreateManifests:
         self,
         output_dir_type: type[Path | str],
         output_dir: Path | str,
-        mock_route_tables_class_scoped: Path,
+        mock_route_tables: Path,
         tmp_path: Path,
     ) -> None:
         """Test that the output directory can be set."""
         output_dir = output_dir_type(tmp_path / output_dir)
-        output_path = create_manifests(
-            input_dir=mock_route_tables_class_scoped, output_dir=output_dir
-        )
+        output_path = create_manifests(input_dir=mock_route_tables, output_dir=output_dir)
         assert str(output_path.parent) == str(output_dir)
 
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.csv"])
     def test_set_output_filename(
-        self, output_filename: str, mock_route_tables_class_scoped: Path, tmp_path: Path
+        self, output_filename: str, mock_route_tables: Path, tmp_path: Path
     ) -> None:
         """Test that the output filename can be set."""
         output_path = create_manifests(
-            output_dir=tmp_path,
-            input_dir=mock_route_tables_class_scoped,
-            output_filename=output_filename,
+            output_dir=tmp_path, input_dir=mock_route_tables, output_filename=output_filename
         )
         expected_output_filename = (
             f"final_manifests_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
@@ -1469,17 +1433,13 @@ class TestCreateManifests:
     @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
     def test_cli(
-        self,
-        output_dir: str,
-        output_filename: str,
-        mock_route_tables_class_scoped: Path,
-        tmp_path: Path,
+        self, output_dir: str, output_filename: str, mock_route_tables: Path, tmp_path: Path
     ) -> None:
         """Test CLI works."""
         output_dir = str(tmp_path / output_dir) if output_dir else output_dir
         arg_list = [
             "--input_dir",
-            str(mock_route_tables_class_scoped),
+            str(mock_route_tables),
             "--output_dir",
             output_dir,
             "--output_filename",
@@ -1494,17 +1454,15 @@ class TestCreateManifests:
             if output_filename == ""
             else output_filename
         )
-        expected_output_dir = (
-            Path(output_dir) if output_dir else mock_route_tables_class_scoped
-        )
+        expected_output_dir = Path(output_dir) if output_dir else mock_route_tables
         assert (expected_output_dir / expected_output_filename).exists()
 
     def test_df_is_same(
-        self, mock_route_tables_class_scoped: Path, basic_manifest_ExcelFile: pd.ExcelFile
+        self, mock_route_tables: Path, basic_manifest_ExcelFile: pd.ExcelFile
     ) -> None:
         """All the input data is in the formatted workbook."""
         for sheet_name in sorted(basic_manifest_ExcelFile.sheet_names):
-            input_df = pd.read_csv(mock_route_tables_class_scoped / f"{sheet_name}.csv")
+            input_df = pd.read_csv(mock_route_tables / f"{sheet_name}.csv")
             output_df = pd.read_excel(
                 basic_manifest_ExcelFile, sheet_name=sheet_name, skiprows=8
             )
@@ -1580,11 +1538,11 @@ class TestCreateManifests:
             assert driver_name.upper() in drivers
 
     def test_agg_cells(
-        self, basic_manifest_workbook: Workbook, mock_route_tables_class_scoped: Path
+        self, basic_manifest_workbook: Workbook, mock_route_tables: Path
     ) -> None:
         """Test that the aggregated cells are correct."""
         for sheet_name in sorted(basic_manifest_workbook.sheetnames):
-            input_df = pd.read_csv(mock_route_tables_class_scoped / f"{sheet_name}.csv")
+            input_df = pd.read_csv(mock_route_tables / f"{sheet_name}.csv")
             ws = basic_manifest_workbook[sheet_name]
 
             input_df.rename(columns={Columns.PRODUCT_TYPE: Columns.BOX_TYPE}, inplace=True)
@@ -1690,17 +1648,17 @@ class TestCreateManifests:
     def test_extra_notes(
         self,
         extra_notes_file: str,
-        mock_route_tables_class_scoped: Path,
+        mock_route_tables: Path,
         mock_extra_notes_df_class_scoped: pd.DataFrame,
     ) -> None:
         """Test that extra notes are added to the manifest."""
         mock_extra_notes_context, extra_notes_file = _get_extra_notes(
             extra_notes_file=extra_notes_file,
-            extra_notes_dir=str(mock_route_tables_class_scoped.parent),
+            extra_notes_dir=str(mock_route_tables.parent),
             extra_notes_df=mock_extra_notes_df_class_scoped,
         )
 
-        mock_route_tables_names = glob.glob(str(mock_route_tables_class_scoped / "*.csv"))
+        mock_route_tables_names = glob.glob(str(mock_route_tables / "*.csv"))
         first_sheet_name = Path(mock_route_tables_names[0]).stem
         first_df = pd.read_csv(mock_route_tables_names[0])
         first_df = pd.concat([first_df] * 5, ignore_index=True)
@@ -1717,7 +1675,7 @@ class TestCreateManifests:
 
         with mock_extra_notes_context:
             manifests_path = create_manifests(
-                input_dir=mock_route_tables_class_scoped, extra_notes_file=extra_notes_file
+                input_dir=mock_route_tables, extra_notes_file=extra_notes_file
             )
 
         _assert_extra_notes(
