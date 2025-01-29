@@ -1619,6 +1619,17 @@ class TestCreateManifestsClassScoped:
             assert ws["E8"].value == "PROTEIN COUNT="
             assert ws["F8"].value == agg_dict["protein_box_count"]
 
+    def test_box_type_cell_colors(self, basic_manifest_workbook: Workbook) -> None:
+        """Test that the box type cells conditionally formatted with fill color."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            for cell in ws["F"]:
+                if cell.row > 9:
+                    assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
+            for cell in ws["E"]:
+                if cell.row > 2 and cell.row < 7:
+                    assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
+
 
 # TODO: Revisit moving the rest to class scope once output dirs cconsolidated.
 # Conflicts now.
@@ -1636,17 +1647,6 @@ class TestCreateManifests:
         """Create a basic manifest workbook scoped to class for reuse."""
         workbook = load_workbook(basic_manifest)
         return workbook
-
-    def test_box_type_cell_colors(self, basic_manifest_workbook: Workbook) -> None:
-        """Test that the box type cells conditionally formatted with fill color."""
-        for sheet_name in basic_manifest_workbook.sheetnames:
-            ws = basic_manifest_workbook[sheet_name]
-            for cell in ws["F"]:
-                if cell.row > 9:
-                    assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
-            for cell in ws["E"]:
-                if cell.row > 2 and cell.row < 7:
-                    assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
 
     def test_notes_column_width(self, basic_manifest_workbook: Workbook) -> None:
         """Test that the notes column width is correct."""
