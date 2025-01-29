@@ -340,10 +340,10 @@ class TestCreateManifestsFromCircuit:
     )
     def test_all_drivers_have_a_sheet(
         self,
-        tmp_path: Path,
         all_hhs: bool,
         mock_stops_responses_fixture: str,
         mock_driver_sheet_names_fixture: str,
+        tmp_path: Path,
         request: pytest.FixtureRequest,
     ) -> None:
         """Test that all drivers have a sheet in the formatted workbook. And date works."""
@@ -429,7 +429,7 @@ class TestCreateManifestsFromCircuitClassScoped:
         self, mock_stops_responses: list, tmp_path_factory: pytest.TempPathFactory
     ) -> tuple[Path, Path]:
         """Create a basic manifest scoped to class for reuse."""
-        output_dir = str(tmp_path_factory.mktemp("output"))
+        output_dir = str(tmp_path_factory.mktemp("tmp_output", numbered=True))
         with patch(
             "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
             return_value=mock_stops_responses,
@@ -452,6 +452,7 @@ class TestCreateManifestsFromCircuitClassScoped:
         with pd.ExcelFile(outputs[0]) as xls:
             yield xls
 
+    # TODO: This should just be mock_plan_responses_class_scoped.
     @pytest.fixture(scope="class")
     def plans_list(self) -> list[dict[str, Any]]:
         """_get_raw_plans."""
@@ -677,8 +678,6 @@ class TestCreateManifestsFromCircuitClassScoped:
             for cell in left_aligned_cells:
                 assert cell.alignment.horizontal == "left"
 
-    # TODO: How to test extra notes here?
-
     @pytest.mark.parametrize(
         "field, bad_value, expected_error",
         [
@@ -719,15 +718,13 @@ class TestCreateManifestsFromCircuitClassScoped:
         bad_value: Any | None,
         expected_error: AbstractContextManager,
         transformed_routes_df: pd.DataFrame,
-        tmp_path_factory: pytest.TempPathFactory,
+        tmp_path: Path,
     ) -> None:
         """Raises for field violations."""
-        output_dir = str(tmp_path_factory.mktemp("output"))
-
         bad_df = copy.deepcopy(transformed_routes_df)
         bad_df.loc[0, field] = bad_value
         with expected_error:
-            _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
+            _write_routes_dfs(routes_df=bad_df, output_dir=tmp_path)
 
     @pytest.mark.parametrize(
         "value, expected_error",
@@ -747,11 +744,9 @@ class TestCreateManifestsFromCircuitClassScoped:
         value: str,
         expected_error: AbstractContextManager,
         transformed_routes_df: pd.DataFrame,
-        tmp_path_factory: pytest.TempPathFactory,
+        tmp_path: Path,
     ) -> None:
         """Raises error of not a real box type."""
-        output_dir = str(tmp_path_factory.mktemp("output"))
-
         bad_df = copy.deepcopy(transformed_routes_df)
         bad_df[Columns.BOX_TYPE] = bad_df[Columns.BOX_TYPE].astype(str)
         bad_df.loc[0, Columns.BOX_TYPE] = value
@@ -762,7 +757,7 @@ class TestCreateManifestsFromCircuitClassScoped:
         bad_df = RecastSchema.validate(bad_df)
 
         with expected_error:
-            _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
+            _write_routes_dfs(routes_df=bad_df, output_dir=tmp_path)
 
     # Datafrane checks are tested at a lower level to isolate them. Some checks are run first
     # and will always raise when you try to test another test.
@@ -810,25 +805,18 @@ class TestCreateManifestsFromCircuitClassScoped:
         "column", [IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO]
     )
     def test_write_routes_dfs_unique(
-        self,
-        column: str,
-        transformed_routes_df: pd.DataFrame,
-        tmp_path_factory: pytest.TempPathFactory,
+        self, column: str, transformed_routes_df: pd.DataFrame, tmp_path: Path
     ) -> None:
         """Raises if driver_sheet_name:stop_no not unique."""
-        output_dir = str(tmp_path_factory.mktemp("output"))
-
         bad_df = copy.deepcopy(transformed_routes_df)
         bad_df.loc[0, column] = bad_df.loc[len(bad_df) - 1, column]
         with pytest.raises(ValidationError, match="not unique"):
-            _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
+            _write_routes_dfs(routes_df=bad_df, output_dir=tmp_path)
 
     def test_write_routes_dfs_contiguous_group(
-        self, transformed_routes_df: pd.DataFrame, tmp_path_factory: pytest.TempPathFactory
+        self, transformed_routes_df: pd.DataFrame, tmp_path: Path
     ) -> None:
         """Raises if stop_no not continguous within driver_sheet_name group."""
-        output_dir = str(tmp_path_factory.mktemp("output"))
-
         bad_df = copy.deepcopy(transformed_routes_df)
         first_group = bad_df[IntermediateColumns.DRIVER_SHEET_NAME].iloc[0]
         max_first_group = bad_df[
@@ -841,14 +829,12 @@ class TestCreateManifestsFromCircuitClassScoped:
         ] = (max_first_group + 1)
 
         with pytest.raises(ValidationError, match="contiguous_group"):
-            _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
+            _write_routes_dfs(routes_df=bad_df, output_dir=tmp_path)
 
     def test_write_routes_dfs_increasing_by(
-        self, transformed_routes_df: pd.DataFrame, tmp_path_factory: pytest.TempPathFactory
+        self, transformed_routes_df: pd.DataFrame, tmp_path: Path
     ) -> None:
         """Raises if not sorted by stop_no within driver_sheet_name."""
-        output_dir = str(tmp_path_factory.mktemp("output"))
-
         bad_df = copy.deepcopy(transformed_routes_df)
         first_group = bad_df[IntermediateColumns.DRIVER_SHEET_NAME].iloc[0]
         first_group_vals = bad_df[
@@ -859,18 +845,16 @@ class TestCreateManifestsFromCircuitClassScoped:
         ] = list(reversed(first_group_vals))
 
         with pytest.raises(ValidationError, match="increasing_by"):
-            _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
+            _write_routes_dfs(routes_df=bad_df, output_dir=tmp_path)
 
     def test_write_routes_dfs_many_to_one(
-        self, transformed_routes_df: pd.DataFrame, tmp_path_factory: pytest.TempPathFactory
+        self, transformed_routes_df: pd.DataFrame, tmp_path: Path
     ) -> None:
         """Raises if driver_sheet_name:stop_id not m:1."""
-        output_dir = str(tmp_path_factory.mktemp("output"))
-
         bad_df = copy.deepcopy(transformed_routes_df)
         bad_df.loc[0, CircuitColumns.ID] = bad_df.loc[len(bad_df) - 1, CircuitColumns.ID]
         with pytest.raises(ValidationError, match="many_to_one"):
-            _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
+            _write_routes_dfs(routes_df=bad_df, output_dir=tmp_path)
 
     @pytest.mark.parametrize(
         "field, item, check_name",
@@ -976,3 +960,5 @@ class TestCreateManifestsFromCircuitClassScoped:
         bad_df.loc[0, CircuitColumns.ID] = id
         with pytest.raises(SchemaError, match=error_match):
             _ = CircuitRoutesTransformInFromDict.validate(bad_df)
+
+    # TODO: How to test extra notes here?
