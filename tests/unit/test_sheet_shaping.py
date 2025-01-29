@@ -254,7 +254,9 @@ def mock_route_tables(tmp_path: Path, mock_chunked_sheet_raw: Path) -> Path:
 @pytest.fixture(scope="class")
 def mock_chunked_sheet_raw_class_scoped(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Save mock chunked route sheet and get path."""
-    tmp_output = tmp_path_factory.mktemp("tmp_output")
+    tmp_output = tmp_path_factory.mktemp(
+        "tmp_mock_chunked_sheet_raw_class_scoped", numbered=True
+    )
     fp: Path = tmp_output / "mock_chunked_sheet_raw.xlsx"
     raw_chunked_sheet = pd.DataFrame(
         columns=SPLIT_ROUTE_COLUMNS + [Columns.DRIVER, Columns.BOX_COUNT, Columns.STOP_NO],
@@ -427,7 +429,7 @@ def mock_route_tables_class_scoped(
     tmp_path_factory: pytest.TempPathFactory, mock_chunked_sheet_raw_class_scoped: Path
 ) -> Path:
     """Mock the driver route tables returned by Circuit."""
-    tmp_output = tmp_path_factory.mktemp("output")
+    tmp_output = tmp_path_factory.mktemp("tmp_mock_route_tables_class_scoped", numbered=True)
     output_dir = tmp_output / "mock_route_tables"
     output_dir.mkdir()
 
@@ -485,7 +487,7 @@ class TestSplitChunkedRoute:
         mock_chunked_sheet_raw_class_scoped: Path,
     ) -> None:
         """Test that the output directory can be set."""
-        tmp_output = tmp_path_factory.mktemp("output")
+        tmp_output = tmp_path_factory.mktemp("tmp_test_set_output_dir", numbered=True)
         output_dir = output_dir_type(tmp_output / output_dir)
         output_paths = split_chunked_route(
             input_path=mock_chunked_sheet_raw_class_scoped,
@@ -790,7 +792,7 @@ class TestSplitChunkedRoute:
         tmp_path_factory: pytest.TempPathFactory,
     ) -> None:
         """Test CLI works."""
-        tmp_output = tmp_path_factory.mktemp("output")
+        tmp_output = tmp_path_factory.mktemp("tmp_test_cli", numbered=True)
         output_dir = str(tmp_output / output_dir) if output_dir else output_dir
         arg_list = [
             "--input_path",
@@ -955,7 +957,9 @@ class TestFormatCombinedRoutes:
         self, tmp_path_factory: pytest.TempPathFactory
     ) -> Path:
         """Mock the combined routes table."""
-        tmp_output = tmp_path_factory.mktemp("output")
+        tmp_output = tmp_path_factory.mktemp(
+            "tmp_mock_combined_routes_class_scoped", numbered=True
+        )
         output_path = tmp_output / "combined_routes.xlsx"
         with pd.ExcelWriter(output_path) as writer:
             for driver in DRIVERS:
@@ -1039,7 +1043,7 @@ class TestFormatCombinedRoutes:
         mock_combined_routes_class_scoped: Path,
     ) -> None:
         """Test that the output directory can be set."""
-        tmp_output = tmp_path_factory.mktemp("output")
+        tmp_output = tmp_path_factory.mktemp("tmp_test_set_output_dir", numbered=True)
         output_dir = output_dir_type(tmp_output / output_dir)
         output_path = format_combined_routes(
             input_path=mock_combined_routes_class_scoped, output_dir=output_dir
@@ -1357,7 +1361,7 @@ class TestCreateManifestsClassScoped:
         mock_route_tables_class_scoped: Path,
     ) -> None:
         """Test that the output directory can be set."""
-        tmp_output = tmp_path_factory.mktemp("output")
+        tmp_output = tmp_path_factory.mktemp("tmp_test_set_output_dir", numbered=True)
         output_dir = output_dir_type(tmp_output / output_dir)
         output_path = create_manifests(
             input_dir=mock_route_tables_class_scoped, output_dir=output_dir
