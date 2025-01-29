@@ -763,9 +763,7 @@ class TestFormatCombinedRoutes:
     """format_combined_routes formats the combined routes table."""
 
     @pytest.fixture(scope="class")
-    def mock_combined_routes_class_scoped(
-        self, tmp_path_factory: pytest.TempPathFactory
-    ) -> Path:
+    def mock_combined_routes(self, tmp_path_factory: pytest.TempPathFactory) -> Path:
         """Mock the combined routes table."""
         tmp_output = tmp_path_factory.mktemp(
             "tmp_mock_combined_routes_class_scoped", numbered=True
@@ -799,16 +797,16 @@ class TestFormatCombinedRoutes:
 
     @pytest.fixture(scope="class")
     def mock_combined_routes_ExcelFile_class_scoped(
-        self, mock_combined_routes_class_scoped: Path
+        self, mock_combined_routes: Path
     ) -> Iterator[pd.ExcelFile]:
         """Mock the combined routes table ExcelFile."""
-        with pd.ExcelFile(mock_combined_routes_class_scoped) as xls:
+        with pd.ExcelFile(mock_combined_routes) as xls:
             yield xls
 
     @pytest.fixture(scope="class")
-    def basic_manifest(self, mock_combined_routes_class_scoped: Path) -> Path:
+    def basic_manifest(self, mock_combined_routes: Path) -> Path:
         """Create a basic manifest scoped to class for reuse."""
-        output_path = format_combined_routes(input_path=mock_combined_routes_class_scoped)
+        output_path = format_combined_routes(input_path=mock_combined_routes)
         return output_path
 
     @pytest.fixture(scope="class")
@@ -824,23 +822,23 @@ class TestFormatCombinedRoutes:
         output_dir_type: type[Path | str],
         output_dir: Path | str,
         tmp_path: Path,
-        mock_combined_routes_class_scoped: Path,
+        mock_combined_routes: Path,
     ) -> None:
         """Test that the output directory can be set."""
         output_dir = output_dir_type(tmp_path / output_dir)
         output_path = format_combined_routes(
-            input_path=mock_combined_routes_class_scoped, output_dir=output_dir
+            input_path=mock_combined_routes, output_dir=output_dir
         )
         assert str(output_path.parent) == str(output_dir)
 
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.csv"])
     def test_set_output_filename(
-        self, output_filename: str, mock_combined_routes_class_scoped: Path, tmp_path: Path
+        self, output_filename: str, mock_combined_routes: Path, tmp_path: Path
     ) -> None:
         """Test that the output filename can be set."""
         output_path = format_combined_routes(
             output_dir=tmp_path,
-            input_path=mock_combined_routes_class_scoped,
+            input_path=mock_combined_routes,
             output_filename=output_filename,
         )
         expected_output_filename = (
@@ -851,11 +849,11 @@ class TestFormatCombinedRoutes:
         assert output_path.name == expected_output_filename
 
     def test_all_drivers_have_a_sheet(
-        self, mock_combined_routes_class_scoped: Path, tmp_path: Path
+        self, mock_combined_routes: Path, tmp_path: Path
     ) -> None:
         """Test that all drivers have a sheet in the formatted workbook. And date works."""
         output_path = format_combined_routes(
-            output_dir=tmp_path, input_path=mock_combined_routes_class_scoped
+            output_dir=tmp_path, input_path=mock_combined_routes
         )
         workbook = pd.ExcelFile(output_path)
         assert set(workbook.sheet_names) == set(
@@ -868,14 +866,14 @@ class TestFormatCombinedRoutes:
         self,
         output_dir: str,
         output_filename: str,
-        mock_combined_routes_class_scoped: Path,
+        mock_combined_routes: Path,
         tmp_path: Path,
     ) -> None:
         """Test CLI works."""
         output_dir = str(tmp_path / output_dir) if output_dir else output_dir
         arg_list = [
             "--input_path",
-            str(mock_combined_routes_class_scoped),
+            str(mock_combined_routes),
             "--output_dir",
             output_dir,
             "--output_filename",
@@ -890,9 +888,7 @@ class TestFormatCombinedRoutes:
             if output_filename == ""
             else output_filename
         )
-        expected_output_dir = (
-            Path(output_dir) if output_dir else mock_combined_routes_class_scoped.parent
-        )
+        expected_output_dir = Path(output_dir) if output_dir else mock_combined_routes.parent
         assert (expected_output_dir / expected_output_filename).exists()
 
     def test_df_is_same(
@@ -1089,21 +1085,21 @@ class TestFormatCombinedRoutes:
     def test_extra_notes(
         self,
         extra_notes_file: str,
-        mock_combined_routes_class_scoped: Path,
+        mock_combined_routes: Path,
         mock_extra_notes_df: pd.DataFrame,
         tmp_path: Path,
     ) -> None:
         """Test that extra notes are added to the manifest."""
         mock_extra_notes_context, extra_notes_file = _get_extra_notes(
             extra_notes_file=extra_notes_file,
-            extra_notes_dir=str(mock_combined_routes_class_scoped.parent),
+            extra_notes_dir=str(mock_combined_routes.parent),
             extra_notes_df=mock_extra_notes_df,
         )
 
         new_mock_combined_routes_path = (
-            mock_combined_routes_class_scoped.parent / "new_mock_combined_routes.xlsx"
+            mock_combined_routes.parent / "new_mock_combined_routes.xlsx"
         )
-        mock_combined_routes_file = pd.ExcelFile(mock_combined_routes_class_scoped)
+        mock_combined_routes_file = pd.ExcelFile(mock_combined_routes)
 
         first_sheet_name = str(mock_combined_routes_file.sheet_names[0])
         first_df = mock_combined_routes_file.parse(sheet_name=first_sheet_name)
