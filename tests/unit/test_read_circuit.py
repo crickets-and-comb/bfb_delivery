@@ -71,7 +71,7 @@ def mock_plan_responses() -> (
 
 @pytest.fixture(scope="class")
 @typechecked
-def mock_get_plan_responses_class_scoped(
+def mock_get_plan_responses(
     mock_plan_responses: list[dict[str, str | list[dict[str, str | dict[str, int]] | None]]]
 ) -> Iterator[None]:
     """Mock _get_plan_responses."""
@@ -90,7 +90,7 @@ def mock_getcwd_class_scoped(tmp_path_factory: pytest.TempPathFactory) -> Iterat
         yield return_value
 
 
-@pytest.mark.usefixtures("mock_get_plan_responses_class_scoped", "mock_getcwd_class_scoped")
+@pytest.mark.usefixtures("mock_get_plan_responses", "mock_getcwd_class_scoped")
 class TestCreateManifestsFromCircuit:
     """Test create_manifests_from_circuit function."""
 
