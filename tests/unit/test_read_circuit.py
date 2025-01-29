@@ -83,7 +83,7 @@ def mock_get_plan_responses(
 
 
 @pytest.fixture()
-def mock_os_getcwd(tmp_path: Path) -> Iterator[str]:
+def mock_getcwd(tmp_path: Path) -> Iterator[str]:
     """Mock os.getcwd within the read_circuit module."""
     return_value = str(tmp_path)
     with patch("bfb_delivery.lib.dispatch.read_circuit._getcwd", return_value=return_value):
@@ -123,7 +123,7 @@ def mock_getcwd_class_scoped(tmp_path_factory: pytest.TempPathFactory) -> Iterat
         yield return_value
 
 
-@pytest.mark.usefixtures("mock_get_plan_responses", "mock_os_getcwd")
+@pytest.mark.usefixtures("mock_get_plan_responses", "mock_getcwd")
 class TestCreateManifestsFromCircuit:
     """Test create_manifests_from_circuit function."""
 
@@ -257,7 +257,7 @@ class TestCreateManifestsFromCircuit:
         mock_stops_responses_fixture: str,
         verbose: bool,
         test_cli: bool,
-        mock_os_getcwd: str,
+        mock_getcwd: str,
         tmp_path: Path,
         request: pytest.FixtureRequest,
     ) -> None:
@@ -277,7 +277,7 @@ class TestCreateManifestsFromCircuit:
         expected_circuit_output_dir = (
             Path(circuit_output_dir) / circuit_sub_dir
             if circuit_output_dir
-            else Path(mock_os_getcwd) / circuit_sub_dir
+            else Path(mock_getcwd) / circuit_sub_dir
         )
 
         Path(expected_circuit_output_dir).mkdir(parents=True, exist_ok=True)
