@@ -63,178 +63,8 @@ N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
 NEIGHBORHOODS: Final[list[str]] = ["York", "Puget", "Samish", "Sehome", "South Hill"]
 
 
-@pytest.fixture()
-def mock_chunked_sheet_raw(tmp_path: Path) -> Path:
-    """Save mock chunked route sheet and get path."""
-    fp: Path = tmp_path / "mock_chunked_sheet_raw.xlsx"
-    raw_chunked_sheet = pd.DataFrame(
-        columns=SPLIT_ROUTE_COLUMNS + [Columns.DRIVER, Columns.BOX_COUNT, Columns.STOP_NO],
-        data=[
-            (
-                "Recipient One",
-                "123 Main St",
-                "555-555-1234",
-                "Recipient1@email.com",
-                "Notes for Recipient One.",
-                "1",
-                "Basic",
-                "York",
-                "Driver A",
-                2,
-                1,
-            ),
-            (
-                "Recipient Two",
-                "456 Elm St",
-                "555-555-5678",
-                "Recipient2@email.com",
-                "Notes for Recipient Two.",
-                "1",
-                "GF",
-                "Puget",
-                "Driver A",
-                None,
-                2,
-            ),
-            (
-                "Recipient Three",
-                "789 Oak St",
-                "555-555-9101",
-                "Recipient3@email.com",
-                "Notes for Recipient Three.",
-                "1",
-                "Vegan",
-                "Puget",
-                "Driver B",
-                2,
-                3,
-            ),
-            (
-                "Recipient Four",
-                "1011 Pine St",
-                "555-555-1121",
-                "Recipient4@email.com",
-                "Notes for Recipient Four.",
-                "1",
-                "LA",
-                "Puget",
-                "Driver B",
-                None,
-                4,
-            ),
-            (
-                "Recipient Five",
-                "1314 Cedar St",
-                "555-555-3141",
-                "Recipient5@email.com",
-                "Notes for Recipient Five.",
-                "1",
-                "Basic",
-                "Samish",
-                "Driver C",
-                1,
-                5,
-            ),
-            (
-                "Recipient Six",
-                "1516 Fir St",
-                "555-555-5161",
-                "Recipient6@email.com",
-                "Notes for Recipient Six.",
-                "1",
-                "GF",
-                "Sehome",
-                "Driver D #1",
-                1,
-                6,
-            ),
-            (
-                "Recipient Seven",
-                "1718 Spruce St",
-                "555-555-7181",
-                "Recipient7@email.com",
-                "Notes for Recipient Seven.",
-                "1",
-                "Vegan",
-                "Samish",
-                "Driver D #2",
-                2,
-                7,
-            ),
-            (
-                "Recipient Eight",
-                "1920 Maple St",
-                "555-555-9202",
-                "Recipient8@email.com",
-                "Notes for Recipient Eight.",
-                "1",
-                "LA",
-                "South Hill",
-                "Driver D #2",
-                None,
-                8,
-            ),
-            (
-                "Recipient Nine",
-                "2122 Cedar St",
-                "555-555-2223",
-                "Recipient9@email.com",
-                "Notes for Recipient Nine.",
-                "1",
-                "Basic",
-                "South Hill",
-                "Driver E",
-                2,
-                9,
-            ),
-            (
-                "Recipient Ten",
-                "2122 Cedar St",
-                "555-555-2223",
-                "Recipient10@email.com",
-                "Notes for Recipient Ten.",
-                "1",
-                "LA",
-                "South Hill",
-                "Driver E",
-                None,
-                10,
-            ),
-            (
-                "Recipient Eleven",
-                "2346 Ash St",
-                "555-555-2345",
-                "Recipient11@email.com",
-                "Notes for Recipient Eleven.",
-                "1",
-                "Basic",
-                "Eldridge",
-                "Driver F",
-                2,
-                11,
-            ),
-            (
-                "Recipient Twelve",
-                "2122 Cedar St",
-                "555-555-2223",
-                "Recipient12@email.com",
-                "Notes for Recipient Twelve.",
-                "1",
-                "Basic",
-                "Eldridge",
-                "Driver F",
-                None,
-                12,
-            ),
-        ],
-    ).rename(columns={Columns.PRODUCT_TYPE: Columns.BOX_TYPE})
-    raw_chunked_sheet.to_excel(fp, index=False)
-
-    return fp
-
-
 @pytest.fixture(scope="class")
-def mock_chunked_sheet_raw_class_scoped(tmp_path_factory: pytest.TempPathFactory) -> Path:
+def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Save mock chunked route sheet and get path."""
     tmp_output = tmp_path_factory.mktemp(
         "tmp_mock_chunked_sheet_raw_class_scoped", numbered=True
@@ -408,7 +238,7 @@ def mock_chunked_sheet_raw_class_scoped(tmp_path_factory: pytest.TempPathFactory
 
 @pytest.fixture(scope="class")
 def mock_route_tables(
-    tmp_path_factory: pytest.TempPathFactory, mock_chunked_sheet_raw_class_scoped: Path
+    tmp_path_factory: pytest.TempPathFactory, mock_chunked_sheet_raw: Path
 ) -> Path:
     """Mock the driver route tables returned by Circuit."""
     tmp_output = tmp_path_factory.mktemp("tmp_mock_route_tables_class_scoped", numbered=True)
@@ -416,7 +246,7 @@ def mock_route_tables(
     output_dir.mkdir()
 
     output_cols = [Columns.STOP_NO] + SPLIT_ROUTE_COLUMNS
-    chunked_df = pd.read_excel(mock_chunked_sheet_raw_class_scoped)
+    chunked_df = pd.read_excel(mock_chunked_sheet_raw)
     chunked_df.rename(columns={Columns.BOX_TYPE: Columns.PRODUCT_TYPE}, inplace=True)
     for driver in chunked_df[Columns.DRIVER].unique():
         output_path = output_dir / f"{MANIFEST_DATE} {driver}.csv"
@@ -492,31 +322,25 @@ class TestSplitChunkedRoute:
         output_dir_type: type[Path | str],
         output_dir: Path | str,
         n_books: int,
-        mock_chunked_sheet_raw_class_scoped: Path,
+        mock_chunked_sheet_raw: Path,
         tmp_path: Path,
     ) -> None:
         """Test that the output directory can be set."""
         output_dir = output_dir_type(tmp_path / output_dir)
         output_paths = split_chunked_route(
-            input_path=mock_chunked_sheet_raw_class_scoped,
-            output_dir=output_dir,
-            n_books=n_books,
+            input_path=mock_chunked_sheet_raw, output_dir=output_dir, n_books=n_books
         )
         assert all(str(output_path.parent) == str(output_dir) for output_path in output_paths)
 
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
     @pytest.mark.parametrize("n_books", [1, 4])
     def test_set_output_filename(
-        self,
-        output_filename: str,
-        mock_chunked_sheet_raw_class_scoped: Path,
-        n_books: int,
-        tmp_path: Path,
+        self, output_filename: str, mock_chunked_sheet_raw: Path, n_books: int, tmp_path: Path
     ) -> None:
         """Test that the output filename can be set."""
         output_paths = split_chunked_route(
             output_dir=tmp_path,
-            input_path=mock_chunked_sheet_raw_class_scoped,
+            input_path=mock_chunked_sheet_raw,
             output_filename=output_filename,
             n_books=n_books,
         )
@@ -534,39 +358,32 @@ class TestSplitChunkedRoute:
 
     @pytest.mark.parametrize("n_books_passed", N_BOOKS_MATRIX + [None])
     def test_n_books_count(
-        self,
-        n_books_passed: int | None,
-        mock_chunked_sheet_raw_class_scoped: Path,
-        tmp_path: Path,
+        self, n_books_passed: int | None, mock_chunked_sheet_raw: Path, tmp_path: Path
     ) -> None:
         """Test that the number of workbooks is equal to n_books."""
         if n_books_passed is None:
             output_paths = split_chunked_route(
-                output_dir=tmp_path, input_path=mock_chunked_sheet_raw_class_scoped
+                output_dir=tmp_path, input_path=mock_chunked_sheet_raw
             )
             n_books = Defaults.SPLIT_CHUNKED_ROUTE["n_books"]
         else:
             n_books = n_books_passed
             output_paths = split_chunked_route(
-                output_dir=tmp_path,
-                input_path=mock_chunked_sheet_raw_class_scoped,
-                n_books=n_books,
+                output_dir=tmp_path, input_path=mock_chunked_sheet_raw, n_books=n_books
             )
 
         assert len(output_paths) == n_books
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_recipients_unique(
-        self, n_books: int, mock_chunked_sheet_raw_class_scoped: Path, tmp_path: Path
+        self, n_books: int, mock_chunked_sheet_raw: Path, tmp_path: Path
     ) -> None:
         """Test that the recipients don't overlap between the split workbooks.
 
         By name, address, phone, and email.
         """
         output_paths = split_chunked_route(
-            output_dir=tmp_path,
-            input_path=mock_chunked_sheet_raw_class_scoped,
-            n_books=n_books,
+            output_dir=tmp_path, input_path=mock_chunked_sheet_raw, n_books=n_books
         )
 
         recipient_sets = []
@@ -582,13 +399,11 @@ class TestSplitChunkedRoute:
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_unique_drivers_across_books(
-        self, n_books: int, mock_chunked_sheet_raw_class_scoped: Path, tmp_path: Path
+        self, n_books: int, mock_chunked_sheet_raw: Path, tmp_path: Path
     ) -> None:
         """Test that the drivers don't overlap between the split workbooks."""
         output_paths = split_chunked_route(
-            output_dir=tmp_path,
-            input_path=mock_chunked_sheet_raw_class_scoped,
-            n_books=n_books,
+            output_dir=tmp_path, input_path=mock_chunked_sheet_raw, n_books=n_books
         )
 
         driver_sets = []
@@ -607,13 +422,11 @@ class TestSplitChunkedRoute:
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_numbered_drivers_grouped(
-        self, n_books: int, mock_chunked_sheet_raw_class_scoped: Path, tmp_path: Path
+        self, n_books: int, mock_chunked_sheet_raw: Path, tmp_path: Path
     ) -> None:
         """Test that the numbered drivers are in the same workbook together."""
         output_paths = split_chunked_route(
-            output_dir=tmp_path,
-            input_path=mock_chunked_sheet_raw_class_scoped,
-            n_books=n_books,
+            output_dir=tmp_path, input_path=mock_chunked_sheet_raw, n_books=n_books
         )
         driver_d_sheets_found = False
         for output_path in output_paths:
@@ -649,7 +462,7 @@ class TestSplitChunkedRoute:
         test_book_one_drivers: list[str],
         exclude_drivers: list[str],
         book_one_drivers_file: str,
-        mock_chunked_sheet_raw_class_scoped: Path,
+        mock_chunked_sheet_raw: Path,
         tmp_path: Path,
     ) -> None:
         """Test that book-one drivers are in book one."""
@@ -678,7 +491,7 @@ class TestSplitChunkedRoute:
                 for driver in test_book_one_drivers:
                     f.write(f"{driver}\n")
 
-        mock_chunked_sheet_raw_df = pd.read_excel(mock_chunked_sheet_raw_class_scoped)
+        mock_chunked_sheet_raw_df = pd.read_excel(mock_chunked_sheet_raw)
         alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         mock_chunked_sheet_raw_df[Columns.DRIVER] = [
             f"Driver {alphabet[i]}" for i in range(len(mock_chunked_sheet_raw_df))
@@ -710,16 +523,14 @@ class TestSplitChunkedRoute:
 
     @pytest.mark.parametrize("n_books", [1, 2, 3])
     def test_complete_contents(
-        self, n_books: int, mock_chunked_sheet_raw_class_scoped: Path, tmp_path: Path
+        self, n_books: int, mock_chunked_sheet_raw: Path, tmp_path: Path
     ) -> None:
         """Test that the input data is all covered in the split workbooks."""
         output_paths = split_chunked_route(
-            output_dir=tmp_path,
-            input_path=mock_chunked_sheet_raw_class_scoped,
-            n_books=n_books,
+            output_dir=tmp_path, input_path=mock_chunked_sheet_raw, n_books=n_books
         )
 
-        full_data = pd.read_excel(mock_chunked_sheet_raw_class_scoped)
+        full_data = pd.read_excel(mock_chunked_sheet_raw)
 
         driver_sheets = _get_driver_sheets(output_paths=output_paths)
         split_data = pd.concat(driver_sheets, ignore_index=True)
@@ -758,21 +569,19 @@ class TestSplitChunkedRoute:
 
     @pytest.mark.parametrize("n_books", [0, -1])
     def test_invalid_n_books(
-        self, n_books: int, mock_chunked_sheet_raw_class_scoped: Path, tmp_path: Path
+        self, n_books: int, mock_chunked_sheet_raw: Path, tmp_path: Path
     ) -> None:
         """Test that an invalid n_books raises a ValueError."""
         with pytest.raises(ValueError, match="n_books must be greater than 0."):
             _ = split_chunked_route(
-                output_dir=tmp_path,
-                input_path=mock_chunked_sheet_raw_class_scoped,
-                n_books=n_books,
+                output_dir=tmp_path, input_path=mock_chunked_sheet_raw, n_books=n_books
             )
 
     def test_invalid_n_books_driver_count(
-        self, mock_chunked_sheet_raw_class_scoped: Path, tmp_path: Path
+        self, mock_chunked_sheet_raw: Path, tmp_path: Path
     ) -> None:
         """Test that n_books greater than the number of drivers raises a ValueError."""
-        raw_sheet = pd.read_excel(mock_chunked_sheet_raw_class_scoped)
+        raw_sheet = pd.read_excel(mock_chunked_sheet_raw)
         driver_count = len(raw_sheet[Columns.DRIVER].unique())
         n_books = driver_count + 1
         with pytest.raises(
@@ -783,30 +592,26 @@ class TestSplitChunkedRoute:
             ),
         ):
             _ = split_chunked_route(
-                output_dir=tmp_path,
-                input_path=mock_chunked_sheet_raw_class_scoped,
-                n_books=n_books,
+                output_dir=tmp_path, input_path=mock_chunked_sheet_raw, n_books=n_books
             )
 
     def test_date_added_to_sheet_names(
-        self, mock_chunked_sheet_raw_class_scoped: Path, tmp_path: Path
+        self, mock_chunked_sheet_raw: Path, tmp_path: Path
     ) -> None:
         """Test that the date is added to the sheet names."""
         output_paths = split_chunked_route(
-            output_dir=tmp_path,
-            input_path=mock_chunked_sheet_raw_class_scoped,
-            date=MANIFEST_DATE,
+            output_dir=tmp_path, input_path=mock_chunked_sheet_raw, date=MANIFEST_DATE
         )
         for output_path in output_paths:
             for sheet_name in pd.ExcelFile(output_path).sheet_names:
                 assert str(sheet_name).startswith(f"{MANIFEST_DATE} ")
 
     def test_sheetname_date_is_friday(
-        self, mock_chunked_sheet_raw_class_scoped: Path, tmp_path: Path
+        self, mock_chunked_sheet_raw: Path, tmp_path: Path
     ) -> None:
         """Test that default date added is Friday."""
         output_paths = split_chunked_route(
-            output_dir=tmp_path, input_path=mock_chunked_sheet_raw_class_scoped, n_books=1
+            output_dir=tmp_path, input_path=mock_chunked_sheet_raw, n_books=1
         )
         workbook = pd.ExcelFile(output_paths[0])
         this_year = datetime.now().year.__str__()
@@ -825,14 +630,14 @@ class TestSplitChunkedRoute:
         output_dir: str,
         output_filename: str,
         n_books: int,
-        mock_chunked_sheet_raw_class_scoped: Path,
+        mock_chunked_sheet_raw: Path,
         tmp_path: Path,
     ) -> None:
         """Test CLI works."""
         output_dir = str(tmp_path / output_dir) if output_dir else output_dir
         arg_list = [
             "--input_path",
-            str(mock_chunked_sheet_raw_class_scoped),
+            str(mock_chunked_sheet_raw),
             "--output_dir",
             output_dir,
             "--output_filename",
@@ -854,16 +659,14 @@ class TestSplitChunkedRoute:
                 )
             )
             expected_output_dir = (
-                Path(output_dir) if output_dir else mock_chunked_sheet_raw_class_scoped.parent
+                Path(output_dir) if output_dir else mock_chunked_sheet_raw.parent
             )
             assert (Path(expected_output_dir) / expected_filename).exists()
 
-    def test_output_columns(
-        self, mock_chunked_sheet_raw_class_scoped: Path, tmp_path: Path
-    ) -> None:
+    def test_output_columns(self, mock_chunked_sheet_raw: Path, tmp_path: Path) -> None:
         """Test that the output columns match the SPLIT_ROUTE_COLUMNS constant."""
         output_paths = split_chunked_route(
-            output_dir=tmp_path, input_path=mock_chunked_sheet_raw_class_scoped
+            output_dir=tmp_path, input_path=mock_chunked_sheet_raw
         )
         for output_path in output_paths:
             workbook = pd.ExcelFile(output_path)
