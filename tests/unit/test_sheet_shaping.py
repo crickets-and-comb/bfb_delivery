@@ -471,6 +471,33 @@ def mock_extra_notes_df() -> pd.DataFrame:
     return extra_notes_df
 
 
+@pytest.fixture(scope="class")
+def mock_extra_notes_df_class_scoped() -> pd.DataFrame:
+    """Mock the extra notes DataFrame."""
+    extra_notes_df = pd.DataFrame(
+        columns=["tag", "note"],
+        data=[
+            (
+                "Test extra notes tag 1 *",
+                (
+                    "Test extra notes note 1. "
+                    "This is a dummy note. It is really long and should be so that we "
+                    "can test out column width and word wrapping. It should be long "
+                    "enough to wrap around to the next line. And, it should be long "
+                    "enough to wrap around to the next line. And, it should be long "
+                    "enough to wrap around to the next line. Hopefully, this is long "
+                    "enough. Also, hopefully, this is long enough. Further, hopefully, "
+                    "this is long enough. Additionally, it will help test out word "
+                    "wrapping merged cells."
+                ),
+            ),
+            ("Test extra notes tag 2 *", "Test extra notes note 2"),
+            ("Test extra notes tag 3 *", "Test extra notes note 3"),
+        ],
+    )
+    return extra_notes_df
+
+
 @pytest.mark.usefixtures("mock_is_valid_number")
 class TestSplitChunkedRoute:
     """split_chunked_route splits route spreadsheet into n workbooks with sheets by driver."""
@@ -1043,32 +1070,6 @@ class TestFormatCombinedRoutes:
         workbook = load_workbook(basic_manifest)
         return workbook
 
-    @pytest.fixture(scope="class")
-    def mock_extra_notes_df_class_scoped(self) -> pd.DataFrame:
-        """Mock the extra notes DataFrame."""
-        extra_notes_df = pd.DataFrame(
-            columns=["tag", "note"],
-            data=[
-                (
-                    "Test extra notes tag 1 *",
-                    (
-                        "Test extra notes note 1. "
-                        "This is a dummy note. It is really long and should be so that we "
-                        "can test out column width and word wrapping. It should be long "
-                        "enough to wrap around to the next line. And, it should be long "
-                        "enough to wrap around to the next line. And, it should be long "
-                        "enough to wrap around to the next line. Hopefully, this is long "
-                        "enough. Also, hopefully, this is long enough. Further, hopefully, "
-                        "this is long enough. Additionally, it will help test out word "
-                        "wrapping merged cells."
-                    ),
-                ),
-                ("Test extra notes tag 2 *", "Test extra notes note 2"),
-                ("Test extra notes tag 3 *", "Test extra notes note 3"),
-            ],
-        )
-        return extra_notes_df
-
     @pytest.mark.parametrize("output_dir_type", [Path, str])
     @pytest.mark.parametrize("output_dir", ["", "dummy_output"])
     def test_set_output_dir(
@@ -1391,7 +1392,7 @@ class TestFormatCombinedRoutes:
         )
 
 
-class TestCreateManifestsClassScoped:
+class TestCreateManifests:
     """create_manifests formats the route tables CSVs."""
 
     @pytest.fixture(scope="class")
@@ -1698,39 +1699,21 @@ class TestCreateManifestsClassScoped:
             for cell in left_aligned_cells:
                 assert cell.alignment.horizontal == "left"
 
-
-# TODO: Revisit moving the rest to class scope once output dirs cconsolidated.
-# Conflicts now.
-class TestCreateManifests:
-    """create_manifests formats the route tables CSVs."""
-
-    @pytest.fixture()
-    def basic_manifest(self, mock_route_tables: Path) -> Path:
-        """Create a basic manifest scoped to class for reuse."""
-        output_path = create_manifests(input_dir=mock_route_tables)
-        return output_path
-
-    @pytest.fixture()
-    def basic_manifest_workbook(self, basic_manifest: Path) -> Workbook:
-        """Create a basic manifest workbook scoped to class for reuse."""
-        workbook = load_workbook(basic_manifest)
-        return workbook
-
     @pytest.mark.parametrize("extra_notes_file", ["", "dummy_extra_notes.csv"])
     def test_extra_notes(
         self,
         extra_notes_file: str,
-        mock_route_tables: Path,
-        mock_extra_notes_df: pd.DataFrame,
+        mock_route_tables_class_scoped: Path,
+        mock_extra_notes_df_class_scoped: pd.DataFrame,
     ) -> None:
         """Test that extra notes are added to the manifest."""
         mock_extra_notes_context, extra_notes_file = _get_extra_notes(
             extra_notes_file=extra_notes_file,
-            extra_notes_dir=str(mock_route_tables.parent),
-            extra_notes_df=mock_extra_notes_df,
+            extra_notes_dir=str(mock_route_tables_class_scoped.parent),
+            extra_notes_df=mock_extra_notes_df_class_scoped,
         )
 
-        mock_route_tables_names = glob.glob(str(mock_route_tables / "*.csv"))
+        mock_route_tables_names = glob.glob(str(mock_route_tables_class_scoped / "*.csv"))
         first_sheet_name = Path(mock_route_tables_names[0]).stem
         first_df = pd.read_csv(mock_route_tables_names[0])
         first_df = pd.concat([first_df] * 5, ignore_index=True)
@@ -1738,21 +1721,23 @@ class TestCreateManifests:
         second_sheet_name = Path(mock_route_tables_names[1]).stem
         second_df = pd.read_csv(mock_route_tables_names[1])
         first_df, second_df = _set_extra_notes(
-            first_df=first_df, second_df=second_df, extra_notes_df=mock_extra_notes_df
+            first_df=first_df,
+            second_df=second_df,
+            extra_notes_df=mock_extra_notes_df_class_scoped,
         )
         first_df.to_csv(mock_route_tables_names[0], index=False)
         second_df.to_csv(mock_route_tables_names[1], index=False)
 
         with mock_extra_notes_context:
             manifests_path = create_manifests(
-                input_dir=mock_route_tables, extra_notes_file=extra_notes_file
+                input_dir=mock_route_tables_class_scoped, extra_notes_file=extra_notes_file
             )
 
         _assert_extra_notes(
             manifests_path=manifests_path,
             first_sheet_name=first_sheet_name,
             second_sheet_name=second_sheet_name,
-            extra_notes_df=mock_extra_notes_df,
+            extra_notes_df=mock_extra_notes_df_class_scoped,
             first_df=first_df,
             second_df=second_df,
         )
