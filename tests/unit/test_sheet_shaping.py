@@ -236,7 +236,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
     return fp
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="module")
 def mock_route_tables(
     tmp_path_factory: pytest.TempPathFactory, mock_chunked_sheet_raw: Path
 ) -> Path:
