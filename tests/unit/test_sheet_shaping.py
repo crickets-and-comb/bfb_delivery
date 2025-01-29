@@ -796,7 +796,7 @@ class TestFormatCombinedRoutes:
         return output_path
 
     @pytest.fixture(scope="class")
-    def mock_combined_routes_ExcelFile_class_scoped(
+    def mock_combined_routes_ExcelFile(
         self, mock_combined_routes: Path
     ) -> Iterator[pd.ExcelFile]:
         """Mock the combined routes table ExcelFile."""
@@ -892,13 +892,11 @@ class TestFormatCombinedRoutes:
         assert (expected_output_dir / expected_output_filename).exists()
 
     def test_df_is_same(
-        self, mock_combined_routes_ExcelFile_class_scoped: pd.ExcelFile, basic_manifest: Path
+        self, mock_combined_routes_ExcelFile: pd.ExcelFile, basic_manifest: Path
     ) -> None:
         """All the input data is in the formatted workbook."""
-        for sheet_name in sorted(mock_combined_routes_ExcelFile_class_scoped.sheet_names):
-            input_df = pd.read_excel(
-                mock_combined_routes_ExcelFile_class_scoped, sheet_name=sheet_name
-            )
+        for sheet_name in sorted(mock_combined_routes_ExcelFile.sheet_names):
+            input_df = pd.read_excel(mock_combined_routes_ExcelFile, sheet_name=sheet_name)
             input_df.sort_values(by=[Columns.STOP_NO], inplace=True)
             output_df = pd.read_excel(basic_manifest, sheet_name=sheet_name, skiprows=8)
 
@@ -973,14 +971,12 @@ class TestFormatCombinedRoutes:
 
     def test_agg_cells(
         self,
-        mock_combined_routes_ExcelFile_class_scoped: pd.ExcelFile,
+        mock_combined_routes_ExcelFile: pd.ExcelFile,
         basic_manifest_workbook: Workbook,  # noqa: E501
     ) -> None:
         """Test that the aggregated cells are correct."""
-        for sheet_name in sorted(mock_combined_routes_ExcelFile_class_scoped.sheet_names):
-            input_df = pd.read_excel(
-                mock_combined_routes_ExcelFile_class_scoped, sheet_name=sheet_name
-            )
+        for sheet_name in sorted(mock_combined_routes_ExcelFile.sheet_names):
+            input_df = pd.read_excel(mock_combined_routes_ExcelFile, sheet_name=sheet_name)
             ws = basic_manifest_workbook[str(sheet_name)]
 
             agg_dict = _aggregate_route_data(
