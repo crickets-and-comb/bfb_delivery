@@ -286,6 +286,35 @@ class TestCreateManifestsFromCircuitClassScoped:
 
     @pytest.fixture(scope="class")
     @typechecked
+    def mock_driver_sheet_names(
+        self,
+        mock_plan_responses_class_scoped: list[
+            dict[
+                str, str | list[dict[str, str | list[str | dict[str, str]] | dict[str, int]]]
+            ]
+        ],
+    ) -> list[str]:
+        """Return a list of driver sheet names."""
+        driver_sheet_names = []
+        for page_dict in mock_plan_responses_class_scoped:
+            for plan_dict in page_dict["plans"]:
+                if (
+                    isinstance(plan_dict, dict)  # To satisisfy pytype.
+                    and isinstance(plan_dict["title"], str)  # To satisisfy pytype.
+                    and ALL_HHS_DRIVER not in plan_dict["title"]
+                ):
+                    driver_sheet_names.append(plan_dict["title"])
+
+        return driver_sheet_names
+
+    @pytest.fixture(scope="class")
+    @typechecked
+    def mock_driver_names(self, mock_driver_sheet_names: list[str]) -> list[str]:
+        """Return a list of driver names."""
+        return [" ".join(sheet_name.split(" ")[1:]) for sheet_name in mock_driver_sheet_names]
+
+    @pytest.fixture(scope="class")
+    @typechecked
     def mock_stops_responses_all_hhs_false(
         self,
     ) -> list[
@@ -341,71 +370,16 @@ class TestCreateManifestsFromCircuitClassScoped:
             return json.load(f)
 
     @pytest.fixture(scope="class")
-    @typechecked
-    def mock_driver_sheet_names(
-        self,
-        mock_plan_responses_class_scoped: list[
-            dict[
-                str, str | list[dict[str, str | list[str | dict[str, str]] | dict[str, int]]]
-            ]
-        ],
-    ) -> list[str]:
-        """Return a list of driver sheet names."""
-        driver_sheet_names = []
-        for page_dict in mock_plan_responses_class_scoped:
-            for plan_dict in page_dict["plans"]:
-                if (
-                    isinstance(plan_dict, dict)  # To satisisfy pytype.
-                    and isinstance(plan_dict["title"], str)  # To satisisfy pytype.
-                    and ALL_HHS_DRIVER not in plan_dict["title"]
-                ):
-                    driver_sheet_names.append(plan_dict["title"])
-
-        return driver_sheet_names
-
-    @pytest.fixture(scope="class")
-    @typechecked
-    def mock_driver_names(self, mock_driver_sheet_names: list[str]) -> list[str]:
-        """Return a list of driver names."""
-        return [" ".join(sheet_name.split(" ")[1:]) for sheet_name in mock_driver_sheet_names]
-
-    @pytest.fixture(scope="class")
-    @typechecked
-    def mock_stops_responses(
-        self,
-    ) -> list[
-        list[
-            dict[
-                str,
-                str
-                | list[
-                    dict[
-                        str,
-                        str
-                        | int
-                        | dict[
-                            str, str | int | dict[str, str | int | list[str] | None] | None
-                        ]
-                        | None,
-                    ]
-                ]
-                | None,
-            ]
-        ]
-    ]:
-        """Return a list of stops responses, as from _get_raw_stops_list."""
-        with open(Path("tests/unit/fixtures/stops_responses.json")) as f:
-            return json.load(f)
-
-    @pytest.fixture(scope="class")
     def outputs(
-        self, mock_stops_responses: list, tmp_path_factory: pytest.TempPathFactory
+        self,
+        mock_stops_responses_all_hhs_false: list,
+        tmp_path_factory: pytest.TempPathFactory,
     ) -> tuple[Path, Path]:
         """Create a basic manifest scoped to class for reuse."""
         output_dir = str(tmp_path_factory.mktemp("tmp_output", numbered=True))
         with patch(
             "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
-            return_value=mock_stops_responses,
+            return_value=mock_stops_responses_all_hhs_false,
         ):
             manifest_path, circuit_sheets_dir = create_manifests_from_circuit(
                 start_date=TEST_START_DATE, output_dir=output_dir
@@ -440,12 +414,12 @@ class TestCreateManifestsFromCircuitClassScoped:
 
     @pytest.fixture(scope="class")
     def plan_stops_list(
-        self, mock_stops_responses: list, plans_df: pd.DataFrame
+        self, mock_stops_responses_all_hhs_false: list, plans_df: pd.DataFrame
     ) -> list[dict[str, Any]]:
         """_get_raw_stops."""
         with patch(
             "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
-            return_value=mock_stops_responses,
+            return_value=mock_stops_responses_all_hhs_false,
         ):
             return _get_raw_stops(
                 plan_ids=plans_df[CircuitColumns.ID].tolist(), verbose=False
