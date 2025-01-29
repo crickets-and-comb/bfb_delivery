@@ -240,89 +240,6 @@ class TestCreateManifestsFromCircuit:
 
         return driver_sheet_names
 
-    @pytest.mark.parametrize("circuit_output_dir", ["dummy_circuit_output", ""])
-    @pytest.mark.parametrize(
-        "all_hhs, mock_stops_responses_fixture",
-        [
-            (True, "mock_stops_responses_all_hhs_true"),
-            (False, "mock_stops_responses_all_hhs_false"),
-        ],
-    )
-    @pytest.mark.parametrize("verbose", [True, False])
-    @pytest.mark.parametrize("test_cli", [False, True])
-    def test_set_output_dir(
-        self,
-        circuit_output_dir: str,
-        all_hhs: bool,
-        mock_stops_responses_fixture: str,
-        verbose: bool,
-        test_cli: bool,
-        mock_getcwd: str,
-        tmp_path: Path,
-        request: pytest.FixtureRequest,
-    ) -> None:
-        """Test that the output directory can be set."""
-        stops_response_data = request.getfixturevalue(mock_stops_responses_fixture)
-
-        output_dir = str(tmp_path / "dummy_output_dir")
-        expected_output_filename = (
-            f"final_manifests_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
-        )
-        expected_output_path = Path(output_dir) / expected_output_filename
-
-        circuit_output_dir = (
-            str(tmp_path / circuit_output_dir) if circuit_output_dir else circuit_output_dir
-        )
-        circuit_sub_dir = "routes_" + TEST_START_DATE
-        expected_circuit_output_dir = (
-            Path(circuit_output_dir) / circuit_sub_dir
-            if circuit_output_dir
-            else Path(mock_getcwd) / circuit_sub_dir
-        )
-
-        Path(expected_circuit_output_dir).mkdir(parents=True, exist_ok=True)
-        with open(expected_circuit_output_dir / "dummy_file.txt", "w") as f:
-            f.write("Dummy file. The function should remove this file.")
-
-        with patch(
-            "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
-            return_value=stops_response_data,
-        ):
-            if test_cli:
-                cli_runner = CliRunner()
-                arg_list = [
-                    "--start_date",
-                    TEST_START_DATE,
-                    "--output_dir",
-                    output_dir,
-                    "--circuit_output_dir",
-                    circuit_output_dir,
-                ]
-                if all_hhs:
-                    arg_list.append("--all_hhs")
-                if verbose:
-                    arg_list.append("--verbose")
-                result = cli_runner.invoke(create_manifests_from_circuit_cli.main, arg_list)
-                assert result.exit_code == 0
-
-                split_char = "\r\n" if os.name == "nt" else "\n"
-                output_path, new_circuit_output_dir = (
-                    result.stdout_bytes.decode("utf-8").strip().split(split_char)
-                )
-
-            else:
-                output_path, new_circuit_output_dir = create_manifests_from_circuit(
-                    start_date=TEST_START_DATE,
-                    output_dir=output_dir,
-                    circuit_output_dir=circuit_output_dir,
-                    all_hhs=all_hhs,
-                    verbose=verbose,
-                )
-
-        assert str(new_circuit_output_dir) == str(expected_circuit_output_dir)
-        assert str(output_path) == str(expected_output_path)
-        assert expected_output_path.exists()
-
     @pytest.mark.parametrize(
         "all_hhs, mock_stops_responses_fixture, mock_driver_sheet_names_fixture",
         [
@@ -366,6 +283,62 @@ class TestCreateManifestsFromCircuit:
 @pytest.mark.usefixtures("mock_get_plan_responses_class_scoped", "mock_getcwd_class_scoped")
 class TestCreateManifestsFromCircuitClassScoped:
     """Test create_manifests_from_circuit function."""
+
+    @pytest.fixture(scope="class")
+    @typechecked
+    def mock_stops_responses_all_hhs_false(
+        self,
+    ) -> list[
+        list[
+            dict[
+                str,
+                str
+                | list[
+                    dict[
+                        str,
+                        str
+                        | int
+                        | dict[
+                            str, str | int | dict[str, str | int | list[str] | None] | None
+                        ]
+                        | None,
+                    ]
+                ]
+                | None,
+            ]
+        ]
+    ]:
+        """Return a list of stops responses, as from _get_raw_stops_list."""
+        with open(Path("tests/unit/fixtures/stops_responses.json")) as f:
+            return json.load(f)
+
+    @pytest.fixture(scope="class")
+    @typechecked
+    def mock_stops_responses_all_hhs_true(
+        self,
+    ) -> list[
+        list[
+            dict[
+                str,
+                str
+                | list[
+                    dict[
+                        str,
+                        str
+                        | int
+                        | dict[
+                            str, str | int | dict[str, str | int | list[str] | None] | None
+                        ]
+                        | None,
+                    ]
+                ]
+                | None,
+            ]
+        ]
+    ]:
+        """Return a list of stops responses, as from _get_raw_stops_list."""
+        with open(Path("tests/unit/fixtures/stops_responses_all_hhs.json")) as f:
+            return json.load(f)
 
     @pytest.fixture(scope="class")
     @typechecked
@@ -484,6 +457,89 @@ class TestCreateManifestsFromCircuitClassScoped:
     ) -> pd.DataFrame:
         """_transform_routes_df."""
         return _transform_routes_df(plan_stops_list=plan_stops_list, plans_df=plans_df)
+
+    @pytest.mark.parametrize("circuit_output_dir", ["dummy_circuit_output", ""])
+    @pytest.mark.parametrize(
+        "all_hhs, mock_stops_responses_fixture",
+        [
+            (True, "mock_stops_responses_all_hhs_true"),
+            (False, "mock_stops_responses_all_hhs_false"),
+        ],
+    )
+    @pytest.mark.parametrize("verbose", [True, False])
+    @pytest.mark.parametrize("test_cli", [False, True])
+    def test_set_output_dir(
+        self,
+        circuit_output_dir: str,
+        all_hhs: bool,
+        mock_stops_responses_fixture: str,
+        verbose: bool,
+        test_cli: bool,
+        mock_getcwd: str,
+        tmp_path: Path,
+        request: pytest.FixtureRequest,
+    ) -> None:
+        """Test that the output directory can be set."""
+        stops_response_data = request.getfixturevalue(mock_stops_responses_fixture)
+
+        output_dir = str(tmp_path / "dummy_output_dir")
+        expected_output_filename = (
+            f"final_manifests_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
+        )
+        expected_output_path = Path(output_dir) / expected_output_filename
+
+        circuit_output_dir = (
+            str(tmp_path / circuit_output_dir) if circuit_output_dir else circuit_output_dir
+        )
+        circuit_sub_dir = "routes_" + TEST_START_DATE
+        expected_circuit_output_dir = (
+            Path(circuit_output_dir) / circuit_sub_dir
+            if circuit_output_dir
+            else Path(mock_getcwd) / circuit_sub_dir
+        )
+
+        Path(expected_circuit_output_dir).mkdir(parents=True, exist_ok=True)
+        with open(expected_circuit_output_dir / "dummy_file.txt", "w") as f:
+            f.write("Dummy file. The function should remove this file.")
+
+        with patch(
+            "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
+            return_value=stops_response_data,
+        ):
+            if test_cli:
+                cli_runner = CliRunner()
+                arg_list = [
+                    "--start_date",
+                    TEST_START_DATE,
+                    "--output_dir",
+                    output_dir,
+                    "--circuit_output_dir",
+                    circuit_output_dir,
+                ]
+                if all_hhs:
+                    arg_list.append("--all_hhs")
+                if verbose:
+                    arg_list.append("--verbose")
+                result = cli_runner.invoke(create_manifests_from_circuit_cli.main, arg_list)
+                assert result.exit_code == 0
+
+                split_char = "\r\n" if os.name == "nt" else "\n"
+                output_path, new_circuit_output_dir = (
+                    result.stdout_bytes.decode("utf-8").strip().split(split_char)
+                )
+
+            else:
+                output_path, new_circuit_output_dir = create_manifests_from_circuit(
+                    start_date=TEST_START_DATE,
+                    output_dir=output_dir,
+                    circuit_output_dir=circuit_output_dir,
+                    all_hhs=all_hhs,
+                    verbose=verbose,
+                )
+
+        assert str(new_circuit_output_dir) == str(expected_circuit_output_dir)
+        assert str(output_path) == str(expected_output_path)
+        assert expected_output_path.exists()
 
     def test_date_field_matches_sheet_date(self, manifest_workbook: Workbook) -> None:
         """Test that the date field matches the sheet date."""
