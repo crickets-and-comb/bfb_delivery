@@ -142,32 +142,14 @@ class TestCreateManifestsFromCircuit:
 
     @pytest.fixture(scope="class")
     @typechecked
-    def mock_driver_sheet_names(
-        self,
-        mock_plan_responses: list[
-            dict[
-                str, str | list[dict[str, str | list[str | dict[str, str]] | dict[str, int]]]
-            ]
-        ],
+    def mock_driver_names(
+        self, mock_driver_sheet_names_all_hhs_false: list[str]
     ) -> list[str]:
-        """Return a list of driver sheet names."""
-        driver_sheet_names = []
-        for page_dict in mock_plan_responses:
-            for plan_dict in page_dict["plans"]:
-                if (
-                    isinstance(plan_dict, dict)  # To satisisfy pytype.
-                    and isinstance(plan_dict["title"], str)  # To satisisfy pytype.
-                    and ALL_HHS_DRIVER not in plan_dict["title"]
-                ):
-                    driver_sheet_names.append(plan_dict["title"])
-
-        return driver_sheet_names
-
-    @pytest.fixture(scope="class")
-    @typechecked
-    def mock_driver_names(self, mock_driver_sheet_names: list[str]) -> list[str]:
         """Return a list of driver names."""
-        return [" ".join(sheet_name.split(" ")[1:]) for sheet_name in mock_driver_sheet_names]
+        return [
+            " ".join(sheet_name.split(" ")[1:])
+            for sheet_name in mock_driver_sheet_names_all_hhs_false
+        ]
 
     @pytest.fixture(scope="class")
     @typechecked
