@@ -1394,6 +1394,29 @@ class TestFormatCombinedRoutes:
 class TestCreateManifestsClassScoped:
     """create_manifests formats the route tables CSVs."""
 
+    @pytest.fixture(scope="class")
+    def basic_manifest(
+        self, mock_route_tables_class_scoped: Path, tmp_path_factory: pytest.TempPathFactory
+    ) -> Path:
+        """Create a basic manifest scoped to class for reuse."""
+        output_dir = tmp_path_factory.mktemp("tmp_basic_manifest", numbered=True)
+        output_path = create_manifests(
+            input_dir=mock_route_tables_class_scoped, output_dir=output_dir
+        )
+        return output_path
+
+    @pytest.fixture(scope="class")
+    def basic_manifest_workbook(self, basic_manifest: Path) -> Workbook:
+        """Create a basic manifest workbook scoped to class for reuse."""
+        workbook = load_workbook(basic_manifest)
+        return workbook
+
+    @pytest.fixture(scope="class")
+    def basic_manifest_ExcelFile(self, basic_manifest: Path) -> Iterator[pd.ExcelFile]:
+        """Create a basic manifest workbook scoped to class for reuse."""
+        with pd.ExcelFile(basic_manifest) as xls:
+            yield xls
+
     @pytest.mark.parametrize("output_dir_type", [Path, str])
     # TODO: Empty string here doesn't really test anything. Mock os.getcwd?
     @pytest.mark.parametrize("output_dir", ["", "dummy_output"])
@@ -1488,36 +1511,12 @@ class TestCreateManifestsClassScoped:
         )
         assert (expected_output_dir / expected_output_filename).exists()
 
-
-# TODO: Revisit moving the rest to class scope once output dirs cconsolidated.
-# Conflicts now.
-class TestCreateManifests:
-    """create_manifests formats the route tables CSVs."""
-
-    @pytest.fixture()
-    def basic_manifest(self, mock_route_tables: Path) -> Path:
-        """Create a basic manifest scoped to class for reuse."""
-        output_path = create_manifests(input_dir=mock_route_tables)
-        return output_path
-
-    @pytest.fixture()
-    def basic_manifest_workbook(self, basic_manifest: Path) -> Workbook:
-        """Create a basic manifest workbook scoped to class for reuse."""
-        workbook = load_workbook(basic_manifest)
-        return workbook
-
-    @pytest.fixture()
-    def basic_manifest_ExcelFile(self, basic_manifest: Path) -> Iterator[pd.ExcelFile]:
-        """Create a basic manifest workbook scoped to class for reuse."""
-        with pd.ExcelFile(basic_manifest) as xls:
-            yield xls
-
     def test_df_is_same(
-        self, mock_route_tables: Path, basic_manifest_ExcelFile: pd.ExcelFile
+        self, mock_route_tables_class_scoped: Path, basic_manifest_ExcelFile: pd.ExcelFile
     ) -> None:
         """All the input data is in the formatted workbook."""
         for sheet_name in sorted(basic_manifest_ExcelFile.sheet_names):
-            input_df = pd.read_csv(mock_route_tables / f"{sheet_name}.csv")
+            input_df = pd.read_csv(mock_route_tables_class_scoped / f"{sheet_name}.csv")
             output_df = pd.read_excel(
                 basic_manifest_ExcelFile, sheet_name=sheet_name, skiprows=8
             )
@@ -1541,6 +1540,30 @@ class TestCreateManifests:
             input_phone_df = input_df[[Columns.PHONE]]
             _format_and_validate_phone(df=input_phone_df)
             assert input_phone_df.equals(output_df[[Columns.PHONE]])
+
+
+# TODO: Revisit moving the rest to class scope once output dirs cconsolidated.
+# Conflicts now.
+class TestCreateManifests:
+    """create_manifests formats the route tables CSVs."""
+
+    @pytest.fixture()
+    def basic_manifest(self, mock_route_tables: Path) -> Path:
+        """Create a basic manifest scoped to class for reuse."""
+        output_path = create_manifests(input_dir=mock_route_tables)
+        return output_path
+
+    @pytest.fixture()
+    def basic_manifest_workbook(self, basic_manifest: Path) -> Workbook:
+        """Create a basic manifest workbook scoped to class for reuse."""
+        workbook = load_workbook(basic_manifest)
+        return workbook
+
+    @pytest.fixture()
+    def basic_manifest_ExcelFile(self, basic_manifest: Path) -> Iterator[pd.ExcelFile]:
+        """Create a basic manifest workbook scoped to class for reuse."""
+        with pd.ExcelFile(basic_manifest) as xls:
+            yield xls
 
     @pytest.mark.parametrize(
         "cell, expected_value",
