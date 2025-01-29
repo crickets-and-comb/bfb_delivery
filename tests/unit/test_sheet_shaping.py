@@ -1428,6 +1428,7 @@ class TestCreateManifestsClassScoped:
         )
         assert output_path.name == expected_output_filename
 
+    # TODO: Create basic fixtures for this call and after.
     def test_all_drivers_have_a_sheet(
         self, mock_route_tables_class_scoped: Path, tmp_path: Path
     ) -> None:
@@ -1454,6 +1455,39 @@ class TestCreateManifestsClassScoped:
             sheet_name_date = sheet_name.split(" ")[0]
             assert field_date == sheet_name_date
 
+    @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
+    @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
+    def test_cli(
+        self,
+        output_dir: str,
+        output_filename: str,
+        mock_route_tables_class_scoped: Path,
+        tmp_path: Path,
+    ) -> None:
+        """Test CLI works."""
+        output_dir = str(tmp_path / output_dir) if output_dir else output_dir
+        arg_list = [
+            "--input_dir",
+            str(mock_route_tables_class_scoped),
+            "--output_dir",
+            output_dir,
+            "--output_filename",
+            output_filename,
+        ]
+
+        result = subprocess.run(["create_manifests"] + arg_list, capture_output=True)
+        assert result.returncode == 0
+
+        expected_output_filename = (
+            f"final_manifests_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
+            if output_filename == ""
+            else output_filename
+        )
+        expected_output_dir = (
+            Path(output_dir) if output_dir else mock_route_tables_class_scoped
+        )
+        assert (expected_output_dir / expected_output_filename).exists()
+
 
 # TODO: Revisit moving the rest to class scope once output dirs cconsolidated.
 # Conflicts now.
@@ -1477,33 +1511,6 @@ class TestCreateManifests:
         """Create a basic manifest workbook scoped to class for reuse."""
         with pd.ExcelFile(basic_manifest) as xls:
             yield xls
-
-    @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
-    @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
-    def test_cli(
-        self, output_dir: str, output_filename: str, mock_route_tables: Path, tmp_path: Path
-    ) -> None:
-        """Test CLI works."""
-        output_dir = str(tmp_path / output_dir) if output_dir else output_dir
-        arg_list = [
-            "--input_dir",
-            str(mock_route_tables),
-            "--output_dir",
-            output_dir,
-            "--output_filename",
-            output_filename,
-        ]
-
-        result = subprocess.run(["create_manifests"] + arg_list, capture_output=True)
-        assert result.returncode == 0
-
-        expected_output_filename = (
-            f"final_manifests_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
-            if output_filename == ""
-            else output_filename
-        )
-        expected_output_dir = Path(output_dir) if output_dir else mock_route_tables
-        assert (expected_output_dir / expected_output_filename).exists()
 
     def test_df_is_same(
         self, mock_route_tables: Path, basic_manifest_ExcelFile: pd.ExcelFile
