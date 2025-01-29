@@ -804,9 +804,14 @@ class TestFormatCombinedRoutes:
             yield xls
 
     @pytest.fixture(scope="class")
-    def basic_manifest(self, mock_combined_routes: Path) -> Path:
+    def basic_manifest(
+        self, mock_combined_routes: Path, tmp_path_factory: pytest.TempPathFactory
+    ) -> Path:
         """Create a basic manifest scoped to class for reuse."""
-        output_path = format_combined_routes(input_path=mock_combined_routes)
+        output_dir = tmp_path_factory.mktemp("tmp_basic_manifest", numbered=True)
+        output_path = format_combined_routes(
+            input_path=mock_combined_routes, output_dir=output_dir
+        )
         return output_path
 
     @pytest.fixture(scope="class")
