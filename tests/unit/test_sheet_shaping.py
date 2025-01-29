@@ -835,6 +835,16 @@ class TestSplitChunkedRoute:
 class TestCombineRouteTablesClassScoped:
     """combine_route_tables combines driver route CSVs into a single workbook."""
 
+    @pytest.fixture(scope="class")
+    def basic_combined_routes(self, mock_route_tables_class_scoped: Path) -> Path:
+        """Create a basic combined routes table scoped to class for reuse."""
+        output_dir = mock_route_tables_class_scoped.parent / "basic_combined_routes"
+        output_dir.mkdir()
+        output_path = combine_route_tables(
+            input_dir=mock_route_tables_class_scoped, output_dir=output_dir
+        )
+        return output_path
+
     @pytest.mark.parametrize("output_dir_type", [Path, str])
     @pytest.mark.parametrize("output_dir", ["", "dummy_output"])
     def test_set_output_dir(
@@ -851,7 +861,7 @@ class TestCombineRouteTablesClassScoped:
         )
         assert str(output_path.parent) == str(output_dir)
 
-    @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.csv"])
+    @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
     def test_set_output_filename(
         self, output_filename: str, mock_route_tables_class_scoped: Path
     ) -> None:
@@ -866,6 +876,13 @@ class TestCombineRouteTablesClassScoped:
         )
         assert output_path.name == expected_filename
 
+    def test_output_columns(self, basic_combined_routes: Path) -> None:
+        """Test that the output columns match the COMBINED_ROUTES_COLUMNS constant."""
+        workbook = pd.ExcelFile(basic_combined_routes)
+        for sheet_name in workbook.sheet_names:
+            driver_sheet = pd.read_excel(workbook, sheet_name=sheet_name)
+            assert driver_sheet.columns.to_list() == COMBINED_ROUTES_COLUMNS
+
 
 # TODO: Revisit moving the rest to class scope once output directories better organized.
 # Too many conflicts now.
@@ -879,13 +896,6 @@ class TestCombineRouteTables:
         output_dir.mkdir()
         output_path = combine_route_tables(input_dir=mock_route_tables, output_dir=output_dir)
         return output_path
-
-    def test_output_columns(self, basic_combined_routes: Path) -> None:
-        """Test that the output columns match the COMBINED_ROUTES_COLUMNS constant."""
-        workbook = pd.ExcelFile(basic_combined_routes)
-        for sheet_name in workbook.sheet_names:
-            driver_sheet = pd.read_excel(workbook, sheet_name=sheet_name)
-            assert driver_sheet.columns.to_list() == COMBINED_ROUTES_COLUMNS
 
     def test_unique_recipients(self, basic_combined_routes: Path) -> None:
         """Test that the recipients don't overlap between the driver route tables.
