@@ -1428,6 +1428,18 @@ class TestCreateManifestsClassScoped:
         )
         assert output_path.name == expected_output_filename
 
+    def test_all_drivers_have_a_sheet(
+        self, mock_route_tables_class_scoped: Path, tmp_path: Path
+    ) -> None:
+        """Test that all drivers have a sheet in the formatted workbook. And date works."""
+        output_path = create_manifests(
+            output_dir=tmp_path, input_dir=mock_route_tables_class_scoped
+        )
+        workbook = pd.ExcelFile(output_path)
+        assert set(workbook.sheet_names) == set(
+            [f"{MANIFEST_DATE} {driver}" for driver in DRIVERS]
+        )
+
 
 # TODO: Revisit moving the rest to class scope once output dirs cconsolidated.
 # Conflicts now.
@@ -1451,14 +1463,6 @@ class TestCreateManifests:
         """Create a basic manifest workbook scoped to class for reuse."""
         with pd.ExcelFile(basic_manifest) as xls:
             yield xls
-
-    def test_all_drivers_have_a_sheet(self, mock_route_tables: Path) -> None:
-        """Test that all drivers have a sheet in the formatted workbook. And date works."""
-        output_path = create_manifests(input_dir=mock_route_tables)
-        workbook = pd.ExcelFile(output_path)
-        assert set(workbook.sheet_names) == set(
-            [f"{MANIFEST_DATE} {driver}" for driver in DRIVERS]
-        )
 
     def test_date_field_matches_sheet_date(self, mock_route_tables: Path) -> None:
         """Test that the date field matches the sheet date."""
