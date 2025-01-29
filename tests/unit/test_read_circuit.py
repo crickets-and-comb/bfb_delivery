@@ -288,7 +288,6 @@ class TestCreateManifestsFromCircuit:
         with pd.ExcelFile(outputs[0]) as xls:
             yield xls
 
-    # TODO: This should just be mock_plan_responses_class_scoped.
     @pytest.fixture(scope="class")
     def plans_list(self) -> list[dict[str, Any]]:
         """_get_raw_plans."""
