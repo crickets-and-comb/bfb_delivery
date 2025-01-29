@@ -63,7 +63,7 @@ N_BOOKS_MATRIX: Final[list[int]] = [1, 3, 4]
 NEIGHBORHOODS: Final[list[str]] = ["York", "Puget", "Samish", "Sehome", "South Hill"]
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="module")
 def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Save mock chunked route sheet and get path."""
     tmp_output = tmp_path_factory.mktemp(
