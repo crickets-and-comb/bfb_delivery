@@ -257,7 +257,7 @@ def mock_route_tables(
     return output_dir
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="module")
 def mock_extra_notes_df() -> pd.DataFrame:
     """Mock the extra notes DataFrame."""
     extra_notes_df = pd.DataFrame(
