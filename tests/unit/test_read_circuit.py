@@ -61,7 +61,7 @@ MANIFEST_DATE: Final[str] = "1.17"
 
 @pytest.fixture(scope="class")
 @typechecked
-def mock_plan_responses_class_scoped() -> (
+def mock_plan_responses() -> (
     list[dict[str, str | list[dict[str, str | dict[str, int]] | None]]]
 ):
     """Return a list of plan responses, as from _get_plan_responses."""
@@ -72,14 +72,12 @@ def mock_plan_responses_class_scoped() -> (
 @pytest.fixture(scope="class")
 @typechecked
 def mock_get_plan_responses_class_scoped(
-    mock_plan_responses_class_scoped: list[
-        dict[str, str | list[dict[str, str | dict[str, int]] | None]]
-    ]
+    mock_plan_responses: list[dict[str, str | list[dict[str, str | dict[str, int]] | None]]]
 ) -> Iterator[None]:
     """Mock _get_plan_responses."""
     with patch(
         "bfb_delivery.lib.dispatch.read_circuit._get_plan_responses",
-        return_value=mock_plan_responses_class_scoped,
+        return_value=mock_plan_responses,
     ):
         yield
 
@@ -100,7 +98,7 @@ class TestCreateManifestsFromCircuit:
     @typechecked
     def mock_driver_sheet_names_all_hhs_false(
         self,
-        mock_plan_responses_class_scoped: list[
+        mock_plan_responses: list[
             dict[
                 str, str | list[dict[str, str | list[str | dict[str, str]] | dict[str, int]]]
             ]
@@ -108,7 +106,7 @@ class TestCreateManifestsFromCircuit:
     ) -> list[str]:
         """Return a list of driver sheet names."""
         driver_sheet_names = []
-        for page_dict in mock_plan_responses_class_scoped:
+        for page_dict in mock_plan_responses:
             for plan_dict in page_dict["plans"]:
                 if (
                     isinstance(plan_dict, dict)  # To satisisfy pytype.
@@ -123,7 +121,7 @@ class TestCreateManifestsFromCircuit:
     @typechecked
     def mock_driver_sheet_names_all_hhs_true(
         self,
-        mock_plan_responses_class_scoped: list[
+        mock_plan_responses: list[
             dict[
                 str, str | list[dict[str, str | list[str | dict[str, str]] | dict[str, int]]]
             ]
@@ -131,7 +129,7 @@ class TestCreateManifestsFromCircuit:
     ) -> list[str]:
         """Return a list of driver sheet names."""
         driver_sheet_names = []
-        for page_dict in mock_plan_responses_class_scoped:
+        for page_dict in mock_plan_responses:
             for plan_dict in page_dict["plans"]:
                 if (
                     isinstance(plan_dict, dict)  # To satisfy pytype.
@@ -146,7 +144,7 @@ class TestCreateManifestsFromCircuit:
     @typechecked
     def mock_driver_sheet_names(
         self,
-        mock_plan_responses_class_scoped: list[
+        mock_plan_responses: list[
             dict[
                 str, str | list[dict[str, str | list[str | dict[str, str]] | dict[str, int]]]
             ]
@@ -154,7 +152,7 @@ class TestCreateManifestsFromCircuit:
     ) -> list[str]:
         """Return a list of driver sheet names."""
         driver_sheet_names = []
-        for page_dict in mock_plan_responses_class_scoped:
+        for page_dict in mock_plan_responses:
             for plan_dict in page_dict["plans"]:
                 if (
                     isinstance(plan_dict, dict)  # To satisisfy pytype.
