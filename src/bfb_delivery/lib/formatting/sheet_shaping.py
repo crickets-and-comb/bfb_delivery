@@ -28,6 +28,7 @@ from bfb_delivery.lib.constants import (
     BoxType,
     CellColors,
     Columns,
+    DocStrings,
 )
 from bfb_delivery.lib.formatting.data_cleaning import (
     format_and_validate_data,
@@ -48,11 +49,10 @@ logger = logging.getLogger(__name__)
 pd.options.mode.copy_on_write = True
 
 
-# TODO: There's got to be a way to set the docstring as a constant.
 # TODO: Use Pandera.
 # TODO: Switch to or allow CSVs instead of Excel files.
 @typechecked
-def split_chunked_route(
+def split_chunked_route(  # noqa: D103
     input_path: Path | str,
     output_dir: Path | str,
     output_filename: str,
@@ -60,7 +60,6 @@ def split_chunked_route(
     book_one_drivers_file: str,
     date: str,
 ) -> list[Path]:
-    """See public docstring: :py:func:`bfb_delivery.api.public.split_chunked_route`."""
     if n_books <= 0:
         raise ValueError("n_books must be greater than 0.")
     # TODO: Make this accept input_path only as Path? Or only as str to simplify?
@@ -115,11 +114,13 @@ def split_chunked_route(
     return split_workbook_paths
 
 
+split_chunked_route.__doc__ = DocStrings.SPLIT_CHUNKED_ROUTE
+
+
 @typechecked
-def create_manifests(
+def create_manifests(  # noqa: D103
     input_dir: Path | str, output_dir: Path | str, output_filename: str, extra_notes_file: str
 ) -> Path:
-    """See public docstring for :py:func:`bfb_delivery.api.public.create_manifests`."""
     output_filename = (
         f"final_manifests_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
         if output_filename == ""
@@ -140,11 +141,13 @@ def create_manifests(
     return formatted_manifest_path
 
 
+create_manifests.__doc__ = DocStrings.CREATE_MANIFESTS
+
+
 @typechecked
-def combine_route_tables(
+def combine_route_tables(  # noqa: D103
     input_dir: Path | str, output_dir: Path | str, output_filename: str
 ) -> Path:
-    """See public docstring: :py:func:`bfb_delivery.api.public.combine_route_tables`."""
     input_dir = Path(input_dir)
     paths = list(input_dir.glob("*.csv"))
 
@@ -170,14 +173,16 @@ def combine_route_tables(
     return output_path.resolve()
 
 
+combine_route_tables.__doc__ = DocStrings.COMBINE_ROUTE_TABLES
+
+
 @typechecked
-def format_combined_routes(
+def format_combined_routes(  # noqa: D103
     input_path: Path | str,
     output_dir: Path | str,
     output_filename: str,
     extra_notes_file: str,
 ) -> Path:
-    """See public docstring: :py:func:`bfb_delivery.api.public.format_combined_routes`."""
     input_path = Path(input_path)
     output_dir = Path(output_dir) if output_dir else input_path.parent
     output_filename = (
@@ -228,6 +233,9 @@ def format_combined_routes(
     wb.save(output_path)
 
     return output_path.resolve()
+
+
+format_combined_routes.__doc__ = DocStrings.FORMAT_COMBINED_ROUTES
 
 
 @typechecked
