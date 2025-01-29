@@ -257,34 +257,8 @@ def mock_route_tables(
     return output_dir
 
 
-@pytest.fixture()
-def mock_extra_notes_df() -> pd.DataFrame:
-    """Mock the extra notes DataFrame."""
-    extra_notes_df = pd.DataFrame(
-        columns=["tag", "note"],
-        data=[
-            (
-                "Test extra notes tag 1 *",
-                (
-                    "Test extra notes note 1. "
-                    "This is a dummy note. It is really long and should be so that we can "
-                    "test out column width and word wrapping. It should be long enough to "
-                    "wrap around to the next line. And, it should be long enough to wrap "
-                    "around to the next line. And, it should be long enough to wrap around "
-                    "to the next line. Hopefully, this is long enough. Also, hopefully, this "
-                    "is long enough. Further, hopefully, this is long enough. Additionally, "
-                    "it will help test out word wrapping merged cells."
-                ),
-            ),
-            ("Test extra notes tag 2 *", "Test extra notes note 2"),
-            ("Test extra notes tag 3 *", "Test extra notes note 3"),
-        ],
-    )
-    return extra_notes_df
-
-
 @pytest.fixture(scope="class")
-def mock_extra_notes_df_class_scoped() -> pd.DataFrame:
+def mock_extra_notes_df() -> pd.DataFrame:
     """Mock the extra notes DataFrame."""
     extra_notes_df = pd.DataFrame(
         columns=["tag", "note"],
@@ -1116,14 +1090,14 @@ class TestFormatCombinedRoutes:
         self,
         extra_notes_file: str,
         mock_combined_routes_class_scoped: Path,
-        mock_extra_notes_df_class_scoped: pd.DataFrame,
+        mock_extra_notes_df: pd.DataFrame,
         tmp_path: Path,
     ) -> None:
         """Test that extra notes are added to the manifest."""
         mock_extra_notes_context, extra_notes_file = _get_extra_notes(
             extra_notes_file=extra_notes_file,
             extra_notes_dir=str(mock_combined_routes_class_scoped.parent),
-            extra_notes_df=mock_extra_notes_df_class_scoped,
+            extra_notes_df=mock_extra_notes_df,
         )
 
         new_mock_combined_routes_path = (
@@ -1136,9 +1110,7 @@ class TestFormatCombinedRoutes:
         second_sheet_name = str(mock_combined_routes_file.sheet_names[1])
         second_df = mock_combined_routes_file.parse(sheet_name=second_sheet_name)
         first_df, second_df = _set_extra_notes(
-            first_df=first_df,
-            second_df=second_df,
-            extra_notes_df=mock_extra_notes_df_class_scoped,
+            first_df=first_df, second_df=second_df, extra_notes_df=mock_extra_notes_df
         )
 
         with pd.ExcelWriter(new_mock_combined_routes_path) as writer:
@@ -1159,7 +1131,7 @@ class TestFormatCombinedRoutes:
             manifests_path=manifests_path,
             first_sheet_name=first_sheet_name,
             second_sheet_name=second_sheet_name,
-            extra_notes_df=mock_extra_notes_df_class_scoped,
+            extra_notes_df=mock_extra_notes_df,
             first_df=first_df,
             second_df=second_df,
         )
@@ -1452,13 +1424,13 @@ class TestCreateManifests:
         self,
         extra_notes_file: str,
         mock_route_tables: Path,
-        mock_extra_notes_df_class_scoped: pd.DataFrame,
+        mock_extra_notes_df: pd.DataFrame,
     ) -> None:
         """Test that extra notes are added to the manifest."""
         mock_extra_notes_context, extra_notes_file = _get_extra_notes(
             extra_notes_file=extra_notes_file,
             extra_notes_dir=str(mock_route_tables.parent),
-            extra_notes_df=mock_extra_notes_df_class_scoped,
+            extra_notes_df=mock_extra_notes_df,
         )
 
         mock_route_tables_names = glob.glob(str(mock_route_tables / "*.csv"))
@@ -1469,9 +1441,7 @@ class TestCreateManifests:
         second_sheet_name = Path(mock_route_tables_names[1]).stem
         second_df = pd.read_csv(mock_route_tables_names[1])
         first_df, second_df = _set_extra_notes(
-            first_df=first_df,
-            second_df=second_df,
-            extra_notes_df=mock_extra_notes_df_class_scoped,
+            first_df=first_df, second_df=second_df, extra_notes_df=mock_extra_notes_df
         )
         first_df.to_csv(mock_route_tables_names[0], index=False)
         second_df.to_csv(mock_route_tables_names[1], index=False)
@@ -1485,7 +1455,7 @@ class TestCreateManifests:
             manifests_path=manifests_path,
             first_sheet_name=first_sheet_name,
             second_sheet_name=second_sheet_name,
-            extra_notes_df=mock_extra_notes_df_class_scoped,
+            extra_notes_df=mock_extra_notes_df,
             first_df=first_df,
             second_df=second_df,
         )
