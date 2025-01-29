@@ -483,12 +483,11 @@ class TestSplitChunkedRoute:
         output_dir_type: type[Path | str],
         output_dir: Path | str,
         n_books: int,
-        tmp_path_factory: pytest.TempPathFactory,
         mock_chunked_sheet_raw_class_scoped: Path,
+        tmp_path: Path,
     ) -> None:
         """Test that the output directory can be set."""
-        tmp_output = tmp_path_factory.mktemp("tmp_test_set_output_dir", numbered=True)
-        output_dir = output_dir_type(tmp_output / output_dir)
+        output_dir = output_dir_type(tmp_path / output_dir)
         output_paths = split_chunked_route(
             input_path=mock_chunked_sheet_raw_class_scoped,
             output_dir=output_dir,
@@ -499,10 +498,15 @@ class TestSplitChunkedRoute:
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
     @pytest.mark.parametrize("n_books", [1, 4])
     def test_set_output_filename(
-        self, output_filename: str, mock_chunked_sheet_raw_class_scoped: Path, n_books: int
+        self,
+        output_filename: str,
+        mock_chunked_sheet_raw_class_scoped: Path,
+        n_books: int,
+        tmp_path: Path,
     ) -> None:
         """Test that the output filename can be set."""
         output_paths = split_chunked_route(
+            output_dir=tmp_path,
             input_path=mock_chunked_sheet_raw_class_scoped,
             output_filename=output_filename,
             n_books=n_books,
@@ -521,30 +525,39 @@ class TestSplitChunkedRoute:
 
     @pytest.mark.parametrize("n_books_passed", N_BOOKS_MATRIX + [None])
     def test_n_books_count(
-        self, n_books_passed: int | None, mock_chunked_sheet_raw_class_scoped: Path
+        self,
+        n_books_passed: int | None,
+        mock_chunked_sheet_raw_class_scoped: Path,
+        tmp_path: Path,
     ) -> None:
         """Test that the number of workbooks is equal to n_books."""
         if n_books_passed is None:
-            output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw_class_scoped)
+            output_paths = split_chunked_route(
+                output_dir=tmp_path, input_path=mock_chunked_sheet_raw_class_scoped
+            )
             n_books = Defaults.SPLIT_CHUNKED_ROUTE["n_books"]
         else:
             n_books = n_books_passed
             output_paths = split_chunked_route(
-                input_path=mock_chunked_sheet_raw_class_scoped, n_books=n_books
+                output_dir=tmp_path,
+                input_path=mock_chunked_sheet_raw_class_scoped,
+                n_books=n_books,
             )
 
         assert len(output_paths) == n_books
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_recipients_unique(
-        self, n_books: int, mock_chunked_sheet_raw_class_scoped: Path
+        self, n_books: int, mock_chunked_sheet_raw_class_scoped: Path, tmp_path: Path
     ) -> None:
         """Test that the recipients don't overlap between the split workbooks.
 
         By name, address, phone, and email.
         """
         output_paths = split_chunked_route(
-            input_path=mock_chunked_sheet_raw_class_scoped, n_books=n_books
+            output_dir=tmp_path,
+            input_path=mock_chunked_sheet_raw_class_scoped,
+            n_books=n_books,
         )
 
         recipient_sets = []
@@ -560,11 +573,13 @@ class TestSplitChunkedRoute:
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_unique_drivers_across_books(
-        self, n_books: int, mock_chunked_sheet_raw_class_scoped: Path
+        self, n_books: int, mock_chunked_sheet_raw_class_scoped: Path, tmp_path: Path
     ) -> None:
         """Test that the drivers don't overlap between the split workbooks."""
         output_paths = split_chunked_route(
-            input_path=mock_chunked_sheet_raw_class_scoped, n_books=n_books
+            output_dir=tmp_path,
+            input_path=mock_chunked_sheet_raw_class_scoped,
+            n_books=n_books,
         )
 
         driver_sets = []
@@ -583,11 +598,13 @@ class TestSplitChunkedRoute:
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     def test_numbered_drivers_grouped(
-        self, n_books: int, mock_chunked_sheet_raw_class_scoped: Path
+        self, n_books: int, mock_chunked_sheet_raw_class_scoped: Path, tmp_path: Path
     ) -> None:
         """Test that the numbered drivers are in the same workbook together."""
         output_paths = split_chunked_route(
-            input_path=mock_chunked_sheet_raw_class_scoped, n_books=n_books
+            output_dir=tmp_path,
+            input_path=mock_chunked_sheet_raw_class_scoped,
+            n_books=n_books,
         )
         driver_d_sheets_found = False
         for output_path in output_paths:
@@ -660,8 +677,11 @@ class TestSplitChunkedRoute:
         new_mock_chunked_sheet_raw_path = tmp_path / "new_mock_chunked_sheet_raw.xlsx"
         mock_chunked_sheet_raw_df.to_excel(new_mock_chunked_sheet_raw_path, index=False)
 
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
         with mock_constant_context:
             output_paths = split_chunked_route(
+                output_dir=output_dir,
                 input_path=new_mock_chunked_sheet_raw_path,
                 n_books=n_books,
                 book_one_drivers_file=book_one_drivers_file_path,
@@ -681,11 +701,13 @@ class TestSplitChunkedRoute:
 
     @pytest.mark.parametrize("n_books", [1, 2, 3])
     def test_complete_contents(
-        self, n_books: int, mock_chunked_sheet_raw_class_scoped: Path
+        self, n_books: int, mock_chunked_sheet_raw_class_scoped: Path, tmp_path: Path
     ) -> None:
         """Test that the input data is all covered in the split workbooks."""
         output_paths = split_chunked_route(
-            input_path=mock_chunked_sheet_raw_class_scoped, n_books=n_books
+            output_dir=tmp_path,
+            input_path=mock_chunked_sheet_raw_class_scoped,
+            n_books=n_books,
         )
 
         full_data = pd.read_excel(mock_chunked_sheet_raw_class_scoped)
@@ -727,16 +749,18 @@ class TestSplitChunkedRoute:
 
     @pytest.mark.parametrize("n_books", [0, -1])
     def test_invalid_n_books(
-        self, n_books: int, mock_chunked_sheet_raw_class_scoped: Path
+        self, n_books: int, mock_chunked_sheet_raw_class_scoped: Path, tmp_path: Path
     ) -> None:
         """Test that an invalid n_books raises a ValueError."""
         with pytest.raises(ValueError, match="n_books must be greater than 0."):
             _ = split_chunked_route(
-                input_path=mock_chunked_sheet_raw_class_scoped, n_books=n_books
+                output_dir=tmp_path,
+                input_path=mock_chunked_sheet_raw_class_scoped,
+                n_books=n_books,
             )
 
     def test_invalid_n_books_driver_count(
-        self, mock_chunked_sheet_raw_class_scoped: Path
+        self, mock_chunked_sheet_raw_class_scoped: Path, tmp_path: Path
     ) -> None:
         """Test that n_books greater than the number of drivers raises a ValueError."""
         raw_sheet = pd.read_excel(mock_chunked_sheet_raw_class_scoped)
@@ -750,26 +774,30 @@ class TestSplitChunkedRoute:
             ),
         ):
             _ = split_chunked_route(
-                input_path=mock_chunked_sheet_raw_class_scoped, n_books=n_books
+                output_dir=tmp_path,
+                input_path=mock_chunked_sheet_raw_class_scoped,
+                n_books=n_books,
             )
 
     def test_date_added_to_sheet_names(
-        self, mock_chunked_sheet_raw_class_scoped: Path
+        self, mock_chunked_sheet_raw_class_scoped: Path, tmp_path: Path
     ) -> None:
         """Test that the date is added to the sheet names."""
         output_paths = split_chunked_route(
-            input_path=mock_chunked_sheet_raw_class_scoped, date=MANIFEST_DATE
+            output_dir=tmp_path,
+            input_path=mock_chunked_sheet_raw_class_scoped,
+            date=MANIFEST_DATE,
         )
         for output_path in output_paths:
             for sheet_name in pd.ExcelFile(output_path).sheet_names:
                 assert str(sheet_name).startswith(f"{MANIFEST_DATE} ")
 
     def test_sheetname_date_is_friday(
-        self, mock_chunked_sheet_raw_class_scoped: Path
+        self, mock_chunked_sheet_raw_class_scoped: Path, tmp_path: Path
     ) -> None:
         """Test that default date added is Friday."""
         output_paths = split_chunked_route(
-            input_path=mock_chunked_sheet_raw_class_scoped, n_books=1
+            output_dir=tmp_path, input_path=mock_chunked_sheet_raw_class_scoped, n_books=1
         )
         workbook = pd.ExcelFile(output_paths[0])
         this_year = datetime.now().year.__str__()
@@ -789,11 +817,10 @@ class TestSplitChunkedRoute:
         output_filename: str,
         n_books: int,
         mock_chunked_sheet_raw_class_scoped: Path,
-        tmp_path_factory: pytest.TempPathFactory,
+        tmp_path: Path,
     ) -> None:
         """Test CLI works."""
-        tmp_output = tmp_path_factory.mktemp("tmp_test_cli", numbered=True)
-        output_dir = str(tmp_output / output_dir) if output_dir else output_dir
+        output_dir = str(tmp_path / output_dir) if output_dir else output_dir
         arg_list = [
             "--input_path",
             str(mock_chunked_sheet_raw_class_scoped),
@@ -822,9 +849,13 @@ class TestSplitChunkedRoute:
             )
             assert (Path(expected_output_dir) / expected_filename).exists()
 
-    def test_output_columns(self, mock_chunked_sheet_raw_class_scoped: Path) -> None:
+    def test_output_columns(
+        self, mock_chunked_sheet_raw_class_scoped: Path, tmp_path: Path
+    ) -> None:
         """Test that the output columns match the SPLIT_ROUTE_COLUMNS constant."""
-        output_paths = split_chunked_route(input_path=mock_chunked_sheet_raw_class_scoped)
+        output_paths = split_chunked_route(
+            output_dir=tmp_path, input_path=mock_chunked_sheet_raw_class_scoped
+        )
         for output_path in output_paths:
             workbook = pd.ExcelFile(output_path)
             for sheet_name in workbook.sheet_names:
@@ -836,10 +867,11 @@ class TestCombineRouteTablesClassScoped:
     """combine_route_tables combines driver route CSVs into a single workbook."""
 
     @pytest.fixture(scope="class")
-    def basic_combined_routes(self, mock_route_tables_class_scoped: Path) -> Path:
+    def basic_combined_routes(
+        self, mock_route_tables_class_scoped: Path, tmp_path_factory: pytest.TempPathFactory
+    ) -> Path:
         """Create a basic combined routes table scoped to class for reuse."""
-        output_dir = mock_route_tables_class_scoped.parent / "basic_combined_routes"
-        output_dir.mkdir()
+        output_dir = tmp_path_factory.mktemp("tmp_basic_combined_routes", numbered=True)
         output_path = combine_route_tables(
             input_dir=mock_route_tables_class_scoped, output_dir=output_dir
         )
@@ -863,11 +895,13 @@ class TestCombineRouteTablesClassScoped:
 
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
     def test_set_output_filename(
-        self, output_filename: str, mock_route_tables_class_scoped: Path
+        self, output_filename: str, mock_route_tables_class_scoped: Path, tmp_path: Path
     ) -> None:
         """Test that the output filename can be set."""
         output_path = combine_route_tables(
-            input_dir=mock_route_tables_class_scoped, output_filename=output_filename
+            output_dir=tmp_path,
+            input_dir=mock_route_tables_class_scoped,
+            output_filename=output_filename,
         )
         expected_filename = (
             f"combined_routes_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
@@ -1049,12 +1083,11 @@ class TestFormatCombinedRoutes:
         self,
         output_dir_type: type[Path | str],
         output_dir: Path | str,
-        tmp_path_factory: pytest.TempPathFactory,
+        tmp_path: Path,
         mock_combined_routes_class_scoped: Path,
     ) -> None:
         """Test that the output directory can be set."""
-        tmp_output = tmp_path_factory.mktemp("tmp_test_set_output_dir", numbered=True)
-        output_dir = output_dir_type(tmp_output / output_dir)
+        output_dir = output_dir_type(tmp_path / output_dir)
         output_path = format_combined_routes(
             input_path=mock_combined_routes_class_scoped, output_dir=output_dir
         )
@@ -1062,11 +1095,13 @@ class TestFormatCombinedRoutes:
 
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.csv"])
     def test_set_output_filename(
-        self, output_filename: str, mock_combined_routes_class_scoped: Path
+        self, output_filename: str, mock_combined_routes_class_scoped: Path, tmp_path: Path
     ) -> None:
         """Test that the output filename can be set."""
         output_path = format_combined_routes(
-            input_path=mock_combined_routes_class_scoped, output_filename=output_filename
+            output_dir=tmp_path,
+            input_path=mock_combined_routes_class_scoped,
+            output_filename=output_filename,
         )
         expected_output_filename = (
             f"formatted_routes_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
@@ -1075,9 +1110,13 @@ class TestFormatCombinedRoutes:
         )
         assert output_path.name == expected_output_filename
 
-    def test_all_drivers_have_a_sheet(self, mock_combined_routes_class_scoped: Path) -> None:
+    def test_all_drivers_have_a_sheet(
+        self, mock_combined_routes_class_scoped: Path, tmp_path: Path
+    ) -> None:
         """Test that all drivers have a sheet in the formatted workbook. And date works."""
-        output_path = format_combined_routes(input_path=mock_combined_routes_class_scoped)
+        output_path = format_combined_routes(
+            output_dir=tmp_path, input_path=mock_combined_routes_class_scoped
+        )
         workbook = pd.ExcelFile(output_path)
         assert set(workbook.sheet_names) == set(
             [f"{MANIFEST_DATE} {driver}" for driver in DRIVERS]
@@ -1312,6 +1351,7 @@ class TestFormatCombinedRoutes:
         extra_notes_file: str,
         mock_combined_routes_class_scoped: Path,
         mock_extra_notes_df_class_scoped: pd.DataFrame,
+        tmp_path: Path,
     ) -> None:
         """Test that extra notes are added to the manifest."""
         mock_extra_notes_context, extra_notes_file = _get_extra_notes(
@@ -1344,7 +1384,9 @@ class TestFormatCombinedRoutes:
 
         with mock_extra_notes_context:
             manifests_path = format_combined_routes(
-                input_path=new_mock_combined_routes_path, extra_notes_file=extra_notes_file
+                output_dir=tmp_path,
+                input_path=new_mock_combined_routes_path,
+                extra_notes_file=extra_notes_file,
             )
 
         _assert_extra_notes(
@@ -1361,18 +1403,17 @@ class TestCreateManifestsClassScoped:
     """create_manifests formats the route tables CSVs."""
 
     @pytest.mark.parametrize("output_dir_type", [Path, str])
-    # TODO: This doesn't really test anything. Mock os.getcwd?
+    # TODO: Empty string here doesn't really test anything. Mock os.getcwd?
     @pytest.mark.parametrize("output_dir", ["", "dummy_output"])
     def test_set_output_dir(
         self,
         output_dir_type: type[Path | str],
         output_dir: Path | str,
-        tmp_path_factory: pytest.TempPathFactory,
         mock_route_tables_class_scoped: Path,
+        tmp_path: Path,
     ) -> None:
         """Test that the output directory can be set."""
-        tmp_output = tmp_path_factory.mktemp("tmp_test_set_output_dir", numbered=True)
-        output_dir = output_dir_type(tmp_output / output_dir)
+        output_dir = output_dir_type(tmp_path / output_dir)
         output_path = create_manifests(
             input_dir=mock_route_tables_class_scoped, output_dir=output_dir
         )
@@ -1380,11 +1421,13 @@ class TestCreateManifestsClassScoped:
 
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.csv"])
     def test_set_output_filename(
-        self, output_filename: str, mock_route_tables_class_scoped: Path
+        self, output_filename: str, mock_route_tables_class_scoped: Path, tmp_path: Path
     ) -> None:
         """Test that the output filename can be set."""
         output_path = create_manifests(
-            input_dir=mock_route_tables_class_scoped, output_filename=output_filename
+            output_dir=tmp_path,
+            input_dir=mock_route_tables_class_scoped,
+            output_filename=output_filename,
         )
         expected_output_filename = (
             f"final_manifests_{datetime.now().strftime(FILE_DATE_FORMAT)}.xlsx"
