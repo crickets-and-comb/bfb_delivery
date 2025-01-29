@@ -123,71 +123,15 @@ def mock_getcwd_class_scoped(tmp_path_factory: pytest.TempPathFactory) -> Iterat
         yield return_value
 
 
-@pytest.mark.usefixtures("mock_get_plan_responses", "mock_getcwd")
+@pytest.mark.usefixtures("mock_get_plan_responses_class_scoped", "mock_getcwd_class_scoped")
 class TestCreateManifestsFromCircuit:
     """Test create_manifests_from_circuit function."""
 
-    @pytest.fixture()
-    @typechecked
-    def mock_stops_responses_all_hhs_false(
-        self,
-    ) -> list[
-        list[
-            dict[
-                str,
-                str
-                | list[
-                    dict[
-                        str,
-                        str
-                        | int
-                        | dict[
-                            str, str | int | dict[str, str | int | list[str] | None] | None
-                        ]
-                        | None,
-                    ]
-                ]
-                | None,
-            ]
-        ]
-    ]:
-        """Return a list of stops responses, as from _get_raw_stops_list."""
-        with open(Path("tests/unit/fixtures/stops_responses.json")) as f:
-            return json.load(f)
-
-    @pytest.fixture()
-    @typechecked
-    def mock_stops_responses_all_hhs_true(
-        self,
-    ) -> list[
-        list[
-            dict[
-                str,
-                str
-                | list[
-                    dict[
-                        str,
-                        str
-                        | int
-                        | dict[
-                            str, str | int | dict[str, str | int | list[str] | None] | None
-                        ]
-                        | None,
-                    ]
-                ]
-                | None,
-            ]
-        ]
-    ]:
-        """Return a list of stops responses, as from _get_raw_stops_list."""
-        with open(Path("tests/unit/fixtures/stops_responses_all_hhs.json")) as f:
-            return json.load(f)
-
-    @pytest.fixture()
+    @pytest.fixture(scope="class")
     @typechecked
     def mock_driver_sheet_names_all_hhs_false(
         self,
-        mock_plan_responses: list[
+        mock_plan_responses_class_scoped: list[
             dict[
                 str, str | list[dict[str, str | list[str | dict[str, str]] | dict[str, int]]]
             ]
@@ -195,7 +139,7 @@ class TestCreateManifestsFromCircuit:
     ) -> list[str]:
         """Return a list of driver sheet names."""
         driver_sheet_names = []
-        for page_dict in mock_plan_responses:
+        for page_dict in mock_plan_responses_class_scoped:
             for plan_dict in page_dict["plans"]:
                 if (
                     isinstance(plan_dict, dict)  # To satisisfy pytype.
@@ -206,22 +150,11 @@ class TestCreateManifestsFromCircuit:
 
         return driver_sheet_names
 
-    @pytest.fixture()
-    @typechecked
-    def mock_driver_names_all_hhs_false(
-        self, mock_driver_sheet_names_all_hhs_false: list[str]
-    ) -> list[str]:
-        """Return a list of driver names."""
-        return [
-            " ".join(sheet_name.split(" ")[1:])
-            for sheet_name in mock_driver_sheet_names_all_hhs_false
-        ]
-
-    @pytest.fixture()
+    @pytest.fixture(scope="class")
     @typechecked
     def mock_driver_sheet_names_all_hhs_true(
         self,
-        mock_plan_responses: list[
+        mock_plan_responses_class_scoped: list[
             dict[
                 str, str | list[dict[str, str | list[str | dict[str, str]] | dict[str, int]]]
             ]
@@ -229,7 +162,7 @@ class TestCreateManifestsFromCircuit:
     ) -> list[str]:
         """Return a list of driver sheet names."""
         driver_sheet_names = []
-        for page_dict in mock_plan_responses:
+        for page_dict in mock_plan_responses_class_scoped:
             for plan_dict in page_dict["plans"]:
                 if (
                     isinstance(plan_dict, dict)  # To satisfy pytype.
@@ -239,50 +172,6 @@ class TestCreateManifestsFromCircuit:
                     driver_sheet_names.append(plan_dict["title"])
 
         return driver_sheet_names
-
-    @pytest.mark.parametrize(
-        "all_hhs, mock_stops_responses_fixture, mock_driver_sheet_names_fixture",
-        [
-            (
-                True,
-                "mock_stops_responses_all_hhs_true",
-                "mock_driver_sheet_names_all_hhs_true",
-            ),
-            (
-                False,
-                "mock_stops_responses_all_hhs_false",
-                "mock_driver_sheet_names_all_hhs_false",
-            ),
-        ],
-    )
-    def test_all_drivers_have_a_sheet(
-        self,
-        all_hhs: bool,
-        mock_stops_responses_fixture: str,
-        mock_driver_sheet_names_fixture: str,
-        tmp_path: Path,
-        request: pytest.FixtureRequest,
-    ) -> None:
-        """Test that all drivers have a sheet in the formatted workbook. And date works."""
-        stops_response_data = request.getfixturevalue(mock_stops_responses_fixture)
-        driver_sheet_names = request.getfixturevalue(mock_driver_sheet_names_fixture)
-        with patch(
-            "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
-            return_value=stops_response_data,
-        ):
-            output_path, circuit_output_dir = create_manifests_from_circuit(
-                start_date=TEST_START_DATE, output_dir=str(tmp_path), all_hhs=all_hhs
-            )
-        workbook = pd.ExcelFile(output_path)
-        assert sorted(list(workbook.sheet_names)) == sorted(driver_sheet_names)
-        assert sorted([path.name for path in list(circuit_output_dir.glob("*"))]) == sorted(
-            [f"{sheet_name}.csv" for sheet_name in driver_sheet_names]
-        )
-
-
-@pytest.mark.usefixtures("mock_get_plan_responses_class_scoped", "mock_getcwd_class_scoped")
-class TestCreateManifestsFromCircuitClassScoped:
-    """Test create_manifests_from_circuit function."""
 
     @pytest.fixture(scope="class")
     @typechecked
@@ -514,6 +403,45 @@ class TestCreateManifestsFromCircuitClassScoped:
         assert str(new_circuit_output_dir) == str(expected_circuit_output_dir)
         assert str(output_path) == str(expected_output_path)
         assert expected_output_path.exists()
+
+    @pytest.mark.parametrize(
+        "all_hhs, mock_stops_responses_fixture, mock_driver_sheet_names_fixture",
+        [
+            (
+                True,
+                "mock_stops_responses_all_hhs_true",
+                "mock_driver_sheet_names_all_hhs_true",
+            ),
+            (
+                False,
+                "mock_stops_responses_all_hhs_false",
+                "mock_driver_sheet_names_all_hhs_false",
+            ),
+        ],
+    )
+    def test_all_drivers_have_a_sheet(
+        self,
+        all_hhs: bool,
+        mock_stops_responses_fixture: str,
+        mock_driver_sheet_names_fixture: str,
+        tmp_path: Path,
+        request: pytest.FixtureRequest,
+    ) -> None:
+        """Test that all drivers have a sheet in the formatted workbook. And date works."""
+        stops_response_data = request.getfixturevalue(mock_stops_responses_fixture)
+        driver_sheet_names = request.getfixturevalue(mock_driver_sheet_names_fixture)
+        with patch(
+            "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
+            return_value=stops_response_data,
+        ):
+            output_path, circuit_output_dir = create_manifests_from_circuit(
+                start_date=TEST_START_DATE, output_dir=str(tmp_path), all_hhs=all_hhs
+            )
+        workbook = pd.ExcelFile(output_path)
+        assert sorted(list(workbook.sheet_names)) == sorted(driver_sheet_names)
+        assert sorted([path.name for path in list(circuit_output_dir.glob("*"))]) == sorted(
+            [f"{sheet_name}.csv" for sheet_name in driver_sheet_names]
+        )
 
     def test_date_field_matches_sheet_date(self, manifest_workbook: Workbook) -> None:
         """Test that the date field matches the sheet date."""
