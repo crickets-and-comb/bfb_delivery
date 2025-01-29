@@ -59,14 +59,6 @@ TEST_START_DATE: Final[str] = "2025-01-17"
 MANIFEST_DATE: Final[str] = "1.17"
 
 
-@pytest.fixture()
-def mock_getcwd(tmp_path: Path) -> Iterator[str]:
-    """Mock os.getcwd within the read_circuit module."""
-    return_value = str(tmp_path)
-    with patch("bfb_delivery.lib.dispatch.read_circuit._getcwd", return_value=return_value):
-        yield return_value
-
-
 @pytest.fixture(scope="class")
 @typechecked
 def mock_plan_responses_class_scoped() -> (
@@ -314,7 +306,7 @@ class TestCreateManifestsFromCircuit:
         mock_stops_responses_fixture: str,
         verbose: bool,
         test_cli: bool,
-        mock_getcwd: str,
+        mock_getcwd_class_scoped: str,
         tmp_path: Path,
         request: pytest.FixtureRequest,
     ) -> None:
@@ -334,7 +326,7 @@ class TestCreateManifestsFromCircuit:
         expected_circuit_output_dir = (
             Path(circuit_output_dir) / circuit_sub_dir
             if circuit_output_dir
-            else Path(mock_getcwd) / circuit_sub_dir
+            else Path(mock_getcwd_class_scoped) / circuit_sub_dir
         )
 
         Path(expected_circuit_output_dir).mkdir(parents=True, exist_ok=True)
