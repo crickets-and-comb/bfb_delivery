@@ -931,25 +931,11 @@ class TestCombineRouteTablesClassScoped:
             == 0
         )
 
-
-# TODO: Revisit moving the rest to class scope once output directories better organized.
-# Too many conflicts now.
-class TestCombineRouteTables:
-    """combine_route_tables combines driver route CSVs into a single workbook."""
-
-    @pytest.fixture()
-    def basic_combined_routes(self, mock_route_tables: Path) -> Path:
-        """Create a basic combined routes table scoped to class for reuse."""
-        output_dir = mock_route_tables.parent / "basic_combined_routes"
-        output_dir.mkdir()
-        output_path = combine_route_tables(input_dir=mock_route_tables, output_dir=output_dir)
-        return output_path
-
     def test_complete_contents(
-        self, mock_route_tables: Path, basic_combined_routes: Path
+        self, mock_route_tables_class_scoped: Path, basic_combined_routes: Path
     ) -> None:
         """Test that the input data is all covered in the combined workbook."""
-        mock_table_paths = list(mock_route_tables.glob("*"))
+        mock_table_paths = list(mock_route_tables_class_scoped.glob("*"))
         full_input_data = pd.concat(
             [pd.read_csv(path) for path in mock_table_paths], ignore_index=True
         ).rename(columns={Columns.PRODUCT_TYPE: Columns.BOX_TYPE})[COMBINED_ROUTES_COLUMNS]
@@ -964,6 +950,12 @@ class TestCombineRouteTables:
         ).reset_index(drop=True)
 
         pd.testing.assert_frame_equal(full_input_data, combined_output_data)
+
+
+# TODO: Revisit moving the rest to class scope once output directories better organized.
+# Too many conflicts now.
+class TestCombineRouteTables:
+    """combine_route_tables combines driver route CSVs into a single workbook."""
 
     @pytest.mark.parametrize("output_dir", ["dummy_output", ""])
     @pytest.mark.parametrize("output_filename", ["", "dummy_output_filename.xlsx"])
