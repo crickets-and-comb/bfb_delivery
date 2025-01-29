@@ -6,13 +6,13 @@ import click
 from typeguard import typechecked
 
 from bfb_delivery import create_manifests_from_circuit
-from bfb_delivery.lib.constants import Defaults
+from bfb_delivery.lib.constants import Defaults, DocStrings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
-@click.command()
+@click.command(help=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT)
 @click.option(
     "--start_date",
     type=str,
@@ -92,7 +92,7 @@ logger = logging.getLogger(__name__)
     ),
 )
 @typechecked
-def main(
+def main(  # noqa: D103
     start_date: str,
     end_date: str,
     output_dir: str,
@@ -102,11 +102,6 @@ def main(
     verbose: bool,
     extra_notes_file: str,
 ) -> str:
-    """See public docstring.
-
-    :py:func:`bfb_delivery.api.public.create_manifests_from_circuit`.
-
-    """
     final_manifest_path, new_circuit_output_dir = create_manifests_from_circuit(
         start_date=start_date,
         end_date=end_date,

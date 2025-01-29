@@ -6,13 +6,13 @@ import click
 from typeguard import typechecked
 
 from bfb_delivery import combine_route_tables
-from bfb_delivery.lib.constants import Defaults
+from bfb_delivery.lib.constants import Defaults, DocStrings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
-@click.command()
+@click.command(help=DocStrings.COMBINE_ROUTE_TABLES)
 @click.option(
     "--input_dir",
     type=str,
@@ -40,8 +40,7 @@ logger = logging.getLogger(__name__)
     ),
 )
 @typechecked
-def main(input_dir: str, output_dir: str, output_filename: str) -> str:
-    """See public docstring: :py:func:`bfb_delivery.api.public.combine_route_tables`."""
+def main(input_dir: str, output_dir: str, output_filename: str) -> str:  # noqa: D103
     path = combine_route_tables(
         input_dir=input_dir, output_dir=output_dir, output_filename=output_filename
     )

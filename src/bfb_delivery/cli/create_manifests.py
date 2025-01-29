@@ -6,13 +6,13 @@ import click
 from typeguard import typechecked
 
 from bfb_delivery import create_manifests
-from bfb_delivery.lib.constants import Defaults
+from bfb_delivery.lib.constants import Defaults, DocStrings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
-@click.command()
+@click.command(help=DocStrings.CREATE_MANIFESTS)
 @click.option(
     "--input_dir",
     type=str,
@@ -50,8 +50,9 @@ logger = logging.getLogger(__name__)
     ),
 )
 @typechecked
-def main(input_dir: str, output_dir: str, output_filename: str, extra_notes_file: str) -> str:
-    """See public docstring: :py:func:`bfb_delivery.api.public.create_manifests`."""
+def main(  # noqa: D103
+    input_dir: str, output_dir: str, output_filename: str, extra_notes_file: str
+) -> str:
     final_manifest_path = create_manifests(
         input_dir=input_dir,
         output_dir=output_dir,

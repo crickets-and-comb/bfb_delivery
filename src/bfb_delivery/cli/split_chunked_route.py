@@ -6,13 +6,13 @@ import click
 from typeguard import typechecked
 
 from bfb_delivery import split_chunked_route
-from bfb_delivery.lib.constants import Defaults
+from bfb_delivery.lib.constants import Defaults, DocStrings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
-@click.command()
+@click.command(help=DocStrings.SPLIT_CHUNKED_ROUTE)
 @click.option(
     "--input_path",
     type=str,
@@ -64,7 +64,7 @@ logger = logging.getLogger(__name__)
     help="The date to use in the output workbook sheetnames.",
 )
 @typechecked
-def main(
+def main(  # noqa: D103
     input_path: str,
     output_dir: str,
     output_filename: str,
@@ -72,7 +72,6 @@ def main(
     book_one_drivers_file: str,
     date: str,
 ) -> list[str]:
-    """See public docstring: :py:func:`bfb_delivery.api.public.split_chunked_route`."""
     paths = split_chunked_route(
         input_path=input_path,
         output_dir=output_dir,
