@@ -6,38 +6,32 @@ import click
 from typeguard import typechecked
 
 from bfb_delivery import combine_route_tables
-from bfb_delivery.lib.constants import Defaults, DocStringsCLI
+from bfb_delivery.lib.constants import Defaults, DocStrings, DocStringsArgs
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
-@click.command(help=DocStringsCLI.COMBINE_ROUTE_TABLES)
+@click.command(help=DocStrings.COMBINE_ROUTE_TABLES.cli_docstring)
 @click.option(
     "--input_dir",
     type=str,
     required=True,
-    help="The directory containing the driver route CSVs.",
+    help=DocStringsArgs.COMBINE_ROUTE_TABLES["input_dir"],
 )
 @click.option(
     "--output_dir",
     type=str,
     required=False,
     default=Defaults.COMBINE_ROUTE_TABLES["output_dir"],
-    help=(
-        "The directory to write the output workbook to. Empty string (default) saves "
-        "to the `input_dir` directory."
-    ),
+    help=DocStringsArgs.COMBINE_ROUTE_TABLES["output_dir"],
 )
 @click.option(
     "--output_filename",
     type=str,
     required=False,
     default=Defaults.COMBINE_ROUTE_TABLES["output_filename"],
-    help=(
-        "The name of the output workbook. Empty string (default) will name the file "
-        '"combined_routes_{date}.xlsx".'
-    ),
+    help=DocStringsArgs.COMBINE_ROUTE_TABLES["output_filename"],
 )
 @typechecked
 def main(input_dir: str, output_dir: str, output_filename: str) -> str:  # noqa: D103

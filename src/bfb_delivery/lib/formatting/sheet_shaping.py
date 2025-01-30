@@ -28,6 +28,7 @@ from bfb_delivery.lib.constants import (
     BoxType,
     CellColors,
     Columns,
+    DocStrings,
     DocStringsAPI,
 )
 from bfb_delivery.lib.formatting.data_cleaning import (
@@ -173,7 +174,7 @@ def combine_route_tables(  # noqa: D103
     return output_path.resolve()
 
 
-combine_route_tables.__doc__ = DocStringsAPI.COMBINE_ROUTE_TABLES
+combine_route_tables.__doc__ = DocStrings.COMBINE_ROUTE_TABLES.api_docstring
 
 
 @typechecked

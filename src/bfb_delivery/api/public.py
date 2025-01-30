@@ -9,7 +9,7 @@ from pathlib import Path
 from typeguard import typechecked
 
 from bfb_delivery.api import internal
-from bfb_delivery.lib.constants import Defaults, DocStringsAPI
+from bfb_delivery.lib.constants import Defaults, DocStrings, DocStringsAPI
 
 
 @typechecked
@@ -94,7 +94,7 @@ def combine_route_tables(  # noqa: D103
     )
 
 
-combine_route_tables.__doc__ = DocStringsAPI.COMBINE_ROUTE_TABLES
+combine_route_tables.__doc__ = DocStrings.COMBINE_ROUTE_TABLES.api_docstring
 
 
 @typechecked

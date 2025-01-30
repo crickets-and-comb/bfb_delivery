@@ -4,6 +4,7 @@ from enum import StrEnum
 from typing import Final
 
 import pandas as pd
+from typeguard import typechecked
 
 ADDRESS_COLUMN_WIDTH: Final[float] = 40
 
@@ -137,11 +138,84 @@ class Defaults:
     }
 
 
+class DocStringsArgs:
+    """Args docstrings."""
+
+    COMBINE_ROUTE_TABLES: Final[dict[str, str]] = {
+        "input_dir": "The directory containing the driver route CSVs.",
+        "output_dir": (
+            "The directory to write the output workbook to. "
+            "Empty string (default) saves to the `input_dir` directory."
+        ),
+        "output_filename": (
+            "The name of the output workbook. "
+            "Empty string (default) will name the file 'combined_routes_{date}.xlsx'."
+        ),
+    }
+
+
+# TODO: Move this to a central utils repo.
+class DocString:
+    """Class to format docstrings for public API `sphinx` docs and CLI `click` help."""
+
+    opening: str
+    args: dict[str, str]
+    returns: list[str]
+    raises: dict[str, str]
+
+    @typechecked
+    def __init__(
+        self, opening: str, args: dict[str, str], returns: list[str], raises: dict[str, str]
+    ) -> None:
+        """Initialize the docstring parts."""
+        self.opening = opening
+        self.args = args
+        self.raises = raises
+        self.returns = returns
+
+        return
+
+    @property
+    def api_docstring(self) -> str:
+        """Format the docstring for sphinx API docs."""
+        return (
+            (
+                """
+"""
+                + self.opening
+                + """\n
+Args:\n\t"""
+                + "\n\t".join([f"{key}: {value}" for key, value in self.args.items()])
+                + """\n
+Raises:\n\t"""
+                + "\n\t".join([f"{key}: {value}" for key, value in self.raises.items()])
+            )
+            + """\n
+Returns:\n\t"""
+            + "\n\t".join(self.returns)
+        )
+
+    @property
+    def cli_docstring(self) -> str:
+        """Format the docstring click CLI help."""
+        parts = [self.opening.strip()]
+
+        if self.raises:
+            parts.append("\nRaises:\n")
+            parts.extend([f"  {key}: {value}" for key, value in self.raises.items()])
+
+        if self.returns:
+            parts.append("\nReturns:\n")
+            parts.extend([f"  {item}" for item in self.returns])
+
+        return "\n\n".join(parts) + "\n"
+
+
 class DocStrings:
     """Docstrings for the public API."""
 
-    COMBINE_ROUTE_TABLES: Final[dict[str, str]] = {
-        "main": """
+    COMBINE_ROUTE_TABLES = DocString(
+        opening="""
 Combines the driver route CSVs into a single workbook.
 
 This is used after optimizing and exporting the routes to individual CSVs. It prepares the
@@ -155,23 +229,10 @@ If `output_dir` is specified, will create the directory if it doesn't exist.
 
 See :doc:`combine_route_tables` for more information.
 """,
-        "args": """
-Args:
-    input_dir: The directory containing the driver route CSVs.
-    output_dir: The directory to write the output workbook to.
-        Empty string (default) saves to the `input_dir` directory.
-    output_filename: The name of the output workbook.
-        Empty string (default) will name the file "combined_routes_{date}.xlsx".
-""",
-        "returns": """
-Returns:
-    The path to the output workbook.
-""",
-        "raises": """
-Raises:
-    ValueError: If `input_paths` is empty.
-""",
-    }
+        args=DocStringsArgs.COMBINE_ROUTE_TABLES,
+        raises={"ValueError": "If `input_paths` is empty.", "TEST_ERROR": "DELETE THIS."},
+        returns=["The path to the output workbook."],
+    )
 
     CREATE_MANIFESTS: Final[dict[str, str]] = {
         "main": """
@@ -358,12 +419,6 @@ Raises:
 class DocStringsAPI:
     """Docstrings for the public API."""
 
-    COMBINE_ROUTE_TABLES: Final[str] = (
-        DocStrings.COMBINE_ROUTE_TABLES["main"]
-        + DocStrings.COMBINE_ROUTE_TABLES["args"]
-        + DocStrings.COMBINE_ROUTE_TABLES["returns"]
-        + DocStrings.COMBINE_ROUTE_TABLES["raises"]
-    )
     CREATE_MANIFESTS: Final[str] = (
         DocStrings.CREATE_MANIFESTS["main"]
         + DocStrings.CREATE_MANIFESTS["args"]
@@ -390,11 +445,6 @@ class DocStringsAPI:
 class DocStringsCLI:
     """Docstrings for the CLI."""
 
-    COMBINE_ROUTE_TABLES: Final[str] = (
-        DocStrings.COMBINE_ROUTE_TABLES["main"]
-        + DocStrings.COMBINE_ROUTE_TABLES["returns"]
-        + DocStrings.COMBINE_ROUTE_TABLES["raises"]
-    )
     CREATE_MANIFESTS: Final[str] = (
         DocStrings.CREATE_MANIFESTS["main"] + DocStrings.CREATE_MANIFESTS["returns"]
     )
