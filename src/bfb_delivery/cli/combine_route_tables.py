@@ -6,7 +6,7 @@ import click
 from typeguard import typechecked
 
 from bfb_delivery import combine_route_tables
-from bfb_delivery.lib.constants import Defaults, DocStrings, DocStringsArgs
+from bfb_delivery.lib.constants import Defaults, DocStrings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -17,21 +17,21 @@ logger = logging.getLogger(__name__)
     "--input_dir",
     type=str,
     required=True,
-    help=DocStringsArgs.COMBINE_ROUTE_TABLES["input_dir"],
+    help=DocStrings.COMBINE_ROUTE_TABLES.args["input_dir"],
 )
 @click.option(
     "--output_dir",
     type=str,
     required=False,
     default=Defaults.COMBINE_ROUTE_TABLES["output_dir"],
-    help=DocStringsArgs.COMBINE_ROUTE_TABLES["output_dir"],
+    help=DocStrings.COMBINE_ROUTE_TABLES.args["output_dir"],
 )
 @click.option(
     "--output_filename",
     type=str,
     required=False,
     default=Defaults.COMBINE_ROUTE_TABLES["output_filename"],
-    help=DocStringsArgs.COMBINE_ROUTE_TABLES["output_filename"],
+    help=DocStrings.COMBINE_ROUTE_TABLES.args["output_filename"],
 )
 @typechecked
 def main(input_dir: str, output_dir: str, output_filename: str) -> str:  # noqa: D103

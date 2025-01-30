@@ -1,5 +1,6 @@
 """Constants used in the project."""
 
+from dataclasses import dataclass
 from enum import StrEnum
 from typing import Final
 
@@ -105,6 +106,7 @@ COMBINED_ROUTES_COLUMNS: Final[list[str]] = [
 CIRCUIT_DOWNLOAD_COLUMNS: Final[list[str]] = COMBINED_ROUTES_COLUMNS + [Columns.EMAIL]
 
 
+# TODO: Combine with DocString?
 class Defaults:
     """Default values. E.g., for syncing public API with CLI."""
 
@@ -138,34 +140,38 @@ class Defaults:
     }
 
 
-class DocStringsArgs:
-    """Args docstrings."""
+@dataclass
+class ErrorDocString:
+    """Error docstrings."""
 
-    COMBINE_ROUTE_TABLES: Final[dict[str, str]] = {
-        "input_dir": "The directory containing the driver route CSVs.",
-        "output_dir": (
-            "The directory to write the output workbook to. "
-            "Empty string (default) saves to the `input_dir` directory."
-        ),
-        "output_filename": (
-            "The name of the output workbook. "
-            "Empty string (default) will name the file 'combined_routes_{date}.xlsx'."
-        ),
-    }
+    type: Final[str]
+    docstring: Final[str]
+
+    @typechecked
+    def __init__(self, type: str, docstring: str) -> None:
+        """Initialize the error docstring."""
+        self.type = type
+        self.docstring = docstring
+
+        return
 
 
-# TODO: Move this to a central utils repo.
+# TODO: Move this to a central utils repo. (And combine with Defaults? Include types?)
 class DocString:
     """Class to format docstrings for public API `sphinx` docs and CLI `click` help."""
 
-    opening: str
-    args: dict[str, str]
-    returns: list[str]
-    raises: dict[str, str]
+    opening: str = ""
+    args: dict[str, str] = {}
+    raises: list[ErrorDocString] = []
+    returns: list[str] = []
 
     @typechecked
     def __init__(
-        self, opening: str, args: dict[str, str], returns: list[str], raises: dict[str, str]
+        self,
+        opening: str,
+        args: dict[str, str],
+        raises: list[ErrorDocString],
+        returns: list[str],
     ) -> None:
         """Initialize the docstring parts."""
         self.opening = opening
@@ -176,6 +182,7 @@ class DocString:
         return
 
     @property
+    @typechecked
     def api_docstring(self) -> str:
         """Format the docstring for sphinx API docs."""
         parts = [self.opening.strip()]
@@ -186,7 +193,7 @@ class DocString:
 
         if self.raises:
             parts.append("\nRaises:\n")
-            parts.extend([f"  {key}: {value}" for key, value in self.raises.items()])
+            parts.extend([f"  {error.type}: {error.docstring}" for error in self.raises])
 
         if self.returns:
             parts.append("\nReturns:\n")
@@ -195,13 +202,14 @@ class DocString:
         return "\n\n".join(parts) + "\n"
 
     @property
+    @typechecked
     def cli_docstring(self) -> str:
         """Format the docstring click CLI help."""
         parts = [self.opening.strip()]
 
         if self.raises:
             parts.append("\nRaises:\n")
-            parts.extend([f"  {key}: {value}" for key, value in self.raises.items()])
+            parts.extend([f"  {error.type}: {error.docstring}" for error in self.raises])
 
         if self.returns:
             parts.append("\nReturns:\n")
@@ -213,7 +221,7 @@ class DocString:
 class DocStrings:
     """Docstrings for the public API."""
 
-    COMBINE_ROUTE_TABLES = DocString(
+    COMBINE_ROUTE_TABLES: Final = DocString(
         opening="""
 Combines the driver route CSVs into a single workbook.
 
@@ -228,13 +236,23 @@ If `output_dir` is specified, will create the directory if it doesn't exist.
 
 See :doc:`combine_route_tables` for more information.
 """,
-        args=DocStringsArgs.COMBINE_ROUTE_TABLES,
-        raises={"ValueError": "If `input_paths` is empty."},
+        args={
+            "input_dir": "The directory containing the driver route CSVs.",
+            "output_dir": (
+                "The directory to write the output workbook to. "
+                "Empty string (default) saves to the `input_dir` directory."
+            ),
+            "output_filename": (
+                "The name of the output workbook. "
+                "Empty string (default) will name the file 'combined_routes_{date}.xlsx'."
+            ),
+        },
+        raises=[ErrorDocString(type="ValueError", docstring="If `input_paths` is empty.")],
         returns=["The path to the output workbook."],
     )
 
-    CREATE_MANIFESTS: Final[dict[str, str]] = {
-        "main": """
+    CREATE_MANIFESTS: Final = DocString(
+        opening="""
 From Circuit route CSVs, creates driver manifest workbook ready to print.
 
 This is used after optimizing and exporting the routes to individual CSVs. Reads in
@@ -257,24 +275,27 @@ workbook with all routes combined, then formats it.
 
 See :doc:`create_manifests` for more information.
 """,
-        "args": """
-Args:
-    input_dir: The directory containing the driver route CSVs.
-    output_dir: The directory to write the formatted manifest workbook to.
-        Empty string (default) saves to the `input_dir` directory.
-    output_filename: The name of the output workbook.
-        Empty string sets filename to "final_manifests_{date}.xlsx".
-    extra_notes_file: Path to the extra notes file. If empty (default), uses a constant
-        DataFrame. See :py:data:`bfb_delivery.lib.constants.ExtraNotes`.
-""",
-        "returns": """
-Returns:
-    Path to the formatted manifest workbook.
-""",
-    }
+        args={
+            "input_dir": "The directory containing the driver route CSVs.",
+            "output_dir": (
+                "The directory to write the formatted manifest workbook to. "
+                "Empty string (default) saves to the `input_dir` directory."
+            ),
+            "output_filename": (
+                "The name of the output workbook."
+                'Empty string sets filename to "final_manifests_{date}.xlsx".'
+            ),
+            "extra_notes_file": (
+                "Path to the extra notes file. If empty (default), uses a constant "
+                "DataFrame. See :py:data:`bfb_delivery.lib.constants.ExtraNotes`."
+            ),
+        },
+        returns=["Path to the formatted manifest workbook."],
+        raises=[],
+    )
 
-    CREATE_MANIFESTS_FROM_CIRCUIT: Final[dict[str, str]] = {
-        "main": """
+    CREATE_MANIFESTS_FROM_CIRCUIT: Final = DocString(
+        opening="""
 Gets optimized routes from Circuit, creates driver manifest workbook ready to print.
 
 This is used after uploading and optimizing the routes. Reads routes CSVs from Circuit,
@@ -299,35 +320,46 @@ output workbook with all routes combined, then formats it.
 
 See :doc:`create_manifests_from_circuit` for more information.
 """,
-        "args": """
-Args:
-    start_date: The start date to use in the output workbook sheetnames as "YYYYMMDD".
-        Empty string (default) uses the soonest Friday. Range is inclusive.
-    end_date: The end date to use in the output workbook sheetnames as "YYYYMMDD".
-        Empty string (default) uses the start date. Range is inclusive.
-    output_dir: The directory to write the formatted manifest workbook to.
-        Empty string (default) saves to the `input_dir` directory.
-    output_filename: The name of the output workbook.
-        Empty string (default) sets filename to "final_manifests_{date}.xlsx".
-    circuit_output_dir: The directory to create a subdir to save the routes to.
-        Creates "routes_{date}" directory within the `circuit_output_dir`.
-        Empty string uses `output_dir`.
-        If the directory does not exist, it is created. If it exists, it is overwritten.
-    all_hhs: Flag to get only the "All HHs" route.
-        False gets all routes except "All HHs". True gets only the "All HHs" route.
-        NOTE: True returns email column in CSV, for reuploading after splitting.
-    verbose: Flag to print verbose output.
-    extra_notes_file: Path to the extra notes file. If empty (default), uses a constant
-        DataFrame. See :py:data:`bfb_delivery.lib.constants.ExtraNotes`.
-""",
-        "returns": """
-Returns:
-    Path to the final manifest workbook.
-""",
-    }
+        args={
+            "start_date": (
+                'The start date to use in the output workbook sheetnames as "YYYYMMDD". '
+                "Empty string (default) uses the soonest Friday. Range is inclusive."
+            ),
+            "end_date": (
+                'The end date to use in the output workbook sheetnames as "YYYYMMDD". '
+                "Empty string (default) uses the start date. Range is inclusive."
+            ),
+            "output_dir": (
+                "The directory to write the formatted manifest workbook to. "
+                "Empty string (default) saves to the `input_dir` directory."
+            ),
+            "output_filename": (
+                "The name of the output workbook. "
+                'Empty string (default) sets filename to "final_manifests_{date}.xlsx".'
+            ),
+            "circuit_output_dir": (
+                "The directory to create a subdir to save the routes to. Creates "
+                '"routes_{date}" directory within the `circuit_output_dir`. Empty string '
+                "uses `output_dir`. If the directory does not exist, it is created. If it "
+                "exists, it is overwritten."
+            ),
+            "all_hhs": (
+                'Flag to get only the "All HHs" route. '
+                'False gets all routes except "All HHs". True gets only the "All HHs" route. '
+                "NOTE: True returns email column in CSV, for reuploading after splitting."
+            ),
+            "verbose": "Flag to print verbose output.",
+            "extra_notes_file": (
+                "Path to the extra notes file. If empty (default), uses a constant "
+                "DataFrame. See :py:data:`bfb_delivery.lib.constants.ExtraNotes`."
+            ),
+        },
+        returns=["Path to the final manifest workbook."],
+        raises=[],
+    )
 
-    FORMAT_COMBINED_ROUTES: Final[dict[str, str]] = {
-        "main": """
+    FORMAT_COMBINED_ROUTES: Final = DocString(
+        opening="""
 Formats the combined routes table into driver manifests to print.
 
 Adds headers and aggregate data. Color codes box types.
@@ -345,24 +377,27 @@ If `output_dir` is specified, will create the directory if it doesn't exist.
 
 See :doc:`format_combined_routes` for more information.
 """,
-        "args": """
-Args:
-    input_path: The path to the combined routes table.
-    output_dir: The directory to write the formatted table to.
-        Empty string (default) saves to the input path's parent directory.
-    output_filename: The name of the formatted workbook.
-        Empty string (default) will name the file "formatted_routes_{date}.xlsx".
-    extra_notes_file: The path to the extra notes file. If empty (default), uses a
-        constant DataFrame. See :py:data:`bfb_delivery.lib.constants.ExtraNotes`.
-""",
-        "returns": """
-Returns:
-    The path to the formatted table.
-""",
-    }
+        args={
+            "input_path": "The path to the combined routes table.",
+            "output_dir": (
+                "The directory to write the formatted table to. "
+                "Empty string (default) saves to the input path's parent directory."
+            ),
+            "output_filename": (
+                "The name of the formatted workbook. "
+                'Empty string (default) will name the file "formatted_routes_{date}.xlsx".'
+            ),
+            "extra_notes_file": (
+                "The path to the extra notes file. If empty (default), uses a "
+                "constant DataFrame. See :py:data:`bfb_delivery.lib.constants.ExtraNotes`."
+            ),
+        },
+        returns=["The path to the formatted table."],
+        raises=[],
+    )
 
-    SPLIT_CHUNKED_ROUTE: Final[dict[str, str]] = {
-        "main": """
+    SPLIT_CHUNKED_ROUTE: Final = DocString(
+        opening="""
 Split route sheet into n workbooks with sheets by driver.
 
 Sheets by driver allows splitting routes by driver on Circuit upload.
@@ -385,80 +420,45 @@ create the directory if it doesn't exist.
     The date passed sets the date in the sheet names of the output workbooks, and that
     date in the sheet name is used for the manifest date field in later functions that
     make the manifests: :py:func:`bfb_delivery.api.public.format_combined_routes` and
-    :py:func:`bfb_delivery.api.public.create_manifests` (which wraps the former).
+    :py:func:`bfb_delivery.api.public.create_manifests_from_circuit` (which wraps the former).
 
 
 See :doc:`split_chunked_route` for more information.
 """,
-        "args": """
-Args:
-    input_path: Path to the chunked route sheet that this function reads in and splits up.
-    output_dir: Directory to save the output workbook.
-        Empty string saves to the input `input_path` directory.
-    output_filename: Name of the output workbook.
-        Empty string sets filename to "split_workbook_{date}_{i of n_books}.xlsx".
-    n_books: Number of workbooks to split into.
-    book_one_drivers_file: Path to the book-one driver's file. If empty (default), uses
-        a constant list. See :py:data:`bfb_delivery.lib.constants.BookOneDrivers`.
-    date: The date to use in the output workbook sheetnames. Empty string (default) uses
-        the soonest Friday.
-""",
-        "returns": """
-Returns:
-    Paths to the split chunked route workbooks.
-""",
-        "raises": """
-Raises:
-    ValueError: If `n_books` is less than 1.
-    ValueError: If `n_books` is greater than the number of drivers in the input workbook.
-""",
-    }
-
-
-class DocStringsAPI:
-    """Docstrings for the public API."""
-
-    CREATE_MANIFESTS: Final[str] = (
-        DocStrings.CREATE_MANIFESTS["main"]
-        + DocStrings.CREATE_MANIFESTS["args"]
-        + DocStrings.CREATE_MANIFESTS["returns"]
-    )
-    CREATE_MANIFESTS_FROM_CIRCUIT: Final[str] = (
-        DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT["main"]
-        + DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT["args"]
-        + DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT["returns"]
-    )
-    FORMAT_COMBINED_ROUTES: Final[str] = (
-        DocStrings.FORMAT_COMBINED_ROUTES["main"]
-        + DocStrings.FORMAT_COMBINED_ROUTES["args"]
-        + DocStrings.FORMAT_COMBINED_ROUTES["returns"]
-    )
-    SPLIT_CHUNKED_ROUTE: Final[str] = (
-        DocStrings.SPLIT_CHUNKED_ROUTE["main"]
-        + DocStrings.SPLIT_CHUNKED_ROUTE["args"]
-        + DocStrings.SPLIT_CHUNKED_ROUTE["returns"]
-        + DocStrings.SPLIT_CHUNKED_ROUTE["raises"]
-    )
-
-
-class DocStringsCLI:
-    """Docstrings for the CLI."""
-
-    CREATE_MANIFESTS: Final[str] = (
-        DocStrings.CREATE_MANIFESTS["main"] + DocStrings.CREATE_MANIFESTS["returns"]
-    )
-    CREATE_MANIFESTS_FROM_CIRCUIT: Final[str] = (
-        DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT["main"]
-        + DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT["returns"]
-    )
-    FORMAT_COMBINED_ROUTES: Final[str] = (
-        DocStrings.FORMAT_COMBINED_ROUTES["main"]
-        + DocStrings.FORMAT_COMBINED_ROUTES["returns"]
-    )
-    SPLIT_CHUNKED_ROUTE: Final[str] = (
-        DocStrings.SPLIT_CHUNKED_ROUTE["main"]
-        + DocStrings.SPLIT_CHUNKED_ROUTE["returns"]
-        + DocStrings.SPLIT_CHUNKED_ROUTE["raises"]
+        args={
+            "input_path": (
+                "Path to the chunked route sheet that this function reads in and "
+                "splits up."
+            ),
+            "output_dir": (
+                "Directory to save the output workbook. "
+                "Empty string saves to the input `input_path` directory."
+            ),
+            "output_filename": (
+                "Name of the output workbook. "
+                'Empty string sets filename to "split_workbook_{date}_{i of n_books}.xlsx".'
+            ),
+            "n_books": "Number of workbooks to split into.",
+            "book_one_drivers_file": (
+                "Path to the book-one driver's file. If empty (default), uses "
+                "a constant list. See :py:data:`bfb_delivery.lib.constants.BookOneDrivers`."
+            ),
+            "date": (
+                "The date to use in the output workbook sheetnames. Empty string (default) "
+                "uses the soonest Friday."
+            ),
+        },
+        returns=["Paths to the split chunked route workbooks."],
+        raises=[
+            ErrorDocString(type="ValueError", docstring="If `n_books` is less than 1."),
+            ErrorDocString(
+                type="ValueError",
+                docstring=(
+                    "If `n_books` is greater than the number of drivers in the input "
+                    "workbook."
+                ),
+            ),
+        ],
     )
 
 

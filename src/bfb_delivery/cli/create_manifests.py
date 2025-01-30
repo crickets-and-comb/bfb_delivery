@@ -6,48 +6,36 @@ import click
 from typeguard import typechecked
 
 from bfb_delivery import create_manifests
-from bfb_delivery.lib.constants import Defaults, DocStringsCLI
+from bfb_delivery.lib.constants import Defaults, DocStrings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
-@click.command(help=DocStringsCLI.CREATE_MANIFESTS)
+@click.command(help=DocStrings.CREATE_MANIFESTS.cli_docstring)
 @click.option(
-    "--input_dir",
-    type=str,
-    required=True,
-    help="The directory containing the driver route CSVs.",
+    "--input_dir", type=str, required=True, help=DocStrings.CREATE_MANIFESTS.args["input_dir"]
 )
 @click.option(
     "--output_dir",
     type=str,
     required=False,
     default=Defaults.CREATE_MANIFESTS["output_dir"],
-    help=(
-        "The directory to write the output workbook to. Empty string (default) saves "
-        "to the `input_dir` directory."
-    ),
+    help=DocStrings.CREATE_MANIFESTS.args["output_dir"],
 )
 @click.option(
     "--output_filename",
     type=str,
     required=False,
     default=Defaults.CREATE_MANIFESTS["output_filename"],
-    help=(
-        "The name of the output workbook. Empty string (default) will name the file "
-        '"final_manifests_{date}.xlsx".'
-    ),
+    help=DocStrings.CREATE_MANIFESTS.args["output_filename"],
 )
 @click.option(
     "--extra_notes_file",
     type=str,
     required=False,
     default=Defaults.CREATE_MANIFESTS["extra_notes_file"],
-    help=(
-        "The path to the extra notes file. If empty (default), uses a constant DataFrame. "
-        "See :py:data:`bfb_delivery.lib.constants.ExtraNotes`."
-    ),
+    help=DocStrings.CREATE_MANIFESTS.args["extra_notes_file"],
 )
 @typechecked
 def main(  # noqa: D103
