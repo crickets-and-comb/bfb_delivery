@@ -13,7 +13,9 @@ from bfb_delivery.lib.constants import (
     Columns,
     IntermediateColumns,
 )
+
 # TODO: Why did pytype suddenly not find checks? 2a40fa9ba463075236881d2edc5268f9aebb8a8e
+# from bfb_delivery.lib.schema import checks  # noqa: F401
 from bfb_delivery.lib.schema.checks import dataframe_checks, field_checks  # noqa: F401
 
 _COERCE_FIELD = partial(pa.Field, coerce=True)
