@@ -9,12 +9,13 @@ from pathlib import Path
 
 from typeguard import typechecked
 
+from bfb_delivery.lib.constants import DocStrings
 from bfb_delivery.lib.dispatch.read_circuit import get_route_files
 from bfb_delivery.lib.formatting import sheet_shaping
 
 
 @typechecked
-def split_chunked_route(
+def split_chunked_route(  # noqa: D103
     input_path: Path | str,
     output_dir: Path | str,
     output_filename: str,
@@ -22,7 +23,6 @@ def split_chunked_route(
     book_one_drivers_file: str,
     date: str,
 ) -> list[Path]:
-    """See public docstring: :py:func:`bfb_delivery.api.public.split_chunked_route`."""
     return sheet_shaping.split_chunked_route(
         input_path=input_path,
         output_dir=output_dir,
@@ -33,8 +33,11 @@ def split_chunked_route(
     )
 
 
+split_chunked_route.__doc__ = DocStrings.SPLIT_CHUNKED_ROUTE.api_docstring
+
+
 @typechecked
-def create_manifests_from_circuit(
+def create_manifests_from_circuit(  # noqa: D103
     start_date: str,
     end_date: str,
     output_dir: str,
@@ -44,10 +47,6 @@ def create_manifests_from_circuit(
     verbose: bool,
     extra_notes_file: str,
 ) -> tuple[Path, Path]:
-    """See public docstring.
-
-    :py:func:`bfb_delivery.api.public.create_manifests_from_circuit`.
-    """
     circuit_output_dir = get_route_files(
         start_date=start_date,
         end_date=end_date,
@@ -65,11 +64,13 @@ def create_manifests_from_circuit(
     return formatted_manifest_path, Path(circuit_output_dir)
 
 
+create_manifests_from_circuit.__doc__ = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.api_docstring
+
+
 @typechecked
-def create_manifests(
+def create_manifests(  # noqa: D103
     input_dir: Path | str, output_dir: Path | str, output_filename: str, extra_notes_file: str
 ) -> Path:
-    """See public docstring for :py:func:`bfb_delivery.api.public.create_manifests`."""
     formatted_manifest_path = sheet_shaping.create_manifests(
         input_dir=input_dir,
         output_dir=output_dir,
@@ -80,27 +81,34 @@ def create_manifests(
     return formatted_manifest_path
 
 
+create_manifests.__doc__ = DocStrings.CREATE_MANIFESTS.api_docstring
+
+
 @typechecked
-def combine_route_tables(
+def combine_route_tables(  # noqa: D103
     input_dir: Path | str, output_dir: Path | str, output_filename: str
 ) -> Path:
-    """See public docstring: :py:func:`bfb_delivery.api.public.combine_route_tables`."""
     return sheet_shaping.combine_route_tables(
         input_dir=input_dir, output_dir=output_dir, output_filename=output_filename
     )
 
 
+combine_route_tables.__doc__ = DocStrings.COMBINE_ROUTE_TABLES.api_docstring
+
+
 @typechecked
-def format_combined_routes(
+def format_combined_routes(  # noqa: D103
     input_path: Path | str,
     output_dir: Path | str,
     output_filename: str,
     extra_notes_file: str,
 ) -> Path:
-    """See public docstring: :py:func:`bfb_delivery.api.public.format_combined_routes`."""
     return sheet_shaping.format_combined_routes(
         input_path=input_path,
         output_dir=output_dir,
         output_filename=output_filename,
         extra_notes_file=extra_notes_file,
     )
+
+
+format_combined_routes.__doc__ = DocStrings.FORMAT_COMBINED_ROUTES.api_docstring

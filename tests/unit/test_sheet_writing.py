@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 import pytest
 from openpyxl import Workbook
+from typeguard import typechecked
 
 from bfb_delivery.lib.formatting.sheet_shaping import _add_header_row
 
@@ -55,6 +56,7 @@ from bfb_delivery.lib.formatting.sheet_shaping import _add_header_row
         ),
     ],
 )
+@typechecked
 def test_add_header_row_phone_numbers(
     mock_context: AbstractContextManager,
     expected_warning: str,

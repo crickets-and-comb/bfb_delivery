@@ -9,6 +9,7 @@ from typing import Final
 import pandas as pd
 import phonenumbers
 import pytest
+from typeguard import typechecked
 
 from bfb_delivery.lib.constants import MAX_ORDER_COUNT, Columns
 from bfb_delivery.lib.formatting.data_cleaning import (
@@ -26,6 +27,7 @@ INVALID_NUMBERS: Final[list[str]] = [
 class TestFormatColumnNames:
     """Test the format_column_names function."""
 
+    @typechecked
     def test_format_column_names(self) -> None:
         """Test formatting column names."""
         # TODO: Int column names? Is that possible?
@@ -136,6 +138,7 @@ class TestFormatAndValidateData:
             ),
         ],
     )
+    @typechecked
     def test_format_data(self, column_name: str, expected_values: list) -> None:
         """Test formatting and validating data."""
         columns = [
@@ -304,6 +307,7 @@ class TestFormatAndValidateData:
             ),
         ],
     )
+    @typechecked
     def test_invalid_column_names(
         self,
         columns: list[str],
@@ -452,6 +456,7 @@ class TestFormatAndValidateData:
             ),
         ],
     )
+    @typechecked
     def test_validations(
         self,
         df: pd.DataFrame,
@@ -490,6 +495,7 @@ class TestFormatAndValidateData:
             ),
         ],
     )
+    @typechecked
     def test_warnings(
         self, df: pd.DataFrame, expected_warning: str, caplog: pytest.LogCaptureFixture
     ) -> None:

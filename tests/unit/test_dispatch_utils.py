@@ -7,6 +7,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 import requests
+from typeguard import typechecked
 
 from bfb_delivery.lib.constants import RateLimits
 from bfb_delivery.lib.dispatch.utils import get_responses
@@ -15,6 +16,7 @@ BASE_URL: Final[str] = "http://example.com/api/v2/stops"
 
 
 @pytest.fixture(autouse=True)
+@typechecked
 def mock_get_circuit_key() -> Iterator:
     """Mock get_circuit_key."""
     with patch("bfb_delivery.lib.dispatch.utils.get_circuit_key", return_value="fakekey"):
@@ -122,9 +124,10 @@ def mock_get_circuit_key() -> Iterator:
         ),
     ],
 )
+@typechecked
 def test_get_responses_returns(
     responses: list[dict[str, Any]],
-    expected_result: list[dict[str, Any]],
+    expected_result: list[dict[str, Any]] | None,
     error_context: AbstractContextManager,
 ) -> None:
     """Test get_responses function."""
@@ -194,6 +197,7 @@ def test_get_responses_returns(
         ),
     ],
 )
+@typechecked
 def test_get_responses_urls(responses: list[dict[str, Any]], params: str) -> None:
     """Test get_responses function."""
     base_url = f"{BASE_URL}{params}"
@@ -222,6 +226,7 @@ def test_get_responses_urls(responses: list[dict[str, Any]], params: str) -> Non
         assert actual_urls == expected_urls
 
 
+@typechecked
 def test_get_responses_wait_time() -> None:
     """Test get_responses doubles wait times passed to requests.get after 429 response."""
     responses = [

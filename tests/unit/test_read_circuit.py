@@ -59,7 +59,7 @@ TEST_START_DATE: Final[str] = "2025-01-17"
 MANIFEST_DATE: Final[str] = "1.17"
 
 
-@pytest.fixture()
+@pytest.fixture(scope="class")
 @typechecked
 def mock_plan_responses() -> (
     list[dict[str, str | list[dict[str, str | dict[str, int]] | None]]]
@@ -69,10 +69,10 @@ def mock_plan_responses() -> (
         return json.load(f)
 
 
-@pytest.fixture()
+@pytest.fixture(scope="class")
 @typechecked
 def mock_get_plan_responses(
-    mock_plan_responses: list[dict[str, str | list[dict[str, str | dict[str, int]] | None]]]
+    mock_plan_responses: list[dict[str, str | list[dict[str, str | dict[str, int]] | None]]],
 ) -> Iterator[None]:
     """Mock _get_plan_responses."""
     with patch(
@@ -82,52 +82,77 @@ def mock_get_plan_responses(
         yield
 
 
-@pytest.fixture()
-def mock_os_getcwd(tmp_path: Path) -> Iterator[str]:
-    """Mock os.getcwd within the read_circuit module."""
-    return_value = str(tmp_path)
-    with patch("bfb_delivery.lib.dispatch.read_circuit._getcwd", return_value=return_value):
-        yield return_value
-
-
 @pytest.fixture(scope="class")
 @typechecked
-def mock_plan_responses_class_scoped() -> (
-    list[dict[str, str | list[dict[str, str | dict[str, int]] | None]]]
-):
-    """Return a list of plan responses, as from _get_plan_responses."""
-    with open(Path("tests/unit/fixtures/plan_responses.json")) as f:
-        return json.load(f)
-
-
-@pytest.fixture(scope="class")
-@typechecked
-def mock_get_plan_responses_class_scoped(
-    mock_plan_responses_class_scoped: list[
-        dict[str, str | list[dict[str, str | dict[str, int]] | None]]
-    ]
-) -> Iterator[None]:
-    """Mock _get_plan_responses."""
-    with patch(
-        "bfb_delivery.lib.dispatch.read_circuit._get_plan_responses",
-        return_value=mock_plan_responses_class_scoped,
-    ):
-        yield
-
-
-@pytest.fixture(scope="class")
-def mock_getcwd_class_scoped(tmp_path_factory: pytest.TempPathFactory) -> Iterator[str]:
+def mock_getcwd(tmp_path_factory: pytest.TempPathFactory) -> Iterator[str]:
     """Mock os.getcwd within the read_circuit module."""
     return_value = str(tmp_path_factory.mktemp("cwd"))
     with patch("bfb_delivery.lib.dispatch.read_circuit._getcwd", return_value=return_value):
         yield return_value
 
 
-@pytest.mark.usefixtures("mock_get_plan_responses", "mock_os_getcwd")
+@pytest.mark.usefixtures("mock_get_plan_responses", "mock_getcwd")
 class TestCreateManifestsFromCircuit:
     """Test create_manifests_from_circuit function."""
 
-    @pytest.fixture()
+    @pytest.fixture(scope="class")
+    @typechecked
+    def mock_driver_sheet_names_all_hhs_false(
+        self,
+        mock_plan_responses: list[
+            dict[
+                str, str | list[dict[str, str | list[str | dict[str, str]] | dict[str, int]]]
+            ]
+        ],
+    ) -> list[str]:
+        """Return a list of driver sheet names."""
+        driver_sheet_names = []
+        for page_dict in mock_plan_responses:
+            for plan_dict in page_dict["plans"]:
+                if (
+                    isinstance(plan_dict, dict)  # To satisisfy pytype.
+                    and isinstance(plan_dict["title"], str)  # To satisisfy pytype.
+                    and ALL_HHS_DRIVER not in plan_dict["title"]
+                ):
+                    driver_sheet_names.append(plan_dict["title"])
+
+        return driver_sheet_names
+
+    @pytest.fixture(scope="class")
+    @typechecked
+    def mock_driver_sheet_names_all_hhs_true(
+        self,
+        mock_plan_responses: list[
+            dict[
+                str, str | list[dict[str, str | list[str | dict[str, str]] | dict[str, int]]]
+            ]
+        ],
+    ) -> list[str]:
+        """Return a list of driver sheet names."""
+        driver_sheet_names = []
+        for page_dict in mock_plan_responses:
+            for plan_dict in page_dict["plans"]:
+                if (
+                    isinstance(plan_dict, dict)  # To satisfy pytype.
+                    and isinstance(plan_dict["title"], str)  # To satisfy pytype.
+                    and ALL_HHS_DRIVER in plan_dict["title"]
+                ):
+                    driver_sheet_names.append(plan_dict["title"])
+
+        return driver_sheet_names
+
+    @pytest.fixture(scope="class")
+    @typechecked
+    def mock_driver_names_all_hhs_false(
+        self, mock_driver_sheet_names_all_hhs_false: list[str]
+    ) -> list[str]:
+        """Return a list of driver names."""
+        return [
+            " ".join(sheet_name.split(" ")[1:])
+            for sheet_name in mock_driver_sheet_names_all_hhs_false
+        ]
+
+    @pytest.fixture(scope="class")
     @typechecked
     def mock_stops_responses_all_hhs_false(
         self,
@@ -155,7 +180,7 @@ class TestCreateManifestsFromCircuit:
         with open(Path("tests/unit/fixtures/stops_responses.json")) as f:
             return json.load(f)
 
-    @pytest.fixture()
+    @pytest.fixture(scope="class")
     @typechecked
     def mock_stops_responses_all_hhs_true(
         self,
@@ -183,62 +208,74 @@ class TestCreateManifestsFromCircuit:
         with open(Path("tests/unit/fixtures/stops_responses_all_hhs.json")) as f:
             return json.load(f)
 
-    @pytest.fixture()
+    @pytest.fixture(scope="class")
     @typechecked
-    def mock_driver_sheet_names_all_hhs_false(
+    def outputs(
         self,
-        mock_plan_responses: list[
-            dict[
-                str, str | list[dict[str, str | list[str | dict[str, str]] | dict[str, int]]]
-            ]
-        ],
-    ) -> list[str]:
-        """Return a list of driver sheet names."""
-        driver_sheet_names = []
-        for page_dict in mock_plan_responses:
-            for plan_dict in page_dict["plans"]:
-                if (
-                    isinstance(plan_dict, dict)  # To satisisfy pytype.
-                    and isinstance(plan_dict["title"], str)  # To satisisfy pytype.
-                    and ALL_HHS_DRIVER not in plan_dict["title"]
-                ):
-                    driver_sheet_names.append(plan_dict["title"])
+        mock_stops_responses_all_hhs_false: list,
+        tmp_path_factory: pytest.TempPathFactory,
+    ) -> tuple[Path, Path]:
+        """Create a basic manifest scoped to class for reuse."""
+        output_dir = str(tmp_path_factory.mktemp("tmp_output", numbered=True))
+        with patch(
+            "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
+            return_value=mock_stops_responses_all_hhs_false,
+        ):
+            manifest_path, circuit_sheets_dir = create_manifests_from_circuit(
+                start_date=TEST_START_DATE, output_dir=output_dir
+            )
 
-        return driver_sheet_names
+        return manifest_path, circuit_sheets_dir
 
-    @pytest.fixture()
+    @pytest.fixture(scope="class")
     @typechecked
-    def mock_driver_names_all_hhs_false(
-        self, mock_driver_sheet_names_all_hhs_false: list[str]
-    ) -> list[str]:
-        """Return a list of driver names."""
-        return [
-            " ".join(sheet_name.split(" ")[1:])
-            for sheet_name in mock_driver_sheet_names_all_hhs_false
-        ]
+    def manifest_workbook(self, outputs: tuple[Path, Path]) -> Workbook:
+        """Create a basic manifest workbook scoped to class for reuse."""
+        workbook = load_workbook(outputs[0])
+        return workbook
 
-    @pytest.fixture()
+    @pytest.fixture(scope="class")
     @typechecked
-    def mock_driver_sheet_names_all_hhs_true(
-        self,
-        mock_plan_responses: list[
-            dict[
-                str, str | list[dict[str, str | list[str | dict[str, str]] | dict[str, int]]]
-            ]
-        ],
-    ) -> list[str]:
-        """Return a list of driver sheet names."""
-        driver_sheet_names = []
-        for page_dict in mock_plan_responses:
-            for plan_dict in page_dict["plans"]:
-                if (
-                    isinstance(plan_dict, dict)  # To satisfy pytype.
-                    and isinstance(plan_dict["title"], str)  # To satisfy pytype.
-                    and ALL_HHS_DRIVER in plan_dict["title"]
-                ):
-                    driver_sheet_names.append(plan_dict["title"])
+    def manifest_ExcelFile(self, outputs: tuple[Path, Path]) -> Iterator[pd.ExcelFile]:
+        """Create a basic manifest workbook scoped to class for reuse."""
+        with pd.ExcelFile(outputs[0]) as xls:
+            yield xls
 
-        return driver_sheet_names
+    @pytest.fixture(scope="class")
+    @typechecked
+    def plans_list(self) -> list[dict[str, Any]]:
+        """_get_raw_plans."""
+        return _get_raw_plans(
+            start_date=TEST_START_DATE, end_date=TEST_START_DATE, verbose=False
+        )
+
+    @pytest.fixture(scope="class")
+    @typechecked
+    def plans_df(self, plans_list: list[dict[str, Any]]) -> pd.DataFrame:
+        """_make_plans_df."""
+        return _make_plans_df(plans_list=plans_list, all_hhs=False)
+
+    @pytest.fixture(scope="class")
+    @typechecked
+    def plan_stops_list(
+        self, mock_stops_responses_all_hhs_false: list, plans_df: pd.DataFrame
+    ) -> list[dict[str, Any]]:
+        """_get_raw_stops."""
+        with patch(
+            "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
+            return_value=mock_stops_responses_all_hhs_false,
+        ):
+            return _get_raw_stops(
+                plan_ids=plans_df[CircuitColumns.ID].tolist(), verbose=False
+            )
+
+    @pytest.fixture(scope="class")
+    @typechecked
+    def transformed_routes_df(
+        self, plan_stops_list: list[dict[str, Any]], plans_df: pd.DataFrame
+    ) -> pd.DataFrame:
+        """_transform_routes_df."""
+        return _transform_routes_df(plan_stops_list=plan_stops_list, plans_df=plans_df)
 
     @pytest.mark.parametrize("circuit_output_dir", ["dummy_circuit_output", ""])
     @pytest.mark.parametrize(
@@ -250,6 +287,7 @@ class TestCreateManifestsFromCircuit:
     )
     @pytest.mark.parametrize("verbose", [True, False])
     @pytest.mark.parametrize("test_cli", [False, True])
+    @typechecked
     def test_set_output_dir(
         self,
         circuit_output_dir: str,
@@ -257,7 +295,7 @@ class TestCreateManifestsFromCircuit:
         mock_stops_responses_fixture: str,
         verbose: bool,
         test_cli: bool,
-        mock_os_getcwd: str,
+        mock_getcwd: str,
         tmp_path: Path,
         request: pytest.FixtureRequest,
     ) -> None:
@@ -277,7 +315,7 @@ class TestCreateManifestsFromCircuit:
         expected_circuit_output_dir = (
             Path(circuit_output_dir) / circuit_sub_dir
             if circuit_output_dir
-            else Path(mock_os_getcwd) / circuit_sub_dir
+            else Path(mock_getcwd) / circuit_sub_dir
         )
 
         Path(expected_circuit_output_dir).mkdir(parents=True, exist_ok=True)
@@ -338,12 +376,13 @@ class TestCreateManifestsFromCircuit:
             ),
         ],
     )
+    @typechecked
     def test_all_drivers_have_a_sheet(
         self,
-        tmp_path: Path,
         all_hhs: bool,
         mock_stops_responses_fixture: str,
         mock_driver_sheet_names_fixture: str,
+        tmp_path: Path,
         request: pytest.FixtureRequest,
     ) -> None:
         """Test that all drivers have a sheet in the formatted workbook. And date works."""
@@ -362,128 +401,7 @@ class TestCreateManifestsFromCircuit:
             [f"{sheet_name}.csv" for sheet_name in driver_sheet_names]
         )
 
-
-@pytest.mark.usefixtures("mock_get_plan_responses_class_scoped", "mock_getcwd_class_scoped")
-class TestCreateManifestsFromCircuitClassScoped:
-    """Test create_manifests_from_circuit function."""
-
-    @pytest.fixture(scope="class")
     @typechecked
-    def mock_driver_sheet_names(
-        self,
-        mock_plan_responses_class_scoped: list[
-            dict[
-                str, str | list[dict[str, str | list[str | dict[str, str]] | dict[str, int]]]
-            ]
-        ],
-    ) -> list[str]:
-        """Return a list of driver sheet names."""
-        driver_sheet_names = []
-        for page_dict in mock_plan_responses_class_scoped:
-            for plan_dict in page_dict["plans"]:
-                if (
-                    isinstance(plan_dict, dict)  # To satisisfy pytype.
-                    and isinstance(plan_dict["title"], str)  # To satisisfy pytype.
-                    and ALL_HHS_DRIVER not in plan_dict["title"]
-                ):
-                    driver_sheet_names.append(plan_dict["title"])
-
-        return driver_sheet_names
-
-    @pytest.fixture(scope="class")
-    @typechecked
-    def mock_driver_names(self, mock_driver_sheet_names: list[str]) -> list[str]:
-        """Return a list of driver names."""
-        return [" ".join(sheet_name.split(" ")[1:]) for sheet_name in mock_driver_sheet_names]
-
-    @pytest.fixture(scope="class")
-    @typechecked
-    def mock_stops_responses(
-        self,
-    ) -> list[
-        list[
-            dict[
-                str,
-                str
-                | list[
-                    dict[
-                        str,
-                        str
-                        | int
-                        | dict[
-                            str, str | int | dict[str, str | int | list[str] | None] | None
-                        ]
-                        | None,
-                    ]
-                ]
-                | None,
-            ]
-        ]
-    ]:
-        """Return a list of stops responses, as from _get_raw_stops_list."""
-        with open(Path("tests/unit/fixtures/stops_responses.json")) as f:
-            return json.load(f)
-
-    @pytest.fixture(scope="class")
-    def outputs(
-        self, mock_stops_responses: list, tmp_path_factory: pytest.TempPathFactory
-    ) -> tuple[Path, Path]:
-        """Create a basic manifest scoped to class for reuse."""
-        output_dir = str(tmp_path_factory.mktemp("output"))
-        with patch(
-            "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
-            return_value=mock_stops_responses,
-        ):
-            manifest_path, circuit_sheets_dir = create_manifests_from_circuit(
-                start_date=TEST_START_DATE, output_dir=output_dir
-            )
-
-        return manifest_path, circuit_sheets_dir
-
-    @pytest.fixture(scope="class")
-    def manifest_workbook(self, outputs: tuple[Path, Path]) -> Workbook:
-        """Create a basic manifest workbook scoped to class for reuse."""
-        workbook = load_workbook(outputs[0])
-        return workbook
-
-    @pytest.fixture(scope="class")
-    def manifest_ExcelFile(self, outputs: tuple[Path, Path]) -> Iterator[pd.ExcelFile]:
-        """Create a basic manifest workbook scoped to class for reuse."""
-        with pd.ExcelFile(outputs[0]) as xls:
-            yield xls
-
-    @pytest.fixture(scope="class")
-    def plans_list(self) -> list[dict[str, Any]]:
-        """_get_raw_plans."""
-        return _get_raw_plans(
-            start_date=TEST_START_DATE, end_date=TEST_START_DATE, verbose=False
-        )
-
-    @pytest.fixture(scope="class")
-    def plans_df(self, plans_list: list[dict[str, Any]]) -> pd.DataFrame:
-        """_make_plans_df."""
-        return _make_plans_df(plans_list=plans_list, all_hhs=False)
-
-    @pytest.fixture(scope="class")
-    def plan_stops_list(
-        self, mock_stops_responses: list, plans_df: pd.DataFrame
-    ) -> list[dict[str, Any]]:
-        """_get_raw_stops."""
-        with patch(
-            "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
-            return_value=mock_stops_responses,
-        ):
-            return _get_raw_stops(
-                plan_ids=plans_df[CircuitColumns.ID].tolist(), verbose=False
-            )
-
-    @pytest.fixture(scope="class")
-    def transformed_routes_df(
-        self, plan_stops_list: list[dict[str, Any]], plans_df: pd.DataFrame
-    ) -> pd.DataFrame:
-        """_transform_routes_df."""
-        return _transform_routes_df(plan_stops_list=plan_stops_list, plans_df=plans_df)
-
     def test_date_field_matches_sheet_date(self, manifest_workbook: Workbook) -> None:
         """Test that the date field matches the sheet date."""
         for sheet_name in manifest_workbook.sheetnames:
@@ -492,6 +410,7 @@ class TestCreateManifestsFromCircuitClassScoped:
             sheet_name_date = sheet_name.split(" ")[0]
             assert field_date == sheet_name_date
 
+    @typechecked
     def test_df_is_same(
         self, outputs: tuple[Path, Path], manifest_ExcelFile: pd.ExcelFile
     ) -> None:
@@ -531,14 +450,16 @@ class TestCreateManifestsFromCircuitClassScoped:
             ("F1", "PLEASE SHRED MANIFEST AFTER COMPLETING ROUTE."),
         ],
     )
+    @typechecked
     def test_header_row(
-        self, cell: str, expected_value: str, manifest_workbook: Workbook
+        self, cell: str, expected_value: str | None, manifest_workbook: Workbook
     ) -> None:
         """Test that the header row is correct."""
         for sheet_name in manifest_workbook.sheetnames:
             ws = manifest_workbook[sheet_name]
             assert ws[cell].value == expected_value
 
+    @typechecked
     def test_header_row_end(self, manifest_workbook: Workbook) -> None:
         """Test that the header row ends at F1."""
         for sheet_name in manifest_workbook.sheetnames:
@@ -549,29 +470,33 @@ class TestCreateManifestsFromCircuitClassScoped:
             assert last_non_empty_col == 6
 
     @pytest.mark.parametrize("cell", ["A1", "B1", "C1", "D1", "E1", "F1"])
+    @typechecked
     def test_header_row_color(self, cell: str, manifest_workbook: Workbook) -> None:
         """Test the header row fill color."""
         for sheet_name in manifest_workbook.sheetnames:
             ws = manifest_workbook[sheet_name]
             assert ws[cell].fill.start_color.rgb == f"{CellColors.HEADER}"
 
+    @typechecked
     def test_date_cell(self, manifest_workbook: Workbook) -> None:
         """Test that the date cell is correct."""
         for sheet_name in manifest_workbook.sheetnames:
             ws = manifest_workbook[sheet_name]
             assert ws["A3"].value == f"Date: {MANIFEST_DATE}"
 
+    @typechecked
     def test_driver_cell(
-        self, mock_driver_names: list[str], manifest_workbook: Workbook
+        self, mock_driver_names_all_hhs_false: list[str], manifest_workbook: Workbook
     ) -> None:
         """Test that the driver cell is correct."""
-        drivers = [driver.upper() for driver in mock_driver_names]
+        drivers = [driver.upper() for driver in mock_driver_names_all_hhs_false]
         for sheet_name in manifest_workbook.sheetnames:
             ws = manifest_workbook[sheet_name]
             driver_name = sheet_name.replace(f"{MANIFEST_DATE} ", "")
             assert ws["A5"].value == f"Driver: {driver_name}"
             assert driver_name.upper() in drivers
 
+    @typechecked
     def test_agg_cells(self, manifest_workbook: Workbook, outputs: tuple[Path, Path]) -> None:
         """Test that the aggregated cells are correct."""
         for sheet_name in sorted(manifest_workbook.sheetnames):
@@ -598,6 +523,7 @@ class TestCreateManifestsFromCircuitClassScoped:
             assert ws["E8"].value == "PROTEIN COUNT="
             assert ws["F8"].value == agg_dict["protein_box_count"]
 
+    @typechecked
     def test_box_type_cell_colors(self, manifest_workbook: Workbook) -> None:
         """Test that the box type cells conditionally formatted with fill color."""
         for sheet_name in manifest_workbook.sheetnames:
@@ -609,6 +535,7 @@ class TestCreateManifestsFromCircuitClassScoped:
                 if cell.row > 2 and cell.row < 7:
                     assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
 
+    @typechecked
     def test_notes_column_width(self, manifest_workbook: Workbook) -> None:
         """Test that the notes column width is correct."""
         for sheet_name in manifest_workbook.sheetnames:
@@ -651,12 +578,14 @@ class TestCreateManifestsFromCircuitClassScoped:
             "F9",
         ],
     )
+    @typechecked
     def test_bold_cells(self, cell: str, manifest_workbook: Workbook) -> None:
         """Test that the cells are bold."""
         for sheet_name in manifest_workbook.sheetnames:
             ws = manifest_workbook[sheet_name]
             assert ws[cell].font.bold
 
+    @typechecked
     def test_cell_right_alignment(self, manifest_workbook: Workbook) -> None:
         """Test right-aligned cells."""
         for sheet_name in manifest_workbook.sheetnames:
@@ -667,6 +596,7 @@ class TestCreateManifestsFromCircuitClassScoped:
             for cell in right_aligned_cells:
                 assert cell.alignment.horizontal == "right"
 
+    @typechecked
     def test_cell_left_alignment(self, manifest_workbook: Workbook) -> None:
         """Test left-aligned cells."""
         for sheet_name in manifest_workbook.sheetnames:
@@ -676,8 +606,6 @@ class TestCreateManifestsFromCircuitClassScoped:
             ]
             for cell in left_aligned_cells:
                 assert cell.alignment.horizontal == "left"
-
-    # TODO: How to test extra notes here?
 
     @pytest.mark.parametrize(
         "field, bad_value, expected_error",
@@ -713,21 +641,20 @@ class TestCreateManifestsFromCircuitClassScoped:
             (Columns.BOX_TYPE, None, pytest.raises(ValueError, match="contains null values")),
         ],
     )
+    @typechecked
     def test_write_routes_dfs_field_checks(
         self,
         field: str,
         bad_value: Any | None,
         expected_error: AbstractContextManager,
         transformed_routes_df: pd.DataFrame,
-        tmp_path_factory: pytest.TempPathFactory,
+        tmp_path: Path,
     ) -> None:
         """Raises for field violations."""
-        output_dir = str(tmp_path_factory.mktemp("output"))
-
         bad_df = copy.deepcopy(transformed_routes_df)
         bad_df.loc[0, field] = bad_value
         with expected_error:
-            _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
+            _write_routes_dfs(routes_df=bad_df, output_dir=tmp_path)
 
     @pytest.mark.parametrize(
         "value, expected_error",
@@ -742,16 +669,15 @@ class TestCreateManifestsFromCircuitClassScoped:
             (BoxType.VEGAN, nullcontext()),
         ],
     )
+    @typechecked
     def test_write_routes_dfs_box_type_inlist(
         self,
         value: str,
         expected_error: AbstractContextManager,
         transformed_routes_df: pd.DataFrame,
-        tmp_path_factory: pytest.TempPathFactory,
+        tmp_path: Path,
     ) -> None:
         """Raises error of not a real box type."""
-        output_dir = str(tmp_path_factory.mktemp("output"))
-
         bad_df = copy.deepcopy(transformed_routes_df)
         bad_df[Columns.BOX_TYPE] = bad_df[Columns.BOX_TYPE].astype(str)
         bad_df.loc[0, Columns.BOX_TYPE] = value
@@ -762,7 +688,7 @@ class TestCreateManifestsFromCircuitClassScoped:
         bad_df = RecastSchema.validate(bad_df)
 
         with expected_error:
-            _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
+            _write_routes_dfs(routes_df=bad_df, output_dir=tmp_path)
 
     # Datafrane checks are tested at a lower level to isolate them. Some checks are run first
     # and will always raise when you try to test another test.
@@ -770,6 +696,7 @@ class TestCreateManifestsFromCircuitClassScoped:
     @pytest.mark.parametrize(
         "column", [CircuitColumns.ROUTE, IntermediateColumns.DRIVER_SHEET_NAME]
     )
+    @typechecked
     def test_write_routes_dfs_one_to_one(
         self, column: str, transformed_routes_df: pd.DataFrame
     ) -> None:
@@ -793,6 +720,7 @@ class TestCreateManifestsFromCircuitClassScoped:
             (IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO),
         ],
     )
+    @typechecked
     def test_write_routes_dfs_at_least_one_in_group(
         self, group_col: str, at_least_one_col: str, transformed_routes_df: pd.DataFrame
     ) -> None:
@@ -809,26 +737,21 @@ class TestCreateManifestsFromCircuitClassScoped:
     @pytest.mark.parametrize(
         "column", [IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO]
     )
+    @typechecked
     def test_write_routes_dfs_unique(
-        self,
-        column: str,
-        transformed_routes_df: pd.DataFrame,
-        tmp_path_factory: pytest.TempPathFactory,
+        self, column: str, transformed_routes_df: pd.DataFrame, tmp_path: Path
     ) -> None:
         """Raises if driver_sheet_name:stop_no not unique."""
-        output_dir = str(tmp_path_factory.mktemp("output"))
-
         bad_df = copy.deepcopy(transformed_routes_df)
         bad_df.loc[0, column] = bad_df.loc[len(bad_df) - 1, column]
         with pytest.raises(ValidationError, match="not unique"):
-            _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
+            _write_routes_dfs(routes_df=bad_df, output_dir=tmp_path)
 
+    @typechecked
     def test_write_routes_dfs_contiguous_group(
-        self, transformed_routes_df: pd.DataFrame, tmp_path_factory: pytest.TempPathFactory
+        self, transformed_routes_df: pd.DataFrame, tmp_path: Path
     ) -> None:
         """Raises if stop_no not continguous within driver_sheet_name group."""
-        output_dir = str(tmp_path_factory.mktemp("output"))
-
         bad_df = copy.deepcopy(transformed_routes_df)
         first_group = bad_df[IntermediateColumns.DRIVER_SHEET_NAME].iloc[0]
         max_first_group = bad_df[
@@ -841,14 +764,13 @@ class TestCreateManifestsFromCircuitClassScoped:
         ] = (max_first_group + 1)
 
         with pytest.raises(ValidationError, match="contiguous_group"):
-            _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
+            _write_routes_dfs(routes_df=bad_df, output_dir=tmp_path)
 
+    @typechecked
     def test_write_routes_dfs_increasing_by(
-        self, transformed_routes_df: pd.DataFrame, tmp_path_factory: pytest.TempPathFactory
+        self, transformed_routes_df: pd.DataFrame, tmp_path: Path
     ) -> None:
         """Raises if not sorted by stop_no within driver_sheet_name."""
-        output_dir = str(tmp_path_factory.mktemp("output"))
-
         bad_df = copy.deepcopy(transformed_routes_df)
         first_group = bad_df[IntermediateColumns.DRIVER_SHEET_NAME].iloc[0]
         first_group_vals = bad_df[
@@ -859,18 +781,17 @@ class TestCreateManifestsFromCircuitClassScoped:
         ] = list(reversed(first_group_vals))
 
         with pytest.raises(ValidationError, match="increasing_by"):
-            _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
+            _write_routes_dfs(routes_df=bad_df, output_dir=tmp_path)
 
+    @typechecked
     def test_write_routes_dfs_many_to_one(
-        self, transformed_routes_df: pd.DataFrame, tmp_path_factory: pytest.TempPathFactory
+        self, transformed_routes_df: pd.DataFrame, tmp_path: Path
     ) -> None:
         """Raises if driver_sheet_name:stop_id not m:1."""
-        output_dir = str(tmp_path_factory.mktemp("output"))
-
         bad_df = copy.deepcopy(transformed_routes_df)
         bad_df.loc[0, CircuitColumns.ID] = bad_df.loc[len(bad_df) - 1, CircuitColumns.ID]
         with pytest.raises(ValidationError, match="many_to_one"):
-            _write_routes_dfs(routes_df=bad_df, output_dir=Path(output_dir))
+            _write_routes_dfs(routes_df=bad_df, output_dir=tmp_path)
 
     @pytest.mark.parametrize(
         "field, item, check_name",
@@ -883,6 +804,7 @@ class TestCreateManifestsFromCircuitClassScoped:
             (CircuitColumns.ORDER_INFO, CircuitColumns.PRODUCTS, "item_in_field_dict"),
         ],
     )
+    @typechecked
     def test_transform_routes_df_item_in_field_dict(
         self,
         field: str,
@@ -942,6 +864,7 @@ class TestCreateManifestsFromCircuitClassScoped:
             ),
         ],
     )
+    @typechecked
     def test_transform_routes_df_field_checks(
         self,
         field: str,
@@ -955,6 +878,7 @@ class TestCreateManifestsFromCircuitClassScoped:
         with expected_error:
             _ = CircuitRoutesTransformInFromDict.validate(bad_df)
 
+    @typechecked
     def test_transform_routes_df_stop_id_unique(
         self, plan_stops_list: list[dict[str, Any]]
     ) -> None:
@@ -968,6 +892,7 @@ class TestCreateManifestsFromCircuitClassScoped:
         "id, error_match",
         [("asdg/stops/asdg", "str_startswith"), ("plans/afasdf/sdfsa", "str_contains")],
     )
+    @typechecked
     def test_transform_routes_df_stop_id_regex(
         self, id: str, error_match: str, plan_stops_list: list[dict[str, Any]]
     ) -> None:

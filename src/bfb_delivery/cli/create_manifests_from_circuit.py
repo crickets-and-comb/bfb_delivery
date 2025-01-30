@@ -1,4 +1,9 @@
-"""combine_route_tables CLI. See :doc:`create_manifests` for more information."""
+# noqa: D100
+__doc__ = """
+.. click:: bfb_delivery.cli.create_manifests_from_circuit:main
+    :prog: create_manifests_from_circuit
+    :nested: full
+"""
 
 import logging
 
@@ -6,52 +11,40 @@ import click
 from typeguard import typechecked
 
 from bfb_delivery import create_manifests_from_circuit
-from bfb_delivery.lib.constants import Defaults
+from bfb_delivery.lib.constants import Defaults, DocStrings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
-@click.command()
+@click.command(help=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.cli_docstring)
 @click.option(
     "--start_date",
     type=str,
     required=False,
     default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["start_date"],
-    help=(
-        'The start date to use in the output workbook sheetnames as "YYYYMMDD".'
-        "Empty string (default) uses the soonest Friday. Range is inclusive."
-    ),
+    help=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.args["start_date"],
 )
 @click.option(
     "--end_date",
     type=str,
     required=False,
     default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["end_date"],
-    help=(
-        'The end date to use in the output workbook sheetnames as "YYYYMMDD".'
-        "Empty string (default) uses the start date. Range is inclusive."
-    ),
+    help=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.args["end_date"],
 )
 @click.option(
     "--output_dir",
     type=str,
     required=False,
     default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["output_dir"],
-    help=(
-        "The directory to write the output workbook to. Empty string (default) saves "
-        "to present working directory."
-    ),
+    help=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.args["output_dir"],
 )
 @click.option(
     "--output_filename",
     type=str,
     required=False,
     default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["output_filename"],
-    help=(
-        "The name of the output workbook. Empty string (default) will name the file "
-        '"formatted_routes_{date}.xlsx".'
-    ),
+    help=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.args["output_filename"],
 )
 # TODO: Change circuit_output_dir default to subdir in output_dir.
 @click.option(
@@ -59,21 +52,13 @@ logger = logging.getLogger(__name__)
     type=str,
     required=False,
     default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["circuit_output_dir"],
-    help=(
-        "The directory to save the Circuit route CSVs to."
-        'Empty string saves to "routes_{date}" directory in present working directory.'
-        "If the directory does not exist, it is created. If it exists, it is overwritten."
-    ),
+    help=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.args["circuit_output_dir"],
 )
 @click.option(
     "--all_hhs",
     is_flag=True,
     default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["all_hhs"],
-    help=(
-        'Flag to get only the "All HHs" route.'
-        'False gets all routes except "All HHs". True gets only the "All HHs" route.'
-        "NOTE: True returns email column in CSVs, for reuploading after splitting."
-    ),
+    help=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.args["all_hhs"],
 )
 @click.option(
     "--verbose",
@@ -86,13 +71,10 @@ logger = logging.getLogger(__name__)
     type=str,
     required=False,
     default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["extra_notes_file"],
-    help=(
-        "The path to the extra notes file. If empty (default), uses a constant DataFrame. "
-        "See :py:data:`bfb_delivery.lib.constants.ExtraNotes`."
-    ),
+    help=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.args["extra_notes_file"],
 )
 @typechecked
-def main(
+def main(  # noqa: D103
     start_date: str,
     end_date: str,
     output_dir: str,
@@ -102,11 +84,6 @@ def main(
     verbose: bool,
     extra_notes_file: str,
 ) -> str:
-    """See public docstring.
-
-    :py:func:`bfb_delivery.api.public.create_manifests_from_circuit`.
-
-    """
     final_manifest_path, new_circuit_output_dir = create_manifests_from_circuit(
         start_date=start_date,
         end_date=end_date,

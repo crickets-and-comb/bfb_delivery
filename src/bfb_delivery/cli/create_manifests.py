@@ -1,4 +1,9 @@
-"""combine_route_tables CLI. See :doc:`create_manifests` for more information."""
+# noqa: D100
+__doc__ = """
+.. click:: bfb_delivery.cli.combine_route_tables:main
+   :prog: combine_route_tables
+   :nested: full
+"""
 
 import logging
 
@@ -6,52 +11,41 @@ import click
 from typeguard import typechecked
 
 from bfb_delivery import create_manifests
-from bfb_delivery.lib.constants import Defaults
+from bfb_delivery.lib.constants import Defaults, DocStrings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
-@click.command()
+@click.command(help=DocStrings.CREATE_MANIFESTS.cli_docstring)
 @click.option(
-    "--input_dir",
-    type=str,
-    required=True,
-    help="The directory containing the driver route CSVs.",
+    "--input_dir", type=str, required=True, help=DocStrings.CREATE_MANIFESTS.args["input_dir"]
 )
 @click.option(
     "--output_dir",
     type=str,
     required=False,
     default=Defaults.CREATE_MANIFESTS["output_dir"],
-    help=(
-        "The directory to write the output workbook to. Empty string (default) saves "
-        "to the `input_dir` directory."
-    ),
+    help=DocStrings.CREATE_MANIFESTS.args["output_dir"],
 )
 @click.option(
     "--output_filename",
     type=str,
     required=False,
     default=Defaults.CREATE_MANIFESTS["output_filename"],
-    help=(
-        "The name of the output workbook. Empty string (default) will name the file "
-        '"final_manifests_{date}.xlsx".'
-    ),
+    help=DocStrings.CREATE_MANIFESTS.args["output_filename"],
 )
 @click.option(
     "--extra_notes_file",
     type=str,
     required=False,
     default=Defaults.CREATE_MANIFESTS["extra_notes_file"],
-    help=(
-        "The path to the extra notes file. If empty (default), uses a constant DataFrame. "
-        "See :py:data:`bfb_delivery.lib.constants.ExtraNotes`."
-    ),
+    help=DocStrings.CREATE_MANIFESTS.args["extra_notes_file"],
 )
 @typechecked
-def main(input_dir: str, output_dir: str, output_filename: str, extra_notes_file: str) -> str:
-    """See public docstring: :py:func:`bfb_delivery.api.public.create_manifests`."""
+def main(  # noqa: D103
+    input_dir: str, output_dir: str, output_filename: str, extra_notes_file: str
+) -> str:
     final_manifest_path = create_manifests(
         input_dir=input_dir,
         output_dir=output_dir,
