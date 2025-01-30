@@ -178,22 +178,21 @@ class DocString:
     @property
     def api_docstring(self) -> str:
         """Format the docstring for sphinx API docs."""
-        return (
-            (
-                """
-"""
-                + self.opening
-                + """\n
-Args:\n\t"""
-                + "\n\t".join([f"{key}: {value}" for key, value in self.args.items()])
-                + """\n
-Raises:\n\t"""
-                + "\n\t".join([f"{key}: {value}" for key, value in self.raises.items()])
-            )
-            + """\n
-Returns:\n\t"""
-            + "\n\t".join(self.returns)
-        )
+        parts = [self.opening.strip()]
+
+        if self.args:
+            parts.append("\nArgs:\n")
+            parts.extend([f"  {key}: {value}" for key, value in self.args.items()])
+
+        if self.raises:
+            parts.append("\nRaises:\n")
+            parts.extend([f"  {key}: {value}" for key, value in self.raises.items()])
+
+        if self.returns:
+            parts.append("\nReturns:\n")
+            parts.extend([f"  {item}" for item in self.returns])
+
+        return "\n\n".join(parts) + "\n"
 
     @property
     def cli_docstring(self) -> str:
@@ -230,7 +229,7 @@ If `output_dir` is specified, will create the directory if it doesn't exist.
 See :doc:`combine_route_tables` for more information.
 """,
         args=DocStringsArgs.COMBINE_ROUTE_TABLES,
-        raises={"ValueError": "If `input_paths` is empty.", "TEST_ERROR": "DELETE THIS."},
+        raises={"ValueError": "If `input_paths` is empty."},
         returns=["The path to the output workbook."],
     )
 
