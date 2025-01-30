@@ -1,4 +1,9 @@
-"""split_chunked_route CLI. See :doc:`split_chunked_route` for more information."""
+# noqa: D100
+__doc__ = """
+.. click:: bfb_delivery.cli.split_chunked_route:main
+   :prog: split_chunked_route
+   :nested: full
+"""
 
 import logging
 

@@ -1,5 +1,9 @@
-"""format_combined_routes CLI. See :doc:`format_combined_routes` for more information."""
-
+# noqa: D100
+__doc__ = """
+.. click:: bfb_delivery.cli.format_combined_routes:main
+   :prog: format_combined_routes
+   :nested: full
+"""
 import logging
 
 import click

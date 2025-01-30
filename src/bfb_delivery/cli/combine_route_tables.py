@@ -1,5 +1,9 @@
-"""combine_route_tables CLI. See :doc:`combine_route_tables` for more information."""
-
+# noqa: D100
+__doc__ = """
+.. click:: bfb_delivery.cli.combine_route_tables:main
+   :prog: combine_route_tables
+   :nested: full
+"""
 import logging
 
 import click
