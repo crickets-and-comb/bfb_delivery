@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 import pandas as pd
 import pytest
+from typeguard import typechecked
 
 from bfb_delivery.lib.formatting.utils import get_extra_notes, get_phone_number, map_columns
 
@@ -67,6 +68,7 @@ from bfb_delivery.lib.formatting.utils import get_extra_notes, get_phone_number,
         ),
     ],
 )
+@typechecked
 def test_get_phone_number(
     key: str,
     config_path: None | str,
@@ -89,6 +91,7 @@ def test_get_phone_number(
 
 
 @pytest.mark.parametrize("invert_map", [False, True])
+@typechecked
 def test_map_columns(invert_map: bool) -> None:
     """Test that the columns are mapped correctly."""
     df = pd.DataFrame(
@@ -137,6 +140,7 @@ def test_map_columns(invert_map: bool) -> None:
     ],
 )
 @pytest.mark.parametrize("file_name", ["extra_notes.csv", ""])
+@typechecked
 def test_get_extra_notes(
     extra_notes_df: pd.DataFrame,
     error_context: AbstractContextManager,

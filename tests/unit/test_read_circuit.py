@@ -83,6 +83,7 @@ def mock_get_plan_responses(
 
 
 @pytest.fixture(scope="class")
+@typechecked
 def mock_getcwd(tmp_path_factory: pytest.TempPathFactory) -> Iterator[str]:
     """Mock os.getcwd within the read_circuit module."""
     return_value = str(tmp_path_factory.mktemp("cwd"))
@@ -208,6 +209,7 @@ class TestCreateManifestsFromCircuit:
             return json.load(f)
 
     @pytest.fixture(scope="class")
+    @typechecked
     def outputs(
         self,
         mock_stops_responses_all_hhs_false: list,
@@ -226,18 +228,21 @@ class TestCreateManifestsFromCircuit:
         return manifest_path, circuit_sheets_dir
 
     @pytest.fixture(scope="class")
+    @typechecked
     def manifest_workbook(self, outputs: tuple[Path, Path]) -> Workbook:
         """Create a basic manifest workbook scoped to class for reuse."""
         workbook = load_workbook(outputs[0])
         return workbook
 
     @pytest.fixture(scope="class")
+    @typechecked
     def manifest_ExcelFile(self, outputs: tuple[Path, Path]) -> Iterator[pd.ExcelFile]:
         """Create a basic manifest workbook scoped to class for reuse."""
         with pd.ExcelFile(outputs[0]) as xls:
             yield xls
 
     @pytest.fixture(scope="class")
+    @typechecked
     def plans_list(self) -> list[dict[str, Any]]:
         """_get_raw_plans."""
         return _get_raw_plans(
@@ -245,11 +250,13 @@ class TestCreateManifestsFromCircuit:
         )
 
     @pytest.fixture(scope="class")
+    @typechecked
     def plans_df(self, plans_list: list[dict[str, Any]]) -> pd.DataFrame:
         """_make_plans_df."""
         return _make_plans_df(plans_list=plans_list, all_hhs=False)
 
     @pytest.fixture(scope="class")
+    @typechecked
     def plan_stops_list(
         self, mock_stops_responses_all_hhs_false: list, plans_df: pd.DataFrame
     ) -> list[dict[str, Any]]:
@@ -263,6 +270,7 @@ class TestCreateManifestsFromCircuit:
             )
 
     @pytest.fixture(scope="class")
+    @typechecked
     def transformed_routes_df(
         self, plan_stops_list: list[dict[str, Any]], plans_df: pd.DataFrame
     ) -> pd.DataFrame:
@@ -279,6 +287,7 @@ class TestCreateManifestsFromCircuit:
     )
     @pytest.mark.parametrize("verbose", [True, False])
     @pytest.mark.parametrize("test_cli", [False, True])
+    @typechecked
     def test_set_output_dir(
         self,
         circuit_output_dir: str,
@@ -367,6 +376,7 @@ class TestCreateManifestsFromCircuit:
             ),
         ],
     )
+    @typechecked
     def test_all_drivers_have_a_sheet(
         self,
         all_hhs: bool,
@@ -391,6 +401,7 @@ class TestCreateManifestsFromCircuit:
             [f"{sheet_name}.csv" for sheet_name in driver_sheet_names]
         )
 
+    @typechecked
     def test_date_field_matches_sheet_date(self, manifest_workbook: Workbook) -> None:
         """Test that the date field matches the sheet date."""
         for sheet_name in manifest_workbook.sheetnames:
@@ -399,6 +410,7 @@ class TestCreateManifestsFromCircuit:
             sheet_name_date = sheet_name.split(" ")[0]
             assert field_date == sheet_name_date
 
+    @typechecked
     def test_df_is_same(
         self, outputs: tuple[Path, Path], manifest_ExcelFile: pd.ExcelFile
     ) -> None:
@@ -438,14 +450,16 @@ class TestCreateManifestsFromCircuit:
             ("F1", "PLEASE SHRED MANIFEST AFTER COMPLETING ROUTE."),
         ],
     )
+    @typechecked
     def test_header_row(
-        self, cell: str, expected_value: str, manifest_workbook: Workbook
+        self, cell: str, expected_value: str | None, manifest_workbook: Workbook
     ) -> None:
         """Test that the header row is correct."""
         for sheet_name in manifest_workbook.sheetnames:
             ws = manifest_workbook[sheet_name]
             assert ws[cell].value == expected_value
 
+    @typechecked
     def test_header_row_end(self, manifest_workbook: Workbook) -> None:
         """Test that the header row ends at F1."""
         for sheet_name in manifest_workbook.sheetnames:
@@ -456,18 +470,21 @@ class TestCreateManifestsFromCircuit:
             assert last_non_empty_col == 6
 
     @pytest.mark.parametrize("cell", ["A1", "B1", "C1", "D1", "E1", "F1"])
+    @typechecked
     def test_header_row_color(self, cell: str, manifest_workbook: Workbook) -> None:
         """Test the header row fill color."""
         for sheet_name in manifest_workbook.sheetnames:
             ws = manifest_workbook[sheet_name]
             assert ws[cell].fill.start_color.rgb == f"{CellColors.HEADER}"
 
+    @typechecked
     def test_date_cell(self, manifest_workbook: Workbook) -> None:
         """Test that the date cell is correct."""
         for sheet_name in manifest_workbook.sheetnames:
             ws = manifest_workbook[sheet_name]
             assert ws["A3"].value == f"Date: {MANIFEST_DATE}"
 
+    @typechecked
     def test_driver_cell(
         self, mock_driver_names_all_hhs_false: list[str], manifest_workbook: Workbook
     ) -> None:
@@ -479,6 +496,7 @@ class TestCreateManifestsFromCircuit:
             assert ws["A5"].value == f"Driver: {driver_name}"
             assert driver_name.upper() in drivers
 
+    @typechecked
     def test_agg_cells(self, manifest_workbook: Workbook, outputs: tuple[Path, Path]) -> None:
         """Test that the aggregated cells are correct."""
         for sheet_name in sorted(manifest_workbook.sheetnames):
@@ -505,6 +523,7 @@ class TestCreateManifestsFromCircuit:
             assert ws["E8"].value == "PROTEIN COUNT="
             assert ws["F8"].value == agg_dict["protein_box_count"]
 
+    @typechecked
     def test_box_type_cell_colors(self, manifest_workbook: Workbook) -> None:
         """Test that the box type cells conditionally formatted with fill color."""
         for sheet_name in manifest_workbook.sheetnames:
@@ -516,6 +535,7 @@ class TestCreateManifestsFromCircuit:
                 if cell.row > 2 and cell.row < 7:
                     assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
 
+    @typechecked
     def test_notes_column_width(self, manifest_workbook: Workbook) -> None:
         """Test that the notes column width is correct."""
         for sheet_name in manifest_workbook.sheetnames:
@@ -558,12 +578,14 @@ class TestCreateManifestsFromCircuit:
             "F9",
         ],
     )
+    @typechecked
     def test_bold_cells(self, cell: str, manifest_workbook: Workbook) -> None:
         """Test that the cells are bold."""
         for sheet_name in manifest_workbook.sheetnames:
             ws = manifest_workbook[sheet_name]
             assert ws[cell].font.bold
 
+    @typechecked
     def test_cell_right_alignment(self, manifest_workbook: Workbook) -> None:
         """Test right-aligned cells."""
         for sheet_name in manifest_workbook.sheetnames:
@@ -574,6 +596,7 @@ class TestCreateManifestsFromCircuit:
             for cell in right_aligned_cells:
                 assert cell.alignment.horizontal == "right"
 
+    @typechecked
     def test_cell_left_alignment(self, manifest_workbook: Workbook) -> None:
         """Test left-aligned cells."""
         for sheet_name in manifest_workbook.sheetnames:
@@ -618,6 +641,7 @@ class TestCreateManifestsFromCircuit:
             (Columns.BOX_TYPE, None, pytest.raises(ValueError, match="contains null values")),
         ],
     )
+    @typechecked
     def test_write_routes_dfs_field_checks(
         self,
         field: str,
@@ -645,6 +669,7 @@ class TestCreateManifestsFromCircuit:
             (BoxType.VEGAN, nullcontext()),
         ],
     )
+    @typechecked
     def test_write_routes_dfs_box_type_inlist(
         self,
         value: str,
@@ -671,6 +696,7 @@ class TestCreateManifestsFromCircuit:
     @pytest.mark.parametrize(
         "column", [CircuitColumns.ROUTE, IntermediateColumns.DRIVER_SHEET_NAME]
     )
+    @typechecked
     def test_write_routes_dfs_one_to_one(
         self, column: str, transformed_routes_df: pd.DataFrame
     ) -> None:
@@ -694,6 +720,7 @@ class TestCreateManifestsFromCircuit:
             (IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO),
         ],
     )
+    @typechecked
     def test_write_routes_dfs_at_least_one_in_group(
         self, group_col: str, at_least_one_col: str, transformed_routes_df: pd.DataFrame
     ) -> None:
@@ -710,6 +737,7 @@ class TestCreateManifestsFromCircuit:
     @pytest.mark.parametrize(
         "column", [IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO]
     )
+    @typechecked
     def test_write_routes_dfs_unique(
         self, column: str, transformed_routes_df: pd.DataFrame, tmp_path: Path
     ) -> None:
@@ -719,6 +747,7 @@ class TestCreateManifestsFromCircuit:
         with pytest.raises(ValidationError, match="not unique"):
             _write_routes_dfs(routes_df=bad_df, output_dir=tmp_path)
 
+    @typechecked
     def test_write_routes_dfs_contiguous_group(
         self, transformed_routes_df: pd.DataFrame, tmp_path: Path
     ) -> None:
@@ -737,6 +766,7 @@ class TestCreateManifestsFromCircuit:
         with pytest.raises(ValidationError, match="contiguous_group"):
             _write_routes_dfs(routes_df=bad_df, output_dir=tmp_path)
 
+    @typechecked
     def test_write_routes_dfs_increasing_by(
         self, transformed_routes_df: pd.DataFrame, tmp_path: Path
     ) -> None:
@@ -753,6 +783,7 @@ class TestCreateManifestsFromCircuit:
         with pytest.raises(ValidationError, match="increasing_by"):
             _write_routes_dfs(routes_df=bad_df, output_dir=tmp_path)
 
+    @typechecked
     def test_write_routes_dfs_many_to_one(
         self, transformed_routes_df: pd.DataFrame, tmp_path: Path
     ) -> None:
@@ -773,6 +804,7 @@ class TestCreateManifestsFromCircuit:
             (CircuitColumns.ORDER_INFO, CircuitColumns.PRODUCTS, "item_in_field_dict"),
         ],
     )
+    @typechecked
     def test_transform_routes_df_item_in_field_dict(
         self,
         field: str,
@@ -832,6 +864,7 @@ class TestCreateManifestsFromCircuit:
             ),
         ],
     )
+    @typechecked
     def test_transform_routes_df_field_checks(
         self,
         field: str,
@@ -845,6 +878,7 @@ class TestCreateManifestsFromCircuit:
         with expected_error:
             _ = CircuitRoutesTransformInFromDict.validate(bad_df)
 
+    @typechecked
     def test_transform_routes_df_stop_id_unique(
         self, plan_stops_list: list[dict[str, Any]]
     ) -> None:
@@ -858,6 +892,7 @@ class TestCreateManifestsFromCircuit:
         "id, error_match",
         [("asdg/stops/asdg", "str_startswith"), ("plans/afasdf/sdfsa", "str_contains")],
     )
+    @typechecked
     def test_transform_routes_df_stop_id_regex(
         self, id: str, error_match: str, plan_stops_list: list[dict[str, Any]]
     ) -> None:

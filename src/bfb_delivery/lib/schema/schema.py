@@ -15,7 +15,6 @@ from bfb_delivery.lib.constants import (
 )
 from bfb_delivery.lib.schema import checks  # noqa: F401
 
-
 _COERCE_FIELD = partial(pa.Field, coerce=True)
 _NULLABLE_FIELD = partial(_COERCE_FIELD, nullable=True)
 _UNIQUE_FIELD = partial(_COERCE_FIELD, unique=True)
