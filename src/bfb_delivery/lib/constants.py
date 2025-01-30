@@ -168,7 +168,9 @@ See :doc:`combine_route_tables` for more information.
                 "Empty string (default) will name the file 'combined_routes_{date}.xlsx'."
             ),
         },
-        raises=[ErrorDocString(type="ValueError", docstring="If `input_paths` is empty.")],
+        raises=[
+            ErrorDocString(error_type="ValueError", docstring="If `input_paths` is empty.")
+        ],
         returns=["The path to the output workbook."],
     )
 
@@ -371,9 +373,9 @@ See :doc:`split_chunked_route` for more information.
         },
         returns=["Paths to the split chunked route workbooks."],
         raises=[
-            ErrorDocString(type="ValueError", docstring="If `n_books` is less than 1."),
+            ErrorDocString(error_type="ValueError", docstring="If `n_books` is less than 1."),
             ErrorDocString(
-                type="ValueError",
+                error_type="ValueError",
                 docstring=(
                     "If `n_books` is greater than the number of drivers in the input "
                     "workbook."
