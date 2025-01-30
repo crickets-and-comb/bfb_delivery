@@ -1,8 +1,8 @@
 # noqa: D100
 __doc__ = """
 .. click:: bfb_delivery.cli.create_manifests_from_circuit:main
-:prog: create_manifests_from_circuit
-:nested: full
+    :prog: create_manifests_from_circuit
+    :nested: full
 """
 
 import logging
