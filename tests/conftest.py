@@ -2,12 +2,12 @@
 
 import os
 from pathlib import Path
-from typing import Any, List
+from typing import Any
 
 import pytest
 
 
-def pytest_collection_modifyitems(config: Any, items: List[Any]) -> None:
+def pytest_collection_modifyitems(config: Any, items: list[Any]) -> None:
     """Mark test types."""
     unit_tests_dir = os.path.join(config.rootdir, Path("tests/unit"))
     integration_tests_dir = os.path.join(config.rootdir, Path("tests/integration"))
