@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="bfb_delivery.api package" href="bfb_delivery.api.html" /><link rel="prev" title="bfb_delivery" href="modules.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>bfb_delivery package - bfb_delivery 0.5.1 documentation</title>
+        <title>bfb_delivery package - bfb_delivery 0.5.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.5.1 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.5.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.5.1 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.5.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -291,11 +291,26 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="bfb_delivery.cli.html">bfb_delivery.cli package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="bfb_delivery.cli.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bfb_delivery.cli.html#module-bfb_delivery.cli.combine_route_tables">bfb_delivery.cli.combine_route_tables module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bfb_delivery.cli.html#module-bfb_delivery.cli.create_manifests">bfb_delivery.cli.create_manifests module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bfb_delivery.cli.html#module-bfb_delivery.cli.create_manifests_from_circuit">bfb_delivery.cli.create_manifests_from_circuit module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bfb_delivery.cli.html#module-bfb_delivery.cli.format_combined_routes">bfb_delivery.cli.format_combined_routes module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bfb_delivery.cli.html#module-bfb_delivery.cli.split_chunked_route">bfb_delivery.cli.split_chunked_route module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bfb_delivery.cli.html#module-bfb_delivery.cli.combine_route_tables">bfb_delivery.cli.combine_route_tables module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.cli.html#combine-route-tables">combine_route_tables</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bfb_delivery.cli.html#module-bfb_delivery.cli.create_manifests">bfb_delivery.cli.create_manifests module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.cli.html#combine-route-tables">combine_route_tables</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bfb_delivery.cli.html#module-bfb_delivery.cli.create_manifests_from_circuit">bfb_delivery.cli.create_manifests_from_circuit module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.cli.html#create-manifests-from-circuit">create_manifests_from_circuit</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bfb_delivery.cli.html#module-bfb_delivery.cli.format_combined_routes">bfb_delivery.cli.format_combined_routes module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.cli.html#format-combined-routes">format_combined_routes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bfb_delivery.cli.html#module-bfb_delivery.cli.split_chunked_route">bfb_delivery.cli.split_chunked_route module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.cli.html#split-chunked-route">split_chunked_route</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="bfb_delivery.cli.html#module-bfb_delivery.cli">Module contents</a></li>
 </ul>
 </li>
@@ -390,6 +405,14 @@
 <li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Defaults.CREATE_MANIFESTS_FROM_CIRCUIT"><code class="docutils literal notranslate"><span class="pre">Defaults.CREATE_MANIFESTS_FROM_CIRCUIT</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Defaults.FORMAT_COMBINED_ROUTES"><code class="docutils literal notranslate"><span class="pre">Defaults.FORMAT_COMBINED_ROUTES</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Defaults.SPLIT_CHUNKED_ROUTE"><code class="docutils literal notranslate"><span class="pre">Defaults.SPLIT_CHUNKED_ROUTE</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.DocStrings"><code class="docutils literal notranslate"><span class="pre">DocStrings</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.DocStrings.COMBINE_ROUTE_TABLES"><code class="docutils literal notranslate"><span class="pre">DocStrings.COMBINE_ROUTE_TABLES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.DocStrings.CREATE_MANIFESTS"><code class="docutils literal notranslate"><span class="pre">DocStrings.CREATE_MANIFESTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT"><code class="docutils literal notranslate"><span class="pre">DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.DocStrings.FORMAT_COMBINED_ROUTES"><code class="docutils literal notranslate"><span class="pre">DocStrings.FORMAT_COMBINED_ROUTES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.DocStrings.SPLIT_CHUNKED_ROUTE"><code class="docutils literal notranslate"><span class="pre">DocStrings.SPLIT_CHUNKED_ROUTE</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes"><code class="docutils literal notranslate"><span class="pre">ExtraNotes</span></code></a><ul>
@@ -498,7 +521,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=b9afe91b"></script>
+</div><script src="_static/documentation_options.js?v=8e576371"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="bfb_delivery.cli package" href="bfb_delivery.cli.html" /><link rel="prev" title="bfb_delivery package" href="bfb_delivery.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>bfb_delivery.api package - bfb_delivery 0.5.1 documentation</title>
+        <title>bfb_delivery.api package - bfb_delivery 0.5.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.5.1 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.5.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.5.1 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.5.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -276,10 +276,31 @@ power users and developers who may want to use an existing DB session or somethi
 <dl class="py function">
 <dt class="sig sig-object py" id="bfb_delivery.api.internal.combine_route_tables">
 <span class="sig-prename descclassname"><span class="pre">bfb_delivery.api.internal.</span></span><span class="sig-name descname"><span class="pre">combine_route_tables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.api.internal.combine_route_tables" title="Link to this definition">¶</a></dt>
-<dd><p>See public docstring: <a class="reference internal" href="#bfb_delivery.api.public.combine_route_tables" title="bfb_delivery.api.public.combine_route_tables"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.combine_route_tables()</span></code></a>.</p>
+<dd><p>Combines the driver route CSVs into a single workbook.</p>
+<p>This is used after optimizing and exporting the routes to individual CSVs. It prepares the
+worksheets to be formatted with <a class="reference internal" href="#bfb_delivery.api.public.format_combined_routes" title="bfb_delivery.api.public.format_combined_routes"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.format_combined_routes()</span></code></a>.</p>
+<p>If <cite>output_dir</cite> is specified, will create the directory if it doesn’t exist.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Changes “Product Type” column name back to “Box Type”.</p>
+</div>
+<p>See <a class="reference internal" href="combine_route_tables.html"><span class="doc">Combine Driver Route Tables into a Single Workbook</span></a> for more information.</p>
 <dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The directory containing the driver route CSVs.</p></li>
+<li><p><strong>output_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The directory to write the output workbook to. Empty string (default) saves to the <cite>input_dir</cite> directory.</p></li>
+<li><p><strong>output_filename</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The name of the output workbook. Empty string (default) will name the file ‘combined_routes_{date}.xlsx’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <cite>input_paths</cite> is empty.</p>
+</dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The path to the output workbook.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -287,10 +308,37 @@ power users and developers who may want to use an existing DB session or somethi
 <dl class="py function">
 <dt class="sig sig-object py" id="bfb_delivery.api.internal.create_manifests">
 <span class="sig-prename descclassname"><span class="pre">bfb_delivery.api.internal.</span></span><span class="sig-name descname"><span class="pre">create_manifests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_notes_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.api.internal.create_manifests" title="Link to this definition">¶</a></dt>
-<dd><p>See public docstring for <a class="reference internal" href="#bfb_delivery.api.public.create_manifests" title="bfb_delivery.api.public.create_manifests"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.create_manifests()</span></code></a>.</p>
+<dd><p>From Circuit route CSVs, creates driver manifest workbook ready to print.</p>
+<p>This is used after optimizing and exporting the routes to individual CSVs. Reads in
+driver route CSVs from <cite>input_dir</cite> and creates a formatted workbook with driver
+manifests ready to print, with headers, aggregate data, and color-coded box types. Each
+driver’s route is a separate sheet in the workbook.</p>
+<p>The workbook is saved to <cite>output_dir</cite> with the name <cite>output_filename</cite>. Will create
+<cite>output_dir</cite> if it doesn’t exist.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Uses the date of the front of each CSV name to set the manifest date field. I.e.,
+each sheet should be named something like “08.08 Richard N”, and, e.g., this would
+set the manifest date field to “Date: 08.08”.</p>
+</div>
+<p>Just wraps <a class="reference internal" href="#bfb_delivery.api.public.combine_route_tables" title="bfb_delivery.api.public.combine_route_tables"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.combine_route_tables()</span></code></a> and
+<a class="reference internal" href="#bfb_delivery.api.public.format_combined_routes" title="bfb_delivery.api.public.format_combined_routes"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.format_combined_routes()</span></code></a>. Creates an intermediate output
+workbook with all routes combined, then formats it.</p>
+<p>See <a class="reference internal" href="create_manifests.html"><span class="doc">Create Printable Manifests from Downloaded Optimized Routes</span></a> for more information.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The directory containing the driver route CSVs.</p></li>
+<li><p><strong>output_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The directory to write the formatted manifest workbook to. Empty string (default) saves to the <cite>input_dir</cite> directory.</p></li>
+<li><p><strong>output_filename</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The name of the output workbook.Empty string sets filename to “final_manifests_{date}.xlsx”.</p></li>
+<li><p><strong>extra_notes_file</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Path to the extra notes file. If empty (default), uses a constant DataFrame. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes" title="bfb_delivery.lib.constants.ExtraNotes"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.ExtraNotes</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path to the formatted manifest workbook.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -298,11 +346,43 @@ power users and developers who may want to use an existing DB session or somethi
 <dl class="py function">
 <dt class="sig sig-object py" id="bfb_delivery.api.internal.create_manifests_from_circuit">
 <span class="sig-prename descclassname"><span class="pre">bfb_delivery.api.internal.</span></span><span class="sig-name descname"><span class="pre">create_manifests_from_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">circuit_output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_hhs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_notes_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.api.internal.create_manifests_from_circuit" title="Link to this definition">¶</a></dt>
-<dd><p>See public docstring.</p>
-<p><a class="reference internal" href="#bfb_delivery.api.public.create_manifests_from_circuit" title="bfb_delivery.api.public.create_manifests_from_circuit"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.create_manifests_from_circuit()</span></code></a>.</p>
+<dd><p>Gets optimized routes from Circuit, creates driver manifest workbook ready to print.</p>
+<p>This is used after uploading and optimizing the routes. Reads routes CSVs from Circuit,
+and creates a formatted workbook with driver manifests ready to print, with headers,
+aggregate data, and color-coded box types. Each driver’s route is a separate sheet in the
+workbook.</p>
+<p>The workbook is saved to <cite>output_dir</cite> with the name <cite>output_filename</cite>. Will create
+<cite>output_dir</cite> if it doesn’t exist.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Uses the date of the front of each CSV name to set the manifest date field. I.e.,
+each sheet should be named something like “08.08 Richard N”, and, e.g., this would
+set the manifest date field to “Date: 08.08”. <strong>But, this does not determine the
+search date range.</strong></p>
+</div>
+<p>Wraps <a class="reference internal" href="#bfb_delivery.api.public.create_manifests" title="bfb_delivery.api.public.create_manifests"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.create_manifests()</span></code></a> and adds Circuit integration.
+And, <cite>create_manifests</cite> just wraps <a class="reference internal" href="#bfb_delivery.api.public.combine_route_tables" title="bfb_delivery.api.public.combine_route_tables"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.combine_route_tables()</span></code></a>
+and <a class="reference internal" href="#bfb_delivery.api.public.format_combined_routes" title="bfb_delivery.api.public.format_combined_routes"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.format_combined_routes()</span></code></a>. Creates an intermediate
+output workbook with all routes combined, then formats it.</p>
+<p>See <a class="reference internal" href="create_manifests_from_circuit.html"><span class="doc">Create Printable Manifests from Optimized Routes from Circuit</span></a> for more information.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>]</span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start_date</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The start date to use in the output workbook sheetnames as “YYYYMMDD”. Empty string (default) uses the soonest Friday. Range is inclusive.</p></li>
+<li><p><strong>end_date</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The end date to use in the output workbook sheetnames as “YYYYMMDD”. Empty string (default) uses the start date. Range is inclusive.</p></li>
+<li><p><strong>output_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The directory to write the formatted manifest workbook to. Empty string (default) saves to the <cite>input_dir</cite> directory.</p></li>
+<li><p><strong>output_filename</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The name of the output workbook. Empty string (default) sets filename to “final_manifests_{date}.xlsx”.</p></li>
+<li><p><strong>circuit_output_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The directory to create a subdir to save the routes to. Creates “routes_{date}” directory within the <cite>circuit_output_dir</cite>. Empty string uses <cite>output_dir</cite>. If the directory does not exist, it is created. If it exists, it is overwritten.</p></li>
+<li><p><strong>all_hhs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Flag to get only the “All HHs” route. False gets all routes except “All HHs”. True gets only the “All HHs” route. NOTE: True returns email column in CSV, for reuploading after splitting.</p></li>
+<li><p><strong>verbose</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Flag to print verbose output.</p></li>
+<li><p><strong>extra_notes_file</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Path to the extra notes file. If empty (default), uses a constant DataFrame. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes" title="bfb_delivery.lib.constants.ExtraNotes"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.ExtraNotes</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path to the final manifest workbook.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -310,10 +390,32 @@ power users and developers who may want to use an existing DB session or somethi
 <dl class="py function">
 <dt class="sig sig-object py" id="bfb_delivery.api.internal.format_combined_routes">
 <span class="sig-prename descclassname"><span class="pre">bfb_delivery.api.internal.</span></span><span class="sig-name descname"><span class="pre">format_combined_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_notes_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.api.internal.format_combined_routes" title="Link to this definition">¶</a></dt>
-<dd><p>See public docstring: <a class="reference internal" href="#bfb_delivery.api.public.format_combined_routes" title="bfb_delivery.api.public.format_combined_routes"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.format_combined_routes()</span></code></a>.</p>
+<dd><p>Formats the combined routes table into driver manifests to print.</p>
+<p>Adds headers and aggregate data. Color codes box types.</p>
+<p>This is used after combining the driver route CSVs into a single workbook
+using <a class="reference internal" href="#bfb_delivery.api.public.combine_route_tables" title="bfb_delivery.api.public.combine_route_tables"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.combine_route_tables()</span></code></a>.</p>
+<p>If <cite>output_dir</cite> is specified, will create the directory if it doesn’t exist.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Uses the date of the front of each sheet name to set the manifest date field. I.e.,
+each sheet should be named something like “05.27 Oscar W”, and, e.g., this would set
+the manifest date field to “Date: 05.27”.</p>
+</div>
+<p>See <a class="reference internal" href="format_combined_routes.html"><span class="doc">Format Manifests</span></a> for more information.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_path</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The path to the combined routes table.</p></li>
+<li><p><strong>output_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The directory to write the formatted table to. Empty string (default) saves to the input path’s parent directory.</p></li>
+<li><p><strong>output_filename</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The name of the formatted workbook. Empty string (default) will name the file “formatted_routes_{date}.xlsx”.</p></li>
+<li><p><strong>extra_notes_file</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The path to the extra notes file. If empty (default), uses a constant DataFrame. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes" title="bfb_delivery.lib.constants.ExtraNotes"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.ExtraNotes</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The path to the formatted table.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -321,10 +423,50 @@ power users and developers who may want to use an existing DB session or somethi
 <dl class="py function">
 <dt class="sig sig-object py" id="bfb_delivery.api.internal.split_chunked_route">
 <span class="sig-prename descclassname"><span class="pre">bfb_delivery.api.internal.</span></span><span class="sig-name descname"><span class="pre">split_chunked_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_books</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">book_one_drivers_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.api.internal.split_chunked_route" title="Link to this definition">¶</a></dt>
-<dd><p>See public docstring: <a class="reference internal" href="#bfb_delivery.api.public.split_chunked_route" title="bfb_delivery.api.public.split_chunked_route"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.split_chunked_route()</span></code></a>.</p>
+<dd><p>Split route sheet into n workbooks with sheets by driver.</p>
+<p>Sheets by driver allows splitting routes by driver on Circuit upload.
+Multiple workbooks allows team to split the uploads among members, so one person
+doesn’t have to upload all routes.
+This process follows the “chunking” process in the route generation, where routes
+are split into smaller “chunks” by driver (i.e., each stop is labeled with a driver).</p>
+<p>Reads a route spreadsheet at <cite>input_path</cite>.
+Writes <cite>n_books</cite> Excel workbooks with each sheet containing the stops for a single driver.
+Writes adjacent to the original workbook unless <cite>output_dir</cite> specified. If specified, will
+create the directory if it doesn’t exist.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Renames “Box Type” column name to “Product Type”, per Circuit API.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The date passed sets the date in the sheet names of the output workbooks, and that
+date in the sheet name is used for the manifest date field in later functions that
+make the manifests: <a class="reference internal" href="#bfb_delivery.api.public.format_combined_routes" title="bfb_delivery.api.public.format_combined_routes"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.format_combined_routes()</span></code></a> and
+<a class="reference internal" href="#bfb_delivery.api.public.create_manifests_from_circuit" title="bfb_delivery.api.public.create_manifests_from_circuit"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.create_manifests_from_circuit()</span></code></a> (which wraps the former).</p>
+</div>
+<p>See <a class="reference internal" href="split_chunked_route.html"><span class="doc">Split Chunked Route Sheet into Multiple Files</span></a> for more information.</p>
 <dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_path</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Path to the chunked route sheet that this function reads in and splits up.</p></li>
+<li><p><strong>output_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Directory to save the output workbook. Empty string saves to the input <cite>input_path</cite> directory.</p></li>
+<li><p><strong>output_filename</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Name of the output workbook. Empty string sets filename to “split_workbook_{date}_{i of n_books}.xlsx”.</p></li>
+<li><p><strong>n_books</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Number of workbooks to split into.</p></li>
+<li><p><strong>book_one_drivers_file</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Path to the book-one driver’s file. If empty (default), uses a constant list. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.BookOneDrivers" title="bfb_delivery.lib.constants.BookOneDrivers"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.BookOneDrivers</span></code></a>.</p></li>
+<li><p><strong>date</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The date to use in the output workbook sheetnames. Empty string (default) uses the soonest Friday.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <cite>n_books</cite> is less than 1.</p></li>
+<li><p><strong>ValueError</strong> – If <cite>n_books</cite> is greater than the number of drivers in the input workbook.</p></li>
+</ul>
+</dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Paths to the split chunked route workbooks.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -351,20 +493,18 @@ worksheets to be formatted with <a class="reference internal" href="#bfb_deliver
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>input_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The directory containing the driver route CSVs.</p></li>
-<li><p><strong>output_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The directory to write the output workbook to.
-Empty string (default) saves to the <cite>input_dir</cite> directory.</p></li>
-<li><p><strong>output_filename</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The name of the output workbook.
-Empty string (default) will name the file “combined_routes_{date}.xlsx”.</p></li>
+<li><p><strong>output_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The directory to write the output workbook to. Empty string (default) saves to the <cite>input_dir</cite> directory.</p></li>
+<li><p><strong>output_filename</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The name of the output workbook. Empty string (default) will name the file ‘combined_routes_{date}.xlsx’.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The path to the output workbook.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>ValueError</strong> – If <cite>input_paths</cite> is empty.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The path to the output workbook.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -393,12 +533,9 @@ workbook with all routes combined, then formats it.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>input_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The directory containing the driver route CSVs.</p></li>
-<li><p><strong>output_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The directory to write the formatted manifest workbook to.
-Empty string (default) saves to the <cite>input_dir</cite> directory.</p></li>
-<li><p><strong>output_filename</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The name of the output workbook.
-Empty string sets filename to “final_manifests_{date}.xlsx”.</p></li>
-<li><p><strong>extra_notes_file</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Path to the extra notes file. If empty (default), uses a constant
-DataFrame. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes" title="bfb_delivery.lib.constants.ExtraNotes"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.ExtraNotes</span></code></a>.</p></li>
+<li><p><strong>output_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The directory to write the formatted manifest workbook to. Empty string (default) saves to the <cite>input_dir</cite> directory.</p></li>
+<li><p><strong>output_filename</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The name of the output workbook.Empty string sets filename to “final_manifests_{date}.xlsx”.</p></li>
+<li><p><strong>extra_notes_file</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Path to the extra notes file. If empty (default), uses a constant DataFrame. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes" title="bfb_delivery.lib.constants.ExtraNotes"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.ExtraNotes</span></code></a>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -435,24 +572,14 @@ output workbook with all routes combined, then formats it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start_date</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The start date to use in the output workbook sheetnames as “YYYYMMDD”.
-Empty string (default) uses the soonest Friday. Range is inclusive.</p></li>
-<li><p><strong>end_date</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The end date to use in the output workbook sheetnames as “YYYYMMDD”.
-Empty string (default) uses the start date. Range is inclusive.</p></li>
-<li><p><strong>output_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The directory to write the formatted manifest workbook to.
-Empty string (default) saves to the <cite>input_dir</cite> directory.</p></li>
-<li><p><strong>output_filename</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The name of the output workbook.
-Empty string (default) sets filename to “final_manifests_{date}.xlsx”.</p></li>
-<li><p><strong>circuit_output_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The directory to create a subdir to save the routes to.
-Creates “routes_{date}” directory within the <cite>circuit_output_dir</cite>.
-Empty string uses <cite>output_dir</cite>.
-If the directory does not exist, it is created. If it exists, it is overwritten.</p></li>
-<li><p><strong>all_hhs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Flag to get only the “All HHs” route.
-False gets all routes except “All HHs”. True gets only the “All HHs” route.
-NOTE: True returns email column in CSV, for reuploading after splitting.</p></li>
+<li><p><strong>start_date</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The start date to use in the output workbook sheetnames as “YYYYMMDD”. Empty string (default) uses the soonest Friday. Range is inclusive.</p></li>
+<li><p><strong>end_date</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The end date to use in the output workbook sheetnames as “YYYYMMDD”. Empty string (default) uses the start date. Range is inclusive.</p></li>
+<li><p><strong>output_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The directory to write the formatted manifest workbook to. Empty string (default) saves to the <cite>input_dir</cite> directory.</p></li>
+<li><p><strong>output_filename</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The name of the output workbook. Empty string (default) sets filename to “final_manifests_{date}.xlsx”.</p></li>
+<li><p><strong>circuit_output_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The directory to create a subdir to save the routes to. Creates “routes_{date}” directory within the <cite>circuit_output_dir</cite>. Empty string uses <cite>output_dir</cite>. If the directory does not exist, it is created. If it exists, it is overwritten.</p></li>
+<li><p><strong>all_hhs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Flag to get only the “All HHs” route. False gets all routes except “All HHs”. True gets only the “All HHs” route. NOTE: True returns email column in CSV, for reuploading after splitting.</p></li>
 <li><p><strong>verbose</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Flag to print verbose output.</p></li>
-<li><p><strong>extra_notes_file</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Path to the extra notes file. If empty (default), uses a constant
-DataFrame. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes" title="bfb_delivery.lib.constants.ExtraNotes"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.ExtraNotes</span></code></a>.</p></li>
+<li><p><strong>extra_notes_file</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Path to the extra notes file. If empty (default), uses a constant DataFrame. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes" title="bfb_delivery.lib.constants.ExtraNotes"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.ExtraNotes</span></code></a>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -483,12 +610,9 @@ the manifest date field to “Date: 05.27”.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>input_path</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The path to the combined routes table.</p></li>
-<li><p><strong>output_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The directory to write the formatted table to.
-Empty string (default) saves to the input path’s parent directory.</p></li>
-<li><p><strong>output_filename</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The name of the formatted workbook.
-Empty string (default) will name the file “formatted_routes_{date}.xlsx”.</p></li>
-<li><p><strong>extra_notes_file</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The path to the extra notes file. If empty (default), uses a
-constant DataFrame. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes" title="bfb_delivery.lib.constants.ExtraNotes"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.ExtraNotes</span></code></a>.</p></li>
+<li><p><strong>output_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The directory to write the formatted table to. Empty string (default) saves to the input path’s parent directory.</p></li>
+<li><p><strong>output_filename</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The name of the formatted workbook. Empty string (default) will name the file “formatted_routes_{date}.xlsx”.</p></li>
+<li><p><strong>extra_notes_file</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The path to the extra notes file. If empty (default), uses a constant DataFrame. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes" title="bfb_delivery.lib.constants.ExtraNotes"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.ExtraNotes</span></code></a>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -522,35 +646,31 @@ create the directory if it doesn’t exist.</p>
 <p>The date passed sets the date in the sheet names of the output workbooks, and that
 date in the sheet name is used for the manifest date field in later functions that
 make the manifests: <a class="reference internal" href="#bfb_delivery.api.public.format_combined_routes" title="bfb_delivery.api.public.format_combined_routes"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.format_combined_routes()</span></code></a> and
-<a class="reference internal" href="#bfb_delivery.api.public.create_manifests" title="bfb_delivery.api.public.create_manifests"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.create_manifests()</span></code></a> (which wraps the former).</p>
+<a class="reference internal" href="#bfb_delivery.api.public.create_manifests_from_circuit" title="bfb_delivery.api.public.create_manifests_from_circuit"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.create_manifests_from_circuit()</span></code></a> (which wraps the former).</p>
 </div>
 <p>See <a class="reference internal" href="split_chunked_route.html"><span class="doc">Split Chunked Route Sheet into Multiple Files</span></a> for more information.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>input_path</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Path to the chunked route sheet that this function reads in and splits up.</p></li>
-<li><p><strong>output_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Directory to save the output workbook.
-Empty string saves to the input <cite>input_path</cite> directory.</p></li>
-<li><p><strong>output_filename</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Name of the output workbook.
-Empty string sets filename to “split_workbook_{date}_{i of n_books}.xlsx”.</p></li>
+<li><p><strong>output_dir</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Directory to save the output workbook. Empty string saves to the input <cite>input_path</cite> directory.</p></li>
+<li><p><strong>output_filename</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Name of the output workbook. Empty string sets filename to “split_workbook_{date}_{i of n_books}.xlsx”.</p></li>
 <li><p><strong>n_books</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Number of workbooks to split into.</p></li>
-<li><p><strong>book_one_drivers_file</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Path to the book-one driver’s file. If empty (default), uses
-a constant list. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.BookOneDrivers" title="bfb_delivery.lib.constants.BookOneDrivers"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.BookOneDrivers</span></code></a>.</p></li>
-<li><p><strong>date</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The date to use in the output workbook sheetnames. Empty string (default) uses
-the soonest Friday.</p></li>
+<li><p><strong>book_one_drivers_file</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Path to the book-one driver’s file. If empty (default), uses a constant list. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.BookOneDrivers" title="bfb_delivery.lib.constants.BookOneDrivers"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.BookOneDrivers</span></code></a>.</p></li>
+<li><p><strong>date</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The date to use in the output workbook sheetnames. Empty string (default) uses the soonest Friday.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Paths to the split chunked route workbooks.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>ValueError</strong> – If <cite>n_books</cite> is less than 1.</p></li>
 <li><p><strong>ValueError</strong> – If <cite>n_books</cite> is greater than the number of drivers in the input workbook.</p></li>
 </ul>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Paths to the split chunked route workbooks.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -647,7 +767,7 @@ the soonest Friday.</p></li>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=b9afe91b"></script>
+</div><script src="_static/documentation_options.js?v=8e576371"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>
