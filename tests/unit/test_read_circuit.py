@@ -72,7 +72,7 @@ def mock_plan_responses() -> (
 @pytest.fixture(scope="class")
 @typechecked
 def mock_get_plan_responses(
-    mock_plan_responses: list[dict[str, str | list[dict[str, str | dict[str, int]] | None]]],
+    mock_plan_responses: list[dict[str, str | list[dict[str, str | dict[str, int]] | None]]]
 ) -> Iterator[None]:
     """Mock _get_plan_responses."""
     with patch(
