@@ -80,7 +80,7 @@ Once everyone has the optimized routes in Circuit, one person can run :code:`cre
 
 .. code:: bash
 
-    create_manifests_from_circuit --start_date 2021-12-21
+    create_manifests_from_circuit --start_date 2012-12-21
 
 The path to the final manifest workbook will print to the console.
 
