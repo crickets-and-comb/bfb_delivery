@@ -109,9 +109,6 @@ def _get_driver_ids(workbook: pd.ExcelFile, ignore_inactive_drivers: bool) -> pd
     Returns:
         A DataFrame with the driver IDs for each sheet.
     """
-    # TODO: We're going to need to figure out a better way to match drivers to sheets.
-    # Could make staff use full driver names. (Easiest, but still loose.)
-    # Could make staff use driver IDs. (Tight, but annoying.)
     drivers_df = _get_all_drivers()
     sheet_driver_df = pd.DataFrame({"sheet_name": workbook.sheet_names})
 
@@ -133,15 +130,20 @@ def _get_driver_ids(workbook: pd.ExcelFile, ignore_inactive_drivers: bool) -> pd
         name_id_map = pd.concat([name_id_map, driver_ids_df], ignore_index=True)
     name_id_map = name_id_map[["id", "name", "driver_name"]]
     name_id_map = name_id_map.drop_duplicates()
-    duplicate_name_id_map_names = name_id_map[name_id_map["driver_name"].duplicated()][
-        "driver_name"
-    ].tolist()
-    if duplicate_name_id_map_names:
-        raise ValueError(
-            f"Duplicate driver names in name_id_map: {duplicate_name_id_map_names}"
-        )
+    _resolve_driver_name_conflicts(name_id_map=name_id_map)
 
     sheet_driver_df = sheet_driver_df.merge(name_id_map, on="driver_name", how="left")
+
+    sheets_without_drivers = sheet_driver_df[sheet_driver_df["id"].isnull()][
+        "sheet_name"
+    ].tolist()
+    if sheets_without_drivers:
+        raise ValueError(
+            (
+                "No driver found for the following sheets. Please ensure the sheet names "
+                f"match the driver names in Circuit: {sheets_without_drivers}"
+            )
+        )
 
     inactive_drivers = sheet_driver_df[sheet_driver_df["id"].isnull()]["name"].tolist()
     if inactive_drivers and ignore_inactive_drivers is False:
@@ -165,7 +167,6 @@ def _initialize_plans(sheet_driver_df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         A DataFrame with the plan IDs and driver IDs for each sheet.
     """
-    breakpoint()
     pass
 
 
@@ -231,6 +232,72 @@ def _get_all_drivers() -> pd.DataFrame:
     drivers_df = pd.DataFrame(drivers_list)
 
     return drivers_df
+
+
+@typechecked
+def _resolve_driver_name_conflicts(name_id_map: pd.DataFrame) -> pd.DataFrame:
+    """Resolve driver name conflicts with user input.
+
+    Args:
+        name_id_map: The DataFrame with the driver IDs for each sheet.
+
+    Returns:
+        A DataFrame with the driver IDs for each sheet.
+    """
+    duplicate_name_id_map_names = name_id_map[
+        name_id_map["driver_name"].duplicated(keep=False)
+    ]["driver_name"].unique()
+
+    if duplicate_name_id_map_names.size > 0:
+        print(
+            "\nMultiple drivers found for the following names. Please select the correct one:"
+        )
+
+        for driver_name in duplicate_name_id_map_names:
+            options = name_id_map[name_id_map["driver_name"] == driver_name].reset_index()
+            print(f"\nDriver name: {driver_name}")
+
+            for idx, row in options.iterrows():
+                print(f"{idx + 1}. {row['name']} (ID: {row['id']})")
+
+            while True:
+                try:
+                    choice = (
+                        int(
+                            input(
+                                r"Enter the number of the correct driver for '{driver_name}':"
+                            ).strip()
+                        )
+                        - 1
+                    )
+
+                    if 0 <= choice < len(options):
+                        selected_id = options.iloc[choice]["id"]
+                        name_id_map = name_id_map[
+                            (name_id_map["driver_name"] != driver_name)
+                            | (name_id_map["id"] == selected_id)
+                        ]
+                        break
+                    else:
+                        print("Invalid selection. Please choose a valid number.")
+
+                except ValueError:
+                    print("Invalid input. Please enter a number.")
+
+    duplicate_name_id_map_names = name_id_map[
+        name_id_map["driver_name"].duplicated(keep=False)
+    ]["driver_name"].unique()
+
+    if duplicate_name_id_map_names.size > 0:
+        raise ValueError(
+            (
+                "Multiple drivers found for the following names. "
+                "Please resolve the conflicts manually and alert the developer:\n"
+                f"{duplicate_name_id_map_names}"
+            )
+        )
+
+    return name_id_map
 
 
 @typechecked

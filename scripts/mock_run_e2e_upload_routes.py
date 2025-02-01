@@ -13,8 +13,8 @@ from bfb_delivery.lib.dispatch.write_to_circuit import upload_split_chunked
 )
 def main(ignore_inactive_drivers: bool) -> None:
     """Run the main function."""
-    # split_chunked_sheet_fp = ".test_data/split_chunked/single_split_chunked_1.xlsx.xlsx"
-    split_chunked_sheet_fp = ".test_data/split_chunked/test_driver.xlsx"
+    split_chunked_sheet_fp = ".test_data/split_chunked/single_split_chunked_1.xlsx"
+    # split_chunked_sheet_fp = ".test_data/split_chunked/test_driver.xlsx"
     sheet_plan_df = upload_split_chunked(
         split_chunked_sheet_fp,
         "1888-12-23",
