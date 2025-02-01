@@ -109,51 +109,24 @@ def _get_driver_ids(workbook: pd.ExcelFile, ignore_inactive_drivers: bool) -> pd
     Returns:
         A DataFrame with the driver IDs for each sheet.
     """
-    # TODO: This isn't airtight still if we're not asking user about every sheet.
-    # What if the sheet name is Hank, and the true driver is Henry, but there's also a Hank
-    # in the DB? We wouldn't catch that, and would just assign Hank.
-    # I think we should just ask the user for every sheet. We'd show a list of driver names
-    # from the DB, each with an index number. Then ask for the number of the correct driver
-    # for each sheet. If they want to see the list of drivers again, they can type "list".
-    # If they want a list of best guesses, they can type "guesses".
+    route_driver_df = pd.DataFrame(
+        {"route_title": workbook.sheet_names, "driver_name": None, "email": None, "id": None}
+    )
+
     drivers_df = _get_all_drivers()
-    sheet_driver_df = pd.DataFrame({"sheet_name": workbook.sheet_names})
-
-    sheet_driver_df["driver_name"] = sheet_driver_df["sheet_name"].apply(
-        lambda sheet_name: " ".join(sheet_name.split(" ")[1:])
-        .upper()
-        .split("#")[0]
-        .strip()
-        .replace(" AND ", "& ")
-    )
-    drivers_df["name"] = drivers_df["name"].apply(
-        lambda name: name.upper().strip().replace(" AND ", "& ")
-    )
-
-    name_id_map = pd.DataFrame()
-    for driver_name in sheet_driver_df["driver_name"]:
-        driver_ids_df = drivers_df[drivers_df["name"].str.startswith(driver_name)]
-        driver_ids_df["driver_name"] = driver_name
-        name_id_map = pd.concat([name_id_map, driver_ids_df], ignore_index=True)
-    name_id_map = name_id_map[["id", "name", "driver_name", "email"]]
-    name_id_map = name_id_map.drop_duplicates()
-    name_id_map = _resolve_driver_name_conflicts(name_id_map=name_id_map)
-
-    sheet_driver_df = sheet_driver_df.merge(name_id_map, on="driver_name", how="left")
-    sheet_driver_df = _resolve_unmatched_sheets(
-        sheet_driver_df=sheet_driver_df, drivers_df=drivers_df
-    )
-
-    inactive_drivers = sheet_driver_df[sheet_driver_df["id"].isnull()]["name"].tolist()
-    if inactive_drivers and ignore_inactive_drivers is False:
-        raise ValueError(
-            (
-                "Inactive drivers. Please activate the following drivers before creating "
-                f"routes for them: {inactive_drivers}"
+    if ignore_inactive_drivers is False:
+        inactive_drivers = drivers_df[~(drivers_df["active"])]["name"].tolist()
+        if inactive_drivers:
+            raise ValueError(
+                (
+                    "Inactive drivers. Please activate the following drivers before creating "
+                    f"routes for them: {inactive_drivers}"
+                )
             )
-        )
 
-    return sheet_driver_df
+    route_driver_df = _assign_drivers(drivers_df=drivers_df, route_driver_df=route_driver_df)
+
+    return route_driver_df
 
 
 @typechecked
@@ -234,134 +207,36 @@ def _get_all_drivers() -> pd.DataFrame:
     return drivers_df
 
 
-# TODO: Pull these input handlers apart for tests.
 @typechecked
-def _resolve_driver_name_conflicts(name_id_map: pd.DataFrame) -> pd.DataFrame:
-    """Resolve driver name conflicts with user input.
+def _assign_drivers(drivers_df: pd.DataFrame, route_driver_df: pd.DataFrame) -> pd.DataFrame:
+    for idx, row in drivers_df.iterrows():
+        print(f"{idx + 1}. {row['name']} {row['email']} ({row['id']})")
 
-    Args:
-        name_id_map: The DataFrame with the driver IDs for each sheet.
-
-    Returns:
-        A DataFrame with the driver IDs for each sheet.
-    """
-    duplicate_name_id_map_names = name_id_map[
-        name_id_map["driver_name"].duplicated(keep=False)
-    ]["driver_name"].unique()
-
-    if duplicate_name_id_map_names.size > 0:
-        print(
-            "\nMultiple drivers found for the following names. Please select the correct one:"
+    print("\nUsing the driver numbers above, assign drivers to each route:")
+    for route_title in route_driver_df["route_title"]:
+        route_driver_df = _assign_driver(
+            route_title=route_title, drivers_df=drivers_df, route_driver_df=route_driver_df
         )
 
-        for driver_name in duplicate_name_id_map_names:
-            name_id_map = _resolve_driver_name_conflict(
-                driver_name=driver_name, name_id_map=name_id_map
-            )
-
-    remaining_dupes = name_id_map[name_id_map["driver_name"].duplicated(keep=False)][
-        "driver_name"
-    ].unique()
-
-    if remaining_dupes.size > 0:
-        raise ValueError(
-            (
-                "Multiple drivers found for the following names. "
-                "Please resolve the conflicts manually and alert the developer:\n"
-                f"{remaining_dupes}"
-            )
+    for _, row in route_driver_df.iterrows():
+        print(f"{row['route_title']}: " f"{row['driver_name']}, {row['email']} ({row['id']})")
+    confirm = input("Confirm the drivers above? (y/n): ")
+    if confirm.lower() != "y":
+        route_driver_df = _assign_drivers(
+            drivers_df=drivers_df, route_driver_df=route_driver_df
         )
 
-    return name_id_map
+    return route_driver_df
 
 
 @typechecked
-def _resolve_driver_name_conflict(
-    name_id_map: pd.DataFrame, driver_name: str
+def _assign_driver(
+    route_title: str, drivers_df: pd.DataFrame, route_driver_df: pd.DataFrame
 ) -> pd.DataFrame:
-    """Resolve a driver name conflict."""
-    options = name_id_map[name_id_map["driver_name"] == driver_name].reset_index()
-    print(f"\nDriver name: {driver_name}")
-
-    for idx, row in options.iterrows():
-        print(f"{idx + 1}. {row['name']}, {row['email']} ({row['id']})")
-
-    resolved = False
-    while not resolved:
-        try:
-            # TODO: Wrap this for test mock.
-            choice = input(r"Enter the number of the correct driver for '{driver_name}':")
-
-        except ValueError:
-            print("Invalid input. Please enter a number.")
-
-        else:
-            choice = choice if choice else "-1"
-            try:
-                choice = int(choice.strip()) - 1
-            except ValueError:
-                print("Invalid input. Please enter a number.")
-            else:
-                if 0 <= choice < len(options):
-                    selected_id = options.iloc[choice]["id"]
-                    name_id_map = name_id_map[
-                        (name_id_map["driver_name"] != driver_name)
-                        | (name_id_map["id"] == selected_id)
-                    ]
-                    resolved = True
-                else:
-                    print("Invalid selection. Please choose a valid number.")
-
-    return name_id_map
-
-
-@typechecked
-def _resolve_unmatched_sheets(
-    sheet_driver_df: pd.DataFrame, drivers_df: pd.DataFrame
-) -> pd.DataFrame:
-    """Resolve sheets that do not have a matched driver ID by asking the user.
-
-    Args:
-        sheet_driver_df: The DataFrame mapping sheets to drivers.
-        drivers_df: The DataFrame containing all available drivers.
-
-    Returns:
-        A DataFrame with all sheetnames mapped to driver IDs for each sheet.
-    """
-    unmatched_sheets = sheet_driver_df[sheet_driver_df["id"].isnull()]
-
-    if not unmatched_sheets.empty:
-        print(
-            "\nSome sheets do not have a matched driver. Please assign a driver:\n"
-            "Here are all possible drivers:\n"
-        )
-        for idx, driver in drivers_df.iterrows():
-            print(f"{idx + 1}. {driver['name']}, {driver['email']} ({driver['id']})")
-
-        for _, row in unmatched_sheets.iterrows():
-            _resolve_unmatched_sheet(
-                row=row, drivers_df=drivers_df, sheet_driver_df=sheet_driver_df
-            )
-
-    remaining_unmatched = sheet_driver_df[sheet_driver_df["id"].isnull()][
-        "sheet_name"
-    ].tolist()
-    if remaining_unmatched:
-        raise ValueError(
-            "No driver assigned for the following sheets. Please alert developer and "
-            f"resolve manually:\n{remaining_unmatched}"
-        )
-
-    return sheet_driver_df
-
-
-@typechecked
-def _resolve_unmatched_sheet(
-    row: pd.Series, drivers_df: pd.DataFrame, sheet_driver_df: pd.DataFrame
-) -> None:
+    """Ask user to assign driver to each route."""
     best_guesses = pd.DataFrame()
-    for name_part in row["sheet_name"].split(" ")[1:]:
-        if name_part not in ["&", "AND"]:
+    for name_part in route_title.split(" ")[1:]:
+        if name_part not in ["&", "AND"] and len(name_part) > 1:
             best_guesses = pd.concat(
                 [
                     best_guesses,
@@ -370,19 +245,23 @@ def _resolve_unmatched_sheet(
             )
     best_guesses = best_guesses.drop_duplicates().sort_values(by="name")
 
-    sheet_name = row["sheet_name"]
-    print(f"\nSheet: {sheet_name}")
-    print("Choose any of the possible drivers above, but here are some best guesses:\n")
+    print(f"\nRoute: {route_title}")
+    print("Choose any of the possible drivers above, but here are some best guesses:")
     for idx, driver in best_guesses.iterrows():
         print(f"{idx + 1}. {driver['name']} {driver['email']} (ID: {driver['id']})")
 
-    resolved = False
-    while not resolved:
+    assigned = False
+    while not assigned:
         try:
             # TODO: Wrap this for test mock.
-            choice = input(r"Enter the number of the correct driver for '{sheet_name}':")
+            # TODO: Add B907 to shared ignore list, and remove r"" throughout.
+            choice = input(
+                f"Enter the number of the driver for '{route_title}':"  # noqa: B907
+            )
+
         except ValueError:
             print("Invalid input. Please enter a number.")
+
         else:
             choice = choice if choice else "-1"
             try:
@@ -390,14 +269,17 @@ def _resolve_unmatched_sheet(
             except ValueError:
                 print("Invalid input. Please enter a number.")
             else:
-                if 0 <= choice < len(drivers_df):
-                    selected_driver = drivers_df.iloc[choice]
-                    sheet_driver_df.loc[
-                        sheet_driver_df["sheet_name"] == sheet_name, ["id", "name"]
-                    ] = [selected_driver["id"], selected_driver["name"]]
-                    resolved = True
-                else:
-                    print("Invalid selection. Please choose a valid number.")
+                route_driver_df.loc[
+                    route_driver_df["route_title"] == route_title,
+                    ["id", "driver_name", "email"],
+                ] = [
+                    drivers_df.iloc[choice]["id"],
+                    drivers_df.iloc[choice]["name"],
+                    drivers_df.iloc[choice]["email"],
+                ]
+                assigned = True
+
+    return route_driver_df
 
 
 @typechecked
