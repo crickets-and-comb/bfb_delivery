@@ -209,6 +209,7 @@ def _get_all_drivers() -> pd.DataFrame:
 
 @typechecked
 def _assign_drivers(drivers_df: pd.DataFrame, route_driver_df: pd.DataFrame) -> pd.DataFrame:
+    """Ask users to assign drivers to each route."""
     for idx, row in drivers_df.iterrows():
         print(f"{idx + 1}. {row['name']} {row['email']} ({row['id']})")
 
@@ -233,7 +234,7 @@ def _assign_drivers(drivers_df: pd.DataFrame, route_driver_df: pd.DataFrame) -> 
 def _assign_driver(
     route_title: str, drivers_df: pd.DataFrame, route_driver_df: pd.DataFrame
 ) -> pd.DataFrame:
-    """Ask user to assign driver to each route."""
+    """Ask user to assign driver to a route."""
     best_guesses = pd.DataFrame()
     for name_part in route_title.split(" ")[1:]:
         if name_part not in ["&", "AND"] and len(name_part) > 1:
