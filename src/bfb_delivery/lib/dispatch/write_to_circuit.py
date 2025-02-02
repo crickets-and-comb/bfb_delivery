@@ -59,6 +59,7 @@ def upload_split_chunked(
         sheet_plan_df = _create_plans(
             stops_df=stops_df, start_date=start_date, verbose=verbose
         )
+        breakpoint()
         _upload_stops(stops_df=stops_df, sheet_plan_df=sheet_plan_df)
 
         plan_ids = sheet_plan_df["plan_id"].tolist()
@@ -131,7 +132,7 @@ def _get_driver_ids(stops_df: pd.DataFrame) -> pd.DataFrame:
     """
     route_driver_df = pd.DataFrame(
         {
-            "route_title": stops_df["sheet_name"].to_list(),
+            "route_title": stops_df["sheet_name"].unique(),
             "driver_name": None,
             "email": None,
             "id": None,
@@ -431,7 +432,7 @@ def _build_all_stops(
     Returns:
         A list of stops all the stops to upload.
     """
-    pass
+    breakpoint()
 
 
 @typechecked
