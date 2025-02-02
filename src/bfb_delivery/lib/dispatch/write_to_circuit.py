@@ -60,7 +60,8 @@ def upload_split_chunked(
             df["sheet_name"] = str(sheet)
             stops_dfs.append(df)
         stops_df = pd.concat(stops_dfs).reset_index(drop=True)
-
+        # TODO: For each step, if some succeed and others do not, continue with the
+        # successful ones and add the statuses to the sheet_plan_df for a final report.
         sheet_plan_df = _create_plans(
             stops_df=stops_df, start_date=start_date, verbose=verbose
         )
@@ -70,6 +71,8 @@ def upload_split_chunked(
         _optimize_routes(sheet_plan_df=sheet_plan_df, verbose=verbose)
 
         if distribute:
+            # TODO: Return map of distribution statuses in case of error.
+            # And continue with final printout.
             _distribute_routes(sheet_plan_df=sheet_plan_df)
 
         sheet_plan_df["distributed"] = distribute

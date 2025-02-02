@@ -18,13 +18,12 @@ logger = logging.getLogger(__name__)
 @click.option(
     "--plan-id", type=str, required=True, help="The plan ID to be deleted. As 'plans/{id}'."
 )
-def main(plan_id: str, wait_seconds: float = RateLimits.WRITE_SECONDS) -> dict:
+def main(plan_id: str, wait_seconds: float = RateLimits.WRITE_SECONDS) -> bool:
     """Delete a plan from Circuit."""
-    response = requests.post(
-        url=f"https://api.getcircuit.com/public/v0.2b/plans/{plan_id}",
+    response = requests.delete(
+        url=f"https://api.getcircuit.com/public/v0.2b/{plan_id}",
         auth=HTTPBasicAuth(get_circuit_key(), ""),
         timeout=RateLimits.WRITE_TIMEOUT_SECONDS,
-        json={},
     )
 
     try:
@@ -36,7 +35,7 @@ def main(plan_id: str, wait_seconds: float = RateLimits.WRITE_SECONDS) -> dict:
 
     else:
         if response.status_code == 204:
-            deletion = response.json()
+            deletion = True
         elif response.status_code == 429:
             wait_seconds = wait_seconds * 2
             logger.warning(f"Rate-limited. Waiting {wait_seconds} seconds to retry.")
@@ -46,7 +45,7 @@ def main(plan_id: str, wait_seconds: float = RateLimits.WRITE_SECONDS) -> dict:
             response_dict = get_response_dict(response=response)
             raise ValueError(f"Unexpected response {response.status_code}: {response_dict}")
 
-    logger.info(f"Plan {plan_id} deleted:\n{deletion}")
+    logger.info(f"Plan {plan_id} deleted: {deletion}")
 
     return deletion
 

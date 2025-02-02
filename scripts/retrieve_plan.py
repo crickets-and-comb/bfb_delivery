@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 def main(plan_id: str, wait_seconds: float = RateLimits.WRITE_SECONDS) -> dict:
     """Delete a plan from Circuit."""
     response = requests.get(
-        url=f"https://api.getcircuit.com/public/v0.2b/plans/{plan_id}",
+        url=f"https://api.getcircuit.com/public/v0.2b/{plan_id}",
         auth=HTTPBasicAuth(get_circuit_key(), ""),
         timeout=RateLimits.WRITE_TIMEOUT_SECONDS,
     )
