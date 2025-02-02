@@ -51,8 +51,11 @@ class CircuitColumns:
     """Column/field/doc name constants for Circuit API."""
 
     ADDRESS: Final[str] = "address"
+    ADDRESS_NAME: Final[str] = "addressName"
     ADDRESS_LINE_1: Final[str] = "addressLineOne"
     ADDRESS_LINE_2: Final[str] = "addressLineTwo"
+    CITY: Final[str] = "city"
+    COUNTRY: Final[str] = "country"
     EMAIL: Final[str] = "email"
     EXTERNAL_ID: Final[str] = "externalId"
     ID: Final[str] = "id"
@@ -66,9 +69,11 @@ class CircuitColumns:
     PRODUCTS: Final[str] = "products"
     RECIPIENT: Final[str] = "recipient"
     ROUTE: Final[str] = "route"
+    STATE: Final[str] = "state"
     STOP_POSITION: Final[str] = "stopPosition"
     STOPS: Final[str] = "stops"
     TITLE: Final[str] = "title"
+    ZIP: Final[str] = "zip"
 
 
 class Columns:

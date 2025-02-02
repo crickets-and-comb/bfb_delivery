@@ -8,7 +8,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import RateLimits
+from bfb_delivery.lib.constants import CircuitColumns, Columns, RateLimits
 
 # TODO: Move _concat_response_pages to utils.
 from bfb_delivery.lib.dispatch.read_circuit import _concat_response_pages
@@ -48,34 +48,44 @@ def upload_split_chunked(
         A DataFrame with the plan IDs and driver IDs for each sheet,
             along with date and whether distributed.
     """
-    workbook = pd.ExcelFile(split_chunked_workbook_fp)
-    sheet_plan_df = _create_plans(workbook=workbook, start_date=start_date, verbose=verbose)
-    plan_ids = sheet_plan_df["plan_id"].tolist()
-    _upload_stops(workbook=workbook, sheet_plan_df=sheet_plan_df)
-    _optimize_routes(plan_ids=plan_ids)
+    with pd.ExcelFile(split_chunked_workbook_fp) as workbook:
+        stops_dfs = []
+        for sheet in workbook.sheet_names:
+            df = workbook.parse(sheet)
+            df["sheet_name"] = str(sheet)
+            stops_dfs.append(df)
+        stops_df = pd.concat(stops_dfs).reset_index(drop=True)
 
-    if distribute:
-        _distribute_routes(plan_ids=plan_ids)
+        sheet_plan_df = _create_plans(
+            stops_df=stops_df, start_date=start_date, verbose=verbose
+        )
+        _upload_stops(stops_df=stops_df, sheet_plan_df=sheet_plan_df)
 
-    sheet_plan_df["distributed"] = distribute
-    sheet_plan_df["start_date"] = start_date
+        plan_ids = sheet_plan_df["plan_id"].tolist()
+        _optimize_routes(plan_ids=plan_ids)
+
+        if distribute:
+            _distribute_routes(plan_ids=plan_ids)
+
+        sheet_plan_df["distributed"] = distribute
+        sheet_plan_df["start_date"] = start_date
 
     return sheet_plan_df
 
 
 @typechecked
-def _create_plans(workbook: pd.ExcelFile, start_date: str, verbose: bool) -> pd.DataFrame:
-    """Create a plan for each route in the split chunked workbook.
+def _create_plans(stops_df: pd.DataFrame, start_date: str, verbose: bool) -> pd.DataFrame:
+    """Create a plan for each route.
 
     Args:
-        workbook: The Excel workbook.
+        stops_df: The long DataFrame with all the routes.
         start_date: The date to start the routes, as "YYYY-MM-DD".
         verbose: Whether to print verbose output.
 
     Returns:
         A DataFrame with the plan IDs and driver IDs for each sheet.
     """
-    route_driver_df = _get_driver_ids(workbook=workbook)
+    route_driver_df = _get_driver_ids(stops_df=stops_df)
     sheet_plan_df = _initialize_plans(
         route_driver_df=route_driver_df, start_date=start_date, verbose=verbose
     )
@@ -84,14 +94,14 @@ def _create_plans(workbook: pd.ExcelFile, start_date: str, verbose: bool) -> pd.
 
 
 @typechecked
-def _upload_stops(workbook: pd.ExcelFile, sheet_plan_df: pd.DataFrame) -> None:
-    """Upload stops for each route in the split chunked workbook.
+def _upload_stops(stops_df: pd.DataFrame, sheet_plan_df: pd.DataFrame) -> None:
+    """Upload stops for each route.
 
     Args:
-        workbook: The Excel workbook.
+        stops_df: The long DataFrame with all the routes.
         sheet_plan_df: The DataFrame with the plan IDs and driver IDs for each sheet.
     """
-    stop_arrays = _build_stop_arrays(workbook=workbook, sheet_plan_df=sheet_plan_df)
+    stop_arrays = _build_stop_arrays(stops_df=stops_df, sheet_plan_df=sheet_plan_df)
     _upload_stop_arrays(stop_arrays=stop_arrays)
 
 
@@ -110,17 +120,22 @@ def _distribute_routes(plan_ids: list[str]) -> None:
 
 
 @typechecked
-def _get_driver_ids(workbook: pd.ExcelFile) -> pd.DataFrame:
+def _get_driver_ids(stops_df: pd.DataFrame) -> pd.DataFrame:
     """Get the driver IDs for each sheet.
 
     Args:
-        workbook: The Excel workbook.
+        stops_df: The long DataFrame with all the routes.
 
     Returns:
         A DataFrame with the driver IDs for each sheet.
     """
     route_driver_df = pd.DataFrame(
-        {"route_title": workbook.sheet_names, "driver_name": None, "email": None, "id": None}
+        {
+            "route_title": stops_df["sheet_name"].to_list(),
+            "driver_name": None,
+            "email": None,
+            "id": None,
+        }
     )
 
     drivers_df = _get_all_drivers()
@@ -206,19 +221,19 @@ def _initialize_plans(
 
 @typechecked
 def _build_stop_arrays(
-    workbook: pd.ExcelFile, sheet_plan_df: pd.DataFrame
+    stops_df: pd.DataFrame, sheet_plan_df: pd.DataFrame
 ) -> list[list[dict[str, dict[str, str] | list[str] | int | str]]]:
     """Build stop arrays for each route.
 
     Args:
-        workbook: The Excel workbook
+        stops_df: The long DataFrame with all the routes.
         sheet_plan_df: The DataFrame with the plan IDs and driver IDs for each sheet.
 
     Returns:
         A list of stop arrays for batch stop uploads.
     """
-    workbook = _parse_addresses(workbook=workbook)
-    all_stops = _build_all_stops(workbook=workbook, sheet_plan_df=sheet_plan_df)
+    stops_df = _parse_addresses(stops_df=stops_df)
+    all_stops = _build_all_stops(stops_df=stops_df, sheet_plan_df=sheet_plan_df)
     stop_arrays = []
     # Split all_stops into chunks of 100 stops.
     number_of_stops = len(all_stops)
@@ -382,19 +397,35 @@ def _assign_driver(
 
 
 @typechecked
-def _parse_addresses(workbook: pd.ExcelFile) -> pd.ExcelFile:
+def _parse_addresses(stops_df: pd.DataFrame) -> pd.DataFrame:
     """Parse addresses for each route."""
-    pass
+    stops_df[CircuitColumns.ADDRESS_NAME] = stops_df[Columns.ADDRESS]
+    stops_df[CircuitColumns.ADDRESS_LINE_1] = ""
+    stops_df[CircuitColumns.ADDRESS_LINE_2] = ""
+    stops_df[CircuitColumns.STATE] = "WA"
+    stops_df[CircuitColumns.ZIP] = ""
+    stops_df[CircuitColumns.COUNTRY] = "US"
+
+    for idx, row in stops_df.iterrows():
+        address = row[Columns.ADDRESS]
+        split_address = address.split(",")
+        stops_df.at[idx, CircuitColumns.ADDRESS_LINE_1] = split_address[0].strip()
+        stops_df.at[idx, CircuitColumns.ADDRESS_LINE_2] = ", ".join(
+            [part.strip() for part in split_address[1:]]
+        )
+        stops_df.at[idx, CircuitColumns.ZIP] = split_address[-1]
+
+    return stops_df
 
 
 @typechecked
 def _build_all_stops(
-    workbook: pd.ExcelFile, sheet_plan_df: pd.DataFrame
+    stops_df: pd.DataFrame, sheet_plan_df: pd.DataFrame
 ) -> list[dict[str, dict[str, str] | list[str] | int | str]]:
     """Build all stops for each route.
 
     Args:
-        workbook: The Excel workbook
+        stops_df: The long DataFrame with all the routes.
         sheet_plan_df: The DataFrame with the plan IDs and driver IDs for each sheet.
 
     Returns:
