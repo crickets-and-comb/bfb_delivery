@@ -150,6 +150,7 @@ def _optimize_routes(sheet_plan_df: pd.DataFrame, verbose: bool) -> None:
                 "route_title"
             ].values[0]
             logger.info(f"Optimizing route for {route_title} ({plan_id}) ...")
+        # TODO: If optimization comes back finished on launch, don't check later.
         operation_id, wait_seconds = _optimize_route(
             plan_id=plan_id, wait_seconds=wait_seconds
         )

@@ -31,6 +31,7 @@ def get_circuit_key() -> str:
 
 # TODO: Pass params instead of forming URL first. ("params", not "json")
 # (Would need to then grab params URL for next page, or just add nextpage to params?)
+# TODO: See if we can make this a api_callers class.
 @typechecked
 def get_responses(url: str) -> list[dict[str, Any]]:
     """Get all responses from a paginated API endpoint."""

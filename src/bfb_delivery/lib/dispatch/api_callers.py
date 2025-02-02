@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-class _APICaller:
+class _BaseCaller:
     """A base class for making API calls."""
 
     # Must set in child class with _set*:
@@ -48,24 +48,24 @@ class _APICaller:
         self._set_url()
 
     @typechecked
-    def call_api(self, **kwargs: Any) -> None:  # noqa: ANN401
-        """Call the API."""
-        self._make_call()
-        self._raise_for_status()
-        self._parse_response(**kwargs)
-
-    @typechecked
     def _set_request_call(self) -> None:
         """Set the request call method.
 
         requests.get or requests.post
         """
-        pass
+        raise NotImplementedError
 
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call."""
-        pass
+        raise NotImplementedError
+
+    @typechecked
+    def call_api(self, **kwargs: Any) -> None:  # noqa: ANN401
+        """Call the API."""
+        self._make_call()
+        self._raise_for_status()
+        self._parse_response(**kwargs)
 
     @typechecked
     def _make_call(self) -> None:
@@ -95,6 +95,7 @@ class _APICaller:
     def _parse_response(self, **kwargs: Any) -> None:  # noqa: ANN401
         if self._response.status_code == 200:
             self._handle_200()
+            # TODO: Decrease wait time by 25% (but not below min).
 
         elif self._response.status_code == 429:
             logger.warning(
@@ -120,23 +121,33 @@ class _APICaller:
         type(self)._wait_seconds = type(self)._wait_seconds * 2
 
 
-class _APIGetCaller(_APICaller):
+class _BaseGetCaller(_BaseCaller):
     """A class for making GET API calls."""
 
     _timeout: float = RateLimits.READ_TIMEOUT_SECONDS
     _wait_seconds: float = RateLimits.READ_SECONDS
 
+    @typechecked
+    def _set_request_call(self) -> None:
+        """Set the request call method."""
+        self._request_call = requests.get
 
-class _APIPostCaller(_APICaller):
+
+class _BasePostCaller(_BaseCaller):
     """A class for making GET API calls."""
 
     _timeout: float = RateLimits.WRITE_TIMEOUT_SECONDS
     _wait_seconds: float = RateLimits.WRITE_SECONDS
 
+    @typechecked
+    def _set_request_call(self) -> None:
+        """Set the request call method."""
+        self._request_call = requests.post
 
-# TODO: Check docs to see if args show up.
-class CheckOptimization(_APIGetCaller):
-    """A class for checking the status of an optimization."""
+
+# TODO: Check docs to see if init args show up, here and elsewhere.
+class _BaseOptimizationCaller(_BaseCaller):
+    """Base class for checking the status of an optimization."""
 
     finished: bool
 
@@ -146,21 +157,17 @@ class CheckOptimization(_APIGetCaller):
 
     @typechecked
     def __init__(self, plan_id: str, operation_id: str, plan_title: str) -> None:
-        """Initialize the CheckOptimization object."""
+        """Initialize the CheckOptimization object.
+
+        Args:
+            plan_id: The ID of the plan.
+            operation_id: The ID of the operation.
+            plan_title: The title of the plan.
+        """
         self._plan_id = plan_id
         self._operation_id = operation_id
         self._plan_title = plan_title
         super().__init__()
-
-    @typechecked
-    def _set_request_call(self) -> None:
-        """Set the request call method."""
-        self._request_call = requests.get
-
-    @typechecked
-    def _set_url(self) -> None:
-        """Set the URL for the API call."""
-        self._url = f"https://api.getcircuit.com/public/v0.2b/{self._operation_id}"
 
     @typechecked
     def _handle_200(self) -> None:
@@ -185,3 +192,21 @@ class CheckOptimization(_APIGetCaller):
                 )
 
         self.finished = self._response_json = self._response_json["done"]
+
+
+# class LaunchOptimization(_BaseOptimizationCaller, _BasePostCaller):
+#     """A class for launching route optimization."""
+
+#     @typechecked
+#     def _set_url(self) -> None:
+#         """Set the URL for the API call."""
+#         self._url = f"https://api.getcircuit.com/public/v0.2b/{self._plan_id}:optimize"
+
+
+class CheckOptimization(_BaseOptimizationCaller, _BaseGetCaller):
+    """A class for checking the status of an optimization."""
+
+    @typechecked
+    def _set_url(self) -> None:
+        """Set the URL for the API call."""
+        self._url = f"https://api.getcircuit.com/public/v0.2b/{self._operation_id}"
