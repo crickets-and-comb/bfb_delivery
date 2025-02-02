@@ -187,34 +187,26 @@ class _BaseOptimizationCaller(_BaseCaller):
         self.finished = self._response_json = self._response_json["done"]
 
 
-class OptimizationLauncher(_BaseOptimizationCaller, _BasePostCaller):
-    """A class for launching route optimization."""
+class PlanInitializer(_BasePostCaller):
+    """Class for initializing plans."""
+
+    _plan_data: dict
 
     @typechecked
-    def _set_url(self) -> None:
-        """Set the URL for the API call."""
-        self._url = f"https://api.getcircuit.com/public/v0.2b/{self._plan_id}:optimize"
-
-
-class OptimizationChecker(_BaseOptimizationCaller, _BaseGetCaller):
-    """A class for checking the status of an optimization."""
-
-    @typechecked
-    def __init__(self, plan_id: str, plan_title: str, operation_id: str) -> None:
-        """Initialize the OptimizationChecker object.
+    def __init__(self, plan_data: dict) -> None:
+        """Initialize the PlanInitializer object.
 
         Args:
-            plan_id: The ID of the plan.
-            plan_title: The title of the plan.
-            operation_id: The ID of the operation.
+            plan_data: The data for the plan, to pass to `requests.post` `json` param.
         """
-        self.operation_id = operation_id
-        super().__init__(plan_id=plan_id, plan_title=plan_title)
+        self._plan_data = plan_data
+        self._call_kwargs = {"json": plan_data}
+        super().__init__()
 
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call."""
-        self._url = f"https://api.getcircuit.com/public/v0.2b/{self.operation_id}"
+        self._url = "https://api.getcircuit.com/public/v0.2b/plans"
 
 
 class StopUploader(_BasePostCaller):
@@ -268,23 +260,31 @@ class StopUploader(_BasePostCaller):
             )
 
 
-class PlanInitializer(_BasePostCaller):
-    """Class for initializing plans."""
-
-    _plan_data: dict
-
-    @typechecked
-    def __init__(self, plan_data: dict) -> None:
-        """Initialize the PlanInitializer object.
-
-        Args:
-            plan_data: The data for the plan, to pass to `requests.post` `json` param.
-        """
-        self._plan_data = plan_data
-        self._call_kwargs = {"json": plan_data}
-        super().__init__()
+class OptimizationLauncher(_BaseOptimizationCaller, _BasePostCaller):
+    """A class for launching route optimization."""
 
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call."""
-        self._url = "https://api.getcircuit.com/public/v0.2b/plans"
+        self._url = f"https://api.getcircuit.com/public/v0.2b/{self._plan_id}:optimize"
+
+
+class OptimizationChecker(_BaseOptimizationCaller, _BaseGetCaller):
+    """A class for checking the status of an optimization."""
+
+    @typechecked
+    def __init__(self, plan_id: str, plan_title: str, operation_id: str) -> None:
+        """Initialize the OptimizationChecker object.
+
+        Args:
+            plan_id: The ID of the plan.
+            plan_title: The title of the plan.
+            operation_id: The ID of the operation.
+        """
+        self.operation_id = operation_id
+        super().__init__(plan_id=plan_id, plan_title=plan_title)
+
+    @typechecked
+    def _set_url(self) -> None:
+        """Set the URL for the API call."""
+        self._url = f"https://api.getcircuit.com/public/v0.2b/{self.operation_id}"

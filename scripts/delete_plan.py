@@ -13,6 +13,7 @@ from bfb_delivery.lib.dispatch.utils import get_circuit_key, get_response_dict
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
+
 @click.command()
 @click.option(
     "--plan-id", type=str, required=True, help="The plan ID to be deleted. As 'plans/{id}'."
