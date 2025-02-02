@@ -10,7 +10,7 @@ from requests.auth import HTTPBasicAuth
 from typeguard import typechecked
 
 from bfb_delivery.lib.constants import CircuitColumns, Columns, RateLimits
-from bfb_delivery.lib.dispatch.api_callers import CheckOptimization
+from bfb_delivery.lib.dispatch.api_callers import CheckOptimization, LaunchOptimization
 
 # TODO: Move _concat_response_pages to utils.
 from bfb_delivery.lib.dispatch.read_circuit import _concat_response_pages
@@ -142,25 +142,41 @@ def _optimize_routes(sheet_plan_df: pd.DataFrame, verbose: bool) -> None:
     logger.info("Initializing route optimizations ...")
     plan_ids = sheet_plan_df["plan_id"].to_list()
     optimizations = {}
-    wait_seconds = RateLimits.WRITE_SECONDS
-    # TODO: Allow continuation and handle all errors last here and elsewhere.
+
+    errors = []
     for plan_id in plan_ids:
+        plan_title = sheet_plan_df[sheet_plan_df["plan_id"] == plan_id]["route_title"].values[
+            0
+        ]
         if verbose:
-            route_title = sheet_plan_df[sheet_plan_df["plan_id"] == plan_id][
-                "route_title"
-            ].values[0]
-            logger.info(f"Optimizing route for {route_title} ({plan_id}) ...")
+            logger.info(f"Optimizing route for {plan_title} ({plan_id}) ...")
         # TODO: If optimization comes back finished on launch, don't check later.
-        operation_id, wait_seconds = _optimize_route(
-            plan_id=plan_id, wait_seconds=wait_seconds
-        )
-        optimizations[plan_id] = operation_id
+        optimization = LaunchOptimization(plan_id=plan_id, plan_title=plan_title)
+        try:
+            optimization.call_api()
+        except Exception as e:
+            logger.error(
+                f"Error launching optimization for {plan_title} ({plan_id}):"
+                f"\n{optimization._response_json}"
+            )
+            errors.append(e)
+        else:
+            optimizations[plan_id] = optimization.operation_id
+            if verbose:
+                logger.info(
+                    f"Launched optimization for {plan_title} ({plan_id}): "
+                    f"{optimization.operation_id}"
+                )
+
+    if errors:
+        raise RuntimeError(f"Errors launching optimizations:\n{errors}")
 
     _wait_for_optimizations(
         sheet_plan_df=sheet_plan_df, optimizations=optimizations, verbose=verbose
     )
 
 
+# TODO: Make a CLI for this since it will be optional.
 @typechecked
 def _distribute_routes(sheet_plan_df: pd.DataFrame) -> None:
     """Distribute the routes."""
@@ -297,47 +313,6 @@ def _build_plan_stops(
         plan_stops[plan_id] = stop_arrays
 
     return plan_stops
-
-
-@typechecked
-def _optimize_route(plan_id: str, wait_seconds: float) -> tuple[str, float]:
-    """Optimize a route."""
-    response = requests.post(
-        url=f"https://api.getcircuit.com/public/v0.2b/{plan_id}:optimize",
-        auth=HTTPBasicAuth(get_circuit_key(), ""),
-        timeout=RateLimits.WRITE_TIMEOUT_SECONDS,
-    )
-
-    # TODO: Abstract this try block.
-    try:
-        response.raise_for_status()
-    except requests.exceptions.HTTPError as http_e:
-        response_dict = get_response_dict(response=response)
-        err_msg = f"Got {response.status_code} reponse for {plan_id}: {response_dict}"
-        raise requests.exceptions.HTTPError(err_msg) from http_e
-
-    else:
-        if response.status_code == 200:
-            operation = response.json()
-            operation_id = operation["id"]
-            skipped = operation["result"].get("skippedStops")
-            if skipped:
-                raise RuntimeError(f"Failed to optimize stops:\n{operation}")
-            if operation["metadata"]["canceled"]:
-                raise RuntimeError(f"Operation canceled:\n{operation}")
-
-        elif response.status_code == 429:
-            wait_seconds = wait_seconds * 2
-            logger.warning(f"Rate-limited. Waiting {wait_seconds} seconds to retry.")
-            sleep(wait_seconds)
-            operation_id, wait_seconds = _optimize_route(
-                plan_id=plan_id, wait_seconds=wait_seconds
-            )
-        else:
-            response_dict = get_response_dict(response=response)
-            raise ValueError(f"Unexpected response {response.status_code}: {response_dict}")
-
-    return operation_id, wait_seconds
 
 
 @typechecked
@@ -557,34 +532,28 @@ def _wait_for_optimizations(
             plan_id for plan_id, finished in optimizations_finished.items() if not finished
         ]
         for plan_id in unfinished:
+            plan_title = sheet_plan_df[sheet_plan_df["plan_id"] == plan_id][
+                "route_title"
+            ].values[0]
             if verbose:
-                route_title = sheet_plan_df[sheet_plan_df["plan_id"] == plan_id][
-                    "route_title"
-                ].values[0]
-                logger.info(f"Checking optimization for {route_title} ({plan_id}) ...")
+                logger.info(f"Checking optimization for {plan_title} ({plan_id}) ...")
             check_op = CheckOptimization(
-                plan_id=plan_id,
-                operation_id=optimizations[plan_id],
-                plan_title=sheet_plan_df[sheet_plan_df["plan_id"] == plan_id][
-                    "route_title"
-                ].values[0],
+                plan_id=plan_id, operation_id=optimizations[plan_id], plan_title=plan_title
             )
             try:
                 check_op.call_api()
             except Exception as e:
                 logger.error(
-                    f"Error checking optimization for {plan_id}:\n{check_op._response_json}"
+                    f"Error checking optimization for {plan_title} ({plan_id}):"
+                    f"\n{check_op._response_json}"
                 )
                 errors.append(e)
                 optimizations_finished[plan_id] = "error"
             else:
                 optimizations_finished[plan_id] = check_op.finished
                 if verbose:
-                    route_title = sheet_plan_df[sheet_plan_df["plan_id"] == plan_id][
-                        "route_title"
-                    ].values[0]
                     logger.info(
-                        f"Optimization status for {route_title} ({plan_id}): "
+                        f"Optimization status for {plan_title} ({plan_id}): "
                         f"{check_op.finished}"
                     )
 

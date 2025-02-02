@@ -149,23 +149,21 @@ class _BasePostCaller(_BaseCaller):
 class _BaseOptimizationCaller(_BaseCaller):
     """Base class for checking the status of an optimization."""
 
+    operation_id: str
     finished: bool
 
     _plan_id: str
-    _operation_id: str
     _plan_title: str
 
     @typechecked
-    def __init__(self, plan_id: str, operation_id: str, plan_title: str) -> None:
+    def __init__(self, plan_id: str, plan_title: str, **kwargs: Any) -> None:  # noqa: ANN401
         """Initialize the CheckOptimization object.
 
         Args:
             plan_id: The ID of the plan.
-            operation_id: The ID of the operation.
             plan_title: The title of the plan.
         """
         self._plan_id = plan_id
-        self._operation_id = operation_id
         self._plan_title = plan_title
         super().__init__()
 
@@ -191,22 +189,35 @@ class _BaseOptimizationCaller(_BaseCaller):
                     f"\n{self._response_json}"
                 )
 
+        self.operation_id = self._response_json["id"]
         self.finished = self._response_json = self._response_json["done"]
 
 
-# class LaunchOptimization(_BaseOptimizationCaller, _BasePostCaller):
-#     """A class for launching route optimization."""
+class LaunchOptimization(_BaseOptimizationCaller, _BasePostCaller):
+    """A class for launching route optimization."""
 
-#     @typechecked
-#     def _set_url(self) -> None:
-#         """Set the URL for the API call."""
-#         self._url = f"https://api.getcircuit.com/public/v0.2b/{self._plan_id}:optimize"
+    @typechecked
+    def _set_url(self) -> None:
+        """Set the URL for the API call."""
+        self._url = f"https://api.getcircuit.com/public/v0.2b/{self._plan_id}:optimize"
 
 
 class CheckOptimization(_BaseOptimizationCaller, _BaseGetCaller):
     """A class for checking the status of an optimization."""
 
     @typechecked
+    def __init__(self, plan_id: str, plan_title: str, operation_id: str) -> None:
+        """Initialize the CheckOptimization object.
+
+        Args:
+            plan_id: The ID of the plan.
+            plan_title: The title of the plan.
+            operation_id: The ID of the operation.
+        """
+        self.operation_id = operation_id
+        super().__init__(plan_id=plan_id, plan_title=plan_title)
+
+    @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call."""
-        self._url = f"https://api.getcircuit.com/public/v0.2b/{self._operation_id}"
+        self._url = f"https://api.getcircuit.com/public/v0.2b/{self.operation_id}"
