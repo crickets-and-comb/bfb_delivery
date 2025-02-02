@@ -1,24 +1,22 @@
 """Write routes to Circuit."""
 
 import logging
-from time import sleep
 from typing import Any
 
 import pandas as pd
-import requests
-from requests.auth import HTTPBasicAuth
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import CircuitColumns, Columns, RateLimits
+from bfb_delivery.lib.constants import CircuitColumns, Columns
 from bfb_delivery.lib.dispatch.api_callers import (
     OptimizationChecker,
     OptimizationLauncher,
+    PlanInitializer,
     StopUploader,
 )
 
 # TODO: Move _concat_response_pages to utils.
 from bfb_delivery.lib.dispatch.read_circuit import _concat_response_pages
-from bfb_delivery.lib.dispatch.utils import get_circuit_key, get_response_dict, get_responses
+from bfb_delivery.lib.dispatch.utils import get_responses
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -165,7 +163,7 @@ def _optimize_routes(sheet_plan_df: pd.DataFrame, verbose: bool) -> None:
     plan_ids = sheet_plan_df["plan_id"].to_list()
     optimizations = {}
 
-    errors = []
+    errors = {}
     for plan_id in plan_ids:
         plan_title = sheet_plan_df[sheet_plan_df["plan_id"] == plan_id]["route_title"].values[
             0
@@ -181,7 +179,11 @@ def _optimize_routes(sheet_plan_df: pd.DataFrame, verbose: bool) -> None:
                 f"Error launching optimization for {plan_title} ({plan_id}):"
                 f"\n{optimization._response_json}"
             )
-            errors.append(e)
+            if plan_id not in errors:
+                errors[plan_id] = [e]
+            else:
+                errors[plan_id].append
+
         else:
             optimizations[plan_id] = optimization.operation_id
             if verbose:
@@ -258,39 +260,45 @@ def _initialize_plans(
     route_driver_df["optimization"] = None
 
     logger.info("Initializing plans ...")
-    wait_seconds = RateLimits.WRITE_SECONDS
-    try:
-        for idx, row in route_driver_df.iterrows():
-            plan_data = {
-                "title": row["route_title"],
-                "starts": {
-                    "day": int(start_date.split("-")[2]),
-                    "month": int(start_date.split("-")[1]),
-                    "year": int(start_date.split("-")[0]),
-                },
-                "drivers": [row["id"]],
-            }
-            if verbose:
-                logger.info(f"Creating plan for {row['route_title']} ...")
-            plan_response, wait_seconds = _post_plan(
-                plan_data=plan_data, wait_seconds=wait_seconds
+    errors = {}
+    for idx, row in route_driver_df.iterrows():
+        plan_data = {
+            "title": row["route_title"],
+            "starts": {
+                "day": int(start_date.split("-")[2]),
+                "month": int(start_date.split("-")[1]),
+                "year": int(start_date.split("-")[0]),
+            },
+            "drivers": [row["id"]],
+        }
+        if verbose:
+            logger.info(f"Creating plan for {row['route_title']} ...")
+        plan_initializer = PlanInitializer(plan_data=plan_data)
+        try:
+            plan_initializer.call_api()
+        except Exception as e:
+            logger.error(
+                f"Error initializing plan for {row['route_title']}:\n"
+                f"{plan_initializer._response_json}"
+            )
+            if row["route_title"] not in errors:
+                errors[row["route_title"]] = [e]
+            else:
+                errors[row["route_title"]].append(e)
+
+        if verbose:
+            logger.info(
+                f"Created plan {plan_initializer._response_json['id']} for "
+                f"{row['route_title']}.\n{plan_initializer._response_json}"
             )
 
-            if verbose:
-                logger.info(
-                    f"Created plan {plan_response['id']} for {row['route_title']}."
-                    f"\n{plan_response}"
-                )
+        route_driver_df.loc[idx, ["plan_id", "writeable"]] = (
+            plan_initializer._response_json["id"],
+            plan_initializer._response_json["writable"],
+        )
 
-            route_driver_df.loc[idx, ["plan_id", "writeable"]] = (
-                plan_response["id"],
-                plan_response["writable"],
-            )
-
-    except Exception as e:
-        # Can't clean up plans if they're not finished.
-        logger.error(f"Error initializing plans:\n{route_driver_df}")
-        raise e
+    if errors:
+        raise RuntimeError(f"Errors initializing plans:\n{errors}")
 
     not_writable = route_driver_df[route_driver_df["writeable"] == False]  # noqa: E712
     if not not_writable.empty:
@@ -381,41 +389,6 @@ def _assign_drivers(drivers_df: pd.DataFrame, route_driver_df: pd.DataFrame) -> 
 
 
 @typechecked
-def _post_plan(plan_data: dict, wait_seconds: float) -> tuple[dict, float]:
-    """Post a plan to Circuit."""
-    response = requests.post(
-        url="https://api.getcircuit.com/public/v0.2b/plans",
-        json=plan_data,
-        auth=HTTPBasicAuth(get_circuit_key(), ""),
-        timeout=RateLimits.WRITE_TIMEOUT_SECONDS,
-    )
-
-    # TODO: Abstract this try block.
-    try:
-        response.raise_for_status()
-    except requests.exceptions.HTTPError as http_e:
-        response_dict = get_response_dict(response=response)
-        err_msg = (
-            f"Got {response.status_code} reponse for {plan_data['title']}: {response_dict}"
-        )
-        raise requests.exceptions.HTTPError(err_msg) from http_e
-
-    else:
-        if response.status_code == 200:
-            plan = response.json()
-        elif response.status_code == 429:
-            wait_seconds = wait_seconds * 2
-            logger.warning(f"Rate-limited. Waiting {wait_seconds} seconds to retry.")
-            sleep(wait_seconds)
-            plan, wait_seconds = _post_plan(plan_data=plan_data, wait_seconds=wait_seconds)
-        else:
-            response_dict = get_response_dict(response=response)
-            raise ValueError(f"Unexpected response {response.status_code}: {response_dict}")
-
-    return plan, wait_seconds
-
-
-@typechecked
 def _assign_driver(
     route_title: str, drivers_df: pd.DataFrame, route_driver_df: pd.DataFrame
 ) -> pd.DataFrame:
@@ -500,7 +473,7 @@ def _wait_for_optimizations(
     optimizations_finished: dict[str, bool | str] = {
         plan_id: False for plan_id in sheet_plan_df["plan_id"].to_list()
     }
-    errors = []
+    errors = {}
     while not all([val is True or val == "error" for val in optimizations_finished.values()]):
         unfinished = [
             plan_id for plan_id, finished in optimizations_finished.items() if not finished
@@ -521,8 +494,13 @@ def _wait_for_optimizations(
                     f"Error checking optimization for {plan_title} ({plan_id}):"
                     f"\n{check_op._response_json}"
                 )
-                errors.append(e)
+                if plan_id not in errors:
+                    errors[plan_id] = [e]
+                else:
+                    errors[plan_id].append(e)
+
                 optimizations_finished[plan_id] = "error"
+
             else:
                 optimizations_finished[plan_id] = check_op.finished
                 if verbose:

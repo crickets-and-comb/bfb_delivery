@@ -13,16 +13,6 @@ from bfb_delivery.lib.dispatch.utils import get_circuit_key, get_response_dict
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-
-# TODO: Hm, plan not found, 404, but I didn't delete it.
-# {'message': 'Route POST:/public/v0.2b/plans/plans/bwEIfsArXoNsRY7jf6uy not found', 'error': 'Not Found', 'statusCode': 404} # noqa
-# Also: plans/yVQuIEwEySoEaQOzQ0QN, plans/IcHyv5Vd7E1gDG4j5126
-# Did I create them successfully?
-# If so, considered a live plan since the optimization status is "creating"?
-# If a live plan, how can I find it other than to operate on it?
-# {'id': 'plans/yVQuIEwEySoEaQOzQ0QN', 'title': '01.01 Kaleb #2', 'starts': {'day': 2, 'month': 2, 'year': 2025}, 'depot': 'depots/LsDXAC6SRAnYXcKoL3oH', 'distributed': False, 'writable': True, 'optimization': 'creating', 'drivers': [{'id': 'drivers/TAsfHJDOexFH3rMd2AQ5', 'name': 'Kaleb Coberly', 'email': 'kalebcoberly@gmail.com', 'phone': None, 'displayName': '', 'active': True}], 'routes': []} # noqa
-
-
 @click.command()
 @click.option(
     "--plan-id", type=str, required=True, help="The plan ID to be deleted. As 'plans/{id}'."
@@ -62,48 +52,3 @@ def main(plan_id: str, wait_seconds: float = RateLimits.WRITE_SECONDS) -> dict:
 
 if __name__ == "__main__":
     main()
-
-
-# Plans to delete:
-# [{'id': 'plans/IcHyv5Vd7E1gDG4j5126',
-#   'title': '01.01 Kaleb #1',
-#   'starts': {'day': 2, 'month': 2, 'year': 2025},
-#   'depot': 'depots/LsDXAC6SRAnYXcKoL3oH',
-#   'distributed': False,
-#   'writable': True,
-#   'optimization': 'creating',
-#   'drivers': [{'id': 'drivers/TAsfHJDOexFH3rMd2AQ5',
-#                'name': 'Kaleb Coberly',
-#                'email': 'kalebcoberly@gmail.com',
-#                'phone': None,
-#                'displayName': '',
-#                'active': True}],
-#   'routes': []},
-#  {'id': 'plans/bwEIfsArXoNsRY7jf6uy',
-#   'title': '01.01 Kaleb #1',
-#   'starts': {'day': 2, 'month': 2, 'year': 2025},
-#   'depot': 'depots/LsDXAC6SRAnYXcKoL3oH',
-#   'distributed': False,
-#   'writable': True,
-#   'optimization': 'creating',
-#   'drivers': [{'id': 'drivers/TAsfHJDOexFH3rMd2AQ5',
-#                'name': 'Kaleb Coberly',
-#                'email': 'kalebcoberly@gmail.com',
-#                'phone': None,
-#                'displayName': '',
-#                'active': True}],
-#   'routes': []},
-#  {'id': 'plans/yVQuIEwEySoEaQOzQ0QN',
-#   'title': '01.01 Kaleb #2',
-#   'starts': {'day': 2, 'month': 2, 'year': 2025},
-#   'depot': 'depots/LsDXAC6SRAnYXcKoL3oH',
-#   'distributed': False,
-#   'writable': True,
-#   'optimization': 'creating',
-#   'drivers': [{'id': 'drivers/TAsfHJDOexFH3rMd2AQ5',
-#                'name': 'Kaleb Coberly',
-#                'email': 'kalebcoberly@gmail.com',
-#                'phone': None,
-#                'displayName': '',
-#                'active': True}],
-#   'routes': []}]

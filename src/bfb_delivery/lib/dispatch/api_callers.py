@@ -218,7 +218,7 @@ class OptimizationChecker(_BaseOptimizationCaller, _BaseGetCaller):
 
 
 class StopUploader(_BasePostCaller):
-    """Base class for checking the status of an optimization."""
+    """Class for batch uploading stops."""
 
     stop_ids: list[str]
 
@@ -266,3 +266,25 @@ class StopUploader(_BasePostCaller):
                 f"For {self._plan_title} ({self._plan_id}), did not upload same number of "
                 f"stops as input:\n{self.stop_ids}\n{self._stop_array}"
             )
+
+
+class PlanInitializer(_BasePostCaller):
+    """Class for initializing plans."""
+
+    _plan_data: dict
+
+    @typechecked
+    def __init__(self, plan_data: dict) -> None:
+        """Initialize the PlanInitializer object.
+
+        Args:
+            plan_data: The data for the plan, to pass to `requests.post` `json` param.
+        """
+        self._plan_data = plan_data
+        self._call_kwargs = {"json": plan_data}
+        super().__init__()
+
+    @typechecked
+    def _set_url(self) -> None:
+        """Set the URL for the API call."""
+        self._url = "https://api.getcircuit.com/public/v0.2b/plans"

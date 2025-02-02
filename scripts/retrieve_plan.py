@@ -14,9 +14,6 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-# TODO: Hm, plan not found, 404, but I didn't delete it. Did I create it?
-# Its
-# {'message': 'Route GET:/public/v0.2b/plans/plans/bwEIfsArXoNsRY7jf6uy not found', 'error': 'Not Found', 'statusCode': 404} # noqa
 @click.command()
 @click.option(
     "--plan-id", type=str, required=True, help="The plan ID to be deleted. As 'plans/{id}'."
