@@ -10,7 +10,11 @@ from requests.auth import HTTPBasicAuth
 from typeguard import typechecked
 
 from bfb_delivery.lib.constants import CircuitColumns, Columns, RateLimits
-from bfb_delivery.lib.dispatch.api_callers import CheckOptimization, LaunchOptimization
+from bfb_delivery.lib.dispatch.api_callers import (
+    OptimizationChecker,
+    OptimizationLauncher,
+    StopUploader,
+)
 
 # TODO: Move _concat_response_pages to utils.
 from bfb_delivery.lib.dispatch.read_circuit import _concat_response_pages
@@ -115,18 +119,36 @@ def _upload_stops(
     logger.info("Uploading stops ...")
     uploaded_stops = {}
     stop_id_count = 0
+    errors = {}
     for plan_id, stop_arrays in plan_stops.items():
+        plan_title = sheet_plan_df[sheet_plan_df["plan_id"] == plan_id]["route_title"].values[
+            0
+        ]
+
         if verbose:
-            route_title = sheet_plan_df[sheet_plan_df["plan_id"] == plan_id][
-                "route_title"
-            ].values[0]
-            logger.info(f"Uploading stops for {route_title} ({plan_id}) ...")
+            logger.info(f"Uploading stops for {plan_title} ({plan_id}) ...")
+
         for stop_array in stop_arrays:
-            stop_ids, _ = _upload_stop_array(
-                plan_id=plan_id, stop_array=stop_array, wait_seconds=RateLimits.WRITE_SECONDS
+            stop_uploader = StopUploader(
+                plan_id=plan_id, plan_title=plan_title, stop_array=stop_array
             )
-            uploaded_stops[plan_id] = stop_ids
-            stop_id_count += len(stop_ids)
+            try:
+                stop_uploader.call_api()
+            except Exception as e:
+                logger.error(
+                    f"Error uploading stops for {plan_title} ({plan_id}):"
+                    f"\n{stop_uploader._response_json}"
+                )
+                if plan_id not in errors:
+                    errors[plan_title] = [e]
+                else:
+                    errors[plan_title].append(e)
+
+            uploaded_stops[plan_title] = stop_uploader.stop_ids
+            stop_id_count += len(stop_uploader.stop_ids)
+
+    if errors:
+        raise RuntimeError(f"Errors uploading stops:\n{errors}")
 
     logger.info(
         f"Finished uploading stops. Uploaded {stop_id_count} stops for "
@@ -151,7 +173,7 @@ def _optimize_routes(sheet_plan_df: pd.DataFrame, verbose: bool) -> None:
         if verbose:
             logger.info(f"Optimizing route for {plan_title} ({plan_id}) ...")
         # TODO: If optimization comes back finished on launch, don't check later.
-        optimization = LaunchOptimization(plan_id=plan_id, plan_title=plan_title)
+        optimization = OptimizationLauncher(plan_id=plan_id, plan_title=plan_title)
         try:
             optimization.call_api()
         except Exception as e:
@@ -470,54 +492,6 @@ def _parse_addresses(stops_df: pd.DataFrame) -> pd.DataFrame:
 
 
 @typechecked
-def _upload_stop_array(
-    plan_id: str,
-    stop_array: list[dict[str, dict[str, str] | list[str] | int | str]],
-    wait_seconds: float,
-) -> tuple[list[str], float]:
-    """Upload a stop array."""
-    response = requests.post(
-        url=f"https://api.getcircuit.com/public/v0.2b/{plan_id}/stops:import",
-        json=stop_array,
-        auth=HTTPBasicAuth(get_circuit_key(), ""),
-        timeout=RateLimits.WRITE_TIMEOUT_SECONDS,
-    )
-
-    # TODO: Abstract this try block.
-    try:
-        response.raise_for_status()
-    except requests.exceptions.HTTPError as http_e:
-        response_dict = get_response_dict(response=response)
-        err_msg = f"Got {response.status_code} reponse for {plan_id}: {response_dict}"
-        raise requests.exceptions.HTTPError(err_msg) from http_e
-
-    else:
-        if response.status_code == 200:
-            stops = response.json()
-            stop_ids = stops["success"]
-            failed = stops.get("failed")
-            if failed:
-                raise RuntimeError(f"Failed to upload stops:\n{failed}")
-            elif len(stop_ids) != len(stop_array):
-                raise RuntimeError(
-                    f"Did not upload same number of stops as input:\n{stop_ids}\n{stop_array}"
-                )
-
-        elif response.status_code == 429:
-            wait_seconds = wait_seconds * 2
-            logger.warning(f"Rate-limited. Waiting {wait_seconds} seconds to retry.")
-            sleep(wait_seconds)
-            stop_ids, wait_seconds = _upload_stop_array(
-                plan_id=plan_id, stop_array=stop_array, wait_seconds=wait_seconds
-            )
-        else:
-            response_dict = get_response_dict(response=response)
-            raise ValueError(f"Unexpected response {response.status_code}: {response_dict}")
-
-    return stop_ids, wait_seconds
-
-
-@typechecked
 def _wait_for_optimizations(
     sheet_plan_df: pd.DataFrame, optimizations: dict[str, str], verbose: bool
 ) -> None:
@@ -537,7 +511,7 @@ def _wait_for_optimizations(
             ].values[0]
             if verbose:
                 logger.info(f"Checking optimization for {plan_title} ({plan_id}) ...")
-            check_op = CheckOptimization(
+            check_op = OptimizationChecker(
                 plan_id=plan_id, operation_id=optimizations[plan_id], plan_title=plan_title
             )
             try:

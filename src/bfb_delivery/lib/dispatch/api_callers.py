@@ -16,6 +16,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
+# TODO: See where else we can use this.
 class _BaseCaller:
     """A base class for making API calls."""
 
@@ -28,8 +29,7 @@ class _BaseCaller:
     _wait_seconds: float  # Is increased at class level on rate limiting.
 
     # Optionally set in child class, to pass to _request_call if needed:
-    _params: dict | list[tuple] | bytes | None = None
-    _data: dict | list[tuple] | bytes | None = None
+    _call_kwargs: dict[str, Any] = {}
 
     # Set by object:
     _response: requests.Response
@@ -61,25 +61,19 @@ class _BaseCaller:
         raise NotImplementedError
 
     @typechecked
-    def call_api(self, **kwargs: Any) -> None:  # noqa: ANN401
+    def call_api(self) -> None:
         """Call the API."""
         self._make_call()
         self._raise_for_status()
-        self._parse_response(**kwargs)
+        self._parse_response()
 
     @typechecked
     def _make_call(self) -> None:
-        params_and_data = {}
-        if self._params:
-            params_and_data["params"] = self._params
-        if self._data:
-            params_and_data["json"] = self._data
-
         self._response = self._request_call(
             url=self._url,
             auth=HTTPBasicAuth(get_circuit_key(), ""),
             timeout=self._timeout,
-            **params_and_data,
+            **self._call_kwargs,
         )
 
     @typechecked
@@ -92,7 +86,7 @@ class _BaseCaller:
             raise requests.exceptions.HTTPError(err_msg) from http_e
 
     @typechecked
-    def _parse_response(self, **kwargs: Any) -> None:  # noqa: ANN401
+    def _parse_response(self) -> None:
         if self._response.status_code == 200:
             self._handle_200()
             # TODO: Decrease wait time by 25% (but not below min).
@@ -103,7 +97,7 @@ class _BaseCaller:
             )
             sleep(type(self)._wait_seconds)
             self._increase_wait_time()
-            self.call_api(**kwargs)
+            self.call_api()
         else:
             response_dict = get_response_dict(response=self._response)
             raise ValueError(
@@ -157,7 +151,7 @@ class _BaseOptimizationCaller(_BaseCaller):
 
     @typechecked
     def __init__(self, plan_id: str, plan_title: str, **kwargs: Any) -> None:  # noqa: ANN401
-        """Initialize the CheckOptimization object.
+        """Initialize the OptimizationChecker object.
 
         Args:
             plan_id: The ID of the plan.
@@ -193,7 +187,7 @@ class _BaseOptimizationCaller(_BaseCaller):
         self.finished = self._response_json = self._response_json["done"]
 
 
-class LaunchOptimization(_BaseOptimizationCaller, _BasePostCaller):
+class OptimizationLauncher(_BaseOptimizationCaller, _BasePostCaller):
     """A class for launching route optimization."""
 
     @typechecked
@@ -202,12 +196,12 @@ class LaunchOptimization(_BaseOptimizationCaller, _BasePostCaller):
         self._url = f"https://api.getcircuit.com/public/v0.2b/{self._plan_id}:optimize"
 
 
-class CheckOptimization(_BaseOptimizationCaller, _BaseGetCaller):
+class OptimizationChecker(_BaseOptimizationCaller, _BaseGetCaller):
     """A class for checking the status of an optimization."""
 
     @typechecked
     def __init__(self, plan_id: str, plan_title: str, operation_id: str) -> None:
-        """Initialize the CheckOptimization object.
+        """Initialize the OptimizationChecker object.
 
         Args:
             plan_id: The ID of the plan.
@@ -221,3 +215,54 @@ class CheckOptimization(_BaseOptimizationCaller, _BaseGetCaller):
     def _set_url(self) -> None:
         """Set the URL for the API call."""
         self._url = f"https://api.getcircuit.com/public/v0.2b/{self.operation_id}"
+
+
+class StopUploader(_BasePostCaller):
+    """Base class for checking the status of an optimization."""
+
+    stop_ids: list[str]
+
+    _plan_id: str
+    _plan_title: str
+
+    @typechecked
+    def __init__(
+        self,
+        plan_id: str,
+        plan_title: str,
+        stop_array: list[dict[str, dict[str, str] | list[str] | int | str]],
+    ) -> None:
+        """Initialize the StopUploader object.
+
+        Args:
+            plan_id: The ID of the plan.
+            plan_title: The title of the plan.
+            stop_array: The array of stops to upload, to pass to `requests.post` `json` param.
+        """
+        self._plan_id = plan_id
+        self._plan_title = plan_title
+        self._stop_array = stop_array
+        self._call_kwargs = {"json": stop_array}
+        super().__init__()
+
+    @typechecked
+    def _set_url(self) -> None:
+        """Set the URL for the API call."""
+        self._url = f"https://api.getcircuit.com/public/v0.2b/{self._plan_id}/stops:import"
+
+    @typechecked
+    def _handle_200(self) -> None:
+        """Handle a 200 response."""
+        super()._handle_200()
+
+        self.stop_ids = self._response_json["success"]
+        failed = self._response_json.get("failed")
+        if failed:
+            raise RuntimeError(
+                f"For {self._plan_title} ({self._plan_id}), failed to upload stops:\n{failed}"
+            )
+        elif len(self.stop_ids) != len(self._stop_array):
+            raise RuntimeError(
+                f"For {self._plan_title} ({self._plan_id}), did not upload same number of "
+                f"stops as input:\n{self.stop_ids}\n{self._stop_array}"
+            )
