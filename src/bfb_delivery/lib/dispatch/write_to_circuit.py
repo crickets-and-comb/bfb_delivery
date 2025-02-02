@@ -208,13 +208,13 @@ def _initialize_plans(
         raise e
 
     null_depots = route_driver_df[route_driver_df["depot"].isnull()]
-    if null_depots.not_empty:
+    if not null_depots.empty:
         raise ValueError(f"Depot is null for the following routes:\n{null_depots}")
     not_writable = route_driver_df[~(route_driver_df["writeable"])]
-    if not_writable.not_empty:
+    if not not_writable.empty:
         raise ValueError(f"Plan is not writable for the following routes:\n{not_writable}")
     not_creating = route_driver_df[route_driver_df["optimization"] != "creating"]
-    if not_creating.not_empty:
+    if not not_creating.empty:
         raise ValueError(f"Plan is not creating for the following routes:\n{not_creating}")
 
     return route_driver_df

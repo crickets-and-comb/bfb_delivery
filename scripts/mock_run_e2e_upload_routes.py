@@ -29,8 +29,8 @@ def main(start_date: str, verbose: bool, mock_plan_creation: bool) -> None:
         else nullcontext()
     )
 
-    split_chunked_sheet_fp = ".test_data/split_chunked/single_split_chunked_1.xlsx"
-    # split_chunked_sheet_fp = ".test_data/split_chunked/test_driver.xlsx"
+    # split_chunked_sheet_fp = ".test_data/split_chunked/single_split_chunked_1.xlsx"
+    split_chunked_sheet_fp = ".test_data/split_chunked/test_driver.xlsx"
     with plan_creation_context:
         sheet_plan_df = upload_split_chunked(
             split_chunked_workbook_fp=split_chunked_sheet_fp,
