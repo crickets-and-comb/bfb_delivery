@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 @typechecked
 def upload_split_chunked(
     split_chunked_workbook_fp: str, start_date: str, distribute: bool, verbose: bool
-) -> pd.DataFrame:
+) -> tuple[pd.DataFrame, dict[str, list[str]]]:
     """Upload a split chunked Excel workbook of routes to circuit.
 
     The workbook contains multiple sheets, one per route. Each sheet is named after the driver
@@ -47,6 +47,7 @@ def upload_split_chunked(
     Returns:
         A DataFrame with the plan IDs and driver IDs for each sheet,
             along with date and whether distributed.
+        A dictionary with the uploaded stops for each plan.
     """
     with pd.ExcelFile(split_chunked_workbook_fp) as workbook:
         stops_dfs = []
@@ -59,8 +60,7 @@ def upload_split_chunked(
         sheet_plan_df = _create_plans(
             stops_df=stops_df, start_date=start_date, verbose=verbose
         )
-        breakpoint()
-        _upload_stops(stops_df=stops_df, sheet_plan_df=sheet_plan_df)
+        uploaded_stops = _upload_stops(stops_df=stops_df, sheet_plan_df=sheet_plan_df)
 
         plan_ids = sheet_plan_df["plan_id"].tolist()
         _optimize_routes(plan_ids=plan_ids)
@@ -71,7 +71,7 @@ def upload_split_chunked(
         sheet_plan_df["distributed"] = distribute
         sheet_plan_df["start_date"] = start_date
 
-    return sheet_plan_df
+    return sheet_plan_df, uploaded_stops
 
 
 @typechecked
@@ -95,15 +95,25 @@ def _create_plans(stops_df: pd.DataFrame, start_date: str, verbose: bool) -> pd.
 
 
 @typechecked
-def _upload_stops(stops_df: pd.DataFrame, sheet_plan_df: pd.DataFrame) -> None:
+def _upload_stops(
+    stops_df: pd.DataFrame, sheet_plan_df: pd.DataFrame
+) -> dict[str, list[str]]:
     """Upload stops for each route.
 
     Args:
         stops_df: The long DataFrame with all the routes.
         sheet_plan_df: The DataFrame with the plan IDs and driver IDs for each sheet.
     """
-    stop_arrays = _build_stop_arrays(stops_df=stops_df, sheet_plan_df=sheet_plan_df)
-    _upload_stop_arrays(stop_arrays=stop_arrays)
+    plan_stops = _build_plan_stops(stops_df=stops_df, sheet_plan_df=sheet_plan_df)
+    uploaded_stops = {}
+    for plan_id, stop_arrays in plan_stops.items():
+        for stop_array in stop_arrays:
+            stop_ids, _ = _upload_stop_array(
+                plan_id=plan_id, stop_array=stop_array, wait_seconds=RateLimits.WRITE_SECONDS
+            )
+            uploaded_stops[plan_id] = stop_ids
+
+    return uploaded_stops
 
 
 @typechecked
@@ -196,34 +206,26 @@ def _initialize_plans(
                     f"\n{plan_response}"
                 )
 
-            route_driver_df.loc[idx, ["plan_id", "depot", "writeable", "optimization"]] = (
+            route_driver_df.loc[idx, ["plan_id", "writeable", "optimization"]] = (
                 plan_response["id"],
-                plan_response["depot"],
                 plan_response["writable"],
-                plan_response["optimization"],
             )
     except Exception as e:
         # Can't clean up plans if they're not finished.
         logger.error(f"Error initializing plans:\n{route_driver_df}")
         raise e
 
-    null_depots = route_driver_df[route_driver_df["depot"].isnull()]
-    if not null_depots.empty:
-        raise ValueError(f"Depot is null for the following routes:\n{null_depots}")
-    not_writable = route_driver_df[route_driver_df["writeable"] == False]
+    not_writable = route_driver_df[route_driver_df["writeable"] == False]  # noqa: E712
     if not not_writable.empty:
         raise ValueError(f"Plan is not writable for the following routes:\n{not_writable}")
-    not_creating = route_driver_df[route_driver_df["optimization"] != "creating"]
-    if not not_creating.empty:
-        raise ValueError(f"Plan is not creating for the following routes:\n{not_creating}")
 
     return route_driver_df
 
 
 @typechecked
-def _build_stop_arrays(
+def _build_plan_stops(
     stops_df: pd.DataFrame, sheet_plan_df: pd.DataFrame
-) -> list[list[dict[str, dict[str, str] | list[str] | int | str]]]:
+) -> dict[str, list[list[dict[str, dict[str, str] | list[str] | int | str]]]]:
     """Build stop arrays for each route.
 
     Args:
@@ -231,32 +233,29 @@ def _build_stop_arrays(
         sheet_plan_df: The DataFrame with the plan IDs and driver IDs for each sheet.
 
     Returns:
-        A list of stop arrays for batch stop uploads.
+        For each plan, a list of stop arrays for batch stop uploads.
     """
     stops_df = _parse_addresses(stops_df=stops_df)
-    all_stops = _build_all_stops(stops_df=stops_df, sheet_plan_df=sheet_plan_df)
-    stop_arrays = []
-    # Split all_stops into chunks of 100 stops.
-    number_of_stops = len(all_stops)
-    for i in range(0, number_of_stops, 100):
-        stop_arrays.append(
-            all_stops[i : i + 100]  # noqa: E203
-        )  # TODO: Add noqa E203 to shared, and remove throughout codebase.
+    plan_stops = {}
+    for _, plan_row in sheet_plan_df.iterrows():
+        plan_id = plan_row["plan_id"]
+        route_title = plan_row["route_title"]
+        route_stops = stops_df[stops_df["sheet_name"] == route_title]
+        plan_stops[plan_id] = _build_stop_array(
+            route_stops=route_stops, driver_id=plan_row["id"]
+        )
 
-    return stop_arrays
+    for plan_id, all_stops in plan_stops.items():
+        stop_arrays = []
+        # Split all_stops into chunks of 100 stops.
+        number_of_stops = len(all_stops)
+        for i in range(0, number_of_stops, 100):
+            stop_arrays.append(
+                all_stops[i : i + 100]  # noqa: E203
+            )  # TODO: Add noqa E203 to shared, and remove throughout codebase.
+        plan_stops[plan_id] = stop_arrays
 
-
-@typechecked
-def _upload_stop_arrays(
-    stop_arrays: list[list[dict[str, dict[str, str] | list[str] | int | str]]],
-) -> None:
-    """Upload the stop arrays.
-
-    Args:
-        stop_arrays: A list of stop arrays for batch stop uploads.
-    """
-    for stop_array in stop_arrays:
-        _upload_stop_array(stop_array=stop_array)
+    return plan_stops
 
 
 @typechecked
@@ -420,24 +419,90 @@ def _parse_addresses(stops_df: pd.DataFrame) -> pd.DataFrame:
 
 
 @typechecked
-def _build_all_stops(
-    stops_df: pd.DataFrame, sheet_plan_df: pd.DataFrame
-) -> list[dict[str, dict[str, str] | list[str] | int | str]]:
-    """Build all stops for each route.
+def _upload_stop_array(
+    plan_id: str,
+    stop_array: list[dict[str, dict[str, str] | list[str] | int | str]],
+    wait_seconds: float,
+) -> tuple[list[str], float]:
+    """Upload a stop array."""
+    try:
+        response = requests.post(
+            url=f"https://api.getcircuit.com/public/v0.2b/{plan_id}/stops:import",
+            json=stop_array,
+            auth=HTTPBasicAuth(get_circuit_key(), ""),
+            timeout=RateLimits.WRITE_TIMEOUT_SECONDS,
+        )
+    except Exception as e:
+        breakpoint()
+        raise e
 
-    Args:
-        stops_df: The long DataFrame with all the routes.
-        sheet_plan_df: The DataFrame with the plan IDs and driver IDs for each sheet.
+    # TODO: Abstract this try block.
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as http_e:
+        response_dict = _get_response_dict(response=response)
+        err_msg = f"Got {response.status_code} reponse for {plan_id}: {response_dict}"
+        raise requests.exceptions.HTTPError(err_msg) from http_e
 
-    Returns:
-        A list of stops all the stops to upload.
-    """
-    breakpoint()
+    else:
+        if response.status_code == 200:
+            stops = response.json()
+            stop_ids = stops["success"]
+            failed = stops.get("failed")
+            if failed:
+                raise RuntimeError(f"Failed to upload stops:\n{failed}")
+            elif len(stop_ids) != len(stop_array):
+                raise RuntimeError(
+                    f"Did not upload same number of stops as input:\n{stop_ids}\n{stop_array}"
+                )
+
+        elif response.status_code == 429:
+            wait_seconds = wait_seconds * 2
+            logger.warning(f"Rate-limited. Waiting {wait_seconds} seconds to retry.")
+            sleep(wait_seconds)
+            stop_ids, wait_seconds = _upload_stop_array(
+                plan_id=plan_id, stop_array=stop_array, wait_seconds=wait_seconds
+            )
+        else:
+            response_dict = _get_response_dict(response=response)
+            raise ValueError(f"Unexpected response {response.status_code}: {response_dict}")
+
+    return stop_ids, wait_seconds
 
 
 @typechecked
-def _upload_stop_array(
-    stop_array: list[dict[str, dict[str, str] | list[str] | int | str]],
-) -> None:
-    """Upload a stop array."""
-    pass
+def _build_stop_array(
+    route_stops: pd.DataFrame, driver_id: str
+) -> list[dict[str, dict[str, str] | list[str] | int | str]]:
+    """Build a stop array for a route."""
+    stop_array = []
+    for _, stop_row in route_stops.iterrows():
+        stop = {
+            CircuitColumns.ADDRESS: {
+                CircuitColumns.ADDRESS_NAME: stop_row[CircuitColumns.ADDRESS_NAME],
+                CircuitColumns.ADDRESS_LINE_1: stop_row[CircuitColumns.ADDRESS_LINE_1],
+                CircuitColumns.ADDRESS_LINE_2: stop_row[CircuitColumns.ADDRESS_LINE_2],
+                CircuitColumns.STATE: stop_row[CircuitColumns.STATE],
+                CircuitColumns.ZIP: stop_row[CircuitColumns.ZIP],
+                CircuitColumns.COUNTRY: stop_row[CircuitColumns.COUNTRY],
+            },
+            CircuitColumns.ORDER_INFO: {
+                CircuitColumns.PRODUCTS: [stop_row[Columns.PRODUCT_TYPE]]
+            },
+            CircuitColumns.ALLOWED_DRIVERS: [driver_id],
+            CircuitColumns.PACKAGE_COUNT: stop_row[Columns.ORDER_COUNT],
+            CircuitColumns.NOTES: stop_row.get(Columns.NOTES, ""),
+        }
+
+        recipient_dict = {}
+        if stop_row.get(Columns.EMAIL) and not pd.isna(stop_row[Columns.EMAIL]):
+            recipient_dict[CircuitColumns.EMAIL] = stop_row[Columns.EMAIL]
+        if stop_row.get(Columns.PHONE) and not pd.isna(stop_row[Columns.PHONE]):
+            recipient_dict[CircuitColumns.PHONE] = stop_row[Columns.PHONE]
+        if stop_row.get(Columns.NAME) and not pd.isna(stop_row[Columns.NAME]):
+            recipient_dict[CircuitColumns.NAME] = stop_row[Columns.NAME]
+        stop[CircuitColumns.RECIPIENT] = recipient_dict
+
+        stop_array.append(stop)
+
+    return stop_array
