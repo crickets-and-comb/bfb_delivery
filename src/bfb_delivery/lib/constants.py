@@ -460,6 +460,7 @@ class RateLimits:
     READ_TIMEOUT_SECONDS: Final[int] = 10
     READ_SECONDS: Final[float] = 1 / 10
     WRITE_SECONDS: Final[float] = 1 / 5
+    WRITE_TIMEOUT_SECONDS: Final[int] = READ_TIMEOUT_SECONDS
 
 
 SPLIT_ROUTE_COLUMNS: Final[list[str]] = [
