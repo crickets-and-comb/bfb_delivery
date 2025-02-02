@@ -2,6 +2,7 @@
 
 import logging
 from time import sleep
+from typing import Any
 
 import pandas as pd
 import requests
@@ -9,10 +10,11 @@ from requests.auth import HTTPBasicAuth
 from typeguard import typechecked
 
 from bfb_delivery.lib.constants import CircuitColumns, Columns, RateLimits
+from bfb_delivery.lib.dispatch.api_callers import CheckOptimization
 
 # TODO: Move _concat_response_pages to utils.
 from bfb_delivery.lib.dispatch.read_circuit import _concat_response_pages
-from bfb_delivery.lib.dispatch.utils import _get_response_dict, get_circuit_key, get_responses
+from bfb_delivery.lib.dispatch.utils import get_circuit_key, get_response_dict, get_responses
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -60,13 +62,13 @@ def upload_split_chunked(
         sheet_plan_df = _create_plans(
             stops_df=stops_df, start_date=start_date, verbose=verbose
         )
-        uploaded_stops = _upload_stops(stops_df=stops_df, sheet_plan_df=sheet_plan_df)
-
-        plan_ids = sheet_plan_df["plan_id"].tolist()
-        _optimize_routes(plan_ids=plan_ids)
+        uploaded_stops = _upload_stops(
+            stops_df=stops_df, sheet_plan_df=sheet_plan_df, verbose=verbose
+        )
+        _optimize_routes(sheet_plan_df=sheet_plan_df, verbose=verbose)
 
         if distribute:
-            _distribute_routes(plan_ids=plan_ids)
+            _distribute_routes(sheet_plan_df=sheet_plan_df)
 
         sheet_plan_df["distributed"] = distribute
         sheet_plan_df["start_date"] = start_date
@@ -96,37 +98,72 @@ def _create_plans(stops_df: pd.DataFrame, start_date: str, verbose: bool) -> pd.
 
 @typechecked
 def _upload_stops(
-    stops_df: pd.DataFrame, sheet_plan_df: pd.DataFrame
+    stops_df: pd.DataFrame, sheet_plan_df: pd.DataFrame, verbose: bool
 ) -> dict[str, list[str]]:
     """Upload stops for each route.
 
     Args:
         stops_df: The long DataFrame with all the routes.
         sheet_plan_df: The DataFrame with the plan IDs and driver IDs for each sheet.
+        verbose: Whether to print verbose output.
+
+    Returns:
+        A dictionary with the uploaded stops for each plan.
     """
     plan_stops = _build_plan_stops(stops_df=stops_df, sheet_plan_df=sheet_plan_df)
+
+    logger.info("Uploading stops ...")
     uploaded_stops = {}
+    stop_id_count = 0
     for plan_id, stop_arrays in plan_stops.items():
+        if verbose:
+            route_title = sheet_plan_df[sheet_plan_df["plan_id"] == plan_id][
+                "route_title"
+            ].values[0]
+            logger.info(f"Uploading stops for {route_title} ({plan_id}) ...")
         for stop_array in stop_arrays:
             stop_ids, _ = _upload_stop_array(
                 plan_id=plan_id, stop_array=stop_array, wait_seconds=RateLimits.WRITE_SECONDS
             )
             uploaded_stops[plan_id] = stop_ids
+            stop_id_count += len(stop_ids)
+
+    logger.info(
+        f"Finished uploading stops. Uploaded {stop_id_count} stops for "
+        f"{len(uploaded_stops)} plans."
+    )
 
     return uploaded_stops
 
 
 @typechecked
-def _optimize_routes(plan_ids: list[str]) -> None:
+def _optimize_routes(sheet_plan_df: pd.DataFrame, verbose: bool) -> None:
     """Optimize the routes."""
+    logger.info("Initializing route optimizations ...")
+    plan_ids = sheet_plan_df["plan_id"].to_list()
+    optimizations = {}
+    wait_seconds = RateLimits.WRITE_SECONDS
+    # TODO: Allow continuation and handle all errors last here and elsewhere.
     for plan_id in plan_ids:
-        _optimize_route(plan_id=plan_id)
+        if verbose:
+            route_title = sheet_plan_df[sheet_plan_df["plan_id"] == plan_id][
+                "route_title"
+            ].values[0]
+            logger.info(f"Optimizing route for {route_title} ({plan_id}) ...")
+        operation_id, wait_seconds = _optimize_route(
+            plan_id=plan_id, wait_seconds=wait_seconds
+        )
+        optimizations[plan_id] = operation_id
+
+    _wait_for_optimizations(
+        sheet_plan_df=sheet_plan_df, optimizations=optimizations, verbose=verbose
+    )
 
 
 @typechecked
-def _distribute_routes(plan_ids: list[str]) -> None:
+def _distribute_routes(sheet_plan_df: pd.DataFrame) -> None:
     """Distribute the routes."""
-    for plan_id in plan_ids:
+    for plan_id in sheet_plan_df["plan_id"].to_list():
         _distribute_route(plan_id=plan_id)
 
 
@@ -206,10 +243,11 @@ def _initialize_plans(
                     f"\n{plan_response}"
                 )
 
-            route_driver_df.loc[idx, ["plan_id", "writeable", "optimization"]] = (
+            route_driver_df.loc[idx, ["plan_id", "writeable"]] = (
                 plan_response["id"],
                 plan_response["writable"],
             )
+
     except Exception as e:
         # Can't clean up plans if they're not finished.
         logger.error(f"Error initializing plans:\n{route_driver_df}")
@@ -218,6 +256,8 @@ def _initialize_plans(
     not_writable = route_driver_df[route_driver_df["writeable"] == False]  # noqa: E712
     if not not_writable.empty:
         raise ValueError(f"Plan is not writable for the following routes:\n{not_writable}")
+
+    logger.info(f"Finished initializing plans. Initialized {idx + 1} plans.")
 
     return route_driver_df
 
@@ -259,9 +299,44 @@ def _build_plan_stops(
 
 
 @typechecked
-def _optimize_route(plan_id: str) -> None:
+def _optimize_route(plan_id: str, wait_seconds: float) -> tuple[str, float]:
     """Optimize a route."""
-    pass
+    response = requests.post(
+        url=f"https://api.getcircuit.com/public/v0.2b/{plan_id}:optimize",
+        auth=HTTPBasicAuth(get_circuit_key(), ""),
+        timeout=RateLimits.WRITE_TIMEOUT_SECONDS,
+    )
+
+    # TODO: Abstract this try block.
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as http_e:
+        response_dict = get_response_dict(response=response)
+        err_msg = f"Got {response.status_code} reponse for {plan_id}: {response_dict}"
+        raise requests.exceptions.HTTPError(err_msg) from http_e
+
+    else:
+        if response.status_code == 200:
+            operation = response.json()
+            operation_id = operation["id"]
+            skipped = operation["result"].get("skippedStops")
+            if skipped:
+                raise RuntimeError(f"Failed to optimize stops:\n{operation}")
+            if operation["metadata"]["canceled"]:
+                raise RuntimeError(f"Operation canceled:\n{operation}")
+
+        elif response.status_code == 429:
+            wait_seconds = wait_seconds * 2
+            logger.warning(f"Rate-limited. Waiting {wait_seconds} seconds to retry.")
+            sleep(wait_seconds)
+            operation_id, wait_seconds = _optimize_route(
+                plan_id=plan_id, wait_seconds=wait_seconds
+            )
+        else:
+            response_dict = get_response_dict(response=response)
+            raise ValueError(f"Unexpected response {response.status_code}: {response_dict}")
+
+    return operation_id, wait_seconds
 
 
 @typechecked
@@ -321,7 +396,7 @@ def _post_plan(plan_data: dict, wait_seconds: float) -> tuple[dict, float]:
     try:
         response.raise_for_status()
     except requests.exceptions.HTTPError as http_e:
-        response_dict = _get_response_dict(response=response)
+        response_dict = get_response_dict(response=response)
         err_msg = (
             f"Got {response.status_code} reponse for {plan_data['title']}: {response_dict}"
         )
@@ -336,7 +411,7 @@ def _post_plan(plan_data: dict, wait_seconds: float) -> tuple[dict, float]:
             sleep(wait_seconds)
             plan, wait_seconds = _post_plan(plan_data=plan_data, wait_seconds=wait_seconds)
         else:
-            response_dict = _get_response_dict(response=response)
+            response_dict = get_response_dict(response=response)
             raise ValueError(f"Unexpected response {response.status_code}: {response_dict}")
 
     return plan, wait_seconds
@@ -425,22 +500,18 @@ def _upload_stop_array(
     wait_seconds: float,
 ) -> tuple[list[str], float]:
     """Upload a stop array."""
-    try:
-        response = requests.post(
-            url=f"https://api.getcircuit.com/public/v0.2b/{plan_id}/stops:import",
-            json=stop_array,
-            auth=HTTPBasicAuth(get_circuit_key(), ""),
-            timeout=RateLimits.WRITE_TIMEOUT_SECONDS,
-        )
-    except Exception as e:
-        breakpoint()
-        raise e
+    response = requests.post(
+        url=f"https://api.getcircuit.com/public/v0.2b/{plan_id}/stops:import",
+        json=stop_array,
+        auth=HTTPBasicAuth(get_circuit_key(), ""),
+        timeout=RateLimits.WRITE_TIMEOUT_SECONDS,
+    )
 
     # TODO: Abstract this try block.
     try:
         response.raise_for_status()
     except requests.exceptions.HTTPError as http_e:
-        response_dict = _get_response_dict(response=response)
+        response_dict = get_response_dict(response=response)
         err_msg = f"Got {response.status_code} reponse for {plan_id}: {response_dict}"
         raise requests.exceptions.HTTPError(err_msg) from http_e
 
@@ -464,16 +535,69 @@ def _upload_stop_array(
                 plan_id=plan_id, stop_array=stop_array, wait_seconds=wait_seconds
             )
         else:
-            response_dict = _get_response_dict(response=response)
+            response_dict = get_response_dict(response=response)
             raise ValueError(f"Unexpected response {response.status_code}: {response_dict}")
 
     return stop_ids, wait_seconds
 
 
 @typechecked
-def _build_stop_array(
-    route_stops: pd.DataFrame, driver_id: str
-) -> list[dict[str, dict[str, str] | list[str] | int | str]]:
+def _wait_for_optimizations(
+    sheet_plan_df: pd.DataFrame, optimizations: dict[str, str], verbose: bool
+) -> None:
+    """Wait for all optimizations to finish."""
+    logger.info("Waiting for optimizations to finish ...")
+    optimizations_finished: dict[str, bool | str] = {
+        plan_id: False for plan_id in sheet_plan_df["plan_id"].to_list()
+    }
+    errors = []
+    while not all([val is True or val == "error" for val in optimizations_finished.values()]):
+        unfinished = [
+            plan_id for plan_id, finished in optimizations_finished.items() if not finished
+        ]
+        for plan_id in unfinished:
+            if verbose:
+                route_title = sheet_plan_df[sheet_plan_df["plan_id"] == plan_id][
+                    "route_title"
+                ].values[0]
+                logger.info(f"Checking optimization for {route_title} ({plan_id}) ...")
+            check_op = CheckOptimization(
+                plan_id=plan_id,
+                operation_id=optimizations[plan_id],
+                plan_title=sheet_plan_df[sheet_plan_df["plan_id"] == plan_id][
+                    "route_title"
+                ].values[0],
+            )
+            try:
+                check_op.call_api()
+            except Exception as e:
+                logger.error(
+                    f"Error checking optimization for {plan_id}:\n{check_op._response_json}"
+                )
+                errors.append(e)
+                optimizations_finished[plan_id] = "error"
+            else:
+                optimizations_finished[plan_id] = check_op.finished
+                if verbose:
+                    route_title = sheet_plan_df[sheet_plan_df["plan_id"] == plan_id][
+                        "route_title"
+                    ].values[0]
+                    logger.info(
+                        f"Optimization status for {route_title} ({plan_id}): "
+                        f"{check_op.finished}"
+                    )
+
+    logger.info(
+        "Finished optimizing routes. Optimized "
+        f"{len([val for val in optimizations_finished.values() if val is True])} routes."
+    )
+
+    if errors:
+        raise RuntimeError(f"Errors checking optimizations:\n{errors}")
+
+
+@typechecked
+def _build_stop_array(route_stops: pd.DataFrame, driver_id: str) -> list[dict[str, Any]]:
     """Build a stop array for a route."""
     stop_array = []
     for _, stop_row in route_stops.iterrows():

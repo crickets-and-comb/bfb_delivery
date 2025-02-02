@@ -8,7 +8,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 
 from bfb_delivery.lib.constants import RateLimits
-from bfb_delivery.lib.dispatch.utils import _get_response_dict, get_circuit_key
+from bfb_delivery.lib.dispatch.utils import get_circuit_key, get_response_dict
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ def main(plan_id: str, wait_seconds: float = RateLimits.WRITE_SECONDS) -> dict:
     try:
         response.raise_for_status()
     except requests.exceptions.HTTPError as http_e:
-        response_dict = _get_response_dict(response=response)
+        response_dict = get_response_dict(response=response)
         err_msg = f"Got {response.status_code} reponse for {plan_id}: {response_dict}"
         raise requests.exceptions.HTTPError(err_msg) from http_e
 
@@ -45,7 +45,7 @@ def main(plan_id: str, wait_seconds: float = RateLimits.WRITE_SECONDS) -> dict:
             sleep(wait_seconds)
             plan = main(plan_id=plan_id, wait_seconds=wait_seconds)
         else:
-            response_dict = _get_response_dict(response=response)
+            response_dict = get_response_dict(response=response)
             raise ValueError(f"Unexpected response {response.status_code}: {response_dict}")
 
     logger.info(f"Plan {plan_id} retrieved:\n{plan}")

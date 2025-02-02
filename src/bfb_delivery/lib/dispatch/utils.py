@@ -52,7 +52,7 @@ def get_responses(url: str) -> list[dict[str, Any]]:
         try:
             response.raise_for_status()
         except requests.exceptions.HTTPError as http_e:
-            response_dict = _get_response_dict(response=response)
+            response_dict = get_response_dict(response=response)
             err_msg = f"Got {response.status_code} reponse for {page_url}: {response_dict}"
             raise requests.exceptions.HTTPError(err_msg) from http_e
 
@@ -68,7 +68,7 @@ def get_responses(url: str) -> list[dict[str, Any]]:
                 )
                 next_page_salsa = last_next_page_salsa
             else:
-                response_dict = _get_response_dict(response=response)
+                response_dict = get_response_dict(response=response)
                 raise ValueError(
                     f"Unexpected response {response.status_code}: {response_dict}"
                 )
@@ -85,7 +85,8 @@ def get_responses(url: str) -> list[dict[str, Any]]:
 
 
 @typechecked
-def _get_response_dict(response: requests.Response) -> dict[str, Any]:
+def get_response_dict(response: requests.Response) -> dict[str, Any]:
+    """Safely handle a response that may not be JSON."""
     try:
         response_dict: dict = response.json()
     except Exception as e:
