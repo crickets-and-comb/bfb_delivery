@@ -576,7 +576,7 @@ def _assign_driver(
             choice = choice if choice else "-1"
             try:
                 choice = int(choice.strip()) - 1
-                if choice < 0 or choice >= len(best_guesses):
+                if choice < 0 or choice >= len(drivers_df):
                     raise ValueError
             except ValueError:
                 print("Invalid input. Please enter a number.")
