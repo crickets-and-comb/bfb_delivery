@@ -562,7 +562,6 @@ def _assign_driver(
         try:
             # TODO: Wrap this for test mock.
             # TODO: Add B907 to shared ignore list, and remove r"" throughout.
-            # TODO: Print their choice.
             # TODO: Make space in output.
             # TODO: Add option to start over.
             # TODO: Add option to correct the previous.
@@ -577,6 +576,8 @@ def _assign_driver(
             choice = choice if choice else "-1"
             try:
                 choice = int(choice.strip()) - 1
+                if choice < 0 or choice >= len(best_guesses):
+                    raise ValueError
             except ValueError:
                 print("Invalid input. Please enter a number.")
             else:
@@ -590,6 +591,7 @@ def _assign_driver(
                     drivers_df.iloc[choice]["active"],
                 ]
                 assigned = True
+                print(f"Assigned {best_guesses.iloc[choice]['name']} to {route_title}.")
 
     return route_driver_df
 
