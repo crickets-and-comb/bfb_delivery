@@ -552,21 +552,20 @@ def _assign_driver(
             )
     best_guesses = best_guesses.drop_duplicates().sort_values(by="name")
 
-    print(f"\nRoute: {route_title}")
-    print("Choose any of the possible drivers above, but here are some best guesses:")
+    print(f"\nRoute {route_title}:\nBest guesses:")
     for idx, driver in best_guesses.iterrows():
         print(f"{idx + 1}. {driver['name']} {driver['email']}")
+    print("\n")
 
     assigned = False
     while not assigned:
         try:
             # TODO: Wrap this for test mock.
             # TODO: Add B907 to shared ignore list, and remove r"" throughout.
-            # TODO: Make space in output.
-            # TODO: Add option to start over.
             # TODO: Add option to correct the previous.
             choice = input(
-                f"Enter the number of the driver for '{route_title}':"  # noqa: B907
+                f"Enter the number of the driver for '{route_title}'"  # noqa: B907
+                "(ctl+c to start over):"
             )
 
         except ValueError:
@@ -591,7 +590,7 @@ def _assign_driver(
                     drivers_df.iloc[choice]["active"],
                 ]
                 assigned = True
-                print(f"Assigned {drivers_df.iloc[choice]['name']} to {route_title}.")
+                print(f"\nAssigned {drivers_df.iloc[choice]['name']} to {route_title}.")
 
     return route_driver_df
 
