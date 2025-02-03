@@ -33,8 +33,6 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-# TODO: Set defaults only at public and CLI, via constants.
-# TODO: Set docstring via DocStrings.
 @typechecked
 def build_routes_from_chunked(  # noqa: D103
     input_path: str,
@@ -514,12 +512,11 @@ def _get_all_drivers() -> pd.DataFrame:
     return drivers_df
 
 
-# TODO: Don't list the driver ID with the confirmations.
 @typechecked
 def _assign_drivers(drivers_df: pd.DataFrame, route_driver_df: pd.DataFrame) -> pd.DataFrame:
     """Ask users to assign drivers to each route."""
     for idx, row in drivers_df.iterrows():
-        print(f"{idx + 1}. {row['name']} {row['email']} ({row['id']})")
+        print(f"{idx + 1}. {row['name']} {row['email']}")
 
     print("\nUsing the driver numbers above, assign drivers to each route:")
     for route_title in route_driver_df["route_title"]:
@@ -528,7 +525,7 @@ def _assign_drivers(drivers_df: pd.DataFrame, route_driver_df: pd.DataFrame) -> 
         )
 
     for _, row in route_driver_df.iterrows():
-        print(f"{row['route_title']}: " f"{row['driver_name']}, {row['email']} ({row['id']})")
+        print(f"{row['route_title']}: " f"{row['driver_name']}, {row['email']}")
     confirm = input("Confirm the drivers above? (y/n): ")
     # TODO: Check for y, n, and prompt again if neither.
     if confirm.lower() != "y":
