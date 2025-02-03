@@ -591,7 +591,7 @@ def _assign_driver(
                     drivers_df.iloc[choice]["active"],
                 ]
                 assigned = True
-                print(f"Assigned {best_guesses.iloc[choice]['name']} to {route_title}.")
+                print(f"Assigned {drivers_df.iloc[choice]['name']} to {route_title}.")
 
     return route_driver_df
 
