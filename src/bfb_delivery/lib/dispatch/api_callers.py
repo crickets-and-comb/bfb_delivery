@@ -94,6 +94,8 @@ class _BaseCaller:
         except requests.exceptions.HTTPError as http_e:
             if self._response.status_code == 429:
                 self._handle_429()
+            elif self._response.status_code == 443:
+                self._handle_443()
             else:
                 response_dict = get_response_dict(response=self._response)
                 err_msg = f"Got {self._response.status_code} reponse:\n{response_dict}"
@@ -135,6 +137,17 @@ class _BaseCaller:
         self._call_api()
 
     @typechecked
+    def _handle_443(self) -> None:
+        """Handle a 443 response."""
+        self._increase_timeout()
+        response_dict = get_response_dict(response=self._response)
+        logger.warning(
+            f"Request timed out.\n{response_dict}"
+            f"\nTrying again with longer timeout: {type(self)._timeout}."
+        )
+        self._call_api()
+
+    @typechecked
     def _decrease_wait_time(self) -> None:
         """Decrease the wait time on rate limiting, for all instances."""
         cls = type(self)
@@ -147,6 +160,12 @@ class _BaseCaller:
         """Increase the wait time on rate limiting, for all instances."""
         cls = type(self)
         cls._wait_seconds = cls._wait_seconds * self._wait_increase_scalar
+
+    @typechecked
+    def _increase_timeout(self) -> None:
+        """Increase the timeout on rate limiting, for all instances."""
+        cls = type(self)
+        cls._timeout = cls._timeout * self._wait_increase_scalar
 
 
 class _BaseGetCaller(_BaseCaller):
