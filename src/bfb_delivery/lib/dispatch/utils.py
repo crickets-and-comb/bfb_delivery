@@ -53,9 +53,20 @@ def get_responses(url: str) -> list[dict[str, Any]]:
         try:
             response.raise_for_status()
         except requests.exceptions.HTTPError as http_e:
-            response_dict = get_response_dict(response=response)
-            err_msg = f"Got {response.status_code} reponse for {page_url}: {response_dict}"
-            raise requests.exceptions.HTTPError(err_msg) from http_e
+            # TODO: Abstract 429 handling.
+            # TODO: Decrease time on success.
+            if response.status_code == 429:
+                wait_seconds = wait_seconds * 2
+                logger.warning(
+                    f"Rate-limited. Doubling per-request wait time to {wait_seconds} seconds."
+                )
+                next_page_salsa = last_next_page_salsa
+            else:
+                response_dict = get_response_dict(response=response)
+                err_msg = (
+                    f"Got {response.status_code} reponse for {page_url}: {response_dict}"
+                )
+                raise requests.exceptions.HTTPError(err_msg) from http_e
 
         else:
             if response.status_code == 200:
