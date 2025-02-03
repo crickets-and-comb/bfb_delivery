@@ -17,13 +17,18 @@ from bfb_delivery.lib.dispatch.write_to_circuit import upload_split_chunked
     required=True,
     help="The start date for the routes to be uploaded, as 'YYYY-MM-DD'.",
 )
+@click.option("--distribute", is_flag=True, help="Distribute the routes to drivers.")
 @click.option("--verbose", is_flag=True, help="Print verbose output.")
 @click.option("--mock-plan-creation", is_flag=True, help="Mock the plan creation process.")
 @click.option(
     "--mock-upload-stop-array", is_flag=True, help="Mock the upload stop array process."
 )
 def main(
-    start_date: str, verbose: bool, mock_plan_creation: bool, mock_upload_stop_array: bool
+    start_date: str,
+    distribute: bool,
+    verbose: bool,
+    mock_plan_creation: bool,
+    mock_upload_stop_array: bool,
 ) -> None:
     """Run the main function."""
     mock_plans = pd.read_csv(".test_data/scratch/klub_plans.csv")
@@ -53,7 +58,7 @@ def main(
         sheet_plan_df, uploaded_stops = upload_split_chunked(
             split_chunked_workbook_fp=split_chunked_sheet_fp,
             start_date=start_date,
-            distribute=False,
+            distribute=distribute,
             verbose=verbose,
         )
     breakpoint()

@@ -288,3 +288,37 @@ class OptimizationChecker(_BaseOptimizationCaller, _BaseGetCaller):
     def _set_url(self) -> None:
         """Set the URL for the API call."""
         self._url = f"https://api.getcircuit.com/public/v0.2b/{self.operation_id}"
+
+
+class PlanDistributor(_BasePostCaller):
+    """Class for distributing plans."""
+
+    _plan_id: str
+    _plan_title: str
+
+    @typechecked
+    def __init__(self, plan_id: str, plan_title: str) -> None:
+        """Initialize the PlanDistributor object.
+
+        Args:
+            plan_id: The ID of the plan.
+            plan_title: The title of the plan.
+        """
+        self._plan_id = plan_id
+        self._plan_title = plan_title
+        super().__init__()
+
+    @typechecked
+    def _set_url(self) -> None:
+        """Set the URL for the API call."""
+        self._url = f"https://api.getcircuit.com/public/v0.2b/{self._plan_id}:distribute"
+
+    @typechecked
+    def _handle_200(self) -> None:
+        """Handle a 200 response."""
+        super()._handle_200()
+        if not self._response_json["distributed"]:
+            raise RuntimeError(
+                f"Failed to distribute plan {self._plan_title} ({self._plan_id}):"
+                f"\n{self._response_json}"
+            )

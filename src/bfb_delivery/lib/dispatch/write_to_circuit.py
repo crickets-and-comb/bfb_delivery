@@ -10,6 +10,7 @@ from bfb_delivery.lib.constants import CircuitColumns, Columns
 from bfb_delivery.lib.dispatch.api_callers import (
     OptimizationChecker,
     OptimizationLauncher,
+    PlanDistributor,
     PlanInitializer,
     StopUploader,
 )
@@ -73,7 +74,7 @@ def upload_split_chunked(
         if distribute:
             # TODO: Return map of distribution statuses in case of error.
             # And continue with final printout.
-            _distribute_routes(sheet_plan_df=sheet_plan_df)
+            _distribute_routes(sheet_plan_df=sheet_plan_df, verbose=verbose)
 
         sheet_plan_df["distributed"] = distribute
         sheet_plan_df["start_date"] = start_date
@@ -148,13 +149,13 @@ def _upload_stops(
             uploaded_stops[plan_title] = stop_uploader.stop_ids
             stop_id_count += len(stop_uploader.stop_ids)
 
-    if errors:
-        raise RuntimeError(f"Errors uploading stops:\n{errors}")
-
     logger.info(
         f"Finished uploading stops. Uploaded {stop_id_count} stops for "
         f"{len(uploaded_stops)} plans."
     )
+
+    if errors:
+        raise RuntimeError(f"Errors uploading stops:\n{errors}")
 
     return uploaded_stops
 
@@ -182,10 +183,7 @@ def _optimize_routes(sheet_plan_df: pd.DataFrame, verbose: bool) -> None:
                 f"Error launching optimization for {plan_title} ({plan_id}):"
                 f"\n{optimization._response_json}"
             )
-            if plan_id not in errors:
-                errors[plan_id] = [e]
-            else:
-                errors[plan_id].append
+            errors[plan_id] = e
 
         else:
             optimizations[plan_id] = optimization.operation_id
@@ -194,6 +192,11 @@ def _optimize_routes(sheet_plan_df: pd.DataFrame, verbose: bool) -> None:
                     f"Launched optimization for {plan_title} ({plan_id}): "
                     f"{optimization.operation_id}"
                 )
+
+    logger.info(
+        "Finished initializing route optimizations: for "
+        f"{len(sheet_plan_df[~(sheet_plan_df['plan_id']).isin(errors.keys())])} plans."
+    )
 
     if errors:
         raise RuntimeError(f"Errors launching optimizations:\n{errors}")
@@ -205,10 +208,30 @@ def _optimize_routes(sheet_plan_df: pd.DataFrame, verbose: bool) -> None:
 
 # TODO: Make a CLI for this since it will be optional.
 @typechecked
-def _distribute_routes(sheet_plan_df: pd.DataFrame) -> None:
+def _distribute_routes(sheet_plan_df: pd.DataFrame, verbose: bool) -> None:
     """Distribute the routes."""
+    logger.info("Distributing routes ...")
+    errors = {}
     for plan_id in sheet_plan_df["plan_id"].to_list():
-        _distribute_route(plan_id=plan_id)
+        plan_title = sheet_plan_df[sheet_plan_df["plan_id"] == plan_id]["route_title"].values[
+            0
+        ]
+        if verbose:
+            logger.info(f"Distributing plan for {plan_title} ({plan_id}) ...")
+        distributor = PlanDistributor(plan_id=plan_id, plan_title=plan_title)
+        try:
+            distributor.call_api()
+        except Exception as e:
+            logger.error(f"Error distributing plan for {plan_title} ({plan_id}):" f"\n{e}")
+            errors[plan_id] = e
+
+    logger.info(
+        "Finished distributing routes: for "
+        f"{len(sheet_plan_df[~(sheet_plan_df["plan_id"]).isin(errors.keys())])} plans."
+    )
+
+    if errors:
+        raise RuntimeError(f"Errors distributing plans:\n{errors}")
 
 
 @typechecked
@@ -284,10 +307,7 @@ def _initialize_plans(
                 f"Error initializing plan for {row['route_title']}:\n"
                 f"{plan_initializer._response_json}"
             )
-            if row["route_title"] not in errors:
-                errors[row["route_title"]] = [e]
-            else:
-                errors[row["route_title"]].append(e)
+            errors[row["route_title"]] = e
 
         if verbose:
             logger.info(
@@ -300,14 +320,14 @@ def _initialize_plans(
             plan_initializer._response_json["writable"],
         )
 
+    logger.info(f"Finished initializing plans. Initialized {idx + 1 - len(errors)} plans.")
+
     if errors:
         raise RuntimeError(f"Errors initializing plans:\n{errors}")
 
     not_writable = route_driver_df[route_driver_df["writeable"] == False]  # noqa: E712
     if not not_writable.empty:
         raise ValueError(f"Plan is not writable for the following routes:\n{not_writable}")
-
-    logger.info(f"Finished initializing plans. Initialized {idx + 1} plans.")
 
     return route_driver_df
 
@@ -346,12 +366,6 @@ def _build_plan_stops(
         plan_stops[plan_id] = stop_arrays
 
     return plan_stops
-
-
-@typechecked
-def _distribute_route(plan_id: str) -> None:
-    """Distribute a route."""
-    pass
 
 
 @typechecked
@@ -479,7 +493,9 @@ def _wait_for_optimizations(
     errors = {}
     while not all([val is True or val == "error" for val in optimizations_finished.values()]):
         unfinished = [
-            plan_id for plan_id, finished in optimizations_finished.items() if not finished
+            plan_id
+            for plan_id, finished in optimizations_finished.items()
+            if not finished or finished != "error"
         ]
         for plan_id in unfinished:
             plan_title = sheet_plan_df[sheet_plan_df["plan_id"] == plan_id][
@@ -497,10 +513,7 @@ def _wait_for_optimizations(
                     f"Error checking optimization for {plan_title} ({plan_id}):"
                     f"\n{check_op._response_json}"
                 )
-                if plan_id not in errors:
-                    errors[plan_id] = [e]
-                else:
-                    errors[plan_id].append(e)
+                errors[plan_id] = [e]
 
                 optimizations_finished[plan_id] = "error"
 
