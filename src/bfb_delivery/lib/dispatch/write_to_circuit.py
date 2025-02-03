@@ -555,7 +555,7 @@ def _assign_driver(
     print(f"\nRoute: {route_title}")
     print("Choose any of the possible drivers above, but here are some best guesses:")
     for idx, driver in best_guesses.iterrows():
-        print(f"{idx + 1}. {driver['name']} {driver['email']} (ID: {driver['id']})")
+        print(f"{idx + 1}. {driver['name']} {driver['email']}")
 
     assigned = False
     while not assigned:
