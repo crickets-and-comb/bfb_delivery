@@ -144,7 +144,12 @@ def upload_split_chunked(
 
     # TODO: For each step, if some succeed and others do not, continue with the
     # successful ones and add the statuses to the plan_df for a final report.
-    plan_df = _create_plans(stops_df=stops_df, start_date=start_date, verbose=verbose)
+    plan_df = _create_plans(
+        stops_df=stops_df,
+        start_date=start_date,
+        verbose=verbose,
+        plan_df_path=str(plan_df_path),
+    )
     plan_df.to_csv(plan_df_path, index=False)
 
     _upload_stops(stops_df=stops_df, plan_df=plan_df, verbose=verbose)
@@ -231,20 +236,16 @@ def delete_plan(plan_id: str) -> bool:
 
 
 @typechecked
-def _create_plans(stops_df: pd.DataFrame, start_date: str, verbose: bool) -> pd.DataFrame:
-    """Create a plan for each route.
-
-    Args:
-        stops_df: The long DataFrame with all the routes.
-        start_date: The date to start the routes, as "YYYY-MM-DD".
-        verbose: Whether to print verbose output.
-
-    Returns:
-        A DataFrame with the plan IDs and driver IDs for each sheet.
-    """
+def _create_plans(
+    stops_df: pd.DataFrame, start_date: str, verbose: bool, plan_df_path: str
+) -> pd.DataFrame:
+    """Create a plan for each route."""
     route_driver_df = _get_driver_ids(stops_df=stops_df)
     plan_df = _initialize_plans(
-        route_driver_df=route_driver_df, start_date=start_date, verbose=verbose
+        route_driver_df=route_driver_df,
+        start_date=start_date,
+        verbose=verbose,
+        plan_df_path=plan_df_path,
     )
 
     return plan_df
@@ -403,17 +404,9 @@ def _get_driver_ids(stops_df: pd.DataFrame) -> pd.DataFrame:
 
 @typechecked
 def _initialize_plans(
-    route_driver_df: pd.DataFrame, start_date: str, verbose: bool
+    route_driver_df: pd.DataFrame, start_date: str, verbose: bool, plan_df_path: str
 ) -> pd.DataFrame:
-    """Initialize plans for each driver.
-
-    Args:
-        route_driver_df: The DataFrame with the driver IDs for each sheet.
-        start_date: The date to start the routes, as "YYYY-MM-DD".
-
-    Returns:
-        A DataFrame with the plan IDs and driver IDs for each sheet.
-    """
+    """Initialize plans for each driver."""
     plan_df = route_driver_df.copy()
     plan_df["plan_id"] = None
     plan_df["depot"] = None
@@ -455,10 +448,12 @@ def _initialize_plans(
     logger.info(f"Finished initializing plans. Initialized {idx + 1 - len(errors)} plans.")
 
     if errors:
+        plan_df.to_csv(plan_df_path, index=False)
         raise RuntimeError(f"Errors initializing plans:\n{errors}")
 
     not_writable = plan_df[plan_df["writeable"] == False]  # noqa: E712
     if not not_writable.empty:
+        plan_df.to_csv(plan_df_path, index=False)
         raise ValueError(f"Plan is not writable for the following routes:\n{not_writable}")
 
     return plan_df
@@ -565,6 +560,10 @@ def _assign_driver(
         try:
             # TODO: Wrap this for test mock.
             # TODO: Add B907 to shared ignore list, and remove r"" throughout.
+            # TODO: Print their choice.
+            # TODO: Make space in output.
+            # TODO: Add option to start over.
+            # TODO: Add option to correct the previous.
             choice = input(
                 f"Enter the number of the driver for '{route_title}':"  # noqa: B907
             )
