@@ -607,8 +607,10 @@ def _build_stop_array(route_stops: pd.DataFrame, driver_id: str) -> list[dict[st
             },
             CircuitColumns.ALLOWED_DRIVERS: [driver_id],
             CircuitColumns.PACKAGE_COUNT: stop_row[Columns.ORDER_COUNT],
-            CircuitColumns.NOTES: stop_row.get(Columns.NOTES, ""),
         }
+
+        if stop_row.get(Columns.NOTES) and not pd.isna(stop_row[Columns.NOTES]):
+            stop[CircuitColumns.NOTES] = stop_row[Columns.NOTES]
 
         recipient_dict = {}
         if stop_row.get(Columns.EMAIL) and not pd.isna(stop_row[Columns.EMAIL]):
@@ -617,7 +619,8 @@ def _build_stop_array(route_stops: pd.DataFrame, driver_id: str) -> list[dict[st
             recipient_dict[CircuitColumns.PHONE] = stop_row[Columns.PHONE]
         if stop_row.get(Columns.NAME) and not pd.isna(stop_row[Columns.NAME]):
             recipient_dict[CircuitColumns.NAME] = stop_row[Columns.NAME]
-        stop[CircuitColumns.RECIPIENT] = recipient_dict
+        if recipient_dict:
+            stop[CircuitColumns.RECIPIENT] = recipient_dict
 
         stop_array.append(stop)
 
