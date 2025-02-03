@@ -64,6 +64,7 @@ class _BaseCaller:
     @typechecked
     def call_api(self) -> None:
         """Call the API."""
+        sleep(type(self)._wait_seconds)
         self._make_call()
         self._raise_for_status()
         self._parse_response()
@@ -114,7 +115,6 @@ class _BaseCaller:
     def _handle_429(self) -> None:
         """Handle a 429 response."""
         logger.warning(f"Rate-limited. Waiting {type(self)._wait_seconds} seconds to retry.")
-        sleep(type(self)._wait_seconds)
         self._increase_wait_time()
         self.call_api()
 
