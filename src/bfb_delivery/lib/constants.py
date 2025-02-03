@@ -120,7 +120,7 @@ class Defaults:
     BUILD_ROUTES_FROM_CHUNKED: Final[dict[str, str | bool]] = {
         "output_dir": "",
         "start_date": "",
-        "distribute": True,
+        "no_distribute": False,
         "verbose": False,
         "book_one_drivers_file": "",
         "extra_notes_file": "",
@@ -178,7 +178,7 @@ Requires interactive user input to confirm driver assignments.
                 'The date to start the routes, as "YYYY-MM-DD". Empty string defaults to '
                 "the soonest Friday."
             ),
-            "distribute": "Whether to distribute the routes to drivers after optimizing.",
+            "no_distribute": "To skip distributing the routes to drivers after optimizing.",
             "verbose": "Whether to print verbose output.",
             "book_one_drivers_file": (
                 "Path to the book-one driver's file. If empty, uses a constant "

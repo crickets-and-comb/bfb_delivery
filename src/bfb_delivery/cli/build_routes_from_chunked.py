@@ -39,10 +39,10 @@ logger = logging.getLogger(__name__)
     help=DocStrings.BUILD_ROUTES_FROM_CHUNKED.args["start_date"],
 )
 @click.option(
-    "--distribute",
+    "--no_distribute",
     is_flag=True,
-    default=Defaults.BUILD_ROUTES_FROM_CHUNKED["distribute"],
-    help=DocStrings.BUILD_ROUTES_FROM_CHUNKED.args["distribute"],
+    default=Defaults.BUILD_ROUTES_FROM_CHUNKED["no_distribute"],
+    help=DocStrings.BUILD_ROUTES_FROM_CHUNKED.args["no_distribute"],
 )
 @click.option(
     "--verbose",
@@ -69,7 +69,7 @@ def main(  # noqa: D103
     input_path: str,
     output_dir: str,
     start_date: str,
-    distribute: bool,
+    no_distribute: bool,
     verbose: bool,
     book_one_drivers_file: str,
     extra_notes_file: str,
@@ -78,7 +78,7 @@ def main(  # noqa: D103
         input_path=input_path,
         output_dir=output_dir,
         start_date=start_date,
-        distribute=distribute,
+        no_distribute=no_distribute,
         verbose=verbose,
         book_one_drivers_file=book_one_drivers_file,
         extra_notes_file=extra_notes_file,

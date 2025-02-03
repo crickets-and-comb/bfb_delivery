@@ -40,7 +40,7 @@ def build_routes_from_chunked(  # noqa: D103
     input_path: str,
     output_dir: str,
     start_date: str,
-    distribute: bool,
+    no_distribute: bool,
     verbose: bool,
     book_one_drivers_file: str,
     extra_notes_file: str,
@@ -65,7 +65,7 @@ def build_routes_from_chunked(  # noqa: D103
     sheet_plan_df = upload_split_chunked(
         split_chunked_workbook_fp=split_chunked_workbook_fp,
         start_date=start_date,
-        distribute=distribute,
+        no_distribute=no_distribute,
         verbose=verbose,
     )
 
@@ -92,7 +92,7 @@ build_routes_from_chunked.__doc__ = DocStrings.BUILD_ROUTES_FROM_CHUNKED.api_doc
 
 @typechecked
 def upload_split_chunked(
-    split_chunked_workbook_fp: Path, start_date: str, distribute: bool, verbose: bool
+    split_chunked_workbook_fp: Path, start_date: str, no_distribute: bool, verbose: bool
 ) -> pd.DataFrame:
     """Upload a split chunked Excel workbook of routes to circuit.
 
@@ -111,7 +111,7 @@ def upload_split_chunked(
     Args:
         split_chunked_workbook_fp: The file path to the split chunked workbook.
         start_date: The date to start the routes, as "YYYY-MM-DD".
-        distribute: Whether to distribute the routes after optimizing.
+        no_distribute: To skip distributing the routes after optimizing.
         verbose: Whether to print verbose output.
 
     Returns:
@@ -135,12 +135,12 @@ def upload_split_chunked(
         _upload_stops(stops_df=stops_df, sheet_plan_df=sheet_plan_df, verbose=verbose)
         _optimize_routes(sheet_plan_df=sheet_plan_df, verbose=verbose)
 
-        if distribute:
+        if not no_distribute:
             # TODO: Return map of distribution statuses in case of error.
             # And continue with final printout.
             _distribute_routes(sheet_plan_df=sheet_plan_df, verbose=verbose)
 
-        sheet_plan_df["distributed"] = distribute
+        sheet_plan_df["distributed"] = not no_distribute
         sheet_plan_df["start_date"] = start_date
 
     return sheet_plan_df

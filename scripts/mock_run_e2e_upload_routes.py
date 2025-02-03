@@ -30,10 +30,10 @@ from bfb_delivery.lib.constants import Defaults, DocStrings
     help=DocStrings.BUILD_ROUTES_FROM_CHUNKED.args["start_date"],
 )
 @click.option(
-    "--distribute",
+    "--no_distribute",
     is_flag=True,
-    default=Defaults.BUILD_ROUTES_FROM_CHUNKED["distribute"],
-    help=DocStrings.BUILD_ROUTES_FROM_CHUNKED.args["distribute"],
+    default=Defaults.BUILD_ROUTES_FROM_CHUNKED["no_distribute"],
+    help=DocStrings.BUILD_ROUTES_FROM_CHUNKED.args["no_distribute"],
 )
 @click.option(
     "--verbose",
@@ -59,7 +59,7 @@ def main(
     input_path: str,
     output_dir: str,
     start_date: str,
-    distribute: bool,
+    no_distribute: bool,
     verbose: bool,
     book_one_drivers_file: str,
     extra_notes_file: str,
@@ -77,8 +77,8 @@ def main(
         "--extra_notes_file",
         extra_notes_file,
     ]
-    if distribute:
-        args_list.append("--distribute")
+    if no_distribute:
+        args_list.append("--no_distribute")
     if verbose:
         args_list.append("--verbose")
 
