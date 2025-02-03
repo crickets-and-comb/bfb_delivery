@@ -143,7 +143,7 @@ class _BaseCaller:
         response_dict = get_response_dict(response=self._response)
         logger.warning(
             f"Request timed out.\n{response_dict}"
-            f"\nTrying again with longer timeout: {type(self)._timeout}."
+            f"\nTrying again with longer timeout: {type(self)._timeout} seconds."
         )
         self._call_api()
 

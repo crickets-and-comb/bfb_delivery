@@ -109,3 +109,15 @@ def get_response_dict(response: requests.Response) -> dict[str, Any]:
             "No-JSON response exception:": str(e),
         }
     return response_dict
+
+
+@typechecked
+def concat_response_pages(
+    page_list: list[dict[str, Any]], data_key: str
+) -> list[dict[str, Any]]:
+    """Extract and concatenate the data lists from response pages."""
+    data_list = []
+    for page in page_list:
+        data_list += page[data_key]
+
+    return data_list

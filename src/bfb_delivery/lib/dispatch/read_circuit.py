@@ -19,7 +19,7 @@ from bfb_delivery.lib.constants import (
     Columns,
     IntermediateColumns,
 )
-from bfb_delivery.lib.dispatch.utils import get_responses
+from bfb_delivery.lib.dispatch.utils import concat_response_pages, get_responses
 from bfb_delivery.lib.schema import (
     CircuitPlansFromDict,
     CircuitPlansOut,
@@ -109,7 +109,7 @@ def _get_raw_plans(start_date: str, end_date: str, verbose: bool) -> list[dict[s
         logger.info(f"Getting route plans from {url} ...")
     plans = _get_plan_responses(url=url)
     logger.info("Finished getting route plans.")
-    plans_list = _concat_response_pages(page_list=plans, data_key="plans")
+    plans_list = concat_response_pages(page_list=plans, data_key="plans")
 
     if not plans_list:
         raise ValueError(f"No plans found for {start_date} to {end_date}.")
@@ -211,7 +211,7 @@ def _get_raw_stops(plan_ids: list[str], verbose: bool) -> list[dict[str, Any]]:
 
     plan_stops_list = []
     for stop_lists in stops_lists_list:
-        plan_stops_list += _concat_response_pages(
+        plan_stops_list += concat_response_pages(
             page_list=stop_lists, data_key=CircuitColumns.STOPS
         )
     if not plan_stops_list:
@@ -317,18 +317,6 @@ def _get_plan_responses(url: str) -> list[dict[str, Any]]:
 @typechecked
 def _get_stops_responses(url: str) -> list[dict[str, Any]]:
     return get_responses(url=url)
-
-
-@typechecked
-def _concat_response_pages(
-    page_list: list[dict[str, Any]], data_key: str
-) -> list[dict[str, Any]]:
-    """Extract and concatenate the data lists from response pages."""
-    data_list = []
-    for page in page_list:
-        data_list += page[data_key]
-
-    return data_list
 
 
 @typechecked

@@ -24,10 +24,8 @@ from bfb_delivery.lib.dispatch.api_callers import (
     PlanInitializer,
     StopUploader,
 )
-
-# TODO: Move _concat_response_pages to utils.
-from bfb_delivery.lib.dispatch.read_circuit import _concat_response_pages, get_route_files
-from bfb_delivery.lib.dispatch.utils import get_responses
+from bfb_delivery.lib.dispatch.read_circuit import get_route_files
+from bfb_delivery.lib.dispatch.utils import concat_response_pages, get_responses
 from bfb_delivery.lib.formatting import sheet_shaping
 from bfb_delivery.lib.utils import get_friday
 
@@ -267,7 +265,9 @@ def _upload_stops(stops_df: pd.DataFrame, plan_df: pd.DataFrame, verbose: bool) 
     """
     plan_stops = _build_plan_stops(stops_df=stops_df, plan_df=plan_df)
 
-    logger.info("Uploading stops ...")
+    logger.info(
+        f"Uploading stops. Allow {RateLimits.BATCH_STOP_IMPORT_SECONDS} seconds per plan ..."
+    )
     uploaded_stops = {}
     stop_id_count = 0
     errors = {}
@@ -307,7 +307,10 @@ def _upload_stops(stops_df: pd.DataFrame, plan_df: pd.DataFrame, verbose: bool) 
 @typechecked
 def _optimize_routes(plan_df: pd.DataFrame, verbose: bool) -> None:
     """Optimize the routes."""
-    logger.info("Initializing route optimizations ...")
+    logger.info(
+        "Initializing route optimizations. "
+        f"Allow {RateLimits.OPTIMIZATION_PER_SECOND} seconds per plan ..."
+    )
     plan_ids = plan_df["plan_id"].to_list()
     optimizations = {}
 
@@ -340,7 +343,7 @@ def _optimize_routes(plan_df: pd.DataFrame, verbose: bool) -> None:
     if errors:
         raise RuntimeError(f"Errors launching optimizations:\n{errors}")
 
-    _wait_for_optimizations(plan_df=plan_df, optimizations=optimizations, verbose=verbose)
+    _confirm_optimizations(plan_df=plan_df, optimizations=optimizations, verbose=verbose)
 
     return
 
@@ -504,7 +507,7 @@ def _get_all_drivers() -> pd.DataFrame:
     logger.info("Getting all drivers from Circuit ...")
     driver_pages = get_responses(url=url)
     logger.info("Finished getting drivers.")
-    drivers_list = _concat_response_pages(page_list=driver_pages, data_key="drivers")
+    drivers_list = concat_response_pages(page_list=driver_pages, data_key="drivers")
     drivers_df = pd.DataFrame(drivers_list)
     drivers_df = drivers_df.sort_values(by="name").reset_index(drop=True)
 
@@ -617,11 +620,11 @@ def _parse_addresses(stops_df: pd.DataFrame) -> pd.DataFrame:
 
 
 @typechecked
-def _wait_for_optimizations(
+def _confirm_optimizations(
     plan_df: pd.DataFrame, optimizations: dict[str, str], verbose: bool
 ) -> None:
-    """Wait for all optimizations to finish."""
-    logger.info("Waiting for optimizations to finish ...")
+    """Confirm all optimizations have finished."""
+    logger.info("Confirming optimizations have finished ...")
     optimizations_finished: dict[str, bool | str] = {
         plan_id: False for plan_id in plan_df["plan_id"].to_list()
     }
