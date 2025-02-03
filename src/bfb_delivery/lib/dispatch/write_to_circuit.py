@@ -1,12 +1,20 @@
 """Write routes to Circuit."""
 
 import logging
+from datetime import datetime
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import CircuitColumns, Columns
+from bfb_delivery.lib.constants import (
+    CIRCUIT_DATE_FORMAT,
+    MANIFEST_DATE_FORMAT,
+    CircuitColumns,
+    Columns,
+    DocStrings,
+)
 from bfb_delivery.lib.dispatch.api_callers import (
     OptimizationChecker,
     OptimizationLauncher,
@@ -16,19 +24,76 @@ from bfb_delivery.lib.dispatch.api_callers import (
 )
 
 # TODO: Move _concat_response_pages to utils.
-from bfb_delivery.lib.dispatch.read_circuit import _concat_response_pages
+from bfb_delivery.lib.dispatch.read_circuit import _concat_response_pages, get_route_files
 from bfb_delivery.lib.dispatch.utils import get_responses
+from bfb_delivery.lib.formatting import sheet_shaping
+from bfb_delivery.lib.utils import get_friday
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
-# TODO: Just wrap the CLI with split_chunked_routes now from the start.
-# TODO: Default to soones Friday.
+# TODO: Set defaults only at public and CLI, via constants.
+# TODO: Set docstring via DocStrings.
+@typechecked
+def build_routes_from_chunked(  # noqa: D103
+    input_path: str,
+    output_dir: str,
+    start_date: str,
+    distribute: bool,
+    verbose: bool,
+    book_one_drivers_file: str,
+    extra_notes_file: str,
+) -> Path:
+    start_date = start_date or get_friday(fmt=CIRCUIT_DATE_FORMAT)
+    output_dir = output_dir if output_dir else f"./deliveries_{start_date}"
+    Path(output_dir).mkdir(exist_ok=True)
+    split_chunked_output_dir = Path(output_dir) / "split_chunked"
+    split_chunked_output_dir.mkdir(exist_ok=True)
+
+    split_chunked_workbook_fp = sheet_shaping.split_chunked_route(
+        input_path=input_path,
+        output_dir=split_chunked_output_dir,
+        output_filename="",
+        n_books=1,
+        book_one_drivers_file=str(book_one_drivers_file) if book_one_drivers_file else "",
+        date=datetime.strptime(start_date, CIRCUIT_DATE_FORMAT).strftime(
+            MANIFEST_DATE_FORMAT
+        ),
+    )[0]
+
+    sheet_plan_df = upload_split_chunked(
+        split_chunked_workbook_fp=split_chunked_workbook_fp,
+        start_date=start_date,
+        distribute=distribute,
+        verbose=verbose,
+    )
+
+    circuit_output_dir = get_route_files(
+        start_date=start_date,
+        end_date=start_date,
+        plan_ids=sheet_plan_df["plan_id"].to_list(),
+        output_dir="",
+        all_hhs=False,  # Overridden by plan_ids.
+        verbose=verbose,
+    )
+    final_manifest_path = sheet_shaping.create_manifests(
+        input_dir=circuit_output_dir,
+        output_dir=output_dir,
+        output_filename="",
+        extra_notes_file=str(extra_notes_file) if extra_notes_file else "",
+    )
+
+    return final_manifest_path
+
+
+build_routes_from_chunked.__doc__ = DocStrings.BUILD_ROUTES_FROM_CHUNKED.api_docstring
+
+
 @typechecked
 def upload_split_chunked(
-    split_chunked_workbook_fp: str, start_date: str, distribute: bool, verbose: bool
-) -> tuple[pd.DataFrame, dict[str, list[str]]]:
+    split_chunked_workbook_fp: Path, start_date: str, distribute: bool, verbose: bool
+) -> pd.DataFrame:
     """Upload a split chunked Excel workbook of routes to circuit.
 
     The workbook contains multiple sheets, one per route. Each sheet is named after the driver
@@ -61,14 +126,13 @@ def upload_split_chunked(
             df["sheet_name"] = str(sheet)
             stops_dfs.append(df)
         stops_df = pd.concat(stops_dfs).reset_index(drop=True)
+        stops_df = stops_df.fillna("")
         # TODO: For each step, if some succeed and others do not, continue with the
         # successful ones and add the statuses to the sheet_plan_df for a final report.
         sheet_plan_df = _create_plans(
             stops_df=stops_df, start_date=start_date, verbose=verbose
         )
-        uploaded_stops = _upload_stops(
-            stops_df=stops_df, sheet_plan_df=sheet_plan_df, verbose=verbose
-        )
+        _upload_stops(stops_df=stops_df, sheet_plan_df=sheet_plan_df, verbose=verbose)
         _optimize_routes(sheet_plan_df=sheet_plan_df, verbose=verbose)
 
         if distribute:
@@ -79,7 +143,7 @@ def upload_split_chunked(
         sheet_plan_df["distributed"] = distribute
         sheet_plan_df["start_date"] = start_date
 
-    return sheet_plan_df, uploaded_stops
+    return sheet_plan_df
 
 
 @typechecked
@@ -103,9 +167,7 @@ def _create_plans(stops_df: pd.DataFrame, start_date: str, verbose: bool) -> pd.
 
 
 @typechecked
-def _upload_stops(
-    stops_df: pd.DataFrame, sheet_plan_df: pd.DataFrame, verbose: bool
-) -> dict[str, list[str]]:
+def _upload_stops(stops_df: pd.DataFrame, sheet_plan_df: pd.DataFrame, verbose: bool) -> None:
     """Upload stops for each route.
 
     Args:
@@ -137,17 +199,14 @@ def _upload_stops(
             try:
                 stop_uploader.call_api()
             except Exception as e:
-                logger.error(
-                    f"Error uploading stops for {plan_title} ({plan_id}):"
-                    f"\n{stop_uploader._response_json}"
-                )
+                logger.error(f"Error uploading stops for {plan_title} ({plan_id}):\n{e}")
                 if plan_id not in errors:
                     errors[plan_title] = [e]
                 else:
                     errors[plan_title].append(e)
-
-            uploaded_stops[plan_title] = stop_uploader.stop_ids
-            stop_id_count += len(stop_uploader.stop_ids)
+            else:
+                uploaded_stops[plan_title] = stop_uploader.stop_ids
+                stop_id_count += len(stop_uploader.stop_ids)
 
     logger.info(
         f"Finished uploading stops. Uploaded {stop_id_count} stops for "
@@ -157,7 +216,7 @@ def _upload_stops(
     if errors:
         raise RuntimeError(f"Errors uploading stops:\n{errors}")
 
-    return uploaded_stops
+    return
 
 
 @typechecked
@@ -179,10 +238,7 @@ def _optimize_routes(sheet_plan_df: pd.DataFrame, verbose: bool) -> None:
         try:
             optimization.call_api()
         except Exception as e:
-            logger.error(
-                f"Error launching optimization for {plan_title} ({plan_id}):"
-                f"\n{optimization._response_json}"
-            )
+            logger.error(f"Error launching optimization for {plan_title} ({plan_id}):\n{e}")
             errors[plan_id] = e
 
         else:
@@ -205,6 +261,8 @@ def _optimize_routes(sheet_plan_df: pd.DataFrame, verbose: bool) -> None:
         sheet_plan_df=sheet_plan_df, optimizations=optimizations, verbose=verbose
     )
 
+    return
+
 
 # TODO: Make a CLI for this since it will be optional.
 @typechecked
@@ -222,7 +280,7 @@ def _distribute_routes(sheet_plan_df: pd.DataFrame, verbose: bool) -> None:
         try:
             distributor.call_api()
         except Exception as e:
-            logger.error(f"Error distributing plan for {plan_title} ({plan_id}):" f"\n{e}")
+            logger.error(f"Error distributing plan for {plan_title} ({plan_id}):\n{e}")
             errors[plan_id] = e
 
     logger.info(
@@ -303,22 +361,19 @@ def _initialize_plans(
         try:
             plan_initializer.call_api()
         except Exception as e:
-            logger.error(
-                f"Error initializing plan for {row['route_title']}:\n"
-                f"{plan_initializer._response_json}"
-            )
+            logger.error(f"Error initializing plan for {row['route_title']}:\n{e}")
             errors[row["route_title"]] = e
+        else:
+            if verbose:
+                logger.info(
+                    f"Created plan {plan_initializer._response_json['id']} for "
+                    f"{row['route_title']}.\n{plan_initializer._response_json}"
+                )
 
-        if verbose:
-            logger.info(
-                f"Created plan {plan_initializer._response_json['id']} for "
-                f"{row['route_title']}.\n{plan_initializer._response_json}"
+            route_driver_df.loc[idx, ["plan_id", "writeable"]] = (
+                plan_initializer._response_json["id"],
+                plan_initializer._response_json["writable"],
             )
-
-        route_driver_df.loc[idx, ["plan_id", "writeable"]] = (
-            plan_initializer._response_json["id"],
-            plan_initializer._response_json["writable"],
-        )
 
     logger.info(f"Finished initializing plans. Initialized {idx + 1 - len(errors)} plans.")
 
@@ -510,8 +565,7 @@ def _wait_for_optimizations(
                 check_op.call_api()
             except Exception as e:
                 logger.error(
-                    f"Error checking optimization for {plan_title} ({plan_id}):"
-                    f"\n{check_op._response_json}"
+                    f"Error checking optimization for {plan_title} ({plan_id}):\n{e}"
                 )
                 errors[plan_id] = [e]
 

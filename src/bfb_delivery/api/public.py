@@ -12,6 +12,29 @@ from bfb_delivery.api import internal
 from bfb_delivery.lib.constants import Defaults, DocStrings
 
 
+def build_routes_from_chunked(  # noqa: D103
+    input_path: str,
+    output_dir: str = Defaults.BUILD_ROUTES_FROM_CHUNKED["output_dir"],
+    start_date: str = Defaults.BUILD_ROUTES_FROM_CHUNKED["start_date"],
+    distribute: bool = Defaults.BUILD_ROUTES_FROM_CHUNKED["distribute"],
+    verbose: bool = Defaults.BUILD_ROUTES_FROM_CHUNKED["verbose"],
+    book_one_drivers_file: str = Defaults.BUILD_ROUTES_FROM_CHUNKED["book_one_drivers_file"],
+    extra_notes_file: str = Defaults.BUILD_ROUTES_FROM_CHUNKED["extra_notes_file"],
+) -> Path:
+    return internal.build_routes_from_chunked(
+        input_path=input_path,
+        output_dir=output_dir,
+        start_date=start_date,
+        distribute=distribute,
+        verbose=verbose,
+        book_one_drivers_file=book_one_drivers_file,
+        extra_notes_file=extra_notes_file,
+    )
+
+
+build_routes_from_chunked.__doc__ = DocStrings.BUILD_ROUTES_FROM_CHUNKED.api_docstring
+
+
 @typechecked
 def split_chunked_route(  # noqa: D103
     input_path: Path | str,
@@ -38,6 +61,7 @@ split_chunked_route.__doc__ = DocStrings.SPLIT_CHUNKED_ROUTE.api_docstring
 def create_manifests_from_circuit(  # noqa: D103
     start_date: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["start_date"],
     end_date: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["end_date"],
+    plan_ids: list[str] = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["plan_ids"],
     output_dir: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["output_dir"],
     # TODO: Standardize to Path for all i/o except CLI input.
     output_filename: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["output_filename"],
@@ -49,6 +73,7 @@ def create_manifests_from_circuit(  # noqa: D103
     final_manifest_path, new_circuit_output_dir = internal.create_manifests_from_circuit(
         start_date=start_date,
         end_date=end_date,
+        plan_ids=plan_ids,
         output_dir=output_dir,
         output_filename=output_filename,
         circuit_output_dir=circuit_output_dir,

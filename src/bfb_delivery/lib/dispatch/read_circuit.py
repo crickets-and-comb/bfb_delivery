@@ -38,7 +38,12 @@ logger = logging.getLogger(__name__)
 
 @typechecked
 def get_route_files(
-    start_date: str, end_date: str, output_dir: str, all_hhs: bool, verbose: bool
+    start_date: str,
+    end_date: str,
+    plan_ids: list[str],
+    output_dir: str,
+    all_hhs: bool,
+    verbose: bool,
 ) -> str:
     """Get the route files for the given date.
 
@@ -47,12 +52,14 @@ def get_route_files(
             Empty string uses the soonest Friday.
         end_date: The end date to get the routes for, as "YYYYMMDD".
             Empty string uses the start date.
+        plan_ids: The plan IDs to get the routes for. Overrides `all_hhs`.
         output_dir: The directory to create a subdir to save the routes to.
             Creates "routes_{date}" directory within the `output_dir`.
             Empty string uses the current working directory.
             If the directory does not exist, it is created. If it exists, it is overwritten.
         all_hhs: Flag to get only the "All HHs" route.
             False gets all routes except "All HHs". True gets only the "All HHs" route.
+            Overriden by `plan_ids`.
         verbose: Flag to print verbose output.
 
     Returns:
@@ -72,7 +79,7 @@ def get_route_files(
     )
 
     plans_list = _get_raw_plans(start_date=start_date, end_date=end_date, verbose=verbose)
-    plans_df = _make_plans_df(plans_list=plans_list, all_hhs=all_hhs)
+    plans_df = _make_plans_df(plans_list=plans_list, plan_ids=plan_ids, all_hhs=all_hhs)
     # TODO: Add external ID for delivery day so we can filter stops by it in request?
     # After taking over upload.
     plan_stops_list = _get_raw_stops(
@@ -117,7 +124,9 @@ def _get_raw_plans(start_date: str, end_date: str, verbose: bool) -> list[dict[s
 # NOTE: with_pydantic allows check of other params.
 @pa.check_types(with_pydantic=True, lazy=True)
 def _make_plans_df(
-    plans_list: DataFrame[CircuitPlansFromDict], all_hhs: bool
+    plans_list: DataFrame[CircuitPlansFromDict],
+    all_hhs: bool,
+    plan_ids: list[str] | None = None,
 ) -> DataFrame[CircuitPlansOut]:
     """Make the plans DataFrame from the plans."""
     # What we'd do if not using from_format config:
@@ -134,38 +143,46 @@ def _make_plans_df(
     # Worst to best in order.
     # TODO: Set validation once we've settled on filter method.
     plan_count = len(plans_list)
-    if all_hhs:
-        logger.info(f'Filtering to only the "{ALL_HHS_DRIVER}" plan.')  # noqa: B907
-        plans_df = plans_list[
-            [
+    plan_mask = [True] * plan_count
+    if not plan_ids:
+        if all_hhs:
+            logger.info(f'Filtering to only the "{ALL_HHS_DRIVER}" plan.')  # noqa: B907
+            plan_mask = [
                 ALL_HHS_DRIVER.upper() in title.upper()
                 for title in plans_list[CircuitColumns.TITLE]
             ]
-        ]
-    else:
-        logger.info(f'Filtering to all plans except "{ALL_HHS_DRIVER}".')  # noqa: B907
-        plans_df = plans_list[
-            [
+        else:
+            logger.info(f'Filtering to all plans except "{ALL_HHS_DRIVER}".')  # noqa: B907
+            plan_mask = [
                 ALL_HHS_DRIVER.upper() not in title.upper()
                 for title in plans_list[CircuitColumns.TITLE]
             ]
-        ]
-    dropped_count = plan_count - len(plans_df)
-    if not all_hhs and dropped_count != 1:
-        logger.warning(f"Dropped {dropped_count} plans.")
-    elif dropped_count:
-        logger.info(f"Dropped {dropped_count} plans.")
-    else:
-        logger.info("Dropped no plans.")
+        dropped_count = plan_count - sum(plan_mask)
+        if not all_hhs and dropped_count != 1:
+            logger.warning(f"Dropped {dropped_count} plans.")
+        elif dropped_count:
+            logger.info(f"Dropped {dropped_count} plans.")
+        else:
+            logger.info("Dropped no plans.")
 
+    else:
+        logger.info("Filtering to specified plan IDs.")
+        plan_mask = [plan_id in plan_ids for plan_id in plans_list[CircuitColumns.ID]]
+        dropped_count = plan_count - sum(plan_mask)
+        if dropped_count:
+            logger.warning(f"Dropped {dropped_count} plans.")
+        else:
+            logger.info("Dropped no plans.")
+
+    plans_df = plans_list[plan_mask]
     plan_count = len(plans_df)
+
     if all_hhs and plan_count != 1:
         logger.warning(
             f'Got {plan_count} "{ALL_HHS_DRIVER}" plans. Expected 1.'  # noqa: B907
         )
 
     logger.info("Filtering out plans with no routes.")
-    plan_count = len(plans_df)
     routed_plans_mask = [isinstance(val, list) and len(val) > 0 for val in plans_df["routes"]]
     plans_df = plans_df[routed_plans_mask]
     dropped_count = plan_count - len(plans_df)
@@ -264,7 +281,6 @@ def _write_routes_dfs(routes_df: DataFrame[CircuitRoutesWriteIn], output_dir: Pa
     Args:
         routes_df: The routes DataFrame to write.
         output_dir: The directory to save the routes to.
-        all_hhs: Flag to ensure email colum is in CSV for reuploading after splitting.
     """
     if output_dir.exists():
         logger.warning(f"Output directory exists {output_dir}. Overwriting.")

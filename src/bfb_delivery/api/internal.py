@@ -10,8 +10,32 @@ from pathlib import Path
 from typeguard import typechecked
 
 from bfb_delivery.lib.constants import DocStrings
+from bfb_delivery.lib.dispatch import write_to_circuit
 from bfb_delivery.lib.dispatch.read_circuit import get_route_files
 from bfb_delivery.lib.formatting import sheet_shaping
+
+
+def build_routes_from_chunked(  # noqa: D103
+    input_path: str,
+    output_dir: str,
+    start_date: str,
+    distribute: bool,
+    verbose: bool,
+    book_one_drivers_file: str,
+    extra_notes_file: str,
+) -> Path:
+    return write_to_circuit.build_routes_from_chunked(
+        input_path=input_path,
+        output_dir=output_dir,
+        start_date=start_date,
+        distribute=distribute,
+        verbose=verbose,
+        book_one_drivers_file=book_one_drivers_file,
+        extra_notes_file=extra_notes_file,
+    )
+
+
+build_routes_from_chunked.__doc__ = DocStrings.BUILD_ROUTES_FROM_CHUNKED.api_docstring
 
 
 @typechecked
@@ -40,6 +64,7 @@ split_chunked_route.__doc__ = DocStrings.SPLIT_CHUNKED_ROUTE.api_docstring
 def create_manifests_from_circuit(  # noqa: D103
     start_date: str,
     end_date: str,
+    plan_ids: list[str],
     output_dir: str,
     output_filename: str,
     circuit_output_dir: str,
@@ -50,6 +75,7 @@ def create_manifests_from_circuit(  # noqa: D103
     circuit_output_dir = get_route_files(
         start_date=start_date,
         end_date=end_date,
+        plan_ids=plan_ids,
         output_dir=circuit_output_dir,
         all_hhs=all_hhs,
         verbose=verbose,

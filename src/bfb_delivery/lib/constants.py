@@ -94,6 +94,8 @@ class Columns:
     STOP_NO: Final[str] = "Stop #"
 
 
+CIRCUIT_DATE_FORMAT: Final[str] = "%Y-%m-%d"
+
 COLUMN_NAME_MAP: Final[dict[str, str]] = {Columns.BOX_TYPE: Columns.PRODUCT_TYPE}
 
 
@@ -115,15 +117,24 @@ CIRCUIT_DOWNLOAD_COLUMNS: Final[list[str]] = COMBINED_ROUTES_COLUMNS + [Columns.
 class Defaults:
     """Default values. E.g., for syncing public API with CLI."""
 
+    BUILD_ROUTES_FROM_CHUNKED: Final[dict[str, str | bool]] = {
+        "output_dir": "",
+        "start_date": "",
+        "distribute": True,
+        "verbose": False,
+        "book_one_drivers_file": "",
+        "extra_notes_file": "",
+    }
     COMBINE_ROUTE_TABLES: Final[dict[str, str]] = {"output_dir": "", "output_filename": ""}
     CREATE_MANIFESTS: Final[dict[str, str]] = {
         "output_dir": "",
         "output_filename": "",
         "extra_notes_file": "",
     }
-    CREATE_MANIFESTS_FROM_CIRCUIT: Final[dict[str, str | bool]] = {
+    CREATE_MANIFESTS_FROM_CIRCUIT: Final[dict[str, str | bool | list]] = {
         "start_date": "",
         "end_date": "",
+        "plan_ids": [],
         "output_dir": CREATE_MANIFESTS["output_dir"],
         "output_filename": CREATE_MANIFESTS["output_filename"],
         "circuit_output_dir": "",
@@ -147,6 +158,40 @@ class Defaults:
 
 class DocStrings:
     """Docstrings for the public API."""
+
+    BUILD_ROUTES_FROM_CHUNKED: Final = DocString(
+        opening="""
+Build and disbribute routes from chunked routes.
+
+From a chunked route spreadsheet, builds, optimizes, and distributes routes to drivers.
+Produces a final manifest spreadsheet.
+
+Requires interactive user input to confirm driver assignments.
+""",
+        args={
+            "input_path": "Path to the chunked route spreadsheet.",
+            "output_dir": (
+                "Path to the output directory. Empty defaults to a new directory in the "
+                'present working directory, named "deliveries_{date}".'
+            ),
+            "start_date": (
+                'The date to start the routes, as "YYYY-MM-DD". Empty string defaults to '
+                "the soonest Friday."
+            ),
+            "distribute": "Whether to distribute the routes to drivers after optimizing.",
+            "verbose": "Whether to print verbose output.",
+            "book_one_drivers_file": (
+                "Path to the book-one driver's file. If empty, uses a constant "
+                "list. See :py:data:`bfb_delivery.lib.constants.BookOneDrivers`."
+            ),
+            "extra_notes_file": (
+                "Path to the extra notes file. If empty, uses a constant DataFrame. "
+                "See :py:data:`bfb_delivery.lib.constants.ExtraNotes`."
+            ),
+        },
+        returns=["The path to the final manifest spreadsheet."],
+        raises=[],
+    )
 
     COMBINE_ROUTE_TABLES: Final = DocString(
         opening="""
@@ -252,19 +297,23 @@ See :doc:`create_manifests_from_circuit` for more information.
         args={
             "start_date": (
                 'The start date to use in the output workbook sheetnames as "YYYYMMDD". '
-                "Empty string (default) uses the soonest Friday. Range is inclusive."
+                "Empty string uses the soonest Friday. Range is inclusive."
             ),
             "end_date": (
                 'The end date to use in the output workbook sheetnames as "YYYYMMDD". '
-                "Empty string (default) uses the start date. Range is inclusive."
+                "Empty string uses the start date. Range is inclusive."
+            ),
+            "plan_ids": (
+                "The list of plan IDs to filter the Circuit routes by. Overrides `all_hhs`. "
+                "Not valid for CLI."
             ),
             "output_dir": (
                 "The directory to write the formatted manifest workbook to. "
-                "Empty string (default) saves to the `input_dir` directory."
+                "Empty string saves to the `input_dir` directory."
             ),
             "output_filename": (
                 "The name of the output workbook. "
-                'Empty string (default) sets filename to "final_manifests_{date}.xlsx".'
+                'Empty string sets filename to "final_manifests_{date}.xlsx".'
             ),
             "circuit_output_dir": (
                 "The directory to create a subdir to save the routes to. Creates "
@@ -275,11 +324,11 @@ See :doc:`create_manifests_from_circuit` for more information.
             "all_hhs": (
                 'Flag to get only the "All HHs" route. '
                 'False gets all routes except "All HHs". True gets only the "All HHs" route. '
-                "NOTE: True returns email column in CSV, for reuploading after splitting."
+                "Overridden by `plan_ids`."
             ),
             "verbose": "Flag to print verbose output.",
             "extra_notes_file": (
-                "Path to the extra notes file. If empty (default), uses a constant "
+                "Path to the extra notes file. If empty, uses a constant "
                 "DataFrame. See :py:data:`bfb_delivery.lib.constants.ExtraNotes`."
             ),
         },
@@ -368,9 +417,11 @@ See :doc:`split_chunked_route` for more information.
                 'Empty string sets filename to "split_workbook_{date}_{i of n_books}.xlsx".'
             ),
             "n_books": "Number of workbooks to split into.",
+            # TODO: Standardize some of these definitions as well. Wait until we clean up the
+            # outputs and trim the CLIs.
             "book_one_drivers_file": (
-                "Path to the book-one driver's file. If empty (default), uses "
-                "a constant list. See :py:data:`bfb_delivery.lib.constants.BookOneDrivers`."
+                "Path to the book-one driver's file. If empty, uses a constant list. "
+                "See :py:data:`bfb_delivery.lib.constants.BookOneDrivers`."
             ),
             "date": (
                 "The date to use in the output workbook sheetnames. Empty string (default) "
