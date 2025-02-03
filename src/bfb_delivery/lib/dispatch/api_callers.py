@@ -16,6 +16,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
+# TODO: Get wait_seconds when looping.
 # TODO: See where else we can use this.
 class _BaseCaller:
     """A base class for making API calls."""
@@ -81,9 +82,12 @@ class _BaseCaller:
         try:
             self._response.raise_for_status()
         except requests.exceptions.HTTPError as http_e:
-            response_dict = get_response_dict(response=self._response)
-            err_msg = f"Got {self._response.status_code} reponse:\n{response_dict}"
-            raise requests.exceptions.HTTPError(err_msg) from http_e
+            if self._response.status_code == 429:
+                self._handle_429()
+            else:
+                response_dict = get_response_dict(response=self._response)
+                err_msg = f"Got {self._response.status_code} reponse:\n{response_dict}"
+                raise requests.exceptions.HTTPError(err_msg) from http_e
 
     @typechecked
     def _parse_response(self) -> None:
@@ -92,12 +96,9 @@ class _BaseCaller:
             # TODO: Decrease wait time by 25% (but not below min).
 
         elif self._response.status_code == 429:
-            logger.warning(
-                f"Rate-limited. Waiting {type(self)._wait_seconds} seconds to retry."
-            )
-            sleep(type(self)._wait_seconds)
-            self._increase_wait_time()
-            self.call_api()
+            # This is here as well as in the raise_for_status method, because there was a time
+            # when the statuse code was 429 but the response didn't raise.
+            self._handle_429()
         else:
             response_dict = get_response_dict(response=self._response)
             raise ValueError(
@@ -108,6 +109,14 @@ class _BaseCaller:
     def _handle_200(self) -> None:
         """Handle a 200 response."""
         self._response_json = self._response.json()
+
+    @typechecked
+    def _handle_429(self) -> None:
+        """Handle a 429 response."""
+        logger.warning(f"Rate-limited. Waiting {type(self)._wait_seconds} seconds to retry.")
+        sleep(type(self)._wait_seconds)
+        self._increase_wait_time()
+        self.call_api()
 
     @typechecked
     def _increase_wait_time(self) -> None:

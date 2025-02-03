@@ -452,6 +452,7 @@ def _assign_drivers(drivers_df: pd.DataFrame, route_driver_df: pd.DataFrame) -> 
     for _, row in route_driver_df.iterrows():
         print(f"{row['route_title']}: " f"{row['driver_name']}, {row['email']} ({row['id']})")
     confirm = input("Confirm the drivers above? (y/n): ")
+    # TODO: Check for y, n, and prompt again if neither.
     if confirm.lower() != "y":
         route_driver_df = _assign_drivers(
             drivers_df=drivers_df, route_driver_df=route_driver_df
