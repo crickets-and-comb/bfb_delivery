@@ -73,7 +73,7 @@ def build_routes_from_chunked(  # noqa: D103
         start_date=start_date,
         end_date=start_date,
         plan_ids=sheet_plan_df["plan_id"].to_list(),
-        output_dir="",
+        output_dir=output_dir,
         all_hhs=False,  # Overridden by plan_ids.
         verbose=verbose,
     )
