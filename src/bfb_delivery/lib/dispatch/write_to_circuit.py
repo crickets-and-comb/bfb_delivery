@@ -1,6 +1,5 @@
 """Write routes to Circuit."""
 
-# TODO: Check filepaths for Windows compatibility.
 import logging
 from datetime import datetime
 from pathlib import Path
@@ -49,7 +48,10 @@ def build_routes_from_chunked(  # noqa: D103
     extra_notes_file: str,
 ) -> Path:
     start_date = start_date or get_friday(fmt=CIRCUIT_DATE_FORMAT)
+
+    input_path = str(Path(input_path).resolve())
     output_dir = output_dir if output_dir else f"./deliveries_{start_date}"
+    output_dir = str(Path(output_dir).resolve())
     Path(output_dir).mkdir(exist_ok=True)
     split_chunked_output_dir = Path(output_dir) / "split_chunked"
     split_chunked_output_dir.mkdir(exist_ok=True)
