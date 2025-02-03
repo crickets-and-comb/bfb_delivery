@@ -1,14 +1,10 @@
 """Delete a plan from Circuit."""
 
 import logging
-from time import sleep
 
 import click
-import requests
-from requests.auth import HTTPBasicAuth
 
-from bfb_delivery.lib.constants import RateLimits
-from bfb_delivery.lib.dispatch.utils import get_circuit_key, get_response_dict
+from bfb_delivery.lib.dispatch.write_to_circuit import delete_plans
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -16,38 +12,31 @@ logger = logging.getLogger(__name__)
 
 @click.command()
 @click.option(
-    "--plan-id", type=str, required=True, help="The plan ID to be deleted. As 'plans/{id}'."
+    "--plan_id", type=str, required=False, help="The plan ID to be deleted. As 'plans/{id}'."
 )
-def main(plan_id: str, wait_seconds: float = RateLimits.WRITE_SECONDS) -> bool:
+@click.option(
+    "--plan_df_fp",
+    type=str,
+    required=False,
+    # default=".test_data/scratch/plans/plans.csv",
+    help="The file path to a dataframe with plan IDs to be deleted in column 'plan_id'.",
+)
+def main(plan_id: str, plan_df_fp: str) -> list[str]:
     """Delete a plan from Circuit."""
-    response = requests.delete(
-        url=f"https://api.getcircuit.com/public/v0.2b/{plan_id}",
-        auth=HTTPBasicAuth(get_circuit_key(), ""),
-        timeout=RateLimits.WRITE_TIMEOUT_SECONDS,
-    )
+    if plan_id and plan_df_fp:
+        raise ValueError("Please provide either a plan_id or a file path, not both.")
+    if not plan_id and not plan_df_fp:
+        raise ValueError("Please provide either a plan_id or a plan_df_fp.")
 
-    try:
-        response.raise_for_status()
-    except requests.exceptions.HTTPError as http_e:
-        response_dict = get_response_dict(response=response)
-        err_msg = f"Got {response.status_code} reponse for {plan_id}: {response_dict}"
-        raise requests.exceptions.HTTPError(err_msg) from http_e
+    plan_ids = []
+    if plan_id:
+        plan_ids = [plan_id]
 
-    else:
-        if response.status_code == 204:
-            deletion = True
-        elif response.status_code == 429:
-            wait_seconds = wait_seconds * 2
-            logger.warning(f"Rate-limited. Waiting {wait_seconds} seconds to retry.")
-            sleep(wait_seconds)
-            deletion = main(plan_id=plan_id, wait_seconds=wait_seconds)
-        else:
-            response_dict = get_response_dict(response=response)
-            raise ValueError(f"Unexpected response {response.status_code}: {response_dict}")
+    plans = delete_plans(plan_ids=plan_ids, plan_df_fp=plan_df_fp)
 
-    logger.info(f"Plan {plan_id} deleted: {deletion}")
+    print(f"Deleted:\n{plans}.")
 
-    return deletion
+    return plans
 
 
 if __name__ == "__main__":

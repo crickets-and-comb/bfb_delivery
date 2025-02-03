@@ -42,8 +42,8 @@ def get_route_files(
     end_date: str,
     plan_ids: list[str],
     output_dir: str,
-    all_hhs: bool,
-    verbose: bool,
+    all_hhs: bool = False,
+    verbose: bool = False,
 ) -> str:
     """Get the route files for the given date.
 

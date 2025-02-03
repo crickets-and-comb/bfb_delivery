@@ -16,8 +16,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-# TODO: Get wait_seconds when looping.
 # TODO: See where else we can use this.
+# TODO: Pass in verbose to silence rate-limit warnings.
 class _BaseCaller:
     """A base class for making API calls."""
 
@@ -27,10 +27,13 @@ class _BaseCaller:
 
     # Must set in child class:
     _timeout: float
-    _wait_seconds: float  # Is increased at class level on rate limiting.
+    _min_wait_seconds: float
+    _wait_seconds: float  # Adjusted by instances, at class level.
 
     # Optionally set in child class, to pass to _request_call if needed:
     _call_kwargs: dict[str, Any] = {}
+    _wait_increase_scalar: float = 2
+    _wait_decrease_scalar: float = 0.75
 
     # Set by object:
     _response: requests.Response
@@ -41,7 +44,7 @@ class _BaseCaller:
         """Initialize the APICaller.
 
         .. note::
-            You must set _wait_seconds as a class variable in the child class.
+            You must initialize _wait_seconds as a class variable in the child class.
             This allows child class instances to increase the wait time on rate limiting
             without passing between objects.
         """
@@ -63,6 +66,12 @@ class _BaseCaller:
 
     @typechecked
     def call_api(self) -> None:
+        """Call the API."""
+        self._call_api()
+        self._decrease_wait_time()
+
+    @typechecked
+    def _call_api(self) -> None:
         """Call the API."""
         sleep(type(self)._wait_seconds)
         self._make_call()
@@ -94,11 +103,13 @@ class _BaseCaller:
     def _parse_response(self) -> None:
         if self._response.status_code == 200:
             self._handle_200()
-            # TODO: Decrease wait time by 25% (but not below min).
+
+        elif self._response.status_code == 204:
+            self._handle_204()
 
         elif self._response.status_code == 429:
-            # This is here as well as in the raise_for_status method, because there was a time
-            # when the statuse code was 429 but the response didn't raise.
+            # This is here as well as in the raise_for_status method because there was a case
+            # when the status code was 429 but the response didn't raise.
             self._handle_429()
         else:
             response_dict = get_response_dict(response=self._response)
@@ -112,23 +123,38 @@ class _BaseCaller:
         self._response_json = self._response.json()
 
     @typechecked
+    def _handle_204(self) -> None:
+        """Handle a 204 response."""
+        raise NotImplementedError
+
+    @typechecked
     def _handle_429(self) -> None:
         """Handle a 429 response."""
-        logger.warning(f"Rate-limited. Waiting {type(self)._wait_seconds} seconds to retry.")
         self._increase_wait_time()
-        self.call_api()
+        logger.warning(f"Rate limited. Waiting {type(self)._wait_seconds} seconds to retry.")
+        self._call_api()
+
+    @typechecked
+    def _decrease_wait_time(self) -> None:
+        """Decrease the wait time on rate limiting, for all instances."""
+        cls = type(self)
+        cls._wait_seconds = max(
+            cls._wait_seconds * self._wait_decrease_scalar, cls._min_wait_seconds
+        )
 
     @typechecked
     def _increase_wait_time(self) -> None:
         """Increase the wait time on rate limiting, for all instances."""
-        type(self)._wait_seconds = type(self)._wait_seconds * 2
+        cls = type(self)
+        cls._wait_seconds = cls._wait_seconds * self._wait_increase_scalar
 
 
 class _BaseGetCaller(_BaseCaller):
     """A class for making GET API calls."""
 
     _timeout: float = RateLimits.READ_TIMEOUT_SECONDS
-    _wait_seconds: float = RateLimits.READ_SECONDS
+    _min_wait_seconds: float = RateLimits.READ_SECONDS
+    _wait_seconds: float = _min_wait_seconds
 
     @typechecked
     def _set_request_call(self) -> None:
@@ -137,15 +163,25 @@ class _BaseGetCaller(_BaseCaller):
 
 
 class _BasePostCaller(_BaseCaller):
-    """A class for making GET API calls."""
+    """A class for making POST API calls."""
 
     _timeout: float = RateLimits.WRITE_TIMEOUT_SECONDS
-    _wait_seconds: float = RateLimits.WRITE_SECONDS
+    _min_wait_seconds: float = RateLimits.WRITE_SECONDS
+    _wait_seconds: float = _min_wait_seconds
 
     @typechecked
     def _set_request_call(self) -> None:
         """Set the request call method."""
         self._request_call = requests.post
+
+
+class _BaseDeleteCaller(_BasePostCaller):
+    """A class for making POST API calls."""
+
+    @typechecked
+    def _set_request_call(self) -> None:
+        """Set the request call method."""
+        self._request_call = requests.delete
 
 
 # TODO: Check docs to see if init args show up, here and elsewhere.
@@ -154,6 +190,9 @@ class _BaseOptimizationCaller(_BaseCaller):
 
     operation_id: str
     finished: bool
+
+    _min_wait_seconds: float = RateLimits.OPTIMIZATION_PER_SECOND
+    _wait_seconds: float = _min_wait_seconds
 
     _plan_id: str
     _plan_title: str
@@ -222,6 +261,9 @@ class StopUploader(_BasePostCaller):
     """Class for batch uploading stops."""
 
     stop_ids: list[str]
+
+    _min_wait_seconds: float = RateLimits.BATCH_STOP_IMPORT_SECONDS
+    _wait_seconds: float = _min_wait_seconds
 
     _plan_id: str
     _plan_title: str
@@ -331,3 +373,29 @@ class PlanDistributor(_BasePostCaller):
                 f"Failed to distribute plan {self._plan_title} ({self._plan_id}):"
                 f"\n{self._response_json}"
             )
+
+
+class PlanDeleter(_BaseDeleteCaller):
+    """Class for deleting plans."""
+
+    deletion: bool
+
+    @typechecked
+    def __init__(self, plan_id: str) -> None:
+        """Initialize the PlanDeleter object.
+
+        Args:
+            plan_id: The ID of the plan.
+        """
+        self._plan_id = plan_id
+        super().__init__()
+
+    @typechecked
+    def _set_url(self) -> None:
+        """Set the URL for the API call."""
+        self._url = f"https://api.getcircuit.com/public/v0.2b/{self._plan_id}"
+
+    @typechecked
+    def _handle_204(self) -> None:
+        """Handle a 204 response."""
+        self.deletion = True

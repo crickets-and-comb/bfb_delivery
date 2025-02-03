@@ -1,5 +1,6 @@
 """Write routes to Circuit."""
 
+# TODO: Check filepaths for Windows compatibility.
 import logging
 from datetime import datetime
 from pathlib import Path
@@ -14,10 +15,12 @@ from bfb_delivery.lib.constants import (
     CircuitColumns,
     Columns,
     DocStrings,
+    RateLimits,
 )
 from bfb_delivery.lib.dispatch.api_callers import (
     OptimizationChecker,
     OptimizationLauncher,
+    PlanDeleter,
     PlanDistributor,
     PlanInitializer,
     StopUploader,
@@ -62,8 +65,9 @@ def build_routes_from_chunked(  # noqa: D103
         ),
     )[0]
 
-    sheet_plan_df = upload_split_chunked(
+    plan_df = upload_split_chunked(
         split_chunked_workbook_fp=split_chunked_workbook_fp,
+        output_dir=Path(output_dir),
         start_date=start_date,
         no_distribute=no_distribute,
         verbose=verbose,
@@ -72,9 +76,8 @@ def build_routes_from_chunked(  # noqa: D103
     circuit_output_dir = get_route_files(
         start_date=start_date,
         end_date=start_date,
-        plan_ids=sheet_plan_df["plan_id"].to_list(),
+        plan_ids=plan_df["plan_id"].to_list(),
         output_dir=output_dir,
-        all_hhs=False,  # Overridden by plan_ids.
         verbose=verbose,
     )
     final_manifest_path = sheet_shaping.create_manifests(
@@ -92,7 +95,11 @@ build_routes_from_chunked.__doc__ = DocStrings.BUILD_ROUTES_FROM_CHUNKED.api_doc
 
 @typechecked
 def upload_split_chunked(
-    split_chunked_workbook_fp: Path, start_date: str, no_distribute: bool, verbose: bool
+    split_chunked_workbook_fp: Path,
+    output_dir: Path,
+    start_date: str,
+    no_distribute: bool,
+    verbose: bool,
 ) -> pd.DataFrame:
     """Upload a split chunked Excel workbook of routes to circuit.
 
@@ -110,6 +117,7 @@ def upload_split_chunked(
 
     Args:
         split_chunked_workbook_fp: The file path to the split chunked workbook.
+        output_dir: A place to put intermediate files.
         start_date: The date to start the routes, as "YYYY-MM-DD".
         no_distribute: To skip distributing the routes after optimizing.
         verbose: Whether to print verbose output.
@@ -119,31 +127,107 @@ def upload_split_chunked(
             along with date and whether distributed.
         A dictionary with the uploaded stops for each plan.
     """
+    plan_output_dir = output_dir / "plans"
+    plan_output_dir.mkdir(exist_ok=True)
+    plan_df_path = plan_output_dir / "plans.csv"
+    stops_df_path = plan_output_dir / "stops.csv"
+
+    stops_dfs = []
     with pd.ExcelFile(split_chunked_workbook_fp) as workbook:
-        stops_dfs = []
         for sheet in workbook.sheet_names:
             df = workbook.parse(sheet)
             df["sheet_name"] = str(sheet)
             stops_dfs.append(df)
-        stops_df = pd.concat(stops_dfs).reset_index(drop=True)
-        stops_df = stops_df.fillna("")
-        # TODO: For each step, if some succeed and others do not, continue with the
-        # successful ones and add the statuses to the sheet_plan_df for a final report.
-        sheet_plan_df = _create_plans(
-            stops_df=stops_df, start_date=start_date, verbose=verbose
-        )
-        _upload_stops(stops_df=stops_df, sheet_plan_df=sheet_plan_df, verbose=verbose)
-        _optimize_routes(sheet_plan_df=sheet_plan_df, verbose=verbose)
+    stops_df = pd.concat(stops_dfs).reset_index(drop=True)
+    stops_df = stops_df.fillna("")
+    stops_df.to_csv(stops_df_path, index=False)
 
-        if not no_distribute:
-            # TODO: Return map of distribution statuses in case of error.
-            # And continue with final printout.
-            _distribute_routes(sheet_plan_df=sheet_plan_df, verbose=verbose)
+    # TODO: For each step, if some succeed and others do not, continue with the
+    # successful ones and add the statuses to the plan_df for a final report.
+    plan_df = _create_plans(stops_df=stops_df, start_date=start_date, verbose=verbose)
+    plan_df.to_csv(plan_df_path, index=False)
 
-        sheet_plan_df["distributed"] = not no_distribute
-        sheet_plan_df["start_date"] = start_date
+    _upload_stops(stops_df=stops_df, plan_df=plan_df, verbose=verbose)
+    plan_df.to_csv(plan_df_path, index=False)
+    stops_df.to_csv(stops_df_path, index=False)
 
-    return sheet_plan_df
+    _optimize_routes(plan_df=plan_df, verbose=verbose)
+    plan_df.to_csv(plan_df_path, index=False)
+
+    if not no_distribute:
+        # TODO: Return map of distribution statuses in case of error.
+        # And continue with final printout.
+        _distribute_routes(plan_df=plan_df, verbose=verbose)
+    plan_df.to_csv(plan_df_path, index=False)
+
+    plan_df["distributed"] = not no_distribute
+    plan_df["start_date"] = start_date
+
+    plan_df.to_csv(plan_df_path, index=False)
+
+    return plan_df
+
+
+@typechecked
+def delete_plans(plan_ids: list[str], plan_df_fp: str) -> list[str]:
+    """Delete plans from Circuit.
+
+    Args:
+        plan_ids: The plan IDs to delete.
+        plan_df_fp: The file path to a dataframe with plan IDs to be deleted
+            in column 'plan_id'.
+
+    Returns:
+        The plan IDs that were (to be) deleted.
+
+    Raises:
+        ValueError: If both plan_ids and plan_df_fp are provided.
+        ValueError: If neither plan_ids nor plan_df_fp are provided.
+        RuntimeError: If there are errors deleting plans.
+    """
+    if plan_ids and plan_df_fp:
+        raise ValueError("Please provide either plan_ids or plan_ids_fp, not both.")
+    if not plan_ids and not plan_df_fp:
+        raise ValueError("Please provide either plan_ids or plan_ids_fp.")
+
+    if plan_df_fp:
+        plan_df = pd.read_csv(plan_df_fp)
+        plan_ids = plan_df["plan_id"].to_list()
+
+    logger.info(f"Deleting plans: {plan_ids} ...")
+
+    errors = {}
+    for plan_id in plan_ids:
+        try:
+            deleted = delete_plan(plan_id=plan_id)
+        except Exception as e:
+            errors[plan_id] = e
+            logger.error(f"Error deleting plan {plan_id}.")
+        else:
+            logger.info(f"Plan {plan_id} deleted: {deleted}")
+
+    logger.info("Finished deleting plans.")
+
+    if errors:
+        raise RuntimeError(f"Errors deleting plans:\n{errors}")
+
+    return plan_ids
+
+
+@typechecked
+def delete_plan(plan_id: str) -> bool:
+    """Delete a plan from Circuit.
+
+    Args:
+        plan_id: The plan ID to be deleted.
+
+    Returns:
+        Whether the plan was deleted. (Should always be True if no errors.)
+    """
+    deleter = PlanDeleter(plan_id=plan_id)
+    deleter.call_api()
+
+    return deleter.deletion
 
 
 @typechecked
@@ -159,35 +243,33 @@ def _create_plans(stops_df: pd.DataFrame, start_date: str, verbose: bool) -> pd.
         A DataFrame with the plan IDs and driver IDs for each sheet.
     """
     route_driver_df = _get_driver_ids(stops_df=stops_df)
-    sheet_plan_df = _initialize_plans(
+    plan_df = _initialize_plans(
         route_driver_df=route_driver_df, start_date=start_date, verbose=verbose
     )
 
-    return sheet_plan_df
+    return plan_df
 
 
 @typechecked
-def _upload_stops(stops_df: pd.DataFrame, sheet_plan_df: pd.DataFrame, verbose: bool) -> None:
+def _upload_stops(stops_df: pd.DataFrame, plan_df: pd.DataFrame, verbose: bool) -> None:
     """Upload stops for each route.
 
     Args:
         stops_df: The long DataFrame with all the routes.
-        sheet_plan_df: The DataFrame with the plan IDs and driver IDs for each sheet.
+        plan_df: The DataFrame with the plan IDs and driver IDs for each sheet.
         verbose: Whether to print verbose output.
 
     Returns:
         A dictionary with the uploaded stops for each plan.
     """
-    plan_stops = _build_plan_stops(stops_df=stops_df, sheet_plan_df=sheet_plan_df)
+    plan_stops = _build_plan_stops(stops_df=stops_df, plan_df=plan_df)
 
     logger.info("Uploading stops ...")
     uploaded_stops = {}
     stop_id_count = 0
     errors = {}
     for plan_id, stop_arrays in plan_stops.items():
-        plan_title = sheet_plan_df[sheet_plan_df["plan_id"] == plan_id]["route_title"].values[
-            0
-        ]
+        plan_title = plan_df[plan_df["plan_id"] == plan_id]["route_title"].values[0]
 
         if verbose:
             logger.info(f"Uploading stops for {plan_title} ({plan_id}) ...")
@@ -220,20 +302,18 @@ def _upload_stops(stops_df: pd.DataFrame, sheet_plan_df: pd.DataFrame, verbose: 
 
 
 @typechecked
-def _optimize_routes(sheet_plan_df: pd.DataFrame, verbose: bool) -> None:
+def _optimize_routes(plan_df: pd.DataFrame, verbose: bool) -> None:
     """Optimize the routes."""
     logger.info("Initializing route optimizations ...")
-    plan_ids = sheet_plan_df["plan_id"].to_list()
+    plan_ids = plan_df["plan_id"].to_list()
     optimizations = {}
 
     errors = {}
     for plan_id in plan_ids:
-        plan_title = sheet_plan_df[sheet_plan_df["plan_id"] == plan_id]["route_title"].values[
-            0
-        ]
+        plan_title = plan_df[plan_df["plan_id"] == plan_id]["route_title"].values[0]
         if verbose:
             logger.info(f"Optimizing route for {plan_title} ({plan_id}) ...")
-        # TODO: If optimization comes back finished on launch, don't check later.
+
         optimization = OptimizationLauncher(plan_id=plan_id, plan_title=plan_title)
         try:
             optimization.call_api()
@@ -251,29 +331,25 @@ def _optimize_routes(sheet_plan_df: pd.DataFrame, verbose: bool) -> None:
 
     logger.info(
         "Finished initializing route optimizations: for "
-        f"{len(sheet_plan_df[~(sheet_plan_df['plan_id']).isin(errors.keys())])} plans."
+        f"{len(plan_df[~(plan_df['plan_id']).isin(errors.keys())])} plans."
     )
 
     if errors:
         raise RuntimeError(f"Errors launching optimizations:\n{errors}")
 
-    _wait_for_optimizations(
-        sheet_plan_df=sheet_plan_df, optimizations=optimizations, verbose=verbose
-    )
+    _wait_for_optimizations(plan_df=plan_df, optimizations=optimizations, verbose=verbose)
 
     return
 
 
 # TODO: Make a CLI for this since it will be optional.
 @typechecked
-def _distribute_routes(sheet_plan_df: pd.DataFrame, verbose: bool) -> None:
+def _distribute_routes(plan_df: pd.DataFrame, verbose: bool) -> None:
     """Distribute the routes."""
     logger.info("Distributing routes ...")
     errors = {}
-    for plan_id in sheet_plan_df["plan_id"].to_list():
-        plan_title = sheet_plan_df[sheet_plan_df["plan_id"] == plan_id]["route_title"].values[
-            0
-        ]
+    for plan_id in plan_df["plan_id"].to_list():
+        plan_title = plan_df[plan_df["plan_id"] == plan_id]["route_title"].values[0]
         if verbose:
             logger.info(f"Distributing plan for {plan_title} ({plan_id}) ...")
         distributor = PlanDistributor(plan_id=plan_id, plan_title=plan_title)
@@ -285,7 +361,7 @@ def _distribute_routes(sheet_plan_df: pd.DataFrame, verbose: bool) -> None:
 
     logger.info(
         "Finished distributing routes: for "
-        f"{len(sheet_plan_df[~(sheet_plan_df["plan_id"]).isin(errors.keys())])} plans."
+        f"{len(plan_df[~(plan_df["plan_id"]).isin(errors.keys())])} plans."
     )
 
     if errors:
@@ -338,14 +414,15 @@ def _initialize_plans(
     Returns:
         A DataFrame with the plan IDs and driver IDs for each sheet.
     """
-    route_driver_df["plan_id"] = None
-    route_driver_df["depot"] = None
-    route_driver_df["writeable"] = None
-    route_driver_df["optimization"] = None
+    plan_df = route_driver_df.copy()
+    plan_df["plan_id"] = None
+    plan_df["depot"] = None
+    plan_df["writeable"] = None
+    plan_df["optimization"] = None
 
     logger.info("Initializing plans ...")
     errors = {}
-    for idx, row in route_driver_df.iterrows():
+    for idx, row in plan_df.iterrows():
         plan_data = {
             "title": row["route_title"],
             "starts": {
@@ -370,7 +447,7 @@ def _initialize_plans(
                     f"{row['route_title']}.\n{plan_initializer._response_json}"
                 )
 
-            route_driver_df.loc[idx, ["plan_id", "writeable"]] = (
+            plan_df.loc[idx, ["plan_id", "writeable"]] = (
                 plan_initializer._response_json["id"],
                 plan_initializer._response_json["writable"],
             )
@@ -380,29 +457,29 @@ def _initialize_plans(
     if errors:
         raise RuntimeError(f"Errors initializing plans:\n{errors}")
 
-    not_writable = route_driver_df[route_driver_df["writeable"] == False]  # noqa: E712
+    not_writable = plan_df[plan_df["writeable"] == False]  # noqa: E712
     if not not_writable.empty:
         raise ValueError(f"Plan is not writable for the following routes:\n{not_writable}")
 
-    return route_driver_df
+    return plan_df
 
 
 @typechecked
 def _build_plan_stops(
-    stops_df: pd.DataFrame, sheet_plan_df: pd.DataFrame
+    stops_df: pd.DataFrame, plan_df: pd.DataFrame
 ) -> dict[str, list[list[dict[str, dict[str, str] | list[str] | int | str]]]]:
     """Build stop arrays for each route.
 
     Args:
         stops_df: The long DataFrame with all the routes.
-        sheet_plan_df: The DataFrame with the plan IDs and driver IDs for each sheet.
+        plan_df: The DataFrame with the plan IDs and driver IDs for each sheet.
 
     Returns:
         For each plan, a list of stop arrays for batch stop uploads.
     """
     stops_df = _parse_addresses(stops_df=stops_df)
     plan_stops = {}
-    for _, plan_row in sheet_plan_df.iterrows():
+    for _, plan_row in plan_df.iterrows():
         plan_id = plan_row["plan_id"]
         route_title = plan_row["route_title"]
         route_stops = stops_df[stops_df["sheet_name"] == route_title]
@@ -414,7 +491,7 @@ def _build_plan_stops(
         stop_arrays = []
         # Split all_stops into chunks of 100 stops.
         number_of_stops = len(all_stops)
-        for i in range(0, number_of_stops, 100):
+        for i in range(0, number_of_stops, RateLimits.BATCH_STOP_IMPORT_MAX_STOPS):
             stop_arrays.append(
                 all_stops[i : i + 100]  # noqa: E203
             )  # TODO: Add noqa E203 to shared, and remove throughout codebase.
@@ -437,6 +514,7 @@ def _get_all_drivers() -> pd.DataFrame:
     return drivers_df
 
 
+# TODO: Don't list the driver ID with the confirmations.
 @typechecked
 def _assign_drivers(drivers_df: pd.DataFrame, route_driver_df: pd.DataFrame) -> pd.DataFrame:
     """Ask users to assign drivers to each route."""
@@ -539,12 +617,12 @@ def _parse_addresses(stops_df: pd.DataFrame) -> pd.DataFrame:
 
 @typechecked
 def _wait_for_optimizations(
-    sheet_plan_df: pd.DataFrame, optimizations: dict[str, str], verbose: bool
+    plan_df: pd.DataFrame, optimizations: dict[str, str], verbose: bool
 ) -> None:
     """Wait for all optimizations to finish."""
     logger.info("Waiting for optimizations to finish ...")
     optimizations_finished: dict[str, bool | str] = {
-        plan_id: False for plan_id in sheet_plan_df["plan_id"].to_list()
+        plan_id: False for plan_id in plan_df["plan_id"].to_list()
     }
     errors = {}
     while not all([val is True or val == "error" for val in optimizations_finished.values()]):
@@ -554,9 +632,7 @@ def _wait_for_optimizations(
             if not finished or finished != "error"
         ]
         for plan_id in unfinished:
-            plan_title = sheet_plan_df[sheet_plan_df["plan_id"] == plan_id][
-                "route_title"
-            ].values[0]
+            plan_title = plan_df[plan_df["plan_id"] == plan_id]["route_title"].values[0]
             if verbose:
                 logger.info(f"Checking optimization for {plan_title} ({plan_id}) ...")
             check_op = OptimizationChecker(
