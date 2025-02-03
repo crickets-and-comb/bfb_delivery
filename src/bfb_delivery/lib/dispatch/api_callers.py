@@ -323,6 +323,9 @@ class OptimizationLauncher(_BaseOptimizationCaller, _BasePostCaller):
 class OptimizationChecker(_BaseOptimizationCaller, _BaseGetCaller):
     """A class for checking the status of an optimization."""
 
+    _min_wait_seconds: float = RateLimits.READ_SECONDS
+    _wait_seconds: float = _min_wait_seconds
+
     @typechecked
     def __init__(self, plan_id: str, plan_title: str, operation_id: str) -> None:
         """Initialize the OptimizationChecker object.
