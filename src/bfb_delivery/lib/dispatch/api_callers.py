@@ -134,14 +134,13 @@ class BaseCaller:
     def _parse_response(self) -> None:
         """Parse the non-error reponse (200).
 
-        Here's where you might add custom handling for additional non-error responses.
-        See PlanDeleter for an example.
-
         Raises:
             ValueError: If the response status code is not expected.
         """
         if self._response.status_code == 200:
             self._handle_200()
+        elif self._response.status_code == 204:
+            self._handle_204()
         elif self._response.status_code == 429:
             # This is here as well as in the _raise_for_status method because there was a case
             # when the status code was 429 but the response didn't raise.
@@ -159,6 +158,14 @@ class BaseCaller:
         Just gets the JSON from the response and sets it to `response_json`.
         """
         self.response_json = self._response.json()
+
+    @typechecked
+    def _handle_204(self) -> None:
+        """Handle a 204 response.
+
+        Just sets `response_json` to an empty dictionary.
+        """
+        self.response_json = {}
 
     @typechecked
     def _handle_429(self) -> None:
@@ -573,19 +580,10 @@ class PlanDeleter(BaseDeleteCaller):
         self._url = f"https://api.getcircuit.com/public/v0.2b/{self._plan_id}"
 
     @typechecked
-    def _parse_response(self) -> None:
-        """Parse the response.
-
-        Adds handling for a 204 response, i.e. deletion successful.
-        """
-        if self._response.status_code == 204:
-            self._handle_204()
-        super()._parse_response()
-
-    @typechecked
     def _handle_204(self) -> None:
         """Handle a 204 response.
 
         Sets `deletion` to True.
         """
+        super()._handle_204()
         self.deletion = True
