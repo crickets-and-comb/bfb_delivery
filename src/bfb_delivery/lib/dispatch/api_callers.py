@@ -307,6 +307,7 @@ class BaseOptimizationCaller(BaseCaller):
     #: Whether the optimization is finished.
     finished: bool
 
+    _timeout: float = RateLimits.WRITE_TIMEOUT_SECONDS
     _min_wait_seconds: float = RateLimits.OPTIMIZATION_PER_SECOND
     _wait_seconds: float = _min_wait_seconds
 
