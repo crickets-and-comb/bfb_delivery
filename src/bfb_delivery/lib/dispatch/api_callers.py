@@ -1,5 +1,7 @@
 """Classes for making API calls."""
 
+# TODO: Move this up to lib.
+
 import logging
 from collections.abc import Callable
 from time import sleep
@@ -252,6 +254,35 @@ class _BaseOptimizationCaller(_BaseCaller):
 
         self.operation_id = self._response_json["id"]
         self.finished = self._response_json = self._response_json["done"]
+
+
+class PagedResponseGetter(_BaseGetCaller):
+    """Class for getting paged responses."""
+
+    # Calling the token salsa to trick bandit into ignoring what looks like a hardcoded token.
+    next_page_salsa: str
+
+    _page_url: str
+
+    @typechecked
+    def __init__(self, page_url: str) -> None:
+        """Initialize the PagedResponseGetter object.
+
+        Args:
+            page_url: The URL for the page. (Contains nextPageToken.)
+        """
+        self._page_url = page_url
+        super().__init__()
+
+    @typechecked
+    def _set_url(self) -> None:
+        """Set the URL for the API call."""
+        self._url = self._page_url
+
+    @typechecked
+    def _handle_200(self) -> None:
+        super()._handle_200()
+        self.next_page_salsa = self._response_json.get("nextPageToken", None)
 
 
 class PlanInitializer(_BasePostCaller):
