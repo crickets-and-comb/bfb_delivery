@@ -99,19 +99,19 @@ def upload_split_chunked(
     no_distribute: bool,
     verbose: bool,
 ) -> pd.DataFrame:
-    """Upload a split chunked Excel workbook of routes to circuit.
+    """Upload a split chunked Excel workbook of routes to Circuit.
 
     The workbook contains multiple sheets, one per route. Each sheet is named after the driver
     with the date. The columns are:
-    - Name
-    - Address
-    - Phone
-    - Email
-    - Notes
-    - Order Count
-    - Product Type
-    - Neighborhood
 
+        - Name
+        - Address
+        - Phone
+        - Email
+        - Notes
+        - Order Count
+        - Product Type
+        - Neighborhood
 
     Args:
         split_chunked_workbook_fp: The file path to the split chunked workbook.
@@ -123,7 +123,6 @@ def upload_split_chunked(
     Returns:
         A DataFrame with the plan IDs and driver IDs for each sheet,
             along with date and whether distributed.
-        A dictionary with the uploaded stops for each plan.
     """
     plan_output_dir = output_dir / "plans"
     plan_output_dir.mkdir(exist_ok=True)
@@ -439,13 +438,13 @@ def _initialize_plans(
         else:
             if verbose:
                 logger.info(
-                    f"Created plan {plan_initializer._response_json['id']} for "
-                    f"{row['route_title']}.\n{plan_initializer._response_json}"
+                    f"Created plan {plan_initializer.response_json['id']} for "
+                    f"{row['route_title']}.\n{plan_initializer.response_json}"
                 )
 
             plan_df.loc[idx, ["plan_id", "writeable"]] = (
-                plan_initializer._response_json["id"],
-                plan_initializer._response_json["writable"],
+                plan_initializer.response_json["id"],
+                plan_initializer.response_json["writable"],
             )
 
     logger.info(f"Finished initializing plans. Initialized {idx + 1 - len(errors)} plans.")

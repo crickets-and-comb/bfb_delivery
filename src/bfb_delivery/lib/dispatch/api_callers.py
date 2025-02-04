@@ -3,6 +3,7 @@
 # TODO: Move this up to lib.
 
 import logging
+from abc import abstractmethod
 from collections.abc import Callable
 from time import sleep
 from typing import Any
@@ -18,63 +19,177 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-# TODO: See where else we can use this.
-# TODO: Pass in verbose to silence rate-limit warnings.
-class _BaseCaller:
-    """A base class for making API calls."""
+class BaseCaller:
+    """Am abstract class for making API calls.
+
+    Example:
+        .. code:: python
+
+            class MyGetCaller(BaseCaller):
+                target_response_value
+
+                _min_wait_seconds: float = 0.1
+                # Initialize _wait_seconds and timeout as a class variable.
+                # Instances will adjust for class.
+                _wait_seconds: float = _min_wait_seconds
+                _timeout: float = 10
+
+                def _set_request_call(self):
+                    self._request_call = requests.get
+
+                def _set_url(self):
+                    self._url = "https://example.com/public/v0.2b/"
+
+                def _handle_200(self):
+                    super()._handle_200()
+                    self.target_response_value = self.response_json["target_key"]
+
+            my_caller = MyCaller()
+            my_caller.call_api()
+            target_response_value = my_caller.target_response_value
+
+    .. important::
+        You must initialize _wait_seconds, _timeout, and _min_wait_seconds in child classes.
+        This allows child class instances to adjust the wait/timeout time for the child class.
+
+    .. warning::
+        There is a potential for this to run indefinitely for rate limiting and timeouts.
+        It handles them somewhat intelligently, but the assumption is that someone is watching
+        this run in the background and will stop it if it runs too long. It will eventually
+        at least crash the memory, depending on available memory, mean time to failure, and
+        time left in the universe.
+    """
+
+    # Set by object:
+    #: The JSON from the response.
+    response_json: dict[str, Any]
+    #: The response from the API call.
+    _response: requests.Response
 
     # Must set in child class with _set*:
-    _request_call: Callable  # requests.get or requests.post
+    #: The requests call method. (get, post, etc.)
+    _request_call: Callable
+    #: The URL for the API call.
     _url: str
 
     # Must set in child class:
+    #: The timeout for the API call.
     _timeout: float
+    #: The minimum wait time between API calls.
     _min_wait_seconds: float
-    _wait_seconds: float  # Adjusted by instances, at class level.
+    #: The wait time between API calls. (Adjusted by instances, at class level.)
+    _wait_seconds: float
 
     # Optionally set in child class, to pass to _request_call if needed:
+    #: The kwargs to pass to the requests call.
     _call_kwargs: dict[str, Any] = {}
+    #: The scalar to increase wait time on rate limiting.
     _wait_increase_scalar: float = 2
+    #: The scalar to decrease wait time on success.
     _wait_decrease_scalar: float = 0.75
 
-    # Set by object:
-    _response: requests.Response
-    _response_json: dict[str, Any]
-
     @typechecked
-    def __init__(self, **kwargs: Any) -> None:  # noqa: ANN401
-        """Initialize the APICaller.
-
-        .. note::
-            You must initialize _wait_seconds as a class variable in the child class.
-            This allows child class instances to increase the wait time on rate limiting
-            without passing between objects.
-        """
+    def __init__(self) -> None:  # noqa: ANN401
+        """Initialize the BaseCaller object."""
         self._set_request_call()
         self._set_url()
 
+    @abstractmethod
     @typechecked
     def _set_request_call(self) -> None:
-        """Set the request call method.
+        """Set the requests call method.
 
-        requests.get or requests.post
+        requests.get, requests.post, etc.
+
+        Raises:
+            NotImplementedError: If not implemented in child class.
         """
         raise NotImplementedError
 
+    @abstractmethod
     @typechecked
     def _set_url(self) -> None:
-        """Set the URL for the API call."""
+        """Set the URL for the API call.
+
+        Raises:
+            NotImplementedError: If not implemented in child class.
+        """
         raise NotImplementedError
 
     @typechecked
     def call_api(self) -> None:
-        """Call the API."""
+        """The main method for making the API call.
+
+        Handle errors, parse response, and decrease class wait time on success.
+
+        Raises:
+            ValueError: If the response status code is not expected.
+            requests.exceptions.HTTPError: For non-rate-limiting errors.
+        """
+        # Separated to allow for recursive calls on rate limiting.
         self._call_api()
         self._decrease_wait_time()
 
     @typechecked
+    def _parse_response(self) -> None:
+        """Parse the non-error reponse (200).
+
+        Here's where you might add custom handling for additional non-error responses.
+        See PlanDeleter for an example.
+
+        Raises:
+            ValueError: If the response status code is not expected.
+        """
+        if self._response.status_code == 200:
+            self._handle_200()
+        elif self._response.status_code == 429:
+            # This is here as well as in the _raise_for_status method because there was a case
+            # when the status code was 429 but the response didn't raise.
+            self._handle_429()
+        else:
+            response_dict = get_response_dict(response=self._response)
+            raise ValueError(
+                f"Unexpected response {self._response.status_code}:\n{response_dict}"
+            )
+
+    @typechecked
+    def _handle_200(self) -> None:
+        """Handle a 200 response.
+
+        Just gets the JSON from the response and sets it to `response_json`.
+        """
+        self.response_json = self._response.json()
+
+    @typechecked
+    def _handle_429(self) -> None:
+        """Handle a 429 response.
+
+        Inreases the class wait time and recursively calls the API.
+        """
+        self._increase_wait_time()
+        logger.warning(f"Rate limited. Waiting {type(self)._wait_seconds} seconds to retry.")
+        self._call_api()
+
+    @typechecked
+    def _handle_443(self) -> None:
+        """Handle a 443 response.
+
+        Increases the class timeout and recursively calls the API.
+        """
+        self._increase_timeout()
+        response_dict = get_response_dict(response=self._response)
+        logger.warning(
+            f"Request timed out.\n{response_dict}"
+            f"\nTrying again with longer timeout: {type(self)._timeout} seconds."
+        )
+        self._call_api()
+
+    @typechecked
     def _call_api(self) -> None:
-        """Call the API."""
+        """Wait and make and handle the API call.
+
+        Wrapped separately to allow for recursive calls on rate limiting and timeout.
+        """
         sleep(type(self)._wait_seconds)
         self._make_call()
         self._raise_for_status()
@@ -82,6 +197,7 @@ class _BaseCaller:
 
     @typechecked
     def _make_call(self) -> None:
+        """Make the API call."""
         self._response = self._request_call(
             url=self._url,
             auth=HTTPBasicAuth(get_circuit_key(), ""),
@@ -91,6 +207,14 @@ class _BaseCaller:
 
     @typechecked
     def _raise_for_status(self) -> None:
+        """Handle error responses.
+
+        For 429 (rate limiting), increases wait time and recursively calls the API.
+        For 443 (timeout), increases timeout and recursively calls the API.
+
+        Raises:
+            requests.exceptions.HTTPError: For non-rate-limiting errors.
+        """
         try:
             self._response.raise_for_status()
         except requests.exceptions.HTTPError as http_e:
@@ -104,54 +228,8 @@ class _BaseCaller:
                 raise requests.exceptions.HTTPError(err_msg) from http_e
 
     @typechecked
-    def _parse_response(self) -> None:
-        if self._response.status_code == 200:
-            self._handle_200()
-
-        elif self._response.status_code == 204:
-            self._handle_204()
-
-        elif self._response.status_code == 429:
-            # This is here as well as in the raise_for_status method because there was a case
-            # when the status code was 429 but the response didn't raise.
-            self._handle_429()
-        else:
-            response_dict = get_response_dict(response=self._response)
-            raise ValueError(
-                f"Unexpected response {self._response.status_code}:\n{response_dict}"
-            )
-
-    @typechecked
-    def _handle_200(self) -> None:
-        """Handle a 200 response."""
-        self._response_json = self._response.json()
-
-    @typechecked
-    def _handle_204(self) -> None:
-        """Handle a 204 response."""
-        raise NotImplementedError
-
-    @typechecked
-    def _handle_429(self) -> None:
-        """Handle a 429 response."""
-        self._increase_wait_time()
-        logger.warning(f"Rate limited. Waiting {type(self)._wait_seconds} seconds to retry.")
-        self._call_api()
-
-    @typechecked
-    def _handle_443(self) -> None:
-        """Handle a 443 response."""
-        self._increase_timeout()
-        response_dict = get_response_dict(response=self._response)
-        logger.warning(
-            f"Request timed out.\n{response_dict}"
-            f"\nTrying again with longer timeout: {type(self)._timeout} seconds."
-        )
-        self._call_api()
-
-    @typechecked
     def _decrease_wait_time(self) -> None:
-        """Decrease the wait time on rate limiting, for all instances."""
+        """Decrease the wait time between API calls for whole class."""
         cls = type(self)
         cls._wait_seconds = max(
             cls._wait_seconds * self._wait_decrease_scalar, cls._min_wait_seconds
@@ -159,19 +237,22 @@ class _BaseCaller:
 
     @typechecked
     def _increase_wait_time(self) -> None:
-        """Increase the wait time on rate limiting, for all instances."""
+        """Increase the wait time between API calls for whole class."""
         cls = type(self)
         cls._wait_seconds = cls._wait_seconds * self._wait_increase_scalar
 
     @typechecked
     def _increase_timeout(self) -> None:
-        """Increase the timeout on rate limiting, for all instances."""
+        """Increase the timeout for the API call for whole class."""
         cls = type(self)
         cls._timeout = cls._timeout * self._wait_increase_scalar
 
 
-class _BaseGetCaller(_BaseCaller):
-    """A class for making GET API calls."""
+class BaseGetCaller(BaseCaller):
+    """A base class for making GET API calls.
+
+    Presets the timeout, initial wait time, and requests method.
+    """
 
     _timeout: float = RateLimits.READ_TIMEOUT_SECONDS
     _min_wait_seconds: float = RateLimits.READ_SECONDS
@@ -179,12 +260,15 @@ class _BaseGetCaller(_BaseCaller):
 
     @typechecked
     def _set_request_call(self) -> None:
-        """Set the request call method."""
+        """Set the requests call method to `requests.get`."""
         self._request_call = requests.get
 
 
-class _BasePostCaller(_BaseCaller):
-    """A class for making POST API calls."""
+class BasePostCaller(BaseCaller):
+    """A base class for making POST API calls.
+
+    Presets the timeout, initial wait time, and requests method.
+    """
 
     _timeout: float = RateLimits.WRITE_TIMEOUT_SECONDS
     _min_wait_seconds: float = RateLimits.WRITE_SECONDS
@@ -192,38 +276,44 @@ class _BasePostCaller(_BaseCaller):
 
     @typechecked
     def _set_request_call(self) -> None:
-        """Set the request call method."""
+        """Set the requests call method to `requests.post`."""
         self._request_call = requests.post
 
 
-class _BaseDeleteCaller(_BasePostCaller):
-    """A class for making POST API calls."""
+class BaseDeleteCaller(BasePostCaller):
+    """A base class for making DELETE API calls.
+
+    Presets the timeout, initial wait time, and requests method.
+    """
 
     @typechecked
     def _set_request_call(self) -> None:
-        """Set the request call method."""
+        """Set the requests call method to `requests.delete`."""
         self._request_call = requests.delete
 
 
-# TODO: Check docs to see if init args show up, here and elsewhere.
-class _BaseOptimizationCaller(_BaseCaller):
-    """Base class for checking the status of an optimization."""
+class BaseOptimizationCaller(BaseCaller):
+    """A base class for checking the status of an optimization."""
 
+    #: The ID of the operation.
     operation_id: str
+    #: Whether the optimization is finished.
     finished: bool
 
     _min_wait_seconds: float = RateLimits.OPTIMIZATION_PER_SECOND
     _wait_seconds: float = _min_wait_seconds
 
+    #: The ID of the plan.
     _plan_id: str
+    #: The title of the plan.
     _plan_title: str
 
     @typechecked
-    def __init__(self, plan_id: str, plan_title: str, **kwargs: Any) -> None:  # noqa: ANN401
-        """Initialize the OptimizationChecker object.
+    def __init__(self, plan_id: str, plan_title: str) -> None:  # noqa: ANN401
+        """Initialize the BaseOptimizationCaller object.
 
         Args:
-            plan_id: The ID of the plan.
+            plan_id: The ID of the plan. (e.g. plans/asfoghaev)
             plan_title: The title of the plan.
         """
         self._plan_id = plan_id
@@ -232,36 +322,44 @@ class _BaseOptimizationCaller(_BaseCaller):
 
     @typechecked
     def _handle_200(self) -> None:
-        """Handle a 200 response."""
+        """Handle a 200 response.
+
+        Sets `operation_id` and whether the optimization is `finished`.
+
+        Raises:
+            RuntimeError: If the optimization was canceled, stops were skipped, or there were
+                errors.
+        """
         super()._handle_200()
 
-        if self._response_json["metadata"]["canceled"]:
+        if self.response_json["metadata"]["canceled"]:
             raise RuntimeError(
                 f"Optimization canceled for {self._plan_title} ({self._plan_id}):"
-                f"\n{self._response_json}"
+                f"\n{self.response_json}"
             )
-        if self._response_json.get("result"):
-            if self._response_json["result"].get("skippedStops"):
+        if self.response_json.get("result"):
+            if self.response_json["result"].get("skippedStops"):
                 raise RuntimeError(
                     f"Skipped optimization stops for {self._plan_title} ({self._plan_id}):"
-                    f"\n{self._response_json}"
+                    f"\n{self.response_json}"
                 )
-            if self._response_json["result"].get("code"):
+            if self.response_json["result"].get("code"):
                 raise RuntimeError(
                     f"Errors in optimization for {self._plan_title} ({self._plan_id}):"
-                    f"\n{self._response_json}"
+                    f"\n{self.response_json}"
                 )
 
-        self.operation_id = self._response_json["id"]
-        self.finished = self._response_json = self._response_json["done"]
+        self.operation_id = self.response_json["id"]
+        self.finished = self.response_json = self.response_json["done"]
 
 
-class PagedResponseGetter(_BaseGetCaller):
+class PagedResponseGetter(BaseGetCaller):
     """Class for getting paged responses."""
 
-    # Calling the token salsa to trick bandit into ignoring what looks like a hardcoded token.
+    # The nextPageToken returned, but called salsa to avoid bandit.
     next_page_salsa: str
 
+    #: The URL for the page.
     _page_url: str
 
     @typechecked
@@ -269,25 +367,30 @@ class PagedResponseGetter(_BaseGetCaller):
         """Initialize the PagedResponseGetter object.
 
         Args:
-            page_url: The URL for the page. (Contains nextPageToken.)
+            page_url: The URL for the page. (Optionally contains nextPageToken.)
         """
         self._page_url = page_url
         super().__init__()
 
     @typechecked
     def _set_url(self) -> None:
-        """Set the URL for the API call."""
+        """Set the URL for the API call to the `page_url`."""
         self._url = self._page_url
 
     @typechecked
     def _handle_200(self) -> None:
+        """Handle a 200 response.
+
+        Sets `next_page_salsa` to the nextPageToken.
+        """
         super()._handle_200()
-        self.next_page_salsa = self._response_json.get("nextPageToken", None)
+        self.next_page_salsa = self.response_json.get("nextPageToken", None)
 
 
-class PlanInitializer(_BasePostCaller):
+class PlanInitializer(BasePostCaller):
     """Class for initializing plans."""
 
+    #: The data dictionary for the plan.
     _plan_data: dict
 
     @typechecked
@@ -295,7 +398,8 @@ class PlanInitializer(_BasePostCaller):
         """Initialize the PlanInitializer object.
 
         Args:
-            plan_data: The data for the plan, to pass to `requests.post` `json` param.
+            plan_data: The data dictionary for the plan.
+                To pass to `requests.post` `json` param.
         """
         self._plan_data = plan_data
         self._call_kwargs = {"json": plan_data}
@@ -307,7 +411,7 @@ class PlanInitializer(_BasePostCaller):
         self._url = "https://api.getcircuit.com/public/v0.2b/plans"
 
 
-class StopUploader(_BasePostCaller):
+class StopUploader(BasePostCaller):
     """Class for batch uploading stops."""
 
     stop_ids: list[str]
@@ -328,9 +432,10 @@ class StopUploader(_BasePostCaller):
         """Initialize the StopUploader object.
 
         Args:
-            plan_id: The ID of the plan.
+            plan_id: The ID of the plan. (e.g. plans/asfoghaev)
             plan_title: The title of the plan.
-            stop_array: The array of stops to upload, to pass to `requests.post` `json` param.
+            stop_array: The array of stops dictionaries to upload.
+                To pass to `requests.post` `json` param.
         """
         self._plan_id = plan_id
         self._plan_title = plan_title
@@ -340,16 +445,23 @@ class StopUploader(_BasePostCaller):
 
     @typechecked
     def _set_url(self) -> None:
-        """Set the URL for the API call."""
+        """Set the URL for the API call with `plan_id`."""
         self._url = f"https://api.getcircuit.com/public/v0.2b/{self._plan_id}/stops:import"
 
     @typechecked
     def _handle_200(self) -> None:
-        """Handle a 200 response."""
+        """Handle a 200 response.
+
+        Sets `stop_ids` to the successful stop IDs.
+
+        Raises:
+            RuntimeError: If stops failed to upload or the number of stops uploaded differs
+                from input.
+        """
         super()._handle_200()
 
-        self.stop_ids = self._response_json["success"]
-        failed = self._response_json.get("failed")
+        self.stop_ids = self.response_json["success"]
+        failed = self.response_json.get("failed")
         if failed:
             raise RuntimeError(
                 f"For {self._plan_title} ({self._plan_id}), failed to upload stops:\n{failed}"
@@ -361,16 +473,21 @@ class StopUploader(_BasePostCaller):
             )
 
 
-class OptimizationLauncher(_BaseOptimizationCaller, _BasePostCaller):
-    """A class for launching route optimization."""
+class OptimizationLauncher(BaseOptimizationCaller, BasePostCaller):
+    """A class for launching route optimization.
+
+    Args:
+        plan_id: The ID of the plan. (e.g. plans/asfoghaev)
+        plan_title: The title of the plan.
+    """
 
     @typechecked
     def _set_url(self) -> None:
-        """Set the URL for the API call."""
+        """Set the URL for the API call with the `plan_id`."""
         self._url = f"https://api.getcircuit.com/public/v0.2b/{self._plan_id}:optimize"
 
 
-class OptimizationChecker(_BaseOptimizationCaller, _BaseGetCaller):
+class OptimizationChecker(BaseOptimizationCaller, BaseGetCaller):
     """A class for checking the status of an optimization."""
 
     _min_wait_seconds: float = RateLimits.READ_SECONDS
@@ -394,10 +511,12 @@ class OptimizationChecker(_BaseOptimizationCaller, _BaseGetCaller):
         self._url = f"https://api.getcircuit.com/public/v0.2b/{self.operation_id}"
 
 
-class PlanDistributor(_BasePostCaller):
+class PlanDistributor(BasePostCaller):
     """Class for distributing plans."""
 
+    #: The ID of the plan.
     _plan_id: str
+    #: The title of the plan
     _plan_title: str
 
     @typechecked
@@ -405,7 +524,7 @@ class PlanDistributor(_BasePostCaller):
         """Initialize the PlanDistributor object.
 
         Args:
-            plan_id: The ID of the plan.
+            plan_id: The ID of the plan. (e.g. plans/asfoghaev)
             plan_title: The title of the plan.
         """
         self._plan_id = plan_id
@@ -414,23 +533,28 @@ class PlanDistributor(_BasePostCaller):
 
     @typechecked
     def _set_url(self) -> None:
-        """Set the URL for the API call."""
+        """Set the URL for the API call with the `plan_id`."""
         self._url = f"https://api.getcircuit.com/public/v0.2b/{self._plan_id}:distribute"
 
     @typechecked
     def _handle_200(self) -> None:
-        """Handle a 200 response."""
+        """Handle a 200 response.
+
+        Raises:
+            RuntimeError: If the plan was not distributed.
+        """
         super()._handle_200()
-        if not self._response_json["distributed"]:
+        if not self.response_json["distributed"]:
             raise RuntimeError(
                 f"Failed to distribute plan {self._plan_title} ({self._plan_id}):"
-                f"\n{self._response_json}"
+                f"\n{self.response_json}"
             )
 
 
-class PlanDeleter(_BaseDeleteCaller):
+class PlanDeleter(BaseDeleteCaller):
     """Class for deleting plans."""
 
+    #: Whether the plan was deleted.
     deletion: bool
 
     @typechecked
@@ -445,10 +569,23 @@ class PlanDeleter(_BaseDeleteCaller):
 
     @typechecked
     def _set_url(self) -> None:
-        """Set the URL for the API call."""
+        """Set the URL for the API call with the `plan_id`."""
         self._url = f"https://api.getcircuit.com/public/v0.2b/{self._plan_id}"
 
     @typechecked
+    def _parse_response(self) -> None:
+        """Parse the response.
+
+        Adds handling for a 204 response, i.e. deletion successful.
+        """
+        if self._response.status_code == 204:
+            self._handle_204()
+        super()._parse_response()
+
+    @typechecked
     def _handle_204(self) -> None:
-        """Handle a 204 response."""
+        """Handle a 204 response.
+
+        Sets `deletion` to True.
+        """
         self.deletion = True

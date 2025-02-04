@@ -447,11 +447,12 @@ DEPOT_PLACE_ID: Final[str] = "ChIJFw9CDZejhVQRizqiyJSmPqo"
 
 
 class ExtraNotes:
-    """Extra notes for the combined routes.
+    """Extra notes to add at bottom of manifests when any stop is tagged.
 
     Is a class so it appears in docs.
     """
 
+    #: Tuples of tag and note. Example: ("Cascade Meadows Apartments*", "Note here.")
     notes: Final[list[tuple[str, str]]] = [
         # ("Cascade Meadows Apartments*", ""),
         # ("Deer Run Terrace Apartments*", ""),
@@ -473,10 +474,11 @@ class ExtraNotes:
         # ("Washington Grocery Building*", ""),
     ]
 
+    #: Extra notes DataFrame. The columns are "tag" and "note". Made from `notes`.
     df: Final[pd.DataFrame]
 
     def __init__(self) -> None:
-        """Initialize the extra notes df."""
+        """Initialize the extra notes `df`."""
         self.df = pd.DataFrame(columns=["tag", "note"], data=self.notes)
 
 

@@ -22,3 +22,11 @@ extensions = [
 ]
 html_theme = "furo"
 html_context = {"version": version, "display_version": True}
+
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": True,
+    "private-members": True,
+    "show-inheritance": True,
+}
+autodoc_class_signature = "separated"

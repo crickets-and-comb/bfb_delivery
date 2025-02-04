@@ -103,7 +103,7 @@ Use :code:`book_one_drivers_file` to specify a CSV file of drivers that should b
 
 The CSV should be a single column with the header "Driver", like this:
 
-.. code:: csv
+.. code-block:: text
 
     Driver
     Alice S
