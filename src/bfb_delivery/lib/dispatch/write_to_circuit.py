@@ -14,6 +14,7 @@ from bfb_delivery.lib.constants import (
     CircuitColumns,
     Columns,
     DocStrings,
+    IntermediateColumns,
     RateLimits,
 )
 from bfb_delivery.lib.dispatch.api_callers import (
@@ -74,7 +75,7 @@ def build_routes_from_chunked(  # noqa: D103
     circuit_output_dir = get_route_files(
         start_date=start_date,
         end_date=start_date,
-        plan_ids=plan_df["plan_id"].to_list(),
+        plan_ids=plan_df[IntermediateColumns.PLAN_ID].to_list(),
         output_dir=output_dir,
         verbose=verbose,
     )
@@ -133,7 +134,7 @@ def upload_split_chunked(
     with pd.ExcelFile(split_chunked_workbook_fp) as workbook:
         for sheet in workbook.sheet_names:
             df = workbook.parse(sheet)
-            df["sheet_name"] = str(sheet)
+            df[IntermediateColumns.SHEET_NAME] = str(sheet)
             stops_dfs.append(df)
     stops_df = pd.concat(stops_dfs).reset_index(drop=True)
     stops_df = stops_df.fillna("")
@@ -162,8 +163,8 @@ def upload_split_chunked(
         _distribute_routes(plan_df=plan_df, verbose=verbose)
     plan_df.to_csv(plan_df_path, index=False)
 
-    plan_df["distributed"] = not no_distribute
-    plan_df["start_date"] = start_date
+    plan_df[IntermediateColumns.DISTRIBUTED] = not no_distribute
+    plan_df[IntermediateColumns.START_DATE] = start_date
 
     plan_df.to_csv(plan_df_path, index=False)
 
@@ -194,7 +195,7 @@ def delete_plans(plan_ids: list[str], plan_df_fp: str) -> list[str]:
 
     if plan_df_fp:
         plan_df = pd.read_csv(plan_df_fp)
-        plan_ids = plan_df["plan_id"].to_list()
+        plan_ids = plan_df[IntermediateColumns.PLAN_ID].to_list()
 
     logger.info(f"Deleting plans: {plan_ids} ...")
 
@@ -269,7 +270,9 @@ def _upload_stops(stops_df: pd.DataFrame, plan_df: pd.DataFrame, verbose: bool) 
     stop_id_count = 0
     errors = {}
     for plan_id, stop_arrays in plan_stops.items():
-        plan_title = plan_df[plan_df["plan_id"] == plan_id]["route_title"].values[0]
+        plan_title = plan_df[plan_df[IntermediateColumns.PLAN_ID] == plan_id][
+            IntermediateColumns.ROUTE_TITLE
+        ].values[0]
 
         if verbose:
             logger.info(f"Uploading stops for {plan_title} ({plan_id}) ...")
@@ -308,12 +311,14 @@ def _optimize_routes(plan_df: pd.DataFrame, verbose: bool) -> None:
         "Initializing route optimizations. "
         f"Allow {RateLimits.OPTIMIZATION_PER_SECOND} seconds per plan ..."
     )
-    plan_ids = plan_df["plan_id"].to_list()
+    plan_ids = plan_df[IntermediateColumns.PLAN_ID].to_list()
     optimizations = {}
 
     errors = {}
     for plan_id in plan_ids:
-        plan_title = plan_df[plan_df["plan_id"] == plan_id]["route_title"].values[0]
+        plan_title = plan_df[plan_df[IntermediateColumns.PLAN_ID] == plan_id][
+            IntermediateColumns.ROUTE_TITLE
+        ].values[0]
         if verbose:
             logger.info(f"Optimizing route for {plan_title} ({plan_id}) ...")
 
@@ -351,8 +356,10 @@ def _distribute_routes(plan_df: pd.DataFrame, verbose: bool) -> None:
     """Distribute the routes."""
     logger.info("Distributing routes ...")
     errors = {}
-    for plan_id in plan_df["plan_id"].to_list():
-        plan_title = plan_df[plan_df["plan_id"] == plan_id]["route_title"].values[0]
+    for plan_id in plan_df[IntermediateColumns.PLAN_ID].to_list():
+        plan_title = plan_df[plan_df[IntermediateColumns.PLAN_ID] == plan_id][
+            IntermediateColumns.ROUTE_TITLE
+        ].values[0]
         if verbose:
             logger.info(f"Distributing plan for {plan_title} ({plan_id}) ...")
         distributor = PlanDistributor(plan_id=plan_id, plan_title=plan_title)
@@ -364,7 +371,7 @@ def _distribute_routes(plan_df: pd.DataFrame, verbose: bool) -> None:
 
     logger.info(
         "Finished distributing routes: for "
-        f"{len(plan_df[~(plan_df["plan_id"]).isin(errors.keys())])} plans."
+        f"{len(plan_df[~(plan_df[IntermediateColumns.PLAN_ID]).isin(errors.keys())])} plans."
     )
 
     if errors:
@@ -383,16 +390,20 @@ def _get_driver_ids(stops_df: pd.DataFrame) -> pd.DataFrame:
     """
     route_driver_df = pd.DataFrame(
         {
-            "route_title": stops_df["sheet_name"].unique(),
-            "driver_name": None,
-            "email": None,
-            "id": None,
+            IntermediateColumns.ROUTE_TITLE: stops_df[
+                IntermediateColumns.SHEET_NAME
+            ].unique(),
+            IntermediateColumns.DRIVER_NAME: None,
+            CircuitColumns.EMAIL: None,
+            CircuitColumns.ID: None,
         }
     )
 
     drivers_df = _get_all_drivers()
     route_driver_df = _assign_drivers(drivers_df=drivers_df, route_driver_df=route_driver_df)
-    inactive_drivers = route_driver_df[~(route_driver_df["active"])]["driver_name"].tolist()
+    inactive_drivers = route_driver_df[~(route_driver_df[CircuitColumns.ACTIVE])][
+        IntermediateColumns.DRIVER_NAME
+    ].tolist()
     if inactive_drivers:
         raise ValueError(
             (
@@ -410,41 +421,44 @@ def _initialize_plans(
 ) -> pd.DataFrame:
     """Initialize plans for each driver."""
     plan_df = route_driver_df.copy()
-    plan_df["plan_id"] = None
-    plan_df["depot"] = None
-    plan_df["writeable"] = None
-    plan_df["optimization"] = None
+    plan_df[IntermediateColumns.PLAN_ID] = None
+    plan_df[CircuitColumns.DEPOT] = None
+    plan_df[CircuitColumns.WRITABLE] = None
+    plan_df[CircuitColumns.OPTIMIZATION] = None
 
     logger.info("Initializing plans ...")
     errors = {}
     for idx, row in plan_df.iterrows():
         plan_data = {
-            "title": row["route_title"],
-            "starts": {
-                "day": int(start_date.split("-")[2]),
-                "month": int(start_date.split("-")[1]),
-                "year": int(start_date.split("-")[0]),
+            CircuitColumns.TITLE: row[IntermediateColumns.ROUTE_TITLE],
+            CircuitColumns.STARTS: {
+                CircuitColumns.DAY: int(start_date.split("-")[2]),
+                CircuitColumns.MONTH: int(start_date.split("-")[1]),
+                CircuitColumns.YEAR: int(start_date.split("-")[0]),
             },
-            "drivers": [row["id"]],
+            CircuitColumns.DRIVERS: [row[CircuitColumns.ID]],
         }
         if verbose:
-            logger.info(f"Creating plan for {row['route_title']} ...")
+            logger.info(f"Creating plan for {row[IntermediateColumns.ROUTE_TITLE]} ...")
         plan_initializer = PlanInitializer(plan_data=plan_data)
         try:
             plan_initializer.call_api()
         except Exception as e:
-            logger.error(f"Error initializing plan for {row['route_title']}:\n{e}")
-            errors[row["route_title"]] = e
+            logger.error(
+                f"Error initializing plan for {row[IntermediateColumns.ROUTE_TITLE]}:\n{e}"
+            )
+            errors[row[IntermediateColumns.ROUTE_TITLE]] = e
         else:
             if verbose:
                 logger.info(
-                    f"Created plan {plan_initializer.response_json['id']} for "
-                    f"{row['route_title']}.\n{plan_initializer.response_json}"
+                    f"Created plan {plan_initializer.response_json[CircuitColumns.ID]} for "
+                    f"{row[IntermediateColumns.ROUTE_TITLE]}."
+                    f"\n{plan_initializer.response_json}"
                 )
 
-            plan_df.loc[idx, ["plan_id", "writeable"]] = (
-                plan_initializer.response_json["id"],
-                plan_initializer.response_json["writable"],
+            plan_df.loc[idx, [IntermediateColumns.PLAN_ID, CircuitColumns.WRITABLE]] = (
+                plan_initializer.response_json[CircuitColumns.ID],
+                plan_initializer.response_json[CircuitColumns.WRITABLE],
             )
 
     logger.info(f"Finished initializing plans. Initialized {idx + 1 - len(errors)} plans.")
@@ -453,7 +467,7 @@ def _initialize_plans(
         plan_df.to_csv(plan_df_path, index=False)
         raise RuntimeError(f"Errors initializing plans:\n{errors}")
 
-    not_writable = plan_df[plan_df["writeable"] == False]  # noqa: E712
+    not_writable = plan_df[plan_df[CircuitColumns.WRITABLE] == False]  # noqa: E712
     if not not_writable.empty:
         plan_df.to_csv(plan_df_path, index=False)
         raise ValueError(f"Plan is not writable for the following routes:\n{not_writable}")
@@ -477,11 +491,11 @@ def _build_plan_stops(
     stops_df = _parse_addresses(stops_df=stops_df)
     plan_stops = {}
     for _, plan_row in plan_df.iterrows():
-        plan_id = plan_row["plan_id"]
-        route_title = plan_row["route_title"]
-        route_stops = stops_df[stops_df["sheet_name"] == route_title]
+        plan_id = plan_row[IntermediateColumns.PLAN_ID]
+        route_title = plan_row[IntermediateColumns.ROUTE_TITLE]
+        route_stops = stops_df[stops_df[IntermediateColumns.SHEET_NAME] == route_title]
         plan_stops[plan_id] = _build_stop_array(
-            route_stops=route_stops, driver_id=plan_row["id"]
+            route_stops=route_stops, driver_id=plan_row[CircuitColumns.ID]
         )
 
     for plan_id, all_stops in plan_stops.items():
@@ -504,9 +518,11 @@ def _get_all_drivers() -> pd.DataFrame:
     logger.info("Getting all drivers from Circuit ...")
     driver_pages = get_responses(url=url)
     logger.info("Finished getting drivers.")
-    drivers_list = concat_response_pages(page_list=driver_pages, data_key="drivers")
+    drivers_list = concat_response_pages(
+        page_list=driver_pages, data_key=CircuitColumns.DRIVERS
+    )
     drivers_df = pd.DataFrame(drivers_list)
-    drivers_df = drivers_df.sort_values(by="name").reset_index(drop=True)
+    drivers_df = drivers_df.sort_values(by=CircuitColumns.NAME).reset_index(drop=True)
 
     return drivers_df
 
@@ -515,16 +531,19 @@ def _get_all_drivers() -> pd.DataFrame:
 def _assign_drivers(drivers_df: pd.DataFrame, route_driver_df: pd.DataFrame) -> pd.DataFrame:
     """Ask users to assign drivers to each route."""
     for idx, row in drivers_df.iterrows():
-        print(f"{idx + 1}. {row['name']} {row['email']}")
+        print(f"{idx + 1}. {row[CircuitColumns.NAME]} {row[CircuitColumns.EMAIL]}")
 
     print("\nUsing the driver numbers above, assign drivers to each route:")
-    for route_title in route_driver_df["route_title"]:
+    for route_title in route_driver_df[IntermediateColumns.ROUTE_TITLE]:
         route_driver_df = _assign_driver(
             route_title=route_title, drivers_df=drivers_df, route_driver_df=route_driver_df
         )
 
     for _, row in route_driver_df.iterrows():
-        print(f"{row['route_title']}: " f"{row['driver_name']}, {row['email']}")
+        print(
+            f"{row[IntermediateColumns.ROUTE_TITLE]}: "
+            f"{row[IntermediateColumns.DRIVER_NAME]}, {row[CircuitColumns.EMAIL]}"
+        )
     confirm = input("Confirm the drivers above? (y/n): ")
     # TODO: Check for y, n, and prompt again if neither.
     if confirm.lower() != "y":
@@ -546,14 +565,16 @@ def _assign_driver(
             best_guesses = pd.concat(
                 [
                     best_guesses,
-                    drivers_df[drivers_df["name"].str.contains(name_part, case=False)],
+                    drivers_df[
+                        drivers_df[CircuitColumns.NAME].str.contains(name_part, case=False)
+                    ],
                 ]
             )
-    best_guesses = best_guesses.drop_duplicates().sort_values(by="name")
+    best_guesses = best_guesses.drop_duplicates().sort_values(by=CircuitColumns.NAME)
 
     print(f"\nRoute {route_title}:\nBest guesses:")
     for idx, driver in best_guesses.iterrows():
-        print(f"{idx + 1}. {driver['name']} {driver['email']}")
+        print(f"{idx + 1}. {driver[CircuitColumns.NAME]} {driver[CircuitColumns.EMAIL]}")
     print("\n")
 
     assigned = False
@@ -580,16 +601,24 @@ def _assign_driver(
                 print("Invalid input. Please enter a number.")
             else:
                 route_driver_df.loc[
-                    route_driver_df["route_title"] == route_title,
-                    ["id", "driver_name", "email", "active"],
+                    route_driver_df[IntermediateColumns.ROUTE_TITLE] == route_title,
+                    [
+                        CircuitColumns.ID,
+                        IntermediateColumns.DRIVER_NAME,
+                        CircuitColumns.EMAIL,
+                        CircuitColumns.ACTIVE,
+                    ],
                 ] = [
-                    drivers_df.iloc[choice]["id"],
-                    drivers_df.iloc[choice]["name"],
-                    drivers_df.iloc[choice]["email"],
-                    drivers_df.iloc[choice]["active"],
+                    drivers_df.iloc[choice][CircuitColumns.ID],
+                    drivers_df.iloc[choice][CircuitColumns.NAME],
+                    drivers_df.iloc[choice][CircuitColumns.EMAIL],
+                    drivers_df.iloc[choice][CircuitColumns.ACTIVE],
                 ]
                 assigned = True
-                print(f"\nAssigned {drivers_df.iloc[choice]['name']} to {route_title}.")
+                print(
+                    f"\nAssigned {drivers_df.iloc[choice][CircuitColumns.NAME]} "
+                    f"to {route_title}."
+                )
 
     return route_driver_df
 
@@ -623,7 +652,7 @@ def _confirm_optimizations(
     """Confirm all optimizations have finished."""
     logger.info("Confirming optimizations have finished ...")
     optimizations_finished: dict[str, bool | str] = {
-        plan_id: False for plan_id in plan_df["plan_id"].to_list()
+        plan_id: False for plan_id in plan_df[IntermediateColumns.PLAN_ID].to_list()
     }
     errors = {}
     while not all([val is True or val == "error" for val in optimizations_finished.values()]):
@@ -633,7 +662,9 @@ def _confirm_optimizations(
             if not finished or finished != "error"
         ]
         for plan_id in unfinished:
-            plan_title = plan_df[plan_df["plan_id"] == plan_id]["route_title"].values[0]
+            plan_title = plan_df[plan_df[IntermediateColumns.PLAN_ID] == plan_id][
+                IntermediateColumns.ROUTE_TITLE
+            ].values[0]
             if verbose:
                 logger.info(f"Checking optimization for {plan_title} ({plan_id}) ...")
             check_op = OptimizationChecker(

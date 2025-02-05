@@ -50,6 +50,7 @@ BOX_TYPE_COLOR_MAP: Final[dict[str, str]] = {
 class CircuitColumns:
     """Column/field/doc name constants for Circuit API."""
 
+    ACTIVE: Final[str] = "active"
     ADDRESS: Final[str] = "address"
     ADDRESS_NAME: Final[str] = "addressName"
     ADDRESS_LINE_1: Final[str] = "addressLineOne"
@@ -57,11 +58,16 @@ class CircuitColumns:
     ALLOWED_DRIVERS: Final[str] = "allowedDrivers"
     CITY: Final[str] = "city"
     COUNTRY: Final[str] = "country"
+    DAY: Final[str] = "day"
+    DEPOT: Final[str] = "depot"
+    DRIVERS: Final[str] = "drivers"
     EMAIL: Final[str] = "email"
     EXTERNAL_ID: Final[str] = "externalId"
     ID: Final[str] = "id"
+    MONTH: Final[str] = "month"
     NAME: Final[str] = "name"
     NOTES: Final[str] = "notes"
+    OPTIMIZATION: Final[str] = "optimization"
     ORDER_INFO: Final[str] = "orderInfo"
     PACKAGE_COUNT: Final[str] = "packageCount"
     PHONE: Final[str] = "phone"
@@ -70,10 +76,13 @@ class CircuitColumns:
     PRODUCTS: Final[str] = "products"
     RECIPIENT: Final[str] = "recipient"
     ROUTE: Final[str] = "route"
+    STARTS: Final[str] = "starts"
     STATE: Final[str] = "state"
     STOP_POSITION: Final[str] = "stopPosition"
     STOPS: Final[str] = "stops"
     TITLE: Final[str] = "title"
+    WRITABLE: Final[str] = "writable"
+    YEAR: Final[str] = "year"
     ZIP: Final[str] = "zip"
 
 
@@ -497,8 +506,13 @@ FORMATTED_ROUTES_COLUMNS: Final[list[str]] = [
 class IntermediateColumns:
     """Column name constants for intermediate tables."""
 
+    DISTRIBUTED: Final[str] = "distributed"
+    DRIVER_NAME: Final[str] = "driver_name"
     DRIVER_SHEET_NAME: Final[str] = "driver_sheet_name"
+    PLAN_ID: Final[str] = "plan_id"
     ROUTE_TITLE: Final[str] = "route_title"
+    SHEET_NAME: Final[str] = "sheet_name"
+    START_DATE: Final[str] = "start_date"
 
 
 MANIFEST_DATE_FORMAT: Final[str] = "%m.%d"
