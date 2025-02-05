@@ -232,6 +232,7 @@ class BaseCaller:
 
         Raises:
             requests.exceptions.HTTPError: For non-rate-limiting errors.
+            requests.exceptions.Timeout: For timeouts.
         """
         try:
             self._response.raise_for_status()
