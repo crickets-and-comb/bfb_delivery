@@ -192,6 +192,17 @@ class BaseCaller:
         self._call_api()
 
     @typechecked
+    def _handle_unknown_error(self, e: Exception) -> None:
+        """Handle an unknown error response.
+
+        Raises:
+            Exception: The original error.
+        """
+        response_dict = get_response_dict(response=self._response)
+        err_msg = f"Got {self._response.status_code} reponse:\n{response_dict}"
+        raise requests.exceptions.HTTPError(err_msg) from e
+
+    @typechecked
     def _call_api(self) -> None:
         """Wait and make and handle the API call.
 
@@ -227,12 +238,13 @@ class BaseCaller:
         except requests.exceptions.HTTPError as http_e:
             if self._response.status_code == 429:
                 self._handle_429()
-            elif self._response.status_code == 443:
+            else:
+                self._handle_unknown_error(e=http_e)
+        except requests.exceptions.Timeout as timeout_e:
+            if self._response.status_code == 443:
                 self._handle_443()
             else:
-                response_dict = get_response_dict(response=self._response)
-                err_msg = f"Got {self._response.status_code} reponse:\n{response_dict}"
-                raise requests.exceptions.HTTPError(err_msg) from http_e
+                self._handle_unknown_error(e=timeout_e)
 
     @typechecked
     def _decrease_wait_time(self) -> None:
