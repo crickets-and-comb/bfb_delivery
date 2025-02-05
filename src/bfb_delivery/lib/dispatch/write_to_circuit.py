@@ -26,7 +26,7 @@ from bfb_delivery.lib.dispatch.api_callers import (
 )
 from bfb_delivery.lib.dispatch.read_circuit import get_route_files
 from bfb_delivery.lib.dispatch.utils import concat_response_pages, get_responses
-from bfb_delivery.lib.formatting import sheet_shaping
+from bfb_delivery.lib.formatting.sheet_shaping import create_manifests, split_chunked_route
 from bfb_delivery.lib.utils import get_friday
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -52,7 +52,7 @@ def build_routes_from_chunked(  # noqa: D103
     split_chunked_output_dir = Path(output_dir) / "split_chunked"
     split_chunked_output_dir.mkdir(exist_ok=True)
 
-    split_chunked_workbook_fp = sheet_shaping.split_chunked_route(
+    split_chunked_workbook_fp = split_chunked_route(
         input_path=input_path,
         output_dir=split_chunked_output_dir,
         output_filename="",
@@ -78,7 +78,7 @@ def build_routes_from_chunked(  # noqa: D103
         output_dir=output_dir,
         verbose=verbose,
     )
-    final_manifest_path = sheet_shaping.create_manifests(
+    final_manifest_path = create_manifests(
         input_dir=circuit_output_dir,
         output_dir=output_dir,
         output_filename="",
