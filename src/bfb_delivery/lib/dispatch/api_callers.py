@@ -178,7 +178,7 @@ class BaseCaller:
         self._call_api()
 
     @typechecked
-    def _handle_443(self) -> None:
+    def _handle_timeout(self) -> None:
         """Handle a 443 response.
 
         Increases the class timeout and recursively calls the API.
@@ -241,11 +241,8 @@ class BaseCaller:
                 self._handle_429()
             else:
                 self._handle_unknown_error(e=http_e)
-        except requests.exceptions.ReadTimeout as timeout_e:
-            if self._response.status_code == 443:
-                self._handle_443()
-            else:
-                self._handle_unknown_error(e=timeout_e)
+        except requests.exceptions.Timeout:
+            self._handle_timeout()
 
     @typechecked
     def _decrease_wait_time(self) -> None:
