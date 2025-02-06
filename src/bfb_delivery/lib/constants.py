@@ -509,10 +509,13 @@ class IntermediateColumns:
     DISTRIBUTED: Final[str] = "distributed"
     DRIVER_NAME: Final[str] = "driver_name"
     DRIVER_SHEET_NAME: Final[str] = "driver_sheet_name"
+    INITIALIZED: Final[str] = "initialized"
+    OPTIMIZED: Final[str] = "optimized"
     PLAN_ID: Final[str] = "plan_id"
-    ROUTE_TITLE: Final[str] = "route_title"
+    ROUTE_TITLE: Final[str] = "route_title"  # AKA plan title, since 1:1.
     SHEET_NAME: Final[str] = "sheet_name"
     START_DATE: Final[str] = "start_date"
+    STOPS_UPLOADED: Final[str] = "stops_uploaded"
 
 
 MANIFEST_DATE_FORMAT: Final[str] = "%m.%d"
