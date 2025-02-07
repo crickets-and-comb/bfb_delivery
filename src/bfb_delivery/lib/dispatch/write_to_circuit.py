@@ -6,6 +6,8 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
+import pandera as pa
+from pandera.typing import DataFrame
 from typeguard import typechecked
 
 from bfb_delivery.lib.constants import (
@@ -28,6 +30,30 @@ from bfb_delivery.lib.dispatch.api_callers import (
 from bfb_delivery.lib.dispatch.read_circuit import get_route_files
 from bfb_delivery.lib.dispatch.utils import concat_response_pages, get_responses
 from bfb_delivery.lib.formatting.sheet_shaping import create_manifests, split_chunked_route
+from bfb_delivery.lib.schema import (
+    DriversAssignDriverIn,
+    DriversAssignDriversIn,
+    DriversGetAllDriversOut,
+    PlansAssignDriverIn,
+    PlansAssignDriversIn,
+    PlansAssignDriversOut,
+    PlansAssignDriversToPlansOut,
+    PlansBuildStopsIn,
+    PlansConfirmOptimizationsIn,
+    PlansConfirmOptimizationsOut,
+    PlansCreatePlansOut,
+    PlansDistributeRoutesIn,
+    PlansDistributeRoutesOut,
+    PlansInitializePlansIn,
+    PlansInitializePlansOut,
+    PlansOptimizeRoutesIn,
+    PlansOptimizeRoutesOut,
+    PlansUploadSplitChunkedOut,
+    PlansUploadStopsIn,
+    PlansUploadStopsOut,
+    Stops,
+)
+from bfb_delivery.lib.schema.utils import schema_error_handler
 from bfb_delivery.lib.utils import get_friday
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -96,14 +122,15 @@ def build_routes_from_chunked(  # noqa: D103
 build_routes_from_chunked.__doc__ = DocStrings.BUILD_ROUTES_FROM_CHUNKED.api_docstring
 
 
-@typechecked
+@schema_error_handler
+@pa.check_types(with_pydantic=True, lazy=True)
 def upload_split_chunked(
     split_chunked_workbook_fp: Path,
     output_dir: Path,
     start_date: str,
     no_distribute: bool,
     verbose: bool,
-) -> pd.DataFrame:
+) -> DataFrame[PlansUploadSplitChunkedOut]:
     """Upload a split chunked Excel workbook of routes to Circuit.
 
     The workbook contains multiple sheets, one per route. Each sheet is named after the driver
@@ -145,10 +172,7 @@ def upload_split_chunked(
     stops_df.to_csv(stops_df_path, index=False)
 
     plan_df = _create_plans(
-        stops_df=stops_df,
-        start_date=start_date,
-        verbose=verbose,
-        plan_df_path=str(plan_df_path),
+        stops_df=stops_df, start_date=start_date, plan_df_path=plan_df_path, verbose=verbose
     )
     plan_df.to_csv(plan_df_path, index=False)
 
@@ -233,30 +257,35 @@ def delete_plan(plan_id: str) -> bool:
     return deleter.deletion
 
 
-@typechecked
+@schema_error_handler
+@pa.check_types(with_pydantic=True, lazy=True)
 def _create_plans(
-    stops_df: pd.DataFrame, start_date: str, verbose: bool, plan_df_path: str
-) -> pd.DataFrame:
+    stops_df: DataFrame[Stops], start_date: str, plan_df_path: Path, verbose: bool
+) -> DataFrame[PlansCreatePlansOut]:
     """Create a Circuit plan for each route.
 
     Args:
         stops_df: The long DataFrame with all the routes.
         start_date: The date to start the routes, as "YYYY-MM-DD".
+        plan_df_path: The file path to save the plan DataFrame in case of error.
+            Helps to automate cleanup.
         verbose: Whether to print verbose output.
-        plan_df_path: The file path to save the plan DataFrame.
     """
-    plan_df = _get_driver_ids(stops_df=stops_df)
-    plan_df = _initialize_plans(
-        plan_df=plan_df, start_date=start_date, verbose=verbose, plan_df_path=plan_df_path
-    )
+    plan_df = _assign_drivers_to_plans(stops_df=stops_df)
+    try:
+        plan_df = _initialize_plans(plan_df=plan_df, start_date=start_date, verbose=verbose)
+    except Exception as e:
+        plan_df.to_csv(plan_df_path, index=False)
+        raise e
 
     return plan_df
 
 
-@typechecked
+@schema_error_handler
+@pa.check_types(with_pydantic=True, lazy=True)
 def _upload_stops(
-    stops_df: pd.DataFrame, plan_df: pd.DataFrame, verbose: bool
-) -> pd.DataFrame:
+    stops_df: DataFrame[Stops], plan_df: DataFrame[PlansUploadStopsIn], verbose: bool
+) -> DataFrame[PlansUploadStopsOut]:
     """Upload stops for each route.
 
     Will skip plans marked as not initialized.
@@ -275,7 +304,7 @@ def _upload_stops(
     )
 
     logger.info(
-        f"Uploading stops. Allow {RateLimits.BATCH_STOP_IMPORT_SECONDS} seconds per plan ..."
+        f"Uploading stops. Allow {RateLimits.BATCH_STOP_IMPORT_SECONDS}+ seconds per plan ..."
     )
     uploaded_stops = {}
     stop_id_count = 0
@@ -321,8 +350,11 @@ def _upload_stops(
     return plan_df
 
 
-@typechecked
-def _optimize_routes(plan_df: pd.DataFrame, verbose: bool) -> pd.DataFrame:
+@schema_error_handler
+@pa.check_types(with_pydantic=True, lazy=True)
+def _optimize_routes(
+    plan_df: DataFrame[PlansOptimizeRoutesIn], verbose: bool
+) -> DataFrame[PlansOptimizeRoutesOut]:
     """Optimize the routes.
 
     Will skip plans marked as without stops uploaded.
@@ -336,7 +368,7 @@ def _optimize_routes(plan_df: pd.DataFrame, verbose: bool) -> pd.DataFrame:
     """
     logger.info(
         "Initializing route optimizations. "
-        f"Allow {RateLimits.OPTIMIZATION_PER_SECOND} seconds per plan ..."
+        f"Allow {RateLimits.OPTIMIZATION_PER_SECOND}+ seconds per plan ..."
     )
     plan_ids = plan_df[plan_df[IntermediateColumns.STOPS_UPLOADED] == True][  # noqa: E712
         IntermediateColumns.PLAN_ID
@@ -381,14 +413,19 @@ def _optimize_routes(plan_df: pd.DataFrame, verbose: bool) -> pd.DataFrame:
     if errors:
         logger.warning(f"Errors launching optimizations:\n{errors}")
 
-    _confirm_optimizations(plan_df=plan_df, optimizations=optimizations, verbose=verbose)
+    plan_df = _confirm_optimizations(
+        plan_df=plan_df, optimizations=optimizations, verbose=verbose
+    )
 
     return plan_df
 
 
 # TODO: Make a CLI for this since it will be optional.
-@typechecked
-def _distribute_routes(plan_df: pd.DataFrame, verbose: bool) -> pd.DataFrame:
+@schema_error_handler
+@pa.check_types(with_pydantic=True, lazy=True)
+def _distribute_routes(
+    plan_df: DataFrame[PlansDistributeRoutesIn], verbose: bool
+) -> DataFrame[PlansDistributeRoutesOut]:
     """Distribute the routes.
 
     Will skip plans marked as not initialized.
@@ -477,8 +514,11 @@ def _print_report(plan_df: pd.DataFrame, no_distribute: bool) -> None:
         logger.warning("Not all plans were optimized. Please check the output above.")
 
 
-@typechecked
-def _get_driver_ids(stops_df: pd.DataFrame) -> pd.DataFrame:
+@schema_error_handler
+@pa.check_types(with_pydantic=True, lazy=True)
+def _assign_drivers_to_plans(
+    stops_df: DataFrame[Stops],
+) -> DataFrame[PlansAssignDriversToPlansOut]:
     """Get the driver IDs for each sheet.
 
     Args:
@@ -514,13 +554,13 @@ def _get_driver_ids(stops_df: pd.DataFrame) -> pd.DataFrame:
     return plan_df
 
 
-@typechecked
+@schema_error_handler
+@pa.check_types(with_pydantic=True, lazy=True)
 def _initialize_plans(
-    plan_df: pd.DataFrame, start_date: str, verbose: bool, plan_df_path: str
-) -> pd.DataFrame:
+    plan_df: DataFrame[PlansInitializePlansIn], start_date: str, verbose: bool
+) -> DataFrame[PlansInitializePlansOut]:
     """Initialize Circuit plans with drivers."""
     plan_df[IntermediateColumns.PLAN_ID] = None
-    plan_df[CircuitColumns.DEPOT] = None
     plan_df[CircuitColumns.WRITABLE] = None
     plan_df[CircuitColumns.OPTIMIZATION] = None
 
@@ -578,9 +618,10 @@ def _initialize_plans(
     return plan_df
 
 
-@typechecked
+@schema_error_handler
+@pa.check_types(with_pydantic=True, lazy=True)
 def _build_plan_stops(
-    stops_df: pd.DataFrame, plan_df: pd.DataFrame
+    stops_df: DataFrame[Stops], plan_df: DataFrame[PlansBuildStopsIn]
 ) -> dict[str, list[list[dict[str, dict[str, str] | list[str] | int | str]]]]:
     """Build stop arrays for each route.
 
@@ -614,8 +655,9 @@ def _build_plan_stops(
     return plan_stops
 
 
-@typechecked
-def _get_all_drivers() -> pd.DataFrame:
+@schema_error_handler
+@pa.check_types(with_pydantic=True, lazy=True)
+def _get_all_drivers() -> DriversGetAllDriversOut:
     """Get all drivers."""
     url = "https://api.getcircuit.com/public/v0.2b/drivers"
     logger.info("Getting all drivers from Circuit ...")
@@ -630,8 +672,11 @@ def _get_all_drivers() -> pd.DataFrame:
     return drivers_df
 
 
-@typechecked
-def _assign_drivers(drivers_df: pd.DataFrame, plan_df: pd.DataFrame) -> pd.DataFrame:
+@schema_error_handler
+@pa.check_types(with_pydantic=True, lazy=True)
+def _assign_drivers(
+    drivers_df: DataFrame[DriversAssignDriversIn], plan_df: DataFrame[PlansAssignDriversIn]
+) -> DataFrame[PlansAssignDriversOut]:
     """Ask users to assign drivers to each route."""
     for idx, row in drivers_df.iterrows():
         print(f"{idx + 1}. {row[CircuitColumns.NAME]} {row[CircuitColumns.EMAIL]}")
@@ -655,11 +700,16 @@ def _assign_drivers(drivers_df: pd.DataFrame, plan_df: pd.DataFrame) -> pd.DataF
     return plan_df
 
 
-@typechecked
+@schema_error_handler
+@pa.check_types(with_pydantic=True, lazy=True)
 def _assign_driver(
-    route_title: str, drivers_df: pd.DataFrame, plan_df: pd.DataFrame
+    route_title: str,
+    drivers_df: DataFrame[DriversAssignDriverIn],
+    plan_df: DataFrame[PlansAssignDriverIn],
 ) -> pd.DataFrame:
     """Ask user to assign driver to a route."""
+    # TODO: Warn/raise if driver not active.
+    # TODO: Display active status.
     best_guesses = pd.DataFrame()
     for name_part in route_title.split(" ")[1:]:
         if name_part not in ["&", "AND"] and len(name_part) > 1:
@@ -746,10 +796,13 @@ def _parse_addresses(stops_df: pd.DataFrame) -> pd.DataFrame:
     return stops_df
 
 
-@typechecked
+@schema_error_handler
+@pa.check_types(with_pydantic=True, lazy=True)
 def _confirm_optimizations(
-    plan_df: pd.DataFrame, optimizations: dict[str, str], verbose: bool
-) -> None:
+    plan_df: DataFrame[PlansConfirmOptimizationsIn],
+    optimizations: dict[str, str],
+    verbose: bool,
+) -> DataFrame[PlansConfirmOptimizationsOut]:
     """Confirm all optimizations have finished."""
     logger.info("Confirming optimizations have finished ...")
 
@@ -805,6 +858,8 @@ def _confirm_optimizations(
     ] = None
     if errors:
         logger.warning(f"Errors checking optimizations:\n{errors}")
+
+    return plan_df
 
 
 @typechecked
