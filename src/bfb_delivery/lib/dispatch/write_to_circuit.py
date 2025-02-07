@@ -116,6 +116,9 @@ def build_routes_from_chunked(  # noqa: D103
         extra_notes_file=str(extra_notes_file) if extra_notes_file else "",
     )
 
+    # TODO: Validate that input data matches ouput data.
+    # (Ignore skipped routes, and account for imputation, caps, etc.)
+
     return final_manifest_path
 
 
