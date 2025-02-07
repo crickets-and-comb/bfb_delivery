@@ -86,7 +86,7 @@ class BaseCaller:
     #: The scalar to increase wait time on rate limiting.
     _wait_increase_scalar: float = 2
     #: The scalar to decrease wait time on success.
-    _wait_decrease_scalar: float = 0.75
+    _wait_decrease_scalar: float = 0.6
 
     @typechecked
     def __init__(self) -> None:  # noqa: ANN401

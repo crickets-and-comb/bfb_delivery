@@ -109,6 +109,7 @@ def build_routes_from_chunked(  # noqa: D103
         output_dir=output_dir,
         verbose=verbose,
     )
+
     final_manifest_path = create_manifests(
         input_dir=circuit_output_dir,
         output_dir=output_dir,
