@@ -131,78 +131,6 @@ class BaseCaller:
         self._decrease_wait_time()
 
     @typechecked
-    def _parse_response(self) -> None:
-        """Parse the non-error reponse (200).
-
-        Raises:
-            ValueError: If the response status code is not expected.
-        """
-        if self._response.status_code == 200:
-            self._handle_200()
-        elif self._response.status_code == 204:
-            self._handle_204()
-        elif self._response.status_code == 429:
-            # This is here as well as in the _raise_for_status method because there was a case
-            # when the status code was 429 but the response didn't raise.
-            self._handle_429()
-        else:
-            response_dict = get_response_dict(response=self._response)
-            raise ValueError(
-                f"Unexpected response {self._response.status_code}:\n{response_dict}"
-            )
-
-    @typechecked
-    def _handle_200(self) -> None:
-        """Handle a 200 response.
-
-        Just gets the JSON from the response and sets it to `response_json`.
-        """
-        self.response_json = self._response.json()
-
-    @typechecked
-    def _handle_204(self) -> None:
-        """Handle a 204 response.
-
-        Just sets `response_json` to an empty dictionary.
-        """
-        self.response_json = {}
-
-    @typechecked
-    def _handle_429(self) -> None:
-        """Handle a 429 response.
-
-        Inreases the class wait time and recursively calls the API.
-        """
-        self._increase_wait_time()
-        logger.warning(f"Rate limited. Waiting {type(self)._wait_seconds} seconds to retry.")
-        self._call_api()
-
-    @typechecked
-    def _handle_timeout(self) -> None:
-        """Handle a 443 response.
-
-        Increases the class timeout and recursively calls the API.
-        """
-        self._increase_timeout()
-        response_dict = get_response_dict(response=self._response)
-        logger.warning(
-            f"Request timed out.\n{response_dict}"
-            f"\nTrying again with longer timeout: {type(self)._timeout} seconds."
-        )
-        self._call_api()
-
-    @typechecked
-    def _handle_unknown_error(self, e: Exception) -> None:
-        """Handle an unknown error response.
-
-        Raises:
-            Exception: The original error.
-        """
-        response_dict = get_response_dict(response=self._response)
-        err_msg = f"Got {self._response.status_code} reponse:\n{response_dict}"
-        raise requests.exceptions.HTTPError(err_msg) from e
-
-    @typechecked
     def _call_api(self) -> None:
         """Wait and make and handle the API call.
 
@@ -243,6 +171,78 @@ class BaseCaller:
                 self._handle_unknown_error(e=http_e)
         except requests.exceptions.Timeout:
             self._handle_timeout()
+
+    @typechecked
+    def _parse_response(self) -> None:
+        """Parse the non-error reponse (200).
+
+        Raises:
+            ValueError: If the response status code is not expected.
+        """
+        if self._response.status_code == 200:
+            self._handle_200()
+        elif self._response.status_code == 204:
+            self._handle_204()
+        elif self._response.status_code == 429:
+            # This is here as well as in the _raise_for_status method because there was a case
+            # when the status code was 429 but the response didn't raise.
+            self._handle_429()
+        else:
+            response_dict = get_response_dict(response=self._response)
+            raise ValueError(
+                f"Unexpected response {self._response.status_code}:\n{response_dict}"
+            )
+
+    @typechecked
+    def _handle_429(self) -> None:
+        """Handle a 429 response.
+
+        Inreases the class wait time and recursively calls the API.
+        """
+        self._increase_wait_time()
+        logger.warning(f"Rate limited. Waiting {type(self)._wait_seconds} seconds to retry.")
+        self._call_api()
+
+    @typechecked
+    def _handle_timeout(self) -> None:
+        """Handle a 443 response.
+
+        Increases the class timeout and recursively calls the API.
+        """
+        self._increase_timeout()
+        response_dict = get_response_dict(response=self._response)
+        logger.warning(
+            f"Request timed out.\n{response_dict}"
+            f"\nTrying again with longer timeout: {type(self)._timeout} seconds."
+        )
+        self._call_api()
+
+    @typechecked
+    def _handle_200(self) -> None:
+        """Handle a 200 response.
+
+        Just gets the JSON from the response and sets it to `response_json`.
+        """
+        self.response_json = self._response.json()
+
+    @typechecked
+    def _handle_204(self) -> None:
+        """Handle a 204 response.
+
+        Just sets `response_json` to an empty dictionary.
+        """
+        self.response_json = {}
+
+    @typechecked
+    def _handle_unknown_error(self, e: Exception) -> None:
+        """Handle an unknown error response.
+
+        Raises:
+            Exception: The original error.
+        """
+        response_dict = get_response_dict(response=self._response)
+        err_msg = f"Got {self._response.status_code} reponse:\n{response_dict}"
+        raise requests.exceptions.HTTPError(err_msg) from e
 
     @typechecked
     def _decrease_wait_time(self) -> None:
