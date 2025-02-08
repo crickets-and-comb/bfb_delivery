@@ -241,7 +241,7 @@ class BaseCaller:
             Exception: The original error.
         """
         response_dict = get_response_dict(response=self._response)
-        err_msg = f"Got {self._response.status_code} reponse:\n{response_dict}"
+        err_msg = f"Got {self._response.status_code} response:\n{response_dict}"
         raise requests.exceptions.HTTPError(err_msg) from e
 
     @typechecked
