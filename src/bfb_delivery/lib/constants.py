@@ -536,6 +536,8 @@ class RateLimits:
     OPTIMIZATION_TIMEOUT_SECONDS: Final[float] = 10
     READ_TIMEOUT_SECONDS: Final[float] = OPTIMIZATION_TIMEOUT_SECONDS
     READ_SECONDS: Final[float] = 1 / 10
+    WAIT_DECREASE_SECONDS: Final[float] = 0.6
+    WAIT_INCREASE_SCALAR: Final[float] = 2
     WRITE_SECONDS: Final[float] = 1 / 5
     WRITE_TIMEOUT_SECONDS: Final[float] = OPTIMIZATION_TIMEOUT_SECONDS
 

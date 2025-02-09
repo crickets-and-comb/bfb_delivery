@@ -84,9 +84,9 @@ class BaseCaller:
     #: The kwargs to pass to the requests call.
     _call_kwargs: dict[str, Any] = {}
     #: The scalar to increase wait time on rate limiting.
-    _wait_increase_scalar: float = 2
+    _wait_increase_scalar: float = RateLimits.WAIT_INCREASE_SCALAR
     #: The scalar to decrease wait time on success.
-    _wait_decrease_scalar: float = 0.6
+    _wait_decrease_scalar: float = RateLimits.WAIT_DECREASE_SECONDS
 
     @typechecked
     def __init__(self) -> None:  # noqa: ANN401

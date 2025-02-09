@@ -7,7 +7,9 @@ from unittest.mock import Mock, patch
 import pytest
 import requests
 
+from bfb_delivery.lib.constants import RateLimits
 from bfb_delivery.lib.dispatch.api_callers import (
+    BaseCaller,
     BaseDeleteCaller,
     BaseGetCaller,
     BasePostCaller,
@@ -114,7 +116,7 @@ from bfb_delivery.lib.dispatch.api_callers import (
         ),
     ],
 )
-def test_get_caller(
+def test_base_caller_response_handling(
     request_type: str,
     response_sequence: list[dict[str, Any]],
     expected_result: dict[str, Any] | None,
@@ -153,3 +155,101 @@ def test_get_caller(
                     spy_handle_timeout.assert_called_once()
 
                 assert mock_request.call_count == len(response_sequence)
+
+
+@pytest.mark.parametrize(
+    "request_type, response_sequence, expected_wait_time",
+    [
+        (
+            "get",
+            [{"status_code": 200, "raise_for_status.side_effect": None}],
+            RateLimits.READ_SECONDS,
+        ),
+        (
+            "post",
+            [{"status_code": 200, "raise_for_status.side_effect": None}],
+            RateLimits.WRITE_SECONDS,
+        ),
+        (
+            "delete",
+            [{"status_code": 200, "raise_for_status.side_effect": None}],
+            RateLimits.WRITE_SECONDS,
+        ),
+        (
+            "get",
+            [{"status_code": 204, "raise_for_status.side_effect": None}],
+            RateLimits.READ_SECONDS,
+        ),
+        (
+            "post",
+            [{"status_code": 204, "raise_for_status.side_effect": None}],
+            RateLimits.WRITE_SECONDS,
+        ),
+        (
+            "delete",
+            [{"status_code": 204, "raise_for_status.side_effect": None}],
+            RateLimits.WRITE_SECONDS,
+        ),
+        (
+            "get",
+            [
+                {
+                    "status_code": 429,
+                    "raise_for_status.side_effect": requests.exceptions.HTTPError,
+                },
+                {"status_code": 200, "raise_for_status.side_effect": None},
+            ],
+            RateLimits.READ_SECONDS
+            * BaseCaller._wait_increase_scalar
+            * BaseCaller._wait_decrease_scalar,
+        ),
+        (
+            "post",
+            [
+                {
+                    "status_code": 429,
+                    "raise_for_status.side_effect": requests.exceptions.HTTPError,
+                },
+                {"status_code": 200, "raise_for_status.side_effect": None},
+            ],
+            RateLimits.WRITE_SECONDS
+            * BaseCaller._wait_increase_scalar
+            * BaseCaller._wait_decrease_scalar,
+        ),
+        (
+            "delete",
+            [
+                {
+                    "status_code": 429,
+                    "raise_for_status.side_effect": requests.exceptions.HTTPError,
+                },
+                {"status_code": 200, "raise_for_status.side_effect": None},
+            ],
+            RateLimits.WRITE_SECONDS
+            * BaseCaller._wait_increase_scalar
+            * BaseCaller._wait_decrease_scalar,
+        ),
+    ],
+)
+def test_base_caller_wait_time_adjusting(
+    request_type: str, response_sequence: list[dict[str, Any]], expected_wait_time: float
+) -> None:
+    """Test `call_api` handling of different HTTP responses, including retries."""
+    caller_dict = {"get": BaseGetCaller, "post": BasePostCaller, "delete": BaseDeleteCaller}
+
+    class MockCaller(caller_dict[request_type]):
+        """Minimal concrete subclass of BaseCaller for testing."""
+
+        def _set_url(self) -> None:
+            """Set a dummy test URL."""
+            self._url = "https://example.com/api/test"
+
+    with patch(f"requests.{request_type}") as mock_request, patch(
+        "bfb_delivery.lib.dispatch.api_callers.sleep"
+    ):
+        mock_request.side_effect = [Mock(**resp) for resp in response_sequence]
+
+        mock_caller = MockCaller()
+        mock_caller.call_api()
+
+        assert mock_caller._wait_seconds == expected_wait_time
