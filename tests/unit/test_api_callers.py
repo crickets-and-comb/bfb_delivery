@@ -144,3 +144,5 @@ def test_get_caller(
 
                 if any(resp["status_code"] == 443 for resp in response_sequence):
                     spy_handle_timeout.assert_called_once()
+
+                assert mock_get.call_count == len(response_sequence)
