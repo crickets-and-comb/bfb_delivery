@@ -127,12 +127,11 @@ def test_get_caller(
         mock_get.side_effect = [Mock(**resp) for resp in response_sequence]
         mock_get_caller = MockGetCaller()
 
-        # with patch("bfb_delivery.lib.dispatch.api_callers.sleep"), patch.object(
-        #     mock_get_caller, "_handle_429"
-        # ) as mock_handle_429, patch.object(
-        #     mock_get_caller, "_handle_timeout"
-        # ) as mock_handle_timeout:
-        with patch("bfb_delivery.lib.dispatch.api_callers.sleep"):
+        with patch("bfb_delivery.lib.dispatch.api_callers.sleep"), patch.object(
+            mock_get_caller, "_handle_429", wraps=mock_get_caller._handle_429
+        ) as spy_handle_429, patch.object(
+            mock_get_caller, "_handle_timeout", wraps=mock_get_caller._handle_timeout
+        ) as spy_handle_timeout:
 
             with error_context:
                 mock_get_caller.call_api()
@@ -141,11 +140,7 @@ def test_get_caller(
                 assert mock_get_caller.response_json == expected_result
 
                 if any(resp["status_code"] == 429 for resp in response_sequence):
-                    # mock_handle_429.assert_called_once()
-                    # Assert mock_get_caller._handle_429() called once.
-                    pass
+                    spy_handle_429.assert_called_once()
 
                 if any(resp["status_code"] == 443 for resp in response_sequence):
-                    # mock_handle_timeout.assert_called_once()
-                    # Assert mock_get_caller._handle_timeout() called once.
-                    pass
+                    spy_handle_timeout.assert_called_once()
