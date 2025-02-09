@@ -156,7 +156,7 @@ class BaseCaller:
         """Handle error responses.
 
         For 429 (rate limiting), increases wait time and recursively calls the API.
-        For 443 (timeout), increases timeout and recursively calls the API.
+        For timeout, increases timeout and recursively calls the API.
 
         Raises:
             requests.exceptions.HTTPError: For non-rate-limiting errors.
@@ -205,7 +205,7 @@ class BaseCaller:
 
     @typechecked
     def _handle_timeout(self) -> None:
-        """Handle a 443 response.
+        """Handle a timeout response.
 
         Increases the class timeout and recursively calls the API.
         """
