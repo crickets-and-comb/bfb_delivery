@@ -157,7 +157,6 @@ def test_base_caller_response_handling(
                 assert mock_request.call_count == len(response_sequence)
 
 
-# TODO: Make multiple instances of the mock class to test class-level adjustment.
 @pytest.mark.parametrize(
     "request_type, response_sequence, expected_wait_time",
     [
@@ -253,10 +252,9 @@ def test_base_caller_wait_time_adjusting(
         mock_caller = MockCaller()
         mock_caller.call_api()
 
-        assert mock_caller._wait_seconds == expected_wait_time
+        assert MockCaller._wait_seconds == expected_wait_time
 
 
-# TODO: Make multiple instances of the mock class to test class-level adjustment.
 @pytest.mark.parametrize(
     "request_type, response_sequence, expected_timeout",
     [
@@ -346,4 +344,4 @@ def test_base_caller_timeout_adjusting(
         mock_caller = MockCaller()
         mock_caller.call_api()
 
-        assert mock_caller._timeout == expected_timeout
+        assert MockCaller._timeout == expected_timeout
