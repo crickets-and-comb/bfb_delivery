@@ -523,9 +523,19 @@ def _print_report(plan_df: pd.DataFrame, no_distribute: bool) -> None:
         f"Plans distributed: {len(plans_distributed)}"
     )
     if not no_distribute and len(plans_attempted) != len(plans_distributed):
-        logger.warning("Not all plans were distributed. Please check the output above.")
-    if no_distribute and len(plans_attempted) != len(plans_optimized):
-        logger.warning("Not all plans were optimized. Please check the output above.")
+        plans_not_distributed = list(set(plans_attempted) - set(plans_distributed))
+        logger.warning(
+            "Not all plans were distributed. "
+            f"These are the undistribute plans:\n{plans_not_distributed}"
+            "See the above output to see at which steps the plans failed."
+        )
+    elif no_distribute and len(plans_attempted) != len(plans_optimized):
+        plans_not_optimized = list(set(plans_attempted) - set(plans_optimized))
+        logger.warning(
+            "Not all plans were optimized. "
+            f"These are the unsuccessful plans:\n{plans_not_optimized}"
+            "See the above output to see at which steps the plans failed."
+        )
 
 
 @schema_error_handler
