@@ -1,7 +1,7 @@
 """A test suite for the API callers module."""
 
 from contextlib import AbstractContextManager, nullcontext
-from typing import Any
+from typing import Any, Final
 from unittest.mock import Mock, patch
 
 import pytest
@@ -13,7 +13,43 @@ from bfb_delivery.lib.dispatch.api_callers import (
     BaseDeleteCaller,
     BaseGetCaller,
     BasePostCaller,
+    OptimizationChecker,
+    OptimizationLauncher,
 )
+
+_CALLER_DICT: Final[dict[str, type[BaseCaller]]] = {
+    "get": BaseGetCaller,
+    "post": BasePostCaller,
+    "delete": BaseDeleteCaller,
+    "opt_launcher": OptimizationLauncher,
+    "opt_checker": OptimizationChecker,
+}
+_REQUEST_METHOD_DICT: Final[dict[str, str]] = {
+    "get": "get",
+    "post": "post",
+    "delete": "delete",
+    "opt_launcher": "post",
+    "opt_checker": "get",
+}
+
+_CALLER_KWARGS_DICT: Final[dict[str, dict[str, Any]]] = {
+    "opt_launcher": {"plan_id": "shrsrtb", "plan_title": "Mock plan title"},
+    "opt_checker": {
+        "plan_id": "shrsrtb",
+        "plan_title": "Mock plan title",
+        "operation_id": "tfhnrtyn",
+    },
+}
+_OPT_LAUNCHER_JSON_200: Final[dict[str, Any]] = {
+    "metadata": {"canceled": False},
+    "id": "sdfhsth",
+    "done": True,
+}
+_OPT_CHECKER_JSON_200: Final[dict[str, Any]] = {
+    "metadata": {"canceled": False},
+    "id": "sdfhsth",
+    "done": True,
+}
 
 
 @pytest.mark.parametrize("request_type", ["get", "post", "delete"])
@@ -123,9 +159,8 @@ def test_base_caller_response_handling(
     error_context: AbstractContextManager,
 ) -> None:
     """Test `call_api` handling of different HTTP responses, including retries."""
-    caller_dict = {"get": BaseGetCaller, "post": BasePostCaller, "delete": BaseDeleteCaller}
 
-    class MockCaller(caller_dict[request_type]):
+    class MockCaller(_CALLER_DICT[request_type]):
         """Minimal concrete subclass of BaseCaller for testing."""
 
         def _set_url(self) -> None:
@@ -176,6 +211,28 @@ def test_base_caller_response_handling(
             RateLimits.WRITE_SECONDS,
         ),
         (
+            "opt_launcher",
+            [
+                {
+                    "status_code": 200,
+                    "raise_for_status.side_effect": None,
+                    "json.return_value": _OPT_LAUNCHER_JSON_200,
+                }
+            ],
+            RateLimits.OPTIMIZATION_PER_SECOND,
+        ),
+        (
+            "opt_checker",
+            [
+                {
+                    "status_code": 200,
+                    "raise_for_status.side_effect": None,
+                    "json.return_value": _OPT_CHECKER_JSON_200,
+                }
+            ],
+            RateLimits.READ_SECONDS,
+        ),
+        (
             "get",
             [{"status_code": 204, "raise_for_status.side_effect": None}],
             RateLimits.READ_SECONDS,
@@ -191,6 +248,16 @@ def test_base_caller_response_handling(
             RateLimits.WRITE_SECONDS,
         ),
         (
+            "opt_launcher",
+            [{"status_code": 204, "raise_for_status.side_effect": None}],
+            RateLimits.OPTIMIZATION_PER_SECOND,
+        ),
+        (
+            "opt_checker",
+            [{"status_code": 204, "raise_for_status.side_effect": None}],
+            RateLimits.READ_SECONDS,
+        ),
+        (
             "get",
             [
                 {
@@ -200,8 +267,8 @@ def test_base_caller_response_handling(
                 {"status_code": 200, "raise_for_status.side_effect": None},
             ],
             RateLimits.READ_SECONDS
-            * BaseCaller._wait_increase_scalar
-            * BaseCaller._wait_decrease_scalar,
+            * RateLimits.WAIT_INCREASE_SCALAR
+            * RateLimits.WAIT_DECREASE_SECONDS,
         ),
         (
             "post",
@@ -213,8 +280,8 @@ def test_base_caller_response_handling(
                 {"status_code": 200, "raise_for_status.side_effect": None},
             ],
             RateLimits.WRITE_SECONDS
-            * BaseCaller._wait_increase_scalar
-            * BaseCaller._wait_decrease_scalar,
+            * RateLimits.WAIT_INCREASE_SCALAR
+            * RateLimits.WAIT_DECREASE_SECONDS,
         ),
         (
             "delete",
@@ -226,8 +293,42 @@ def test_base_caller_response_handling(
                 {"status_code": 200, "raise_for_status.side_effect": None},
             ],
             RateLimits.WRITE_SECONDS
-            * BaseCaller._wait_increase_scalar
-            * BaseCaller._wait_decrease_scalar,
+            * RateLimits.WAIT_INCREASE_SCALAR
+            * RateLimits.WAIT_DECREASE_SECONDS,
+        ),
+        (
+            "opt_launcher",
+            [
+                {
+                    "status_code": 429,
+                    "raise_for_status.side_effect": requests.exceptions.HTTPError,
+                },
+                {
+                    "status_code": 200,
+                    "raise_for_status.side_effect": None,
+                    "json.return_value": _OPT_LAUNCHER_JSON_200,
+                },
+            ],
+            RateLimits.OPTIMIZATION_PER_SECOND
+            * RateLimits.WAIT_INCREASE_SCALAR
+            * RateLimits.WAIT_DECREASE_SECONDS,
+        ),
+        (
+            "opt_checker",
+            [
+                {
+                    "status_code": 429,
+                    "raise_for_status.side_effect": requests.exceptions.HTTPError,
+                },
+                {
+                    "status_code": 200,
+                    "raise_for_status.side_effect": None,
+                    "json.return_value": _OPT_CHECKER_JSON_200,
+                },
+            ],
+            RateLimits.READ_SECONDS
+            * RateLimits.WAIT_INCREASE_SCALAR
+            * RateLimits.WAIT_DECREASE_SECONDS,
         ),
     ],
 )
@@ -235,21 +336,20 @@ def test_base_caller_wait_time_adjusting(
     request_type: str, response_sequence: list[dict[str, Any]], expected_wait_time: float
 ) -> None:
     """Test request wait time adjustments on rate-limiting."""
-    caller_dict = {"get": BaseGetCaller, "post": BasePostCaller, "delete": BaseDeleteCaller}
 
-    class MockCaller(caller_dict[request_type]):
+    class MockCaller(_CALLER_DICT[request_type]):
         """Minimal concrete subclass of BaseCaller for testing."""
 
         def _set_url(self) -> None:
             """Set a dummy test URL."""
             self._url = "https://example.com/api/test"
 
-    with patch(f"requests.{request_type}") as mock_request, patch(
+    with patch(f"requests.{_REQUEST_METHOD_DICT[request_type]}") as mock_request, patch(
         "bfb_delivery.lib.dispatch.api_callers.sleep"
     ):
         mock_request.side_effect = [Mock(**resp) for resp in response_sequence]
 
-        mock_caller = MockCaller()
+        mock_caller = MockCaller(**_CALLER_KWARGS_DICT.get(request_type, {}))
         mock_caller.call_api()
 
         assert MockCaller._wait_seconds == expected_wait_time
@@ -274,6 +374,28 @@ def test_base_caller_wait_time_adjusting(
             RateLimits.WRITE_TIMEOUT_SECONDS,
         ),
         (
+            "opt_launcher",
+            [
+                {
+                    "status_code": 200,
+                    "raise_for_status.side_effect": None,
+                    "json.return_value": _OPT_LAUNCHER_JSON_200,
+                }
+            ],
+            RateLimits.WRITE_TIMEOUT_SECONDS,
+        ),
+        (
+            "opt_checker",
+            [
+                {
+                    "status_code": 200,
+                    "raise_for_status.side_effect": None,
+                    "json.return_value": _OPT_CHECKER_JSON_200,
+                }
+            ],
+            RateLimits.READ_TIMEOUT_SECONDS,
+        ),
+        (
             "get",
             [{"status_code": 204, "raise_for_status.side_effect": None}],
             RateLimits.READ_TIMEOUT_SECONDS,
@@ -289,6 +411,16 @@ def test_base_caller_wait_time_adjusting(
             RateLimits.WRITE_TIMEOUT_SECONDS,
         ),
         (
+            "opt_launcher",
+            [{"status_code": 204, "raise_for_status.side_effect": None}],
+            RateLimits.WRITE_TIMEOUT_SECONDS,
+        ),
+        (
+            "opt_checker",
+            [{"status_code": 204, "raise_for_status.side_effect": None}],
+            RateLimits.READ_TIMEOUT_SECONDS,
+        ),
+        (
             "get",
             [
                 {
@@ -297,7 +429,7 @@ def test_base_caller_wait_time_adjusting(
                 },
                 {"status_code": 200, "raise_for_status.side_effect": None},
             ],
-            RateLimits.READ_TIMEOUT_SECONDS * BaseCaller._wait_increase_scalar,
+            RateLimits.READ_TIMEOUT_SECONDS * RateLimits.WAIT_INCREASE_SCALAR,
         ),
         (
             "post",
@@ -308,7 +440,7 @@ def test_base_caller_wait_time_adjusting(
                 },
                 {"status_code": 200, "raise_for_status.side_effect": None},
             ],
-            RateLimits.WRITE_TIMEOUT_SECONDS * BaseCaller._wait_increase_scalar,
+            RateLimits.WRITE_TIMEOUT_SECONDS * RateLimits.WAIT_INCREASE_SCALAR,
         ),
         (
             "delete",
@@ -319,7 +451,37 @@ def test_base_caller_wait_time_adjusting(
                 },
                 {"status_code": 200, "raise_for_status.side_effect": None},
             ],
-            RateLimits.WRITE_TIMEOUT_SECONDS * BaseCaller._wait_increase_scalar,
+            RateLimits.WRITE_TIMEOUT_SECONDS * RateLimits.WAIT_INCREASE_SCALAR,
+        ),
+        (
+            "opt_launcher",
+            [
+                {
+                    "status_code": 598,
+                    "raise_for_status.side_effect": requests.exceptions.Timeout,
+                },
+                {
+                    "status_code": 200,
+                    "raise_for_status.side_effect": None,
+                    "json.return_value": _OPT_LAUNCHER_JSON_200,
+                },
+            ],
+            RateLimits.WRITE_TIMEOUT_SECONDS * RateLimits.WAIT_INCREASE_SCALAR,
+        ),
+        (
+            "opt_checker",
+            [
+                {
+                    "status_code": 598,
+                    "raise_for_status.side_effect": requests.exceptions.Timeout,
+                },
+                {
+                    "status_code": 200,
+                    "raise_for_status.side_effect": None,
+                    "json.return_value": _OPT_CHECKER_JSON_200,
+                },
+            ],
+            RateLimits.READ_TIMEOUT_SECONDS * RateLimits.WAIT_INCREASE_SCALAR,
         ),
     ],
 )
@@ -327,21 +489,20 @@ def test_base_caller_timeout_adjusting(
     request_type: str, response_sequence: list[dict[str, Any]], expected_timeout: float
 ) -> None:
     """Test timeout adjustment on timeout retry."""
-    caller_dict = {"get": BaseGetCaller, "post": BasePostCaller, "delete": BaseDeleteCaller}
 
-    class MockCaller(caller_dict[request_type]):
+    class MockCaller(_CALLER_DICT[request_type]):
         """Minimal concrete subclass of BaseCaller for testing."""
 
         def _set_url(self) -> None:
             """Set a dummy test URL."""
             self._url = "https://example.com/api/test"
 
-    with patch(f"requests.{request_type}") as mock_request, patch(
+    with patch(f"requests.{_REQUEST_METHOD_DICT[request_type]}") as mock_request, patch(
         "bfb_delivery.lib.dispatch.api_callers.sleep"
     ):
         mock_request.side_effect = [Mock(**resp) for resp in response_sequence]
 
-        mock_caller = MockCaller()
+        mock_caller = MockCaller(**_CALLER_KWARGS_DICT.get(request_type, {}))
         mock_caller.call_api()
 
         assert MockCaller._timeout == expected_timeout
