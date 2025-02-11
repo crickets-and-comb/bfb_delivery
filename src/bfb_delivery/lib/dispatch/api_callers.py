@@ -375,7 +375,7 @@ class PagedResponseGetter(BaseGetCaller):
     """Class for getting paged responses."""
 
     # The nextPageToken returned, but called salsa to avoid bandit.
-    next_page_salsa: str
+    next_page_salsa: str | None
 
     #: The URL for the page.
     _page_url: str
