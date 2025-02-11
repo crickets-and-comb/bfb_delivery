@@ -9,7 +9,7 @@ from unittest.mock import Mock, patch
 import pytest
 import requests
 
-from bfb_delivery.lib.constants import RateLimits
+from bfb_delivery.lib.constants import CIRCUIT_URL, RateLimits
 from bfb_delivery.lib.dispatch.api_callers import (
     BaseCaller,
     BaseDeleteCaller,
@@ -565,11 +565,11 @@ def test_optimization_callers(
     """Test optimization callers."""
     with patch(f"requests.{_REQUEST_METHOD_DICT[request_type]}") as mock_request:
         mock_request.side_effect = [Mock(**resp) for resp in response_sequence]
-
+        kwargs = _CALLER_KWARGS_DICT.get(request_type, {})
         caller = (
-            OptimizationLauncher(**_CALLER_KWARGS_DICT.get(request_type, {}))
+            OptimizationLauncher(**kwargs)
             if request_type == "opt_launcher"
-            else OptimizationChecker(**_CALLER_KWARGS_DICT.get(request_type, {}))
+            else OptimizationChecker(**kwargs)
         )
         if request_type == "opt_checker":
             assert caller.operation_id == _MOCK_OPERATION_ID
@@ -578,6 +578,12 @@ def test_optimization_callers(
             caller.call_api()
             assert caller.operation_id == _MOCK_OPERATION_ID
             assert caller.finished == expected_done_status
+            assert (
+                mock_request.call_args_list[0][1]["url"]
+                == f"{CIRCUIT_URL}/{kwargs["plan_id"]}:optimize"
+                if request_type == "opt_launcher"
+                else f"{CIRCUIT_URL}{kwargs["operation_id"]}"
+            )
 
 
 @pytest.mark.parametrize(
@@ -599,7 +605,7 @@ def test_paged_getter(response_sequence: list[dict[str, Any]]) -> None:
         assert caller.next_page_salsa == response_sequence[-1]["json.return_value"].get(
             "nextPageToken", None
         )
-        assert caller._page_url == page_url
+        assert mock_request.call_args_list[0][1]["url"] == page_url
 
 
 # TODO: Test called with URLs.
