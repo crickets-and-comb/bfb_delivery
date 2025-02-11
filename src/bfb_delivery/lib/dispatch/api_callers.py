@@ -592,7 +592,7 @@ class PlanDeleter(BaseDeleteCaller):
     """Class for deleting plans."""
 
     #: Whether the plan was deleted.
-    deletion: bool
+    deletion: bool = False
 
     @typechecked
     def __init__(self, plan_id: str) -> None:

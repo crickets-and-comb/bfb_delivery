@@ -19,6 +19,7 @@ from bfb_delivery.lib.dispatch.api_callers import (
     OptimizationChecker,
     OptimizationLauncher,
     PagedResponseGetter,
+    PlanDeleter,
     PlanDistributor,
     PlanInitializer,
     StopUploader,
@@ -791,3 +792,26 @@ def test_plan_distributor(
                 caller.distributed
                 == response_sequence[0]["json.return_value"][CircuitColumns.DISTRIBUTED]
             )
+
+
+@pytest.mark.parametrize(
+    "response_sequence, expected_deletion_status",
+    [
+        ([{"status_code": 204}], True),
+        # We'd never expect a 200 response, but just a counter example.
+        ([{"status_code": 200}], False),
+    ],
+)
+@typechecked
+def test_plan_deleter(
+    response_sequence: list[dict[str, Any]], expected_deletion_status: bool
+) -> None:
+    """Test PlanDeleter."""
+    with patch("requests.delete") as mock_request:
+        mock_request.side_effect = [Mock(**resp) for resp in response_sequence]
+
+        caller = PlanDeleter(plan_id=_MOCK_PLAN_ID)
+        caller.call_api()
+
+        assert mock_request.call_args_list[0][1]["url"] == f"{CIRCUIT_URL}/{_MOCK_PLAN_ID}"
+        assert caller.deletion == expected_deletion_status
