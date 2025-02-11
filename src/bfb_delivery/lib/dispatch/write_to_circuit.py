@@ -780,8 +780,8 @@ def _assign_driver(
                 ]
                 assigned = True
                 print(
-                    f"\nAssigned {drivers_df.iloc[choice][CircuitColumns.NAME]} "
-                    f"to {route_title}."
+                    f"\nAssigned {route_title} "
+                    f"to {drivers_df.iloc[choice][CircuitColumns.NAME]}."
                 )
 
     return plan_df
@@ -864,7 +864,7 @@ def _confirm_optimizations(
         "Finished optimizing routes. Optimized "
         f"{len([val for val in optimizations_finished.values() if val is True])} routes."
     )
-
+    # TODO: Why did the routes that failed a check still end up marked as True?
     plan_df.loc[
         plan_df[IntermediateColumns.ROUTE_TITLE].isin(errors.keys()),
         IntermediateColumns.OPTIMIZED,
