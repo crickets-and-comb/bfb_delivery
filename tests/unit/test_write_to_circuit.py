@@ -29,10 +29,16 @@ def test_get_all_drivers(requests_mock: Mocker) -> None:  # noqa: F811
         "drivers": [
             {
                 CircuitColumns.ID: "driver1",
-                CircuitColumns.NAME: "Test Driver",
-                CircuitColumns.EMAIL: "test@example.com",
+                CircuitColumns.NAME: "Test Driver1",
+                CircuitColumns.EMAIL: "test1@example.com",
                 CircuitColumns.ACTIVE: True,
-            }
+            },
+            {
+                CircuitColumns.ID: "driverA",
+                CircuitColumns.NAME: "Another DriverA",
+                CircuitColumns.EMAIL: "anothera@example.com",
+                CircuitColumns.ACTIVE: True,
+            },
         ],
         "nextPageToken": next_page_token,
     }
@@ -40,10 +46,16 @@ def test_get_all_drivers(requests_mock: Mocker) -> None:  # noqa: F811
         "drivers": [
             {
                 CircuitColumns.ID: "driver2",
-                CircuitColumns.NAME: "Another Driver",
-                CircuitColumns.EMAIL: "another@example.com",
+                CircuitColumns.NAME: "Another Driver2",
+                CircuitColumns.EMAIL: "another2@example.com",
                 CircuitColumns.ACTIVE: True,
-            }
+            },
+            {
+                CircuitColumns.ID: "driverB",
+                CircuitColumns.NAME: "Test DriverB",
+                CircuitColumns.EMAIL: "testB@example.com",
+                CircuitColumns.ACTIVE: True,
+            },
         ],
         "nextPageToken": None,
     }
@@ -57,10 +69,20 @@ def test_get_all_drivers(requests_mock: Mocker) -> None:  # noqa: F811
         drivers_df.sort_values(by=drivers_df.columns.tolist()).reset_index(drop=True),
         pd.DataFrame(
             {
-                CircuitColumns.ID: ["driver1", "driver2"],
-                CircuitColumns.NAME: ["Test Driver", "Another Driver"],
-                CircuitColumns.EMAIL: ["test@example.com", "another@example.com"],
-                CircuitColumns.ACTIVE: [True, True],
+                CircuitColumns.ID: ["driver1", "driverA", "driver2", "driverB"],
+                CircuitColumns.NAME: [
+                    "Test Driver1",
+                    "Another DriverA",
+                    "Another Driver2",
+                    "Test DriverB",
+                ],
+                CircuitColumns.EMAIL: [
+                    "test1@example.com",
+                    "anothera@example.com",
+                    "another2@example.com",
+                    "testB@example.com",
+                ],
+                CircuitColumns.ACTIVE: [True, True, True, True],
             }
         )
         .sort_values(by=drivers_df.columns.tolist())
