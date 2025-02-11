@@ -508,6 +508,7 @@ class OptimizationLauncher(BaseOptimizationCaller, BasePostCaller):
 class OptimizationChecker(BaseOptimizationCaller, BaseGetCaller):
     """A class for checking the status of an optimization."""
 
+    _timeout: float = RateLimits.READ_TIMEOUT_SECONDS
     _min_wait_seconds: float = RateLimits.READ_SECONDS
     _wait_seconds: float = _min_wait_seconds
 
