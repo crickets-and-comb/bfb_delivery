@@ -10,8 +10,9 @@
 # - Mock 2 pages from PagedResponseGetter._make_call for _get_all_drivers get_responses call.
 # TODO: Mock user inputs.
 # TODO: Call upload_split_chunked, and check outputs, called withs, raises.
-
+import builtins
 from collections.abc import Iterator
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -19,87 +20,95 @@ import requests_mock  # noqa: F401
 from requests_mock import Mocker
 from typeguard import typechecked
 
+from bfb_delivery import split_chunked_route
 from bfb_delivery.lib.constants import (
     CIRCUIT_DRIVERS_URL,
     CircuitColumns,
+    Columns,
     IntermediateColumns,
 )
-from bfb_delivery.lib.dispatch.write_to_circuit import _assign_drivers, _get_all_drivers
+from bfb_delivery.lib.dispatch.write_to_circuit import (
+    _assign_drivers,
+    _create_stops_df,
+    _get_all_drivers,
+)
 
 
 @pytest.fixture
-def mock_all_drivers_simple(requests_mock: Mocker) -> Iterator[Mocker]:  # noqa: F811
+def mock_driver_df(mock_chunked_sheet_raw: Path) -> pd.DataFrame:
+    """Return a DataFrame of drivers."""
+    chunked_sheet = pd.read_excel(mock_chunked_sheet_raw)
+    driver_df = pd.DataFrame(
+        columns=[
+            CircuitColumns.ID,
+            CircuitColumns.NAME,
+            CircuitColumns.EMAIL,
+            CircuitColumns.ACTIVE,
+        ]
+    )
+    driver_df[CircuitColumns.NAME] = list(
+        set([driver.split("#")[0].strip() for driver in chunked_sheet[Columns.DRIVER]])
+    )
+    driver_df[CircuitColumns.ID] = driver_df[CircuitColumns.NAME].apply(
+        lambda name: f"drivers/{name.replace(' ', '')}"
+    )
+    driver_df[CircuitColumns.EMAIL] = driver_df[CircuitColumns.NAME].apply(
+        lambda name: f"{name.replace(' ', '')}@example.com"
+    )
+    driver_df[CircuitColumns.ACTIVE] = True
+
+    driver_df = driver_df.sort_values(by=CircuitColumns.NAME).reset_index(drop=True)
+
+    return driver_df
+
+
+@pytest.fixture
+def mock_all_drivers_simple(
+    mock_driver_df: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+) -> Iterator[Mocker]:
     """Mock the Circuit API to return a simple list of drivers."""
+    drivers_array = mock_driver_df.to_dict(orient="records")
     next_page_token = "token123"
-    first_url = CIRCUIT_DRIVERS_URL
-    second_url = CIRCUIT_DRIVERS_URL + f"?pageToken={next_page_token}"
 
-    first_response = {
-        "drivers": [
-            {
-                CircuitColumns.ID: "drivers/driver1",
-                CircuitColumns.NAME: "Test Driver1",
-                CircuitColumns.EMAIL: "test1@example.com",
-                CircuitColumns.ACTIVE: True,
-            },
-            {
-                CircuitColumns.ID: "drivers/driverA",
-                CircuitColumns.NAME: "Another DriverA",
-                CircuitColumns.EMAIL: "anothera@example.com",
-                CircuitColumns.ACTIVE: True,
-            },
-        ],
-        "nextPageToken": next_page_token,
-    }
-    second_response = {
-        "drivers": [
-            {
-                CircuitColumns.ID: "drivers/driver2",
-                CircuitColumns.NAME: "Another Driver2",
-                CircuitColumns.EMAIL: "another2@example.com",
-                CircuitColumns.ACTIVE: True,
-            },
-            {
-                CircuitColumns.ID: "drivers/driverB",
-                CircuitColumns.NAME: "Test DriverB",
-                CircuitColumns.EMAIL: "testB@example.com",
-                CircuitColumns.ACTIVE: True,
-            },
-        ],
-        "nextPageToken": None,
-    }
-
-    requests_mock.get(first_url, json=first_response)
-    requests_mock.get(second_url, json=second_response)
+    requests_mock.get(
+        url=CIRCUIT_DRIVERS_URL,
+        json={
+            "drivers": drivers_array[0 : len(drivers_array) // 2],  # noqa: E203
+            "nextPageToken": next_page_token,
+        },
+    )
+    requests_mock.get(
+        url=CIRCUIT_DRIVERS_URL + f"?pageToken={next_page_token}",
+        json={
+            "drivers": drivers_array[
+                len(drivers_array) // 2 : len(drivers_array)  # noqa: E203
+            ],
+            "nextPageToken": None,
+        },
+    )
 
     yield requests_mock
 
 
 @pytest.fixture
-def mock_driver_df() -> pd.DataFrame:
-    """Return a DataFrame of drivers."""
-    return pd.DataFrame(
-        {
-            CircuitColumns.ID: [
-                "drivers/driver1",
-                "drivers/driverA",
-                "drivers/driver2",
-                "drivers/driverB",
-            ],
-            CircuitColumns.NAME: [
-                "Test Driver1",
-                "Another DriverA",
-                "Another Driver2",
-                "Test DriverB",
-            ],
-            CircuitColumns.EMAIL: [
-                "test1@example.com",
-                "anothera@example.com",
-                "another2@example.com",
-                "testB@example.com",
-            ],
-            CircuitColumns.ACTIVE: [True, True, True, True],
-        }
+def mock_split_chunked_sheet(mock_chunked_sheet_raw: Path, tmp_path: Path) -> Path:
+    """Create and save a mock split chunked sheet."""
+    path = split_chunked_route(
+        input_path=mock_chunked_sheet_raw,
+        output_dir=tmp_path,
+        output_filename="test_split_chunked.xlsx",
+        n_books=1,
+    )
+
+    return path[0]
+
+
+@pytest.fixture
+def mock_stops_df(mock_split_chunked_sheet: Path, tmp_path: Path) -> pd.DataFrame:
+    """Return a mock stops DataFrame."""
+    return _create_stops_df(
+        split_chunked_workbook_fp=mock_split_chunked_sheet,
+        stops_df_path=tmp_path / "stops_df.csv",
     )
 
 
@@ -121,40 +130,57 @@ def test_get_all_drivers(
 
 
 # TODO: Test errors etc.:
-# - Retry if if confirm.lower() != "y"
-# - Invalid inputs.
+# - Invalid inputs. (Just put them right in the middle of the list?)
+# - Retry if confirm.lower() != "y"
 def test_assign_drivers(
-    mock_driver_df: pd.DataFrame, monkeypatch: pytest.MonkeyPatch
+    mock_driver_df: pd.DataFrame, mock_stops_df: pd.DataFrame, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Test that _assign_drivers assigns drivers to routes correctly."""
     plan_df = pd.DataFrame(
         {
-            IntermediateColumns.ROUTE_TITLE: ["Test Driver Route1", "Test Driver Route2"],
+            IntermediateColumns.ROUTE_TITLE: mock_stops_df[
+                IntermediateColumns.SHEET_NAME
+            ].unique(),
             IntermediateColumns.DRIVER_NAME: None,
             CircuitColumns.EMAIL: None,
             CircuitColumns.ID: None,
         }
     )
 
-    inputs = iter(["1", "2", "y"])
-    monkeypatch.setattr("builtins.input", lambda prompt: next(inputs))
+    expected_df = plan_df.copy()[[IntermediateColumns.ROUTE_TITLE]]
+    expected_df[IntermediateColumns.DRIVER_NAME] = [
+        mock_driver_df[
+            mock_driver_df[CircuitColumns.NAME].apply(lambda x: x in title)  # noqa: B023
+        ][CircuitColumns.NAME].iloc[0]
+        for title in expected_df[IntermediateColumns.ROUTE_TITLE]
+    ]
+    expected_df = expected_df.merge(
+        mock_driver_df,
+        left_on=IntermediateColumns.DRIVER_NAME,
+        right_on=CircuitColumns.NAME,
+        how="left",
+    )
+    expected_df = expected_df[plan_df.columns.to_list() + [CircuitColumns.ACTIVE]]
+
+    driver_selections = []
+    for sheet_name in sorted(mock_stops_df[IntermediateColumns.SHEET_NAME].unique()):
+        driver_row = mock_driver_df[
+            mock_driver_df[CircuitColumns.NAME].apply(lambda x: x in sheet_name)  # noqa: B023
+        ]
+        driver_selections.append(f"{driver_row.index[0] + 1}")
+
+    inputs = iter(driver_selections + ["y"])
+
+    original_input = builtins.input
+
+    def fake_input(prompt: str) -> str:
+        if prompt.strip() == "(Pdb)":
+            return original_input(prompt)
+        return next(inputs)
+
+    monkeypatch.setattr("builtins.input", fake_input)
 
     result_df = _assign_drivers(drivers_df=mock_driver_df, plan_df=plan_df)
+
     result_df[CircuitColumns.ACTIVE] = result_df[CircuitColumns.ACTIVE].astype(bool)
-
-    expected_df = pd.concat(
-        [
-            plan_df[[IntermediateColumns.ROUTE_TITLE]],
-            mock_driver_df.iloc[0:2][
-                [
-                    CircuitColumns.NAME,
-                    CircuitColumns.EMAIL,
-                    CircuitColumns.ID,
-                    CircuitColumns.ACTIVE,
-                ]
-            ],
-        ],
-        axis=1,
-    ).rename(columns={CircuitColumns.NAME: IntermediateColumns.DRIVER_NAME})
-
     pd.testing.assert_frame_equal(result_df, expected_df)
