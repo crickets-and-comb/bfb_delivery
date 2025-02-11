@@ -1,6 +1,7 @@
 """A test suite for the API callers module."""
 
 import re
+from collections.abc import Iterator
 from contextlib import AbstractContextManager, nullcontext
 from typing import Any, Final
 from unittest.mock import Mock, patch
@@ -16,6 +17,7 @@ from bfb_delivery.lib.dispatch.api_callers import (
     BasePostCaller,
     OptimizationChecker,
     OptimizationLauncher,
+    PagedResponseGetter,
 )
 
 _MOCK_OPERATION_ID: Final[str] = "sdfhsth"
@@ -65,32 +67,23 @@ _OPT_JSON_ERROR_CODE: dict[str, Any] = _OPT_JSON_200_DONE.copy()
 _OPT_JSON_ERROR_CODE["result"] = {"code": "MOCK_ERROR_CODE"}
 
 
+@pytest.fixture(autouse=True)
+def mock_sleep() -> Iterator[None]:
+    """Mock `time.sleep` to avoid waiting in tests."""
+    with patch("bfb_delivery.lib.dispatch.api_callers.sleep"):
+        yield
+
+
 @pytest.mark.parametrize("request_type", ["get", "post", "delete"])
 @pytest.mark.parametrize(
     "response_sequence, expected_result, error_context",
     [
         (
-            [
-                {
-                    "json.return_value": {"data": [1, 2, 3]},
-                    "status_code": 200,
-                    "raise_for_status.side_effect": None,
-                }
-            ],
+            [{"json.return_value": {"data": [1, 2, 3]}, "status_code": 200}],
             {"data": [1, 2, 3]},
             nullcontext(),
         ),
-        (
-            [
-                {
-                    "json.return_value": {},
-                    "status_code": 204,
-                    "raise_for_status.side_effect": None,
-                }
-            ],
-            {},
-            nullcontext(),
-        ),
+        ([{"json.return_value": {}, "status_code": 204}], {}, nullcontext()),
         (
             [
                 {
@@ -98,11 +91,7 @@ _OPT_JSON_ERROR_CODE["result"] = {"code": "MOCK_ERROR_CODE"}
                     "status_code": 429,
                     "raise_for_status.side_effect": requests.exceptions.HTTPError,
                 },
-                {
-                    "json.return_value": {"data": [5, 6]},
-                    "status_code": 200,
-                    "raise_for_status.side_effect": None,
-                },
+                {"json.return_value": {"data": [5, 6]}, "status_code": 200},
             ],
             {"data": [5, 6]},
             nullcontext(),
@@ -114,11 +103,7 @@ _OPT_JSON_ERROR_CODE["result"] = {"code": "MOCK_ERROR_CODE"}
                     "status_code": 598,
                     "raise_for_status.side_effect": requests.exceptions.Timeout,
                 },
-                {
-                    "json.return_value": {"data": [7, 8]},
-                    "status_code": 200,
-                    "raise_for_status.side_effect": None,
-                },
+                {"json.return_value": {"data": [7, 8]}, "status_code": 200},
             ],
             {"data": [7, 8]},
             nullcontext(),
@@ -184,7 +169,7 @@ def test_base_caller_response_handling(
         mock_request.side_effect = [Mock(**resp) for resp in response_sequence]
         mock_caller = MockCaller()
 
-        with patch("bfb_delivery.lib.dispatch.api_callers.sleep"), patch.object(
+        with patch.object(
             mock_caller, "_handle_429", wraps=mock_caller._handle_429
         ) as spy_handle_429, patch.object(
             mock_caller, "_handle_timeout", wraps=mock_caller._handle_timeout
@@ -224,24 +209,12 @@ def test_base_caller_response_handling(
         ),
         (
             "opt_launcher",
-            [
-                {
-                    "status_code": 200,
-                    "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_JSON_200_DONE,
-                }
-            ],
+            [{"status_code": 200, "json.return_value": _OPT_JSON_200_DONE}],
             RateLimits.OPTIMIZATION_PER_SECOND,
         ),
         (
             "opt_checker",
-            [
-                {
-                    "status_code": 200,
-                    "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_JSON_200_DONE,
-                }
-            ],
+            [{"status_code": 200, "json.return_value": _OPT_JSON_200_DONE}],
             RateLimits.READ_SECONDS,
         ),
         (
@@ -315,11 +288,7 @@ def test_base_caller_response_handling(
                     "status_code": 429,
                     "raise_for_status.side_effect": requests.exceptions.HTTPError,
                 },
-                {
-                    "status_code": 200,
-                    "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_JSON_200_DONE,
-                },
+                {"status_code": 200, "json.return_value": _OPT_JSON_200_DONE},
             ],
             RateLimits.OPTIMIZATION_PER_SECOND
             * RateLimits.WAIT_INCREASE_SCALAR
@@ -332,11 +301,7 @@ def test_base_caller_response_handling(
                     "status_code": 429,
                     "raise_for_status.side_effect": requests.exceptions.HTTPError,
                 },
-                {
-                    "status_code": 200,
-                    "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_JSON_200_DONE,
-                },
+                {"status_code": 200, "json.return_value": _OPT_JSON_200_DONE},
             ],
             RateLimits.READ_SECONDS
             * RateLimits.WAIT_INCREASE_SCALAR
@@ -356,9 +321,7 @@ def test_base_caller_wait_time_adjusting(
             """Set a dummy test URL."""
             self._url = "https://example.com/api/test"
 
-    with patch(f"requests.{_REQUEST_METHOD_DICT[request_type]}") as mock_request, patch(
-        "bfb_delivery.lib.dispatch.api_callers.sleep"
-    ):
+    with patch(f"requests.{_REQUEST_METHOD_DICT[request_type]}") as mock_request:
         mock_request.side_effect = [Mock(**resp) for resp in response_sequence]
 
         mock_caller = MockCaller(**_CALLER_KWARGS_DICT.get(request_type, {}))
@@ -387,24 +350,12 @@ def test_base_caller_wait_time_adjusting(
         ),
         (
             "opt_launcher",
-            [
-                {
-                    "status_code": 200,
-                    "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_JSON_200_DONE,
-                }
-            ],
+            [{"status_code": 200, "json.return_value": _OPT_JSON_200_DONE}],
             RateLimits.WRITE_TIMEOUT_SECONDS,
         ),
         (
             "opt_checker",
-            [
-                {
-                    "status_code": 200,
-                    "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_JSON_200_DONE,
-                }
-            ],
+            [{"status_code": 200, "json.return_value": _OPT_JSON_200_DONE}],
             RateLimits.READ_TIMEOUT_SECONDS,
         ),
         (
@@ -472,11 +423,7 @@ def test_base_caller_wait_time_adjusting(
                     "status_code": 598,
                     "raise_for_status.side_effect": requests.exceptions.Timeout,
                 },
-                {
-                    "status_code": 200,
-                    "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_JSON_200_DONE,
-                },
+                {"status_code": 200, "json.return_value": _OPT_JSON_200_DONE},
             ],
             RateLimits.WRITE_TIMEOUT_SECONDS * RateLimits.WAIT_INCREASE_SCALAR,
         ),
@@ -487,11 +434,7 @@ def test_base_caller_wait_time_adjusting(
                     "status_code": 598,
                     "raise_for_status.side_effect": requests.exceptions.Timeout,
                 },
-                {
-                    "status_code": 200,
-                    "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_JSON_200_DONE,
-                },
+                {"status_code": 200, "json.return_value": _OPT_JSON_200_DONE},
             ],
             RateLimits.READ_TIMEOUT_SECONDS * RateLimits.WAIT_INCREASE_SCALAR,
         ),
@@ -509,9 +452,7 @@ def test_base_caller_timeout_adjusting(
             """Set a dummy test URL."""
             self._url = "https://example.com/api/test"
 
-    with patch(f"requests.{_REQUEST_METHOD_DICT[request_type]}") as mock_request, patch(
-        "bfb_delivery.lib.dispatch.api_callers.sleep"
-    ):
+    with patch(f"requests.{_REQUEST_METHOD_DICT[request_type]}") as mock_request:
         mock_request.side_effect = [Mock(**resp) for resp in response_sequence]
 
         mock_caller = MockCaller(**_CALLER_KWARGS_DICT.get(request_type, {}))
@@ -525,61 +466,31 @@ def test_base_caller_timeout_adjusting(
     [
         (
             "opt_launcher",
-            [
-                {
-                    "status_code": 200,
-                    "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_JSON_200_DONE,
-                }
-            ],
+            [{"status_code": 200, "json.return_value": _OPT_JSON_200_DONE}],
             True,
             nullcontext(),
         ),
         (
             "opt_checker",
-            [
-                {
-                    "status_code": 200,
-                    "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_JSON_200_DONE,
-                }
-            ],
+            [{"status_code": 200, "json.return_value": _OPT_JSON_200_DONE}],
             True,
             nullcontext(),
         ),
         (
             "opt_launcher",
-            [
-                {
-                    "status_code": 200,
-                    "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_JSON_200_UNFINISHED,
-                }
-            ],
+            [{"status_code": 200, "json.return_value": _OPT_JSON_200_UNFINISHED}],
             False,
             nullcontext(),
         ),
         (
             "opt_checker",
-            [
-                {
-                    "status_code": 200,
-                    "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_JSON_200_UNFINISHED,
-                }
-            ],
+            [{"status_code": 200, "json.return_value": _OPT_JSON_200_UNFINISHED}],
             False,
             nullcontext(),
         ),
         (
             "opt_launcher",
-            [
-                {
-                    "status_code": 200,
-                    "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_JSON_CANCELED,
-                }
-            ],
+            [{"status_code": 200, "json.return_value": _OPT_JSON_CANCELED}],
             None,
             pytest.raises(
                 RuntimeError,
@@ -590,13 +501,7 @@ def test_base_caller_timeout_adjusting(
         ),
         (
             "opt_checker",
-            [
-                {
-                    "status_code": 200,
-                    "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_JSON_CANCELED,
-                }
-            ],
+            [{"status_code": 200, "json.return_value": _OPT_JSON_CANCELED}],
             None,
             pytest.raises(
                 RuntimeError,
@@ -607,13 +512,7 @@ def test_base_caller_timeout_adjusting(
         ),
         (
             "opt_launcher",
-            [
-                {
-                    "status_code": 200,
-                    "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_JSON_SKIPPED,
-                }
-            ],
+            [{"status_code": 200, "json.return_value": _OPT_JSON_SKIPPED}],
             None,
             pytest.raises(
                 RuntimeError,
@@ -624,13 +523,7 @@ def test_base_caller_timeout_adjusting(
         ),
         (
             "opt_checker",
-            [
-                {
-                    "status_code": 200,
-                    "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_JSON_SKIPPED,
-                }
-            ],
+            [{"status_code": 200, "json.return_value": _OPT_JSON_SKIPPED}],
             None,
             pytest.raises(
                 RuntimeError,
@@ -641,13 +534,7 @@ def test_base_caller_timeout_adjusting(
         ),
         (
             "opt_launcher",
-            [
-                {
-                    "status_code": 200,
-                    "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_JSON_ERROR_CODE,
-                }
-            ],
+            [{"status_code": 200, "json.return_value": _OPT_JSON_ERROR_CODE}],
             None,
             pytest.raises(
                 RuntimeError,
@@ -658,13 +545,7 @@ def test_base_caller_timeout_adjusting(
         ),
         (
             "opt_checker",
-            [
-                {
-                    "status_code": 200,
-                    "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_JSON_ERROR_CODE,
-                }
-            ],
+            [{"status_code": 200, "json.return_value": _OPT_JSON_ERROR_CODE}],
             None,
             pytest.raises(
                 RuntimeError,
@@ -681,10 +562,8 @@ def test_optimization_callers(
     expected_done_status: bool | None,
     error_context: AbstractContextManager,
 ) -> None:
-    """Test timeout adjustment on timeout retry."""
-    with patch(f"requests.{_REQUEST_METHOD_DICT[request_type]}") as mock_request, patch(
-        "bfb_delivery.lib.dispatch.api_callers.sleep"
-    ):
+    """Test optimization callers."""
+    with patch(f"requests.{_REQUEST_METHOD_DICT[request_type]}") as mock_request:
         mock_request.side_effect = [Mock(**resp) for resp in response_sequence]
 
         caller = (
@@ -699,3 +578,25 @@ def test_optimization_callers(
             caller.call_api()
             assert caller.operation_id == _MOCK_OPERATION_ID
             assert caller.finished == expected_done_status
+
+
+@pytest.mark.parametrize(
+    "response_sequence",
+    [
+        ([{"status_code": 200, "json.return_value": {"nextPageToken": "abc123"}}]),
+        ([{"status_code": 200, "json.return_value": {"nextPageToken": None}}]),
+        ([{"status_code": 200, "json.return_value": {}}]),
+    ],
+)
+def test_paged_getter(response_sequence: list[dict[str, Any]]) -> None:
+    """Test PagedResponseGetter."""
+    with patch("requests.get") as mock_request:
+        mock_request.side_effect = [Mock(**resp) for resp in response_sequence]
+
+        page_url = "https://example.com/api/test"
+        caller = PagedResponseGetter(page_url=page_url)
+        caller.call_api()
+        assert caller.next_page_salsa == response_sequence[-1]["json.return_value"].get(
+            "nextPageToken", None
+        )
+        assert caller._page_url == page_url
