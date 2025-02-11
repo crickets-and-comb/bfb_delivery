@@ -20,11 +20,16 @@ from bfb_delivery.lib.dispatch.api_callers import (
     OptimizationLauncher,
     PagedResponseGetter,
     PlanInitializer,
+    StopUploader,
 )
 
 _MOCK_OPERATION_ID: Final[str] = "sdfhsth"
 _MOCK_PLAN_ID: Final[str] = "shrsrtb"
 _MOCK_PLAN_TITLE: Final[str] = "Mock plan title"
+_MOCK_STOP_ARRAY: Final[list[dict[str, dict[str, str] | list[str] | int | str]]] = [
+    {"adfbssd": "asfga"},
+    {"sgdbsb": "sfdgsg"},
+]
 
 _CALLER_DICT: Final[dict[str, type[BaseCaller]]] = {
     "get": BaseGetCaller,
@@ -32,6 +37,7 @@ _CALLER_DICT: Final[dict[str, type[BaseCaller]]] = {
     "delete": BaseDeleteCaller,
     "opt_launcher": OptimizationLauncher,
     "opt_checker": OptimizationChecker,
+    "stop_uploader": StopUploader,
 }
 _REQUEST_METHOD_DICT: Final[dict[str, str]] = {
     "get": "get",
@@ -39,6 +45,7 @@ _REQUEST_METHOD_DICT: Final[dict[str, str]] = {
     "delete": "delete",
     "opt_launcher": "post",
     "opt_checker": "get",
+    "stop_uploader": "post",
 }
 _CALLER_KWARGS_DICT: Final[dict[str, dict[str, Any]]] = {
     "opt_launcher": {"plan_id": _MOCK_PLAN_ID, "plan_title": _MOCK_PLAN_TITLE},
@@ -46,6 +53,11 @@ _CALLER_KWARGS_DICT: Final[dict[str, dict[str, Any]]] = {
         "plan_id": _MOCK_PLAN_ID,
         "plan_title": _MOCK_PLAN_TITLE,
         "operation_id": _MOCK_OPERATION_ID,
+    },
+    "stop_uploader": {
+        "plan_id": _MOCK_PLAN_ID,
+        "plan_title": _MOCK_PLAN_TITLE,
+        "stop_array": _MOCK_STOP_ARRAY,
     },
 }
 
@@ -660,3 +672,80 @@ def test_plan_initializer(response_sequence: list[dict[str, Any]]) -> None:
             caller.writable
             == response_sequence[0]["json.return_value"][CircuitColumns.WRITABLE]
         )
+
+
+@pytest.mark.parametrize(
+    "response_sequence, error_context",
+    [
+        (
+            [
+                {
+                    "status_code": 200,
+                    "json.return_value": {
+                        CircuitColumns.ID: _MOCK_PLAN_ID,
+                        "success": [1, 2],
+                        "failed": [],
+                    },
+                }
+            ],
+            nullcontext(),
+        ),
+        (
+            [
+                {
+                    "status_code": 200,
+                    "json.return_value": {
+                        CircuitColumns.ID: _MOCK_PLAN_ID,
+                        "success": [1],
+                        "failed": [{"error": "mock error"}],
+                    },
+                }
+            ],
+            pytest.raises(
+                RuntimeError,
+                match=re.escape(
+                    f"For {_MOCK_PLAN_TITLE} ({_MOCK_PLAN_ID}), failed to upload stops:"
+                ),
+            ),
+        ),
+        (
+            [
+                {
+                    "status_code": 200,
+                    "json.return_value": {
+                        CircuitColumns.ID: _MOCK_PLAN_ID,
+                        "success": [1],
+                        "failed": [],
+                    },
+                }
+            ],
+            pytest.raises(
+                RuntimeError,
+                match=re.escape(
+                    f"For {_MOCK_PLAN_TITLE} ({_MOCK_PLAN_ID}), "
+                    "did not upload same number of stops as input:"
+                ),
+            ),
+        ),
+    ],
+)
+@typechecked
+def test_stop_uploader(
+    response_sequence: list[dict[str, Any]], error_context: AbstractContextManager
+) -> None:
+    """Test PlanInitializer."""
+    with patch("requests.post") as mock_request:
+        mock_request.side_effect = [Mock(**resp) for resp in response_sequence]
+
+        caller = StopUploader(
+            plan_id=_MOCK_PLAN_ID, plan_title=_MOCK_PLAN_TITLE, stop_array=_MOCK_STOP_ARRAY
+        )
+
+        with error_context:
+            caller.call_api()
+
+            assert (
+                mock_request.call_args_list[0][1]["url"]
+                == f"{CIRCUIT_URL}/{_MOCK_PLAN_ID}/stops:import"
+            )
+            assert caller.stop_ids == response_sequence[0]["json.return_value"]["success"]

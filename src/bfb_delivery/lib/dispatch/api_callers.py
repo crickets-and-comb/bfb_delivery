@@ -488,8 +488,8 @@ class StopUploader(BasePostCaller):
         Sets `stop_ids` to the successful stop IDs.
 
         Raises:
-            RuntimeError: If stops failed to upload or the number of stops uploaded differs
-                from input.
+            RuntimeError: If stops failed to upload.
+            RuntimeError: If the number of stops uploaded differs from input.
         """
         super()._handle_200()
 
