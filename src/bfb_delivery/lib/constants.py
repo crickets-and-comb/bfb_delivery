@@ -86,6 +86,9 @@ class CircuitColumns:
     ZIP: Final[str] = "zip"
 
 
+CIRCUIT_URL: Final[str] = "https://api.getcircuit.com/public/v0.2b"
+
+
 class Columns:
     """Column name constants."""
 

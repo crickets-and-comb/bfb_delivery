@@ -12,7 +12,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import RateLimits
+from bfb_delivery.lib.constants import CIRCUIT_URL, RateLimits
 from bfb_delivery.lib.dispatch.utils import get_circuit_key, get_response_dict
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -426,7 +426,7 @@ class PlanInitializer(BasePostCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call."""
-        self._url = "https://api.getcircuit.com/public/v0.2b/plans"
+        self._url = f"{CIRCUIT_URL}/plans"
 
 
 class StopUploader(BasePostCaller):
@@ -464,7 +464,7 @@ class StopUploader(BasePostCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call with `plan_id`."""
-        self._url = f"https://api.getcircuit.com/public/v0.2b/{self._plan_id}/stops:import"
+        self._url = f"{CIRCUIT_URL}/{self._plan_id}/stops:import"
 
     @typechecked
     def _handle_200(self) -> None:
@@ -502,7 +502,7 @@ class OptimizationLauncher(BaseOptimizationCaller, BasePostCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call with the `plan_id`."""
-        self._url = f"https://api.getcircuit.com/public/v0.2b/{self._plan_id}:optimize"
+        self._url = f"{CIRCUIT_URL}/{self._plan_id}:optimize"
 
 
 class OptimizationChecker(BaseOptimizationCaller, BaseGetCaller):
@@ -527,7 +527,7 @@ class OptimizationChecker(BaseOptimizationCaller, BaseGetCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call."""
-        self._url = f"https://api.getcircuit.com/public/v0.2b/{self.operation_id}"
+        self._url = f"{CIRCUIT_URL}{self.operation_id}"
 
 
 class PlanDistributor(BasePostCaller):
@@ -553,7 +553,7 @@ class PlanDistributor(BasePostCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call with the `plan_id`."""
-        self._url = f"https://api.getcircuit.com/public/v0.2b/{self._plan_id}:distribute"
+        self._url = f"{CIRCUIT_URL}/{self._plan_id}:distribute"
 
     @typechecked
     def _handle_200(self) -> None:
@@ -589,7 +589,7 @@ class PlanDeleter(BaseDeleteCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call with the `plan_id`."""
-        self._url = f"https://api.getcircuit.com/public/v0.2b/{self._plan_id}"
+        self._url = f"{CIRCUIT_URL}/{self._plan_id}"
 
     @typechecked
     def _handle_204(self) -> None:
