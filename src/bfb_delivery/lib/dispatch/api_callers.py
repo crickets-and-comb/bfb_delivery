@@ -542,7 +542,7 @@ class OptimizationChecker(BaseOptimizationCaller, BaseGetCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call."""
-        self._url = f"{CIRCUIT_URL}{self.operation_id}"
+        self._url = f"{CIRCUIT_URL}/{self.operation_id}"
 
 
 class PlanDistributor(BasePostCaller):
