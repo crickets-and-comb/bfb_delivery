@@ -11,16 +11,21 @@
 # TODO: Mock user inputs.
 # TODO: Call upload_split_chunked, and check outputs, called withs, raises.
 
+from collections.abc import Iterator
+
 import pandas as pd
+import pytest
 import requests_mock  # noqa: F401
 from requests_mock import Mocker
+from typeguard import typechecked
 
 from bfb_delivery.lib.constants import CIRCUIT_DRIVERS_URL, CircuitColumns
 from bfb_delivery.lib.dispatch.write_to_circuit import _get_all_drivers
 
 
-def test_get_all_drivers(requests_mock: Mocker) -> None:  # noqa: F811
-    """Test that _get_all_drivers retrieves all drivers from the Circuit API."""
+@pytest.fixture
+def mock_all_drivers_simple(requests_mock: Mocker) -> Iterator[Mocker]:  # noqa: F811
+    """Mock the Circuit API to return a simple list of drivers."""
     next_page_token = "token123"
     first_url = CIRCUIT_DRIVERS_URL
     second_url = CIRCUIT_DRIVERS_URL + f"?pageToken={next_page_token}"
@@ -63,6 +68,12 @@ def test_get_all_drivers(requests_mock: Mocker) -> None:  # noqa: F811
     requests_mock.get(first_url, json=first_response)
     requests_mock.get(second_url, json=second_response)
 
+    yield requests_mock
+
+
+@typechecked
+def test_get_all_drivers(mock_all_drivers_simple: Mocker) -> None:
+    """Test that _get_all_drivers retrieves all drivers from the Circuit API."""
     drivers_df = _get_all_drivers()
 
     pd.testing.assert_frame_equal(
