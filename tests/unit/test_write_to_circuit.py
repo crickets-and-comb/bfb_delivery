@@ -19,8 +19,12 @@ import requests_mock  # noqa: F401
 from requests_mock import Mocker
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import CIRCUIT_DRIVERS_URL, CircuitColumns
-from bfb_delivery.lib.dispatch.write_to_circuit import _get_all_drivers
+from bfb_delivery.lib.constants import (
+    CIRCUIT_DRIVERS_URL,
+    CircuitColumns,
+    IntermediateColumns,
+)
+from bfb_delivery.lib.dispatch.write_to_circuit import _assign_drivers, _get_all_drivers
 
 
 @pytest.fixture
@@ -33,13 +37,13 @@ def mock_all_drivers_simple(requests_mock: Mocker) -> Iterator[Mocker]:  # noqa:
     first_response = {
         "drivers": [
             {
-                CircuitColumns.ID: "driver1",
+                CircuitColumns.ID: "drivers/driver1",
                 CircuitColumns.NAME: "Test Driver1",
                 CircuitColumns.EMAIL: "test1@example.com",
                 CircuitColumns.ACTIVE: True,
             },
             {
-                CircuitColumns.ID: "driverA",
+                CircuitColumns.ID: "drivers/driverA",
                 CircuitColumns.NAME: "Another DriverA",
                 CircuitColumns.EMAIL: "anothera@example.com",
                 CircuitColumns.ACTIVE: True,
@@ -50,13 +54,13 @@ def mock_all_drivers_simple(requests_mock: Mocker) -> Iterator[Mocker]:  # noqa:
     second_response = {
         "drivers": [
             {
-                CircuitColumns.ID: "driver2",
+                CircuitColumns.ID: "drivers/driver2",
                 CircuitColumns.NAME: "Another Driver2",
                 CircuitColumns.EMAIL: "another2@example.com",
                 CircuitColumns.ACTIVE: True,
             },
             {
-                CircuitColumns.ID: "driverB",
+                CircuitColumns.ID: "drivers/driverB",
                 CircuitColumns.NAME: "Test DriverB",
                 CircuitColumns.EMAIL: "testB@example.com",
                 CircuitColumns.ACTIVE: True,
@@ -76,7 +80,12 @@ def mock_driver_df() -> pd.DataFrame:
     """Return a DataFrame of drivers."""
     return pd.DataFrame(
         {
-            CircuitColumns.ID: ["driver1", "driverA", "driver2", "driverB"],
+            CircuitColumns.ID: [
+                "drivers/driver1",
+                "drivers/driverA",
+                "drivers/driver2",
+                "drivers/driverB",
+            ],
             CircuitColumns.NAME: [
                 "Test Driver1",
                 "Another DriverA",
@@ -109,3 +118,43 @@ def test_get_all_drivers(
     pd.testing.assert_frame_equal(
         drivers_df, drivers_df.sort_values(by=CircuitColumns.NAME).reset_index(drop=True)
     )
+
+
+# TODO: Test errors etc.:
+# - Retry if if confirm.lower() != "y"
+# - Invalid inputs.
+def test_assign_drivers(
+    mock_driver_df: pd.DataFrame, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Test that _assign_drivers assigns drivers to routes correctly."""
+    plan_df = pd.DataFrame(
+        {
+            IntermediateColumns.ROUTE_TITLE: ["Test Driver Route1", "Test Driver Route2"],
+            IntermediateColumns.DRIVER_NAME: None,
+            CircuitColumns.EMAIL: None,
+            CircuitColumns.ID: None,
+        }
+    )
+
+    inputs = iter(["1", "2", "y"])
+    monkeypatch.setattr("builtins.input", lambda prompt: next(inputs))
+
+    result_df = _assign_drivers(drivers_df=mock_driver_df, plan_df=plan_df)
+    result_df[CircuitColumns.ACTIVE] = result_df[CircuitColumns.ACTIVE].astype(bool)
+
+    expected_df = pd.concat(
+        [
+            plan_df[[IntermediateColumns.ROUTE_TITLE]],
+            mock_driver_df.iloc[0:2][
+                [
+                    CircuitColumns.NAME,
+                    CircuitColumns.EMAIL,
+                    CircuitColumns.ID,
+                    CircuitColumns.ACTIVE,
+                ]
+            ],
+        ],
+        axis=1,
+    ).rename(columns={CircuitColumns.NAME: IntermediateColumns.DRIVER_NAME})
+
+    pd.testing.assert_frame_equal(result_df, expected_df)

@@ -660,6 +660,7 @@ def _build_plan_stops(
     return plan_stops
 
 
+# TODO: Why isn't this throwing when driver ID is invalid?
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
 def _get_all_drivers() -> DriversGetAllDriversOut:
