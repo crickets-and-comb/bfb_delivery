@@ -424,7 +424,7 @@ class PlansDistributeRoutesIn(PlansOptimizeRoutesOut):
 class PlansDistributeRoutesOut(PlansDistributeRoutesIn):
     """The schema for the plans data after distributing routes."""
 
-    distributed: Series[bool] = _COERCE_FIELD(alias=IntermediateColumns.DISTRIBUTED)
+    distributed: Series[bool] = _COERCE_FIELD(alias=CircuitColumns.DISTRIBUTED)
 
 
 class PlansUploadSplitChunkedOut(PlansDistributeRoutesOut):

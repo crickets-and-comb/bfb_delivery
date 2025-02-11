@@ -548,6 +548,8 @@ class OptimizationChecker(BaseOptimizationCaller, BaseGetCaller):
 class PlanDistributor(BasePostCaller):
     """Class for distributing plans."""
 
+    distributed: bool
+
     #: The ID of the plan.
     _plan_id: str
     #: The title of the plan
@@ -578,7 +580,8 @@ class PlanDistributor(BasePostCaller):
             RuntimeError: If the plan was not distributed.
         """
         super()._handle_200()
-        if not self.response_json["distributed"]:
+        self.distributed = self.response_json["distributed"]
+        if not self.distributed:
             raise RuntimeError(
                 f"Failed to distribute plan {self._plan_title} ({self._plan_id}):"
                 f"\n{self.response_json}"

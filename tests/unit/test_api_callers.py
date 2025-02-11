@@ -19,6 +19,7 @@ from bfb_delivery.lib.dispatch.api_callers import (
     OptimizationChecker,
     OptimizationLauncher,
     PagedResponseGetter,
+    PlanDistributor,
     PlanInitializer,
     StopUploader,
 )
@@ -733,7 +734,7 @@ def test_plan_initializer(response_sequence: list[dict[str, Any]]) -> None:
 def test_stop_uploader(
     response_sequence: list[dict[str, Any]], error_context: AbstractContextManager
 ) -> None:
-    """Test PlanInitializer."""
+    """Test StopUploader."""
     with patch("requests.post") as mock_request:
         mock_request.side_effect = [Mock(**resp) for resp in response_sequence]
 
@@ -749,3 +750,44 @@ def test_stop_uploader(
                 == f"{CIRCUIT_URL}/{_MOCK_PLAN_ID}/stops:import"
             )
             assert caller.stop_ids == response_sequence[0]["json.return_value"]["success"]
+
+
+@pytest.mark.parametrize(
+    "response_sequence, error_context",
+    [
+        (
+            [{"status_code": 200, "json.return_value": {CircuitColumns.DISTRIBUTED: True}}],
+            nullcontext(),
+        ),
+        (
+            [{"status_code": 200, "json.return_value": {CircuitColumns.DISTRIBUTED: False}}],
+            pytest.raises(
+                RuntimeError,
+                match=re.escape(
+                    f"Failed to distribute plan {_MOCK_PLAN_TITLE} ({_MOCK_PLAN_ID}):"
+                ),
+            ),
+        ),
+    ],
+)
+@typechecked
+def test_plan_distributor(
+    response_sequence: list[dict[str, Any]], error_context: AbstractContextManager
+) -> None:
+    """Test PlanDistributor."""
+    with patch("requests.post") as mock_request:
+        mock_request.side_effect = [Mock(**resp) for resp in response_sequence]
+
+        caller = PlanDistributor(plan_id=_MOCK_PLAN_ID, plan_title=_MOCK_PLAN_TITLE)
+
+        with error_context:
+            caller.call_api()
+
+            assert (
+                mock_request.call_args_list[0][1]["url"]
+                == f"{CIRCUIT_URL}/{_MOCK_PLAN_ID}:distribute"
+            )
+            assert (
+                caller.distributed
+                == response_sequence[0]["json.return_value"][CircuitColumns.DISTRIBUTED]
+            )

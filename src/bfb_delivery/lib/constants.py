@@ -60,6 +60,7 @@ class CircuitColumns:
     COUNTRY: Final[str] = "country"
     DAY: Final[str] = "day"
     DEPOT: Final[str] = "depot"
+    DISTRIBUTED: Final[str] = "distributed"
     DRIVERS: Final[str] = "drivers"
     EMAIL: Final[str] = "email"
     EXTERNAL_ID: Final[str] = "externalId"
@@ -509,7 +510,6 @@ FORMATTED_ROUTES_COLUMNS: Final[list[str]] = [
 class IntermediateColumns:
     """Column name constants for intermediate tables."""
 
-    DISTRIBUTED: Final[str] = "distributed"
     DRIVER_NAME: Final[str] = "driver_name"
     DRIVER_SHEET_NAME: Final[str] = "driver_sheet_name"
     INITIALIZED: Final[str] = "initialized"

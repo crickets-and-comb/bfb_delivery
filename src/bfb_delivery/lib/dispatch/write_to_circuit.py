@@ -189,7 +189,7 @@ def upload_split_chunked(
     if not no_distribute:
         plan_df = _distribute_routes(plan_df=plan_df, verbose=verbose)
     else:
-        plan_df[IntermediateColumns.DISTRIBUTED] = False
+        plan_df[CircuitColumns.DISTRIBUTED] = False
 
     plan_df[IntermediateColumns.START_DATE] = start_date
     plan_df.to_csv(plan_df_path, index=False)
@@ -466,11 +466,11 @@ def _distribute_routes(
         "plans."
     )
 
-    plan_df[IntermediateColumns.DISTRIBUTED] = False
+    plan_df[CircuitColumns.DISTRIBUTED] = False
     plan_df.loc[
         (plan_df[IntermediateColumns.PLAN_ID].isin(plan_ids))
         & ~(plan_df[IntermediateColumns.ROUTE_TITLE].isin(errors.keys())),
-        IntermediateColumns.DISTRIBUTED,
+        CircuitColumns.DISTRIBUTED,
     ] = True
     if errors:
         logger.warning(f"Errors distributing plans:\n{errors}")
@@ -491,9 +491,9 @@ def _print_report(plan_df: pd.DataFrame, no_distribute: bool) -> None:
     plans_optimized = plan_df[plan_df[IntermediateColumns.OPTIMIZED] == True][  # noqa: E712
         IntermediateColumns.ROUTE_TITLE
     ].to_list()
-    plans_distributed = plan_df[
-        plan_df[IntermediateColumns.DISTRIBUTED] == True  # noqa: E712
-    ][IntermediateColumns.ROUTE_TITLE].to_list()
+    plans_distributed = plan_df[plan_df[CircuitColumns.DISTRIBUTED] == True][  # noqa: E712
+        IntermediateColumns.ROUTE_TITLE
+    ].to_list()
     report_df = plan_df[
         [
             IntermediateColumns.ROUTE_TITLE,
@@ -501,7 +501,7 @@ def _print_report(plan_df: pd.DataFrame, no_distribute: bool) -> None:
             CircuitColumns.WRITABLE,
             IntermediateColumns.STOPS_UPLOADED,
             IntermediateColumns.OPTIMIZED,
-            IntermediateColumns.DISTRIBUTED,
+            CircuitColumns.DISTRIBUTED,
         ]
     ]
     logger.info(
