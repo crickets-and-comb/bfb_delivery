@@ -88,6 +88,7 @@ class CircuitColumns:
 
 
 CIRCUIT_URL: Final[str] = "https://api.getcircuit.com/public/v0.2b"
+CIRCUIT_DRIVERS_URL: Final[str] = f"{CIRCUIT_URL}/drivers"
 
 
 class Columns:

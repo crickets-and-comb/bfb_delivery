@@ -12,6 +12,7 @@ from typeguard import typechecked
 
 from bfb_delivery.lib.constants import (
     CIRCUIT_DATE_FORMAT,
+    CIRCUIT_DRIVERS_URL,
     MANIFEST_DATE_FORMAT,
     CircuitColumns,
     Columns,
@@ -663,9 +664,8 @@ def _build_plan_stops(
 @pa.check_types(with_pydantic=True, lazy=True)
 def _get_all_drivers() -> DriversGetAllDriversOut:
     """Get all drivers."""
-    url = "https://api.getcircuit.com/public/v0.2b/drivers"
     logger.info("Getting all drivers from Circuit ...")
-    driver_pages = get_responses(url=url)
+    driver_pages = get_responses(url=CIRCUIT_DRIVERS_URL)
     logger.info("Finished getting drivers.")
     drivers_list = concat_response_pages(
         page_list=driver_pages, data_key=CircuitColumns.DRIVERS
