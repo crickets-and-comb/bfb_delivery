@@ -71,33 +71,39 @@ def mock_all_drivers_simple(requests_mock: Mocker) -> Iterator[Mocker]:  # noqa:
     yield requests_mock
 
 
+@pytest.fixture
+def mock_driver_df() -> pd.DataFrame:
+    """Return a DataFrame of drivers."""
+    return pd.DataFrame(
+        {
+            CircuitColumns.ID: ["driver1", "driverA", "driver2", "driverB"],
+            CircuitColumns.NAME: [
+                "Test Driver1",
+                "Another DriverA",
+                "Another Driver2",
+                "Test DriverB",
+            ],
+            CircuitColumns.EMAIL: [
+                "test1@example.com",
+                "anothera@example.com",
+                "another2@example.com",
+                "testB@example.com",
+            ],
+            CircuitColumns.ACTIVE: [True, True, True, True],
+        }
+    )
+
+
 @typechecked
-def test_get_all_drivers(mock_all_drivers_simple: Mocker) -> None:
+def test_get_all_drivers(
+    mock_driver_df: pd.DataFrame, mock_all_drivers_simple: Mocker
+) -> None:
     """Test that _get_all_drivers retrieves all drivers from the Circuit API."""
     drivers_df = _get_all_drivers()
 
     pd.testing.assert_frame_equal(
         drivers_df.sort_values(by=drivers_df.columns.tolist()).reset_index(drop=True),
-        pd.DataFrame(
-            {
-                CircuitColumns.ID: ["driver1", "driverA", "driver2", "driverB"],
-                CircuitColumns.NAME: [
-                    "Test Driver1",
-                    "Another DriverA",
-                    "Another Driver2",
-                    "Test DriverB",
-                ],
-                CircuitColumns.EMAIL: [
-                    "test1@example.com",
-                    "anothera@example.com",
-                    "another2@example.com",
-                    "testB@example.com",
-                ],
-                CircuitColumns.ACTIVE: [True, True, True, True],
-            }
-        )
-        .sort_values(by=drivers_df.columns.tolist())
-        .reset_index(drop=True),
+        mock_driver_df.sort_values(by=drivers_df.columns.tolist()).reset_index(drop=True),
     )
 
     pd.testing.assert_frame_equal(
