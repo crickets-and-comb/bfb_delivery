@@ -1,0 +1,68 @@
+"""Test suite for write_to_circuit.py."""
+
+# NOTE: We're ignoring the top-level `build_routes_from_chunked` since everything it wraps is
+# already under test, except the parts defined in the write_to_circuit module itself, i.e.
+# `upload_split_chunked`.
+
+
+# TODO: Mock data from existing fixtures and tools.
+# TODO: Mock _make_call for each api_caller, including error responses.
+# - Mock 2 pages from PagedResponseGetter._make_call for _get_all_drivers get_responses call.
+# TODO: Mock user inputs.
+# TODO: Call upload_split_chunked, and check outputs, called withs, raises.
+
+import pandas as pd
+import requests_mock  # noqa: F401
+from requests_mock import Mocker
+
+from bfb_delivery.lib.constants import CIRCUIT_DRIVERS_URL, CircuitColumns
+from bfb_delivery.lib.dispatch.write_to_circuit import _get_all_drivers
+
+
+def test_get_all_drivers(requests_mock: Mocker) -> None:  # noqa: F811
+    """Test that _get_all_drivers retrieves all drivers from the Circuit API."""
+    next_page_token = "token123"
+    first_url = CIRCUIT_DRIVERS_URL
+    second_url = CIRCUIT_DRIVERS_URL + f"?pageToken={next_page_token}"
+
+    first_response = {
+        "drivers": [
+            {
+                CircuitColumns.ID: "driver1",
+                CircuitColumns.NAME: "Test Driver",
+                CircuitColumns.EMAIL: "test@example.com",
+                CircuitColumns.ACTIVE: True,
+            }
+        ],
+        "nextPageToken": next_page_token,
+    }
+    second_response = {
+        "drivers": [
+            {
+                CircuitColumns.ID: "driver2",
+                CircuitColumns.NAME: "Another Driver",
+                CircuitColumns.EMAIL: "another@example.com",
+                CircuitColumns.ACTIVE: True,
+            }
+        ],
+        "nextPageToken": None,
+    }
+
+    requests_mock.get(first_url, json=first_response)
+    requests_mock.get(second_url, json=second_response)
+
+    drivers_df = _get_all_drivers()
+
+    pd.testing.assert_frame_equal(
+        drivers_df.sort_values(by=drivers_df.columns.tolist()).reset_index(drop=True),
+        pd.DataFrame(
+            {
+                CircuitColumns.ID: ["driver1", "driver2"],
+                CircuitColumns.NAME: ["Test Driver", "Another Driver"],
+                CircuitColumns.EMAIL: ["test@example.com", "another@example.com"],
+                CircuitColumns.ACTIVE: [True, True],
+            }
+        )
+        .sort_values(by=drivers_df.columns.tolist())
+        .reset_index(drop=True),
+    )
