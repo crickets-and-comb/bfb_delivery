@@ -1,5 +1,6 @@
 """A test suite for the API callers module."""
 
+import re
 from contextlib import AbstractContextManager, nullcontext
 from typing import Any, Final
 from unittest.mock import Mock, patch
@@ -17,6 +18,10 @@ from bfb_delivery.lib.dispatch.api_callers import (
     OptimizationLauncher,
 )
 
+_MOCK_OPERATION_ID: Final[str] = "sdfhsth"
+_MOCK_PLAN_ID: Final[str] = "shrsrtb"
+_MOCK_PLAN_TITLE: Final[str] = "Mock plan title"
+
 _CALLER_DICT: Final[dict[str, type[BaseCaller]]] = {
     "get": BaseGetCaller,
     "post": BasePostCaller,
@@ -31,25 +36,33 @@ _REQUEST_METHOD_DICT: Final[dict[str, str]] = {
     "opt_launcher": "post",
     "opt_checker": "get",
 }
-
 _CALLER_KWARGS_DICT: Final[dict[str, dict[str, Any]]] = {
-    "opt_launcher": {"plan_id": "shrsrtb", "plan_title": "Mock plan title"},
+    "opt_launcher": {"plan_id": _MOCK_PLAN_ID, "plan_title": _MOCK_PLAN_TITLE},
     "opt_checker": {
-        "plan_id": "shrsrtb",
-        "plan_title": "Mock plan title",
-        "operation_id": "tfhnrtyn",
+        "plan_id": _MOCK_PLAN_ID,
+        "plan_title": _MOCK_PLAN_TITLE,
+        "operation_id": _MOCK_OPERATION_ID,
     },
 }
-_OPT_LAUNCHER_JSON_200: Final[dict[str, Any]] = {
+
+_OPT_JSON_200_DONE: Final[dict[str, Any]] = {
     "metadata": {"canceled": False},
-    "id": "sdfhsth",
+    "result": {},
+    "id": _MOCK_OPERATION_ID,
     "done": True,
 }
-_OPT_CHECKER_JSON_200: Final[dict[str, Any]] = {
+_OPT_JSON_200_UNFINISHED: Final[dict[str, Any]] = {
     "metadata": {"canceled": False},
-    "id": "sdfhsth",
-    "done": True,
+    "result": {},
+    "id": _MOCK_OPERATION_ID,
+    "done": False,
 }
+_OPT_JSON_CANCELED: dict[str, Any] = _OPT_JSON_200_DONE.copy()
+_OPT_JSON_CANCELED.update({"metadata": {"canceled": True}})
+_OPT_JSON_SKIPPED: dict[str, Any] = _OPT_JSON_200_DONE.copy()
+_OPT_JSON_SKIPPED["result"] = {"skippedStops": [1, 2, 3]}
+_OPT_JSON_ERROR_CODE: dict[str, Any] = _OPT_JSON_200_DONE.copy()
+_OPT_JSON_ERROR_CODE["result"] = {"code": "MOCK_ERROR_CODE"}
 
 
 @pytest.mark.parametrize("request_type", ["get", "post", "delete"])
@@ -180,7 +193,6 @@ def test_base_caller_response_handling(
             with error_context:
                 mock_caller.call_api()
 
-            if isinstance(error_context, nullcontext):
                 assert mock_caller.response_json == expected_result
 
                 if any(resp["status_code"] == 429 for resp in response_sequence):
@@ -216,7 +228,7 @@ def test_base_caller_response_handling(
                 {
                     "status_code": 200,
                     "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_LAUNCHER_JSON_200,
+                    "json.return_value": _OPT_JSON_200_DONE,
                 }
             ],
             RateLimits.OPTIMIZATION_PER_SECOND,
@@ -227,7 +239,7 @@ def test_base_caller_response_handling(
                 {
                     "status_code": 200,
                     "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_CHECKER_JSON_200,
+                    "json.return_value": _OPT_JSON_200_DONE,
                 }
             ],
             RateLimits.READ_SECONDS,
@@ -306,7 +318,7 @@ def test_base_caller_response_handling(
                 {
                     "status_code": 200,
                     "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_LAUNCHER_JSON_200,
+                    "json.return_value": _OPT_JSON_200_DONE,
                 },
             ],
             RateLimits.OPTIMIZATION_PER_SECOND
@@ -323,7 +335,7 @@ def test_base_caller_response_handling(
                 {
                     "status_code": 200,
                     "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_CHECKER_JSON_200,
+                    "json.return_value": _OPT_JSON_200_DONE,
                 },
             ],
             RateLimits.READ_SECONDS
@@ -379,7 +391,7 @@ def test_base_caller_wait_time_adjusting(
                 {
                     "status_code": 200,
                     "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_LAUNCHER_JSON_200,
+                    "json.return_value": _OPT_JSON_200_DONE,
                 }
             ],
             RateLimits.WRITE_TIMEOUT_SECONDS,
@@ -390,7 +402,7 @@ def test_base_caller_wait_time_adjusting(
                 {
                     "status_code": 200,
                     "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_CHECKER_JSON_200,
+                    "json.return_value": _OPT_JSON_200_DONE,
                 }
             ],
             RateLimits.READ_TIMEOUT_SECONDS,
@@ -463,7 +475,7 @@ def test_base_caller_wait_time_adjusting(
                 {
                     "status_code": 200,
                     "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_LAUNCHER_JSON_200,
+                    "json.return_value": _OPT_JSON_200_DONE,
                 },
             ],
             RateLimits.WRITE_TIMEOUT_SECONDS * RateLimits.WAIT_INCREASE_SCALAR,
@@ -478,7 +490,7 @@ def test_base_caller_wait_time_adjusting(
                 {
                     "status_code": 200,
                     "raise_for_status.side_effect": None,
-                    "json.return_value": _OPT_CHECKER_JSON_200,
+                    "json.return_value": _OPT_JSON_200_DONE,
                 },
             ],
             RateLimits.READ_TIMEOUT_SECONDS * RateLimits.WAIT_INCREASE_SCALAR,
@@ -506,3 +518,184 @@ def test_base_caller_timeout_adjusting(
         mock_caller.call_api()
 
         assert MockCaller._timeout == expected_timeout
+
+
+@pytest.mark.parametrize(
+    "request_type, response_sequence, expected_done_status, error_context",
+    [
+        (
+            "opt_launcher",
+            [
+                {
+                    "status_code": 200,
+                    "raise_for_status.side_effect": None,
+                    "json.return_value": _OPT_JSON_200_DONE,
+                }
+            ],
+            True,
+            nullcontext(),
+        ),
+        (
+            "opt_checker",
+            [
+                {
+                    "status_code": 200,
+                    "raise_for_status.side_effect": None,
+                    "json.return_value": _OPT_JSON_200_DONE,
+                }
+            ],
+            True,
+            nullcontext(),
+        ),
+        (
+            "opt_launcher",
+            [
+                {
+                    "status_code": 200,
+                    "raise_for_status.side_effect": None,
+                    "json.return_value": _OPT_JSON_200_UNFINISHED,
+                }
+            ],
+            False,
+            nullcontext(),
+        ),
+        (
+            "opt_checker",
+            [
+                {
+                    "status_code": 200,
+                    "raise_for_status.side_effect": None,
+                    "json.return_value": _OPT_JSON_200_UNFINISHED,
+                }
+            ],
+            False,
+            nullcontext(),
+        ),
+        (
+            "opt_launcher",
+            [
+                {
+                    "status_code": 200,
+                    "raise_for_status.side_effect": None,
+                    "json.return_value": _OPT_JSON_CANCELED,
+                }
+            ],
+            None,
+            pytest.raises(
+                RuntimeError,
+                match=re.escape(
+                    f"Optimization canceled for {_MOCK_PLAN_TITLE} ({_MOCK_PLAN_ID}):"
+                ),
+            ),
+        ),
+        (
+            "opt_checker",
+            [
+                {
+                    "status_code": 200,
+                    "raise_for_status.side_effect": None,
+                    "json.return_value": _OPT_JSON_CANCELED,
+                }
+            ],
+            None,
+            pytest.raises(
+                RuntimeError,
+                match=re.escape(
+                    f"Optimization canceled for {_MOCK_PLAN_TITLE} ({_MOCK_PLAN_ID}):"
+                ),
+            ),
+        ),
+        (
+            "opt_launcher",
+            [
+                {
+                    "status_code": 200,
+                    "raise_for_status.side_effect": None,
+                    "json.return_value": _OPT_JSON_SKIPPED,
+                }
+            ],
+            None,
+            pytest.raises(
+                RuntimeError,
+                match=re.escape(
+                    f"Skipped optimization stops for {_MOCK_PLAN_TITLE} ({_MOCK_PLAN_ID}):"
+                ),
+            ),
+        ),
+        (
+            "opt_checker",
+            [
+                {
+                    "status_code": 200,
+                    "raise_for_status.side_effect": None,
+                    "json.return_value": _OPT_JSON_SKIPPED,
+                }
+            ],
+            None,
+            pytest.raises(
+                RuntimeError,
+                match=re.escape(
+                    f"Skipped optimization stops for {_MOCK_PLAN_TITLE} ({_MOCK_PLAN_ID}):"
+                ),
+            ),
+        ),
+        (
+            "opt_launcher",
+            [
+                {
+                    "status_code": 200,
+                    "raise_for_status.side_effect": None,
+                    "json.return_value": _OPT_JSON_ERROR_CODE,
+                }
+            ],
+            None,
+            pytest.raises(
+                RuntimeError,
+                match=re.escape(
+                    f"Errors in optimization for {_MOCK_PLAN_TITLE} ({_MOCK_PLAN_ID}):"
+                ),
+            ),
+        ),
+        (
+            "opt_checker",
+            [
+                {
+                    "status_code": 200,
+                    "raise_for_status.side_effect": None,
+                    "json.return_value": _OPT_JSON_ERROR_CODE,
+                }
+            ],
+            None,
+            pytest.raises(
+                RuntimeError,
+                match=re.escape(
+                    f"Errors in optimization for {_MOCK_PLAN_TITLE} ({_MOCK_PLAN_ID}):"
+                ),
+            ),
+        ),
+    ],
+)
+def test_optimization_callers(
+    request_type: str,
+    response_sequence: list[dict[str, Any]],
+    expected_done_status: bool | None,
+    error_context: AbstractContextManager,
+) -> None:
+    """Test timeout adjustment on timeout retry."""
+    with patch(f"requests.{_REQUEST_METHOD_DICT[request_type]}") as mock_request, patch(
+        "bfb_delivery.lib.dispatch.api_callers.sleep"
+    ):
+        mock_request.side_effect = [Mock(**resp) for resp in response_sequence]
+
+        caller = (
+            OptimizationLauncher(**_CALLER_KWARGS_DICT.get(request_type, {}))
+            if request_type == "opt_launcher"
+            else OptimizationChecker(**_CALLER_KWARGS_DICT.get(request_type, {}))
+        )
+        if request_type == "opt_checker":
+            assert caller.operation_id == _MOCK_OPERATION_ID
+
+        with error_context:
+            caller.call_api()
+            assert caller.operation_id == _MOCK_OPERATION_ID
+            assert caller.finished == expected_done_status
