@@ -12,7 +12,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import CIRCUIT_URL, RateLimits
+from bfb_delivery.lib.constants import CIRCUIT_URL, CircuitColumns, RateLimits
 from bfb_delivery.lib.dispatch.utils import get_circuit_key, get_response_dict
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -408,6 +408,11 @@ class PagedResponseGetter(BaseGetCaller):
 class PlanInitializer(BasePostCaller):
     """Class for initializing plans."""
 
+    #: The ID of the plan.
+    plan_id: str
+    #: Whether the plan is writeable.
+    writable: bool
+
     #: The data dictionary for the plan.
     _plan_data: dict
 
@@ -427,6 +432,16 @@ class PlanInitializer(BasePostCaller):
     def _set_url(self) -> None:
         """Set the URL for the API call."""
         self._url = f"{CIRCUIT_URL}/plans"
+
+    @typechecked
+    def _handle_200(self) -> None:
+        """Handle a 200 response.
+
+        Sets `plan_id` and `writable`.
+        """
+        super()._handle_200()
+        self.plan_id = self.response_json[CircuitColumns.ID]
+        self.writable = self.response_json[CircuitColumns.WRITABLE]
 
 
 class StopUploader(BasePostCaller):

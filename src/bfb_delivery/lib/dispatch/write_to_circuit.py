@@ -599,8 +599,8 @@ def _initialize_plans(
                 )
 
             plan_df.loc[idx, [IntermediateColumns.PLAN_ID, CircuitColumns.WRITABLE]] = (
-                plan_initializer.response_json[CircuitColumns.ID],
-                plan_initializer.response_json[CircuitColumns.WRITABLE],
+                plan_initializer.plan_id,
+                plan_initializer.writable,
             )
 
     logger.info(f"Finished initializing plans. Initialized {idx + 1 - len(errors)} plans.")

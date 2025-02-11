@@ -10,7 +10,7 @@ import pytest
 import requests
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import CIRCUIT_URL, RateLimits
+from bfb_delivery.lib.constants import CIRCUIT_URL, CircuitColumns, RateLimits
 from bfb_delivery.lib.dispatch.api_callers import (
     BaseCaller,
     BaseDeleteCaller,
@@ -19,6 +19,7 @@ from bfb_delivery.lib.dispatch.api_callers import (
     OptimizationChecker,
     OptimizationLauncher,
     PagedResponseGetter,
+    PlanInitializer,
 )
 
 _MOCK_OPERATION_ID: Final[str] = "sdfhsth"
@@ -582,14 +583,14 @@ def test_optimization_callers(
 
         with error_context:
             caller.call_api()
-            assert caller.operation_id == _MOCK_OPERATION_ID
-            assert caller.finished == expected_done_status
             assert (
                 mock_request.call_args_list[0][1]["url"]
                 == f"{CIRCUIT_URL}/{kwargs["plan_id"]}:optimize"
                 if request_type == "opt_launcher"
                 else f"{CIRCUIT_URL}{kwargs["operation_id"]}"
             )
+            assert caller.operation_id == _MOCK_OPERATION_ID
+            assert caller.finished == expected_done_status
 
 
 @pytest.mark.parametrize(
@@ -609,22 +610,53 @@ def test_paged_getter(response_sequence: list[dict[str, Any]]) -> None:
         page_url = "https://example.com/api/test"
         caller = PagedResponseGetter(page_url=page_url)
         caller.call_api()
+        assert mock_request.call_args_list[0][1]["url"] == page_url
         assert caller.next_page_salsa == response_sequence[-1]["json.return_value"].get(
             "nextPageToken", None
         )
-        assert mock_request.call_args_list[0][1]["url"] == page_url
 
 
-# @typechecked
-# def test_plan_initializer() -> None:
-#     """Test PagedResponseGetter."""
-#     with patch("requests.get") as mock_request:
-#         mock_request.side_effect = {"status_code": 200, "json.return_value": {}}
+@pytest.mark.parametrize(
+    "response_sequence",
+    [
+        (
+            [
+                {
+                    "status_code": 200,
+                    "json.return_value": {
+                        CircuitColumns.ID: _MOCK_PLAN_ID,
+                        CircuitColumns.WRITABLE: True,
+                    },
+                }
+            ]
+        ),
+        (
+            [
+                {
+                    "status_code": 200,
+                    "json.return_value": {
+                        CircuitColumns.ID: _MOCK_PLAN_ID,
+                        CircuitColumns.WRITABLE: False,
+                    },
+                }
+            ]
+        ),
+    ],
+)
+@typechecked
+def test_plan_initializer(response_sequence: list[dict[str, Any]]) -> None:
+    """Test PlanInitializer."""
+    with patch("requests.post") as mock_request:
+        mock_request.side_effect = [Mock(**resp) for resp in response_sequence]
 
-#         page_url = "https://example.com/api/test"
-#         caller = PagedResponseGetter(page_url=page_url)
-#         caller.call_api()
-#         assert caller.next_page_salsa == response_sequence[-1]["json.return_value"].get(
-#             "nextPageToken", None
-#         )
-#         assert mock_request.call_args_list[0][1]["url"] == page_url
+        plan_data = {"mock_item": "mock_value"}
+        caller = PlanInitializer(plan_data=plan_data)
+        caller.call_api()
+
+        assert mock_request.call_args_list[0][1]["url"] == f"{CIRCUIT_URL}/plans"
+        assert mock_request.call_args_list[0][1]["json"] == plan_data
+        assert caller.plan_id == _MOCK_PLAN_ID
+        assert (
+            caller.writable
+            == response_sequence[0]["json.return_value"][CircuitColumns.WRITABLE]
+        )
