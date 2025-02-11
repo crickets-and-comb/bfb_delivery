@@ -99,3 +99,7 @@ def test_get_all_drivers(mock_all_drivers_simple: Mocker) -> None:
         .sort_values(by=drivers_df.columns.tolist())
         .reset_index(drop=True),
     )
+
+    pd.testing.assert_frame_equal(
+        drivers_df, drivers_df.sort_values(by=CircuitColumns.NAME).reset_index(drop=True)
+    )
