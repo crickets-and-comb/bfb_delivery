@@ -166,15 +166,9 @@ def upload_split_chunked(
     plan_df_path = plan_output_dir / "plans.csv"
     stops_df_path = plan_output_dir / "stops.csv"
 
-    stops_dfs = []
-    with pd.ExcelFile(split_chunked_workbook_fp) as workbook:
-        for sheet in workbook.sheet_names:
-            df = workbook.parse(sheet)
-            df[IntermediateColumns.SHEET_NAME] = str(sheet)
-            stops_dfs.append(df)
-    stops_df = pd.concat(stops_dfs).reset_index(drop=True)
-    stops_df = stops_df.fillna("")
-    stops_df.to_csv(stops_df_path, index=False)
+    stops_df = _create_stops_df(
+        split_chunked_workbook_fp=split_chunked_workbook_fp, stops_df_path=stops_df_path
+    )
 
     plan_df = _create_plans(
         stops_df=stops_df, start_date=start_date, plan_df_path=plan_df_path, verbose=verbose
@@ -260,6 +254,21 @@ def delete_plan(plan_id: str) -> bool:
     deleter.call_api()
 
     return deleter.deletion
+
+
+# TODO: Add schema for this.
+def _create_stops_df(split_chunked_workbook_fp: Path, stops_df_path: Path) -> pd.DataFrame:
+    stops_dfs = []
+    with pd.ExcelFile(split_chunked_workbook_fp) as workbook:
+        for sheet in workbook.sheet_names:
+            df = workbook.parse(sheet)
+            df[IntermediateColumns.SHEET_NAME] = str(sheet)
+            stops_dfs.append(df)
+    stops_df = pd.concat(stops_dfs).reset_index(drop=True)
+    stops_df = stops_df.fillna("")
+    stops_df.to_csv(stops_df_path, index=False)
+
+    return stops_df
 
 
 @schema_error_handler
@@ -743,7 +752,6 @@ def _assign_driver(
                 f"Enter the number of the driver for '{route_title}'"  # noqa: B907
                 "(ctl+c to start over):"
             )
-
         except ValueError:
             print("Invalid input. Please enter a number.")
 
