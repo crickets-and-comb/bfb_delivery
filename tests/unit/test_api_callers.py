@@ -599,9 +599,9 @@ def test_optimization_callers(
             caller.call_api()
             assert (
                 mock_request.call_args_list[0][1]["url"]
-                == f"{CIRCUIT_URL}/{kwargs["plan_id"]}:optimize"
+                == f"{CIRCUIT_URL}/{kwargs['plan_id']}:optimize"
                 if request_type == "opt_launcher"
-                else f"{CIRCUIT_URL}{kwargs["operation_id"]}"
+                else f"{CIRCUIT_URL}{kwargs['operation_id']}"
             )
             assert caller.operation_id == _MOCK_OPERATION_ID
             assert caller.finished == expected_done_status
