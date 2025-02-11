@@ -8,6 +8,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 import requests
+from typeguard import typechecked
 
 from bfb_delivery.lib.constants import CIRCUIT_URL, RateLimits
 from bfb_delivery.lib.dispatch.api_callers import (
@@ -68,6 +69,7 @@ _OPT_JSON_ERROR_CODE["result"] = {"code": "MOCK_ERROR_CODE"}
 
 
 @pytest.fixture(autouse=True)
+@typechecked
 def mock_sleep() -> Iterator[None]:
     """Mock `time.sleep` to avoid waiting in tests."""
     with patch("bfb_delivery.lib.dispatch.api_callers.sleep"):
@@ -150,6 +152,7 @@ def mock_sleep() -> Iterator[None]:
         ),
     ],
 )
+@typechecked
 def test_base_caller_response_handling(
     request_type: str,
     response_sequence: list[dict[str, Any]],
@@ -309,6 +312,7 @@ def test_base_caller_response_handling(
         ),
     ],
 )
+@typechecked
 def test_base_caller_wait_time_adjusting(
     request_type: str, response_sequence: list[dict[str, Any]], expected_wait_time: float
 ) -> None:
@@ -440,6 +444,7 @@ def test_base_caller_wait_time_adjusting(
         ),
     ],
 )
+@typechecked
 def test_base_caller_timeout_adjusting(
     request_type: str, response_sequence: list[dict[str, Any]], expected_timeout: float
 ) -> None:
@@ -556,6 +561,7 @@ def test_base_caller_timeout_adjusting(
         ),
     ],
 )
+@typechecked
 def test_optimization_callers(
     request_type: str,
     response_sequence: list[dict[str, Any]],
@@ -594,6 +600,7 @@ def test_optimization_callers(
         ([{"status_code": 200, "json.return_value": {}}]),
     ],
 )
+@typechecked
 def test_paged_getter(response_sequence: list[dict[str, Any]]) -> None:
     """Test PagedResponseGetter."""
     with patch("requests.get") as mock_request:
@@ -608,4 +615,16 @@ def test_paged_getter(response_sequence: list[dict[str, Any]]) -> None:
         assert mock_request.call_args_list[0][1]["url"] == page_url
 
 
-# TODO: Test called with URLs.
+# @typechecked
+# def test_plan_initializer() -> None:
+#     """Test PagedResponseGetter."""
+#     with patch("requests.get") as mock_request:
+#         mock_request.side_effect = {"status_code": 200, "json.return_value": {}}
+
+#         page_url = "https://example.com/api/test"
+#         caller = PagedResponseGetter(page_url=page_url)
+#         caller.call_api()
+#         assert caller.next_page_salsa == response_sequence[-1]["json.return_value"].get(
+#             "nextPageToken", None
+#         )
+#         assert mock_request.call_args_list[0][1]["url"] == page_url
