@@ -87,7 +87,9 @@ def get_route_files(
     plan_stops_list = _get_raw_stops(
         plan_ids=plans_df[CircuitColumns.ID].tolist(), verbose=verbose
     )
-    routes_df = _transform_routes_df(plan_stops_list=plan_stops_list, plans_df=plans_df)
+    routes_df = _transform_routes_df(
+        plan_stops_list=plan_stops_list, plans_df=plans_df, verbose=verbose
+    )
     _write_routes_dfs(routes_df=routes_df, output_dir=Path(output_dir))
 
     return output_dir
@@ -259,9 +261,10 @@ def _get_raw_stops_list(plan_ids: list[str], verbose: bool) -> list[Any]:
 def _transform_routes_df(
     plan_stops_list: DataFrame[CircuitRoutesTransformInFromDict],
     plans_df: DataFrame[CircuitPlansTransformIn],
+    verbose: bool = False,
 ) -> DataFrame[CircuitRoutesTransformOut]:
     """Transform the raw routes DataFrame."""
-    routes_df = _pare_routes_df(routes_df=plan_stops_list)
+    routes_df = _pare_routes_df(routes_df=plan_stops_list, verbose=verbose)
     del plan_stops_list
 
     routes_df = routes_df.merge(
@@ -340,7 +343,7 @@ def _get_stops_responses(url: str) -> list[dict[str, Any]]:
 
 
 @typechecked
-def _pare_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
+def _pare_routes_df(routes_df: pd.DataFrame, verbose: bool) -> pd.DataFrame:
     routes_df = routes_df[
         [
             # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
@@ -357,32 +360,38 @@ def _pare_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
         ]
     ]
 
-    logger.info("Filtering out stops without routes.")
-    stop_count = len(routes_df)
+    if verbose:
+        logger.info("Filtering out stops without routes.")
+        stop_count = len(routes_df)
+
     routed_stops_mask = [
         isinstance(route_dict, dict) and route_dict.get(CircuitColumns.ID, "") != ""
         for route_dict in routes_df[CircuitColumns.ROUTE]
     ]
     routes_df = routes_df[routed_stops_mask]
-    dropped_count = stop_count - len(routes_df)
-    if dropped_count:
-        logger.warning(f"Dropped {dropped_count} stops without routes.")
-    else:
-        logger.info("Dropped no stops.")
+    if verbose:
+        dropped_count = stop_count - len(routes_df)
+        if dropped_count:
+            logger.warning(f"Dropped {dropped_count} stops without routes.")
+        else:
+            logger.info("Dropped no stops.")
 
-    logger.info("Filtering out depot stops.")
-    stop_count = len(routes_df)
+        logger.info("Filtering out depot stops.")
+        stop_count = len(routes_df)
+
     routes_df[CircuitColumns.PLACE_ID] = routes_df[CircuitColumns.ADDRESS].apply(
         lambda address_dict: address_dict.get(CircuitColumns.PLACE_ID)
     )
     routes_df = routes_df[routes_df[CircuitColumns.PLACE_ID] != DEPOT_PLACE_ID]
-    dropped_count = stop_count - len(routes_df)
-    logger.info(f"Dropped {dropped_count} stops.")
+
+    if verbose:
+        dropped_count = stop_count - len(routes_df)
+        logger.info(f"Dropped {dropped_count} stops.")
 
     stop_count = len(routes_df)
     if not stop_count:
         raise ValueError("No routed stops found for the given plans.")
-    else:
+    elif verbose:
         logger.info(f"Left with {stop_count} routed stops.")
 
     return routes_df
