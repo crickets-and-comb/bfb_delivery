@@ -475,7 +475,6 @@ def _distribute_routes(
         f"{len(plan_df[~(plan_df[IntermediateColumns.ROUTE_TITLE]).isin(errors.keys())])} "
         "plans."
     )
-
     plan_df[CircuitColumns.DISTRIBUTED] = False
     plan_df.loc[
         (plan_df[IntermediateColumns.PLAN_ID].isin(plan_ids))
@@ -526,14 +525,14 @@ def _print_report(plan_df: pd.DataFrame, no_distribute: bool) -> None:
         plans_not_distributed = list(set(plans_attempted) - set(plans_distributed))
         logger.warning(
             "Not all plans were distributed. "
-            f"These are the undistribute plans:\n{plans_not_distributed}"
+            f"These are the undistributed plans:\n{plans_not_distributed}\n"
             "See the above output to see at which steps the plans failed."
         )
     elif no_distribute and len(plans_attempted) != len(plans_optimized):
         plans_not_optimized = list(set(plans_attempted) - set(plans_optimized))
         logger.warning(
             "Not all plans were optimized. "
-            f"These are the unsuccessful plans:\n{plans_not_optimized}"
+            f"These are the non-optimized plans:\n{plans_not_optimized}\n"
             "See the above output to see at which steps the plans failed."
         )
 
@@ -874,7 +873,6 @@ def _confirm_optimizations(
         "Finished optimizing routes. Optimized "
         f"{len([val for val in optimizations_finished.values() if val is True])} routes."
     )
-    # TODO: Why did the routes that failed a check still end up marked as True?
     plan_df.loc[
         plan_df[IntermediateColumns.ROUTE_TITLE].isin(errors.keys()),
         IntermediateColumns.OPTIMIZED,

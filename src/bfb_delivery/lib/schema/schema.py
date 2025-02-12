@@ -410,7 +410,9 @@ class PlansConfirmOptimizationsIn(PlansOptimizeRoutesIn):
 class PlansConfirmOptimizationsOut(PlansConfirmOptimizationsIn):
     """The schema for the plans data after confirming optimizations."""
 
-    routes_optimized: Series[bool] = _NULLABLE_FIELD(alias=IntermediateColumns.OPTIMIZED)
+    routes_optimized: Series = pa.Field(
+        nullable=True, coerce=False, alias=IntermediateColumns.OPTIMIZED
+    )
 
 
 class PlansOptimizeRoutesOut(PlansConfirmOptimizationsOut):
