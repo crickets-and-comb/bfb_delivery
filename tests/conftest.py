@@ -44,5 +44,7 @@ def mock_get_circuit_key_dispatch_utils() -> Iterator:
 @typechecked
 def mock_get_circuit_key_api_callers() -> Iterator:
     """Mock get_circuit_key."""
-    with patch("bfb_delivery.lib.dispatch.api_callers.get_circuit_key", return_value="fakekey"):
+    with patch(
+        "bfb_delivery.lib.dispatch.api_callers.get_circuit_key", return_value="fakekey"
+    ):
         yield
