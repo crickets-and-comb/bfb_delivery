@@ -163,13 +163,9 @@ def _make_plans_df(
             _count_allhhs_dropped(all_hhs=all_hhs, plan_count=plan_count, plan_mask=plan_mask)
 
     else:
-        logger.info("Filtering to specified plan IDs.")
         plan_mask = [plan_id in plan_ids for plan_id in plans_list[CircuitColumns.ID]]
-        dropped_count = plan_count - sum(plan_mask)
-        if dropped_count:
-            logger.warning(f"Dropped {dropped_count} plans.")
-        else:
-            logger.info("Dropped no plans.")
+        if verbose:
+            _count_plan_ids_dropped(plan_count=plan_count, plan_mask=plan_mask)
 
     plans_df = plans_list[plan_mask]
     plan_count = len(plans_df)
@@ -199,17 +195,28 @@ def _make_plans_df(
     return plans_df
 
 
+@typechecked
 def _count_allhhs_dropped(all_hhs: bool, plan_count: int, plan_mask: list[bool]) -> None:
     if all_hhs:
-        logger.info(f'Filtering to only the "{ALL_HHS_DRIVER}" plan.')  # noqa: B907
+        logger.info(f'Filtered to only the "{ALL_HHS_DRIVER}" plan.')  # noqa: B907
     else:
-        logger.info(f'Filtering to all plans except "{ALL_HHS_DRIVER}".')  # noqa: B907
+        logger.info(f'Filtered to all plans except "{ALL_HHS_DRIVER}".')  # noqa: B907
 
     dropped_count = plan_count - sum(plan_mask)
     if not all_hhs and dropped_count != 1:
         logger.warning(f"Dropped {dropped_count} plans.")
     elif dropped_count:
         logger.info(f"Dropped {dropped_count} plans.")
+    else:
+        logger.info("Dropped no plans.")
+
+
+@typechecked
+def _count_plan_ids_dropped(plan_count: int, plan_mask: list[bool]) -> None:
+    logger.info("Filtering to specified plan IDs.")
+    dropped_count = plan_count - sum(plan_mask)
+    if dropped_count:
+        logger.warning(f"Dropped {dropped_count} plans.")
     else:
         logger.info("Dropped no plans.")
 
