@@ -170,7 +170,7 @@ def _make_plans_df(
     plans_df = plans_list[plan_mask]
     plan_count = len(plans_df)
 
-    if all_hhs and plan_count != 1:
+    if all_hhs and plan_count != 1 and verbose:
         logger.warning(
             f'Got {plan_count} "{ALL_HHS_DRIVER}" plans. Expected 1.'  # noqa: B907
         )
