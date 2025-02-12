@@ -287,7 +287,7 @@ def _transform_routes_df(
         inplace=True,
     )
 
-    routes_df = _set_routes_df_values(routes_df=routes_df)
+    routes_df = _set_routes_df_values(routes_df=routes_df, verbose=verbose)
 
     routes_df.sort_values(
         by=[IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO], inplace=True
@@ -398,7 +398,7 @@ def _pare_routes_df(routes_df: pd.DataFrame, verbose: bool) -> pd.DataFrame:
 
 
 @typechecked
-def _set_routes_df_values(routes_df: pd.DataFrame) -> pd.DataFrame:
+def _set_routes_df_values(routes_df: pd.DataFrame, verbose: bool) -> pd.DataFrame:
     routes_df[IntermediateColumns.ROUTE_TITLE] = routes_df[CircuitColumns.ROUTE].apply(
         lambda route_dict: route_dict.get(CircuitColumns.TITLE)
     )
@@ -439,7 +439,7 @@ def _set_routes_df_values(routes_df: pd.DataFrame) -> pd.DataFrame:
 
     # TODO: Verify we want to warn/raise/impute.
     # Give plan ID and instruct to download the routes from Circuit.
-    _warn_and_impute(routes_df=routes_df)
+    _warn_and_impute(routes_df=routes_df, verbose=verbose)
 
     routes_df[Columns.ADDRESS] = (
         routes_df[CircuitColumns.ADDRESS_LINE_1]
@@ -462,22 +462,24 @@ def _clean_title(title_series: pd.Series, warn: bool) -> pd.Series:
 
 
 @typechecked
-def _warn_and_impute(routes_df: pd.DataFrame) -> None:
+def _warn_and_impute(routes_df: pd.DataFrame, verbose: bool) -> None:
     """Warn and impute missing values in the routes DataFrame."""
     missing_order_count = routes_df[Columns.ORDER_COUNT].isna()
     if missing_order_count.any():
         logger.warning(
-            f"Missing order count for {missing_order_count.sum()} stops. Imputing 1 order."
+            f"Missing order count for {missing_order_count.sum()} stops. " "Imputing 1 order."
         )
     routes_df[Columns.ORDER_COUNT] = routes_df[Columns.ORDER_COUNT].fillna(1)
 
     # TODO: Verify we want to do this. Ask, if we want to just overwrite the neighborhood.
     missing_neighborhood = routes_df[Columns.NEIGHBORHOOD].isna()
     if missing_neighborhood.any():
-        logger.warning(
-            f"Missing neighborhood for {missing_neighborhood.sum()} stops."
-            " Imputing best guesses from Circuit-supplied address."
-        )
+        if verbose:
+            # NOTE: This happens for all stops since Circuit doesn't return it.
+            logger.warning(
+                f"Missing neighborhood for {missing_neighborhood.sum()} stops."
+                " Imputing best guesses from Circuit-supplied address."
+            )
     routes_df[Columns.NEIGHBORHOOD] = routes_df[
         [Columns.NEIGHBORHOOD, Columns.ADDRESS]
     ].apply(
