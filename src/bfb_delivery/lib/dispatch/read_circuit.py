@@ -175,14 +175,15 @@ def _make_plans_df(
             f'Got {plan_count} "{ALL_HHS_DRIVER}" plans. Expected 1.'  # noqa: B907
         )
 
-    logger.info("Filtering out plans with no routes.")
     routed_plans_mask = [isinstance(val, list) and len(val) > 0 for val in plans_df["routes"]]
     plans_df = plans_df[routed_plans_mask]
-    dropped_count = plan_count - len(plans_df)
-    if dropped_count:
-        logger.warning(f"Dropped {dropped_count} plans without routes.")
-    else:
-        logger.info("Dropped no plans.")
+    if verbose:
+        logger.info("Filtering out plans with no routes.")
+        dropped_count = plan_count - len(plans_df)
+        if dropped_count:
+            logger.warning(f"Dropped {dropped_count} plans without routes.")
+        else:
+            logger.info("Dropped no plans.")
 
     plan_count = len(plans_df)
     if not plan_count:
