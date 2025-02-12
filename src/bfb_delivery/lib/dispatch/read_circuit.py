@@ -188,7 +188,7 @@ def _make_plans_df(
     plan_count = len(plans_df)
     if not plan_count:
         raise ValueError("No routes found for the given date range.")
-    else:
+    elif verbose:
         logger.info(f"Left with {plan_count} plans.")
 
     plans_df = plans_df[[CircuitColumns.ID, CircuitColumns.TITLE]]
