@@ -79,7 +79,9 @@ def get_route_files(
     )
 
     plans_list = _get_raw_plans(start_date=start_date, end_date=end_date, verbose=verbose)
-    plans_df = _make_plans_df(plans_list=plans_list, plan_ids=plan_ids, all_hhs=all_hhs)
+    plans_df = _make_plans_df(
+        plans_list=plans_list, plan_ids=plan_ids, all_hhs=all_hhs, verbose=verbose
+    )
     # TODO: Add external ID for delivery day so we can filter stops by it in request?
     # After taking over upload.
     plan_stops_list = _get_raw_stops(
@@ -127,6 +129,7 @@ def _make_plans_df(
     plans_list: DataFrame[CircuitPlansFromDict],
     all_hhs: bool,
     plan_ids: list[str] | None = None,
+    verbose: bool = False,
 ) -> DataFrame[CircuitPlansOut]:
     """Make the plans DataFrame from the plans."""
     # What we'd do if not using from_format config:
@@ -146,24 +149,18 @@ def _make_plans_df(
     plan_mask = [True] * plan_count
     if not plan_ids:
         if all_hhs:
-            logger.info(f'Filtering to only the "{ALL_HHS_DRIVER}" plan.')  # noqa: B907
             plan_mask = [
                 ALL_HHS_DRIVER.upper() in title.upper()
                 for title in plans_list[CircuitColumns.TITLE]
             ]
         else:
-            logger.info(f'Filtering to all plans except "{ALL_HHS_DRIVER}".')  # noqa: B907
             plan_mask = [
                 ALL_HHS_DRIVER.upper() not in title.upper()
                 for title in plans_list[CircuitColumns.TITLE]
             ]
-        dropped_count = plan_count - sum(plan_mask)
-        if not all_hhs and dropped_count != 1:
-            logger.warning(f"Dropped {dropped_count} plans.")
-        elif dropped_count:
-            logger.info(f"Dropped {dropped_count} plans.")
-        else:
-            logger.info("Dropped no plans.")
+
+        if verbose:
+            _count_allhhs_dropped(all_hhs=all_hhs, plan_count=plan_count, plan_mask=plan_mask)
 
     else:
         logger.info("Filtering to specified plan IDs.")
@@ -200,6 +197,21 @@ def _make_plans_df(
     plans_df = plans_df[[CircuitColumns.ID, CircuitColumns.TITLE]]
 
     return plans_df
+
+
+def _count_allhhs_dropped(all_hhs: bool, plan_count: int, plan_mask: list[bool]) -> None:
+    if all_hhs:
+        logger.info(f'Filtering to only the "{ALL_HHS_DRIVER}" plan.')  # noqa: B907
+    else:
+        logger.info(f'Filtering to all plans except "{ALL_HHS_DRIVER}".')  # noqa: B907
+
+    dropped_count = plan_count - sum(plan_mask)
+    if not all_hhs and dropped_count != 1:
+        logger.warning(f"Dropped {dropped_count} plans.")
+    elif dropped_count:
+        logger.info(f"Dropped {dropped_count} plans.")
+    else:
+        logger.info("Dropped no plans.")
 
 
 @typechecked
