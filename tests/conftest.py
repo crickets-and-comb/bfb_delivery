@@ -34,7 +34,15 @@ def pytest_sessionfinish(session: Any, exitstatus: pytest.ExitCode) -> None:
 
 @pytest.fixture(autouse=True)
 @typechecked
-def mock_get_circuit_key() -> Iterator:
+def mock_get_circuit_key_dispatch_utils() -> Iterator:
     """Mock get_circuit_key."""
     with patch("bfb_delivery.lib.dispatch.utils.get_circuit_key", return_value="fakekey"):
+        yield
+
+
+@pytest.fixture(autouse=True)
+@typechecked
+def mock_get_circuit_key_api_callers() -> Iterator:
+    """Mock get_circuit_key."""
+    with patch("bfb_delivery.lib.dispatch.api_callers.get_circuit_key", return_value="fakekey"):
         yield

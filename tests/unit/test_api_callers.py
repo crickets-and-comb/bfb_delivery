@@ -85,6 +85,14 @@ _OPT_JSON_ERROR_CODE["result"] = {"code": "MOCK_ERROR_CODE"}
 
 @pytest.fixture(autouse=True)
 @typechecked
+def mock_get_circuit_key_api_callers() -> Iterator:
+    """Mock get_circuit_key."""
+    with patch("bfb_delivery.lib.dispatch.api_callers.get_circuit_key", return_value="fakekey"):
+        yield
+
+
+@pytest.fixture(autouse=True)
+@typechecked
 def mock_sleep() -> Iterator[None]:
     """Mock `time.sleep` to avoid waiting in tests."""
     with patch("bfb_delivery.lib.dispatch.api_callers.sleep"):
