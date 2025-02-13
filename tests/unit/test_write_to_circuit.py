@@ -34,6 +34,7 @@ from bfb_delivery.lib.constants import (
 from bfb_delivery.lib.dispatch.write_to_circuit import (
     _assign_drivers,
     _assign_drivers_to_plans,
+    _create_plans,
     _create_stops_df,
     _get_all_drivers,
     _initialize_plans,
@@ -280,6 +281,8 @@ def test_assign_drivers_to_plans(
     pd.testing.assert_frame_equal(result_df, mock_plan_df_drivers_assigned)
 
 
+# TODO: Test errors etc.:
+# - Marks failed initializations as False.
 @typechecked
 def test_initialize_plans(
     mock_plan_df_drivers_assigned: pd.DataFrame,
@@ -289,5 +292,27 @@ def test_initialize_plans(
     """Test that _initialize_plans initializes plans correctly."""
     result_df = _initialize_plans(
         plan_df=mock_plan_df_drivers_assigned, start_date=_START_DATE, verbose=False
+    )
+    pd.testing.assert_frame_equal(result_df, mock_plan_df_plans_initialized)
+
+
+# TODO: Test errors etc.:
+# - Invalid inputs. (Just put them right in the middle of the list?)
+# - Retry if confirm.lower() != "y"
+# - Raise if inactive drivers selected.
+# - Marks failed initializations as False.
+# - Writes plan_df if _initialize_plans raises.
+@typechecked
+def test_create_plans(
+    mock_stops_df: pd.DataFrame,
+    mock_plan_df_plans_initialized: pd.DataFrame,
+    mock_all_drivers_simple: Mocker,
+    mock_driver_assignment: None,
+    mock_plan_inialization_posts: None,
+    tmp_path: Path,
+) -> None:
+    """Test that _create_plans creates plans correctly."""
+    result_df = _create_plans(
+        stops_df=mock_stops_df, start_date=_START_DATE, plan_df_path=tmp_path, verbose=False
     )
     pd.testing.assert_frame_equal(result_df, mock_plan_df_plans_initialized)
