@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="The Delivery-Planning Workflow" href="workflow.html" /><link rel="prev" title="BFB Delivery: A Cruft Cutter" href="index.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Getting Started - bfb_delivery 0.5.2 documentation</title>
+        <title>Getting Started - bfb_delivery 0.6.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.5.2 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.6.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.5.2 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.6.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -201,8 +201,8 @@
   <ul class="current">
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow.html">The Delivery-Planning Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="create_manifests_from_circuit.html">Create Printable Manifests from Optimized Routes from Circuit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_routes_from_chunked.html">Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_to_bash.html">Intro to Command Line and Bash</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -264,12 +264,50 @@
         <article role="main" id="furo-main-content">
           <section id="getting-started">
 <h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h1>
-<p>If you’re reading this, you are probably an end user who, at the current state of the project, will be using the command-line interface (CLI) to run one or two commands. Before you can use the CLI, you’ll need to do some initial setup on your machine if it hasn’t already been done. This document will walk you through that process.</p>
+<p>If you’re reading this, you are probably an end user who, at the current state of the project, will be using the command-line interface (CLI) to run one or two commands. Before you can use the <code class="docutils literal notranslate"><span class="pre">bfb_deliver</span></code> CLI, you’ll need to do some initial setup on your machine if it hasn’t already been done. This document walks you through that process.</p>
 <section id="setting-up-your-machine">
 <h2>Setting up your machine<a class="headerlink" href="#setting-up-your-machine" title="Link to this heading">¶</a></h2>
+<p>You need to install a terminal app, conda, and the <code class="docutils literal notranslate"><span class="pre">bfb_delivery</span></code> Python package, and you need to create a couple of files. The files you create should be in the same directory where you’ll be running the tool.</p>
+<section id="first-time-setup-installing-the-package">
+<h3>First-time setup: Installing the package<a class="headerlink" href="#first-time-setup-installing-the-package" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">bfb_delivery</span></code> is a Python package. To use it, you should install this package within a virtual environment (a “venv” or an “env”). Here’s how.</p>
+<section id="install-conda-and-terminal">
+<h4>Install conda and terminal<a class="headerlink" href="#install-conda-and-terminal" title="Link to this heading">¶</a></h4>
+<p>A venv is basically a controlled space to install and run stuff. The best way to build an env is to use <code class="docutils literal notranslate"><span class="pre">conda</span></code>.</p>
+<p>Go to <a class="reference external" href="https://www.anaconda.com">https://www.anaconda.com</a> to download and install <code class="docutils literal notranslate"><span class="pre">conda</span></code> on your machine. You’ll have the option to install Anaconda or Miniconda. Miniconda is a smaller version of Anaconda that doesn’t come with all the bells and whistles that Anaconda does. You can install all the packages you need with Miniconda.</p>
+<p>But, the full Anaconda installation comes with a terminal, Anaconda Command Prompt, and you’ll need a terminal to work in your env. You can use the Anaconda Command Prompt that gets installed with Anaconda, or you can use Git Bash or another conda-friendly terminal.</p>
+</section>
+<section id="build-the-env-and-install-the-package">
+<h4>Build the env and install the package<a class="headerlink" href="#build-the-env-and-install-the-package" title="Link to this heading">¶</a></h4>
+<p>Once you have a terminal and <code class="docutils literal notranslate"><span class="pre">conda</span></code> installed, open your terminal and create an env with the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>bfb_delivery<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.12<span class="w"> </span>--yes
+</pre></div>
+</div>
+<p>This will create an env named “bfb_delivery” with Python 3.12 installed. You can name it something else if you’d like.</p>
+<p>Activate the env with the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>activate<span class="w"> </span>bfb_delivery
+</pre></div>
+</div>
+<p>Now install the package in the env:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>bfb_delivery
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It’s important to have the env activated when you install. You want to install the package in the env, not out in the global environment of your machine.</p>
+</div>
+</section>
+</section>
+<section id="using-the-package-once-installed">
+<h3>Using the package once installed<a class="headerlink" href="#using-the-package-once-installed" title="Link to this heading">¶</a></h3>
+<p>Once the package installed, all you need to do is activate the env and you’re good to go. Open your terminal and activate the env with the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>activate<span class="w"> </span>my_bfb_delivery_env_name
+</pre></div>
+</div>
+</section>
 <section id="config-file-setup">
 <h3>Config file setup<a class="headerlink" href="#config-file-setup" title="Link to this heading">¶</a></h3>
-<p>This tool requires a local config file with phone numbers. We store them locally so we don’t put phone numbers in the codebase. The config file should be named <code class="docutils literal notranslate"><span class="pre">config.ini</span></code> and should be in the same directory as where you’re running the tool. The file should look like this:</p>
+<p>This tool requires a local config file with phone numbers. We store them locally so we don’t put phone numbers in the public codebase. The config file should be named <code class="docutils literal notranslate"><span class="pre">config.ini</span></code> and should be in the same directory as where you’re running the tool. The file should look like this:</p>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[phone_numbers]</span>
 <span class="na">driver_support</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">555-555-5555</span>
 <span class="na">recipient_support</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">555-555-5555 x5</span>
@@ -278,8 +316,8 @@
 </section>
 <section id="env-file-setup">
 <h3>.env file setup<a class="headerlink" href="#env-file-setup" title="Link to this heading">¶</a></h3>
-<p>You need a Circuit API key to run the tools that interact with Circuit, and it needs to be in an a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file adjacent to the <code class="docutils literal notranslate"><span class="pre">config.ini</span></code> file above.</p>
-<p>To get a key, log in to Circuit, click on “Settings” in the sidebar, under “Workspace” in that sidebar click on “Integrations,” and under “API” click “Generate New Key.” Copy that key and keep it safe, and never share it. The best way to keep it safe is by putting it in a protected file, like a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file, which is what you need to do anyway.</p>
+<p>You need a Circuit API key to run the tools that interact with Circuit, and it needs to be in a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file adjacent to the <code class="docutils literal notranslate"><span class="pre">config.ini</span></code> file above.</p>
+<p>To get a key, log in to Circuit, click on “Settings” in the sidebar, under “Workspace” in that sidebar click on “Integrations,” and under “API” click “Generate New Key.” Copy that key and keep it safe, and never share it. The best way to keep it safe is by putting it in a protected file, like a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file, which is what you need to do to use the <code class="docutils literal notranslate"><span class="pre">bfb_delivery</span></code> tool anyway.</p>
 <p>Make sure you don’t already have a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span>-a
 </pre></div>
@@ -296,41 +334,12 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CIRCUIT_API_KEY</span><span class="o">=</span>your_api_key_here
 </pre></div>
 </div>
-</section>
-<section id="first-time-setup-installing-the-package">
-<h3>First-time setup: Installing the package<a class="headerlink" href="#first-time-setup-installing-the-package" title="Link to this heading">¶</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">bfb_delivery</span></code> is a Python package. To use it, you should install this package within a virtual environment (a “venv” or an “env”). Here’s how.</p>
-<section id="install-conda-and-terminal">
-<h4>Install conda and terminal<a class="headerlink" href="#install-conda-and-terminal" title="Link to this heading">¶</a></h4>
-<p>A venv is basically a controlled space to install and run stuff. The best way to build an env is to use <code class="docutils literal notranslate"><span class="pre">conda</span></code>.</p>
-<p>Go to <a class="reference external" href="https://www.anaconda.com">https://www.anaconda.com</a> to download and install <code class="docutils literal notranslate"><span class="pre">conda</span></code> on your machine. You’ll have the option to install Anaconda or Miniconda. Miniconda is a smaller version of Anaconda that doesn’t come with all the bells and whistles that Anaconda does. You can install all the packages you need with Miniconda.</p>
-<p>But, you’ll also need a terminal to work in your env. You can use the Anaconda Prompt that gets installed with Anaconda (or Git Bash, or another conda-friendly terminal).</p>
-</section>
-<section id="build-the-env-and-install-the-package">
-<h4>Build the env and install the package<a class="headerlink" href="#build-the-env-and-install-the-package" title="Link to this heading">¶</a></h4>
-<p>Once you have a terminal and <code class="docutils literal notranslate"><span class="pre">conda</span></code> installed, open your terminal and create an env with the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>bfb_delivery_py3.12<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.12<span class="w"> </span>--yes
+<p>Or, instead of opening the file in a text editor, you use the following command to add the key:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;CIRCUIT_API_KEY=your_api_key_here&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.env
 </pre></div>
 </div>
-<p>This will create an env named “bfb_delivery_py3.12” with Python 3.12 installed. You can name it something else if you’d like.</p>
-<p>Activate the env with the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>activate<span class="w"> </span>bfb_delivery_py3.12
-</pre></div>
-</div>
-<p>Now install the package in the env:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>bfb_delivery
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>It’s important to have the env activated when you install. You want to install the package in the env, not out in the global environment of your machine.</p>
-</div>
-</section>
-</section>
-<section id="using-the-package-if-it-s-already-installed">
-<h3>Using the package if it’s already installed<a class="headerlink" href="#using-the-package-if-it-s-already-installed" title="Link to this heading">¶</a></h3>
-<p>If the package is already installed, all you need to do is activate the env and you’re good to go. Open your terminal and activate the env with the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>activate<span class="w"> </span>my_bfb_delivery_env_name
+<p>To check that the key was added correctly, run the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cat<span class="w"> </span>.env
 </pre></div>
 </div>
 </section>
@@ -341,11 +350,11 @@
 <section id="cli">
 <h3>CLI<a class="headerlink" href="#cli" title="Link to this heading">¶</a></h3>
 <p>You can use the command-line-interface (CLI) if you have this package installed in your environment. For example:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>split_chunked_route<span class="w"> </span>--input_path<span class="w"> </span>path/to/input.xlsx
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--input_path<span class="w"> </span>path/to/input.xlsx
 </pre></div>
 </div>
 <p>See <a class="reference internal" href="CLI.html"><span class="doc">CLI</span></a> for more information about each tool. Each tool has a <cite>–help</cite> flag to see all the optional arguments in the CLI:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>split_chunked_route<span class="w"> </span>--help
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--help
 </pre></div>
 </div>
 </section>
@@ -353,31 +362,31 @@
 <h3>Library<a class="headerlink" href="#library" title="Link to this heading">¶</a></h3>
 <p>You are likely only going to use the CLI, but here are some guidelines for using the library.</p>
 <p>Avoid calling library functions directly and stick to the public API:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfb_delivery</span><span class="w"> </span><span class="kn">import</span> <span class="n">split_chunked_route</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfb_delivery</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_routes_from_chunked</span>
 <span class="c1"># These are okay too:</span>
-<span class="c1"># from bfb_delivery.api import split_chunked_route</span>
-<span class="c1"># from bfb_delivery.api.public import split_chunked_route</span>
+<span class="c1"># from bfb_delivery.api import build_routes_from_chunked</span>
+<span class="c1"># from bfb_delivery.api.public import build_routes_from_chunked</span>
 
-<span class="n">split_chunked_route</span><span class="p">(</span><span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/input.xlsx&quot;</span><span class="p">)</span>
+<span class="n">build_routes_from_chunked</span><span class="p">(</span><span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/input.xlsx&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>If you’re a power user or just want to feel like one, you can use the internal API:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfb_delivery.api.internal</span><span class="w"> </span><span class="kn">import</span> <span class="n">split_chunked_route</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfb_delivery.api.internal</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_routes_from_chunked</span>
 
-<span class="n">split_chunked_route</span><span class="p">(</span><span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/input.xlsx&quot;</span><span class="p">)</span>
+<span class="n">build_routes_from_chunked</span><span class="p">(</span><span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/input.xlsx&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Nothing is stopping you from importing from <code class="code docutils literal notranslate"><span class="pre">lib</span></code> directly, but you should avoid it – unless you like to tell people, “Danger is my middle name.” Here’s a taste of danger:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfb_delivery.lib.formatting.sheet_shaping</span><span class="w"> </span><span class="kn">import</span> <span class="n">split_chunked_route</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfb_delivery.lib.dispatch.write_to_circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_routes_from_chunked</span>
 
-<span class="n">split_chunked_route</span><span class="p">(</span><span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/input.xlsx&quot;</span><span class="p">)</span>
+<span class="n">build_routes_from_chunked</span><span class="p">(</span><span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/input.xlsx&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 </section>
 <section id="your-workflow">
 <h2>Your workflow<a class="headerlink" href="#your-workflow" title="Link to this heading">¶</a></h2>
-<p>Once you’re set up, and you have a master list of chunked routes you want to split up and optimize in Circuit, you can begin using this tool. See <a class="reference internal" href="workflow.html"><span class="doc">The Delivery-Planning Workflow</span></a> for how you can use the tools in this package to streamline your delivery route manifest creation process.</p>
+<p>Once you’re set up, and you have a master list of chunked routes you want to split optimize in Circuit, you can begin using this tool. See <a class="reference internal" href="workflow.html"><span class="doc">The Delivery-Planning Workflow</span></a> for how you can use the tools in this package to streamline your delivery route manifest creation process.</p>
 </section>
 <section id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
@@ -443,14 +452,14 @@
             <ul>
 <li><a class="reference internal" href="#">Getting Started</a><ul>
 <li><a class="reference internal" href="#setting-up-your-machine">Setting up your machine</a><ul>
-<li><a class="reference internal" href="#config-file-setup">Config file setup</a></li>
-<li><a class="reference internal" href="#env-file-setup">.env file setup</a></li>
 <li><a class="reference internal" href="#first-time-setup-installing-the-package">First-time setup: Installing the package</a><ul>
 <li><a class="reference internal" href="#install-conda-and-terminal">Install conda and terminal</a></li>
 <li><a class="reference internal" href="#build-the-env-and-install-the-package">Build the env and install the package</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#using-the-package-if-it-s-already-installed">Using the package if it’s already installed</a></li>
+<li><a class="reference internal" href="#using-the-package-once-installed">Using the package once installed</a></li>
+<li><a class="reference internal" href="#config-file-setup">Config file setup</a></li>
+<li><a class="reference internal" href="#env-file-setup">.env file setup</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#usage-examples">Usage examples</a><ul>
@@ -471,7 +480,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=8e576371"></script>
+</div><script src="_static/documentation_options.js?v=2bd037f0"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

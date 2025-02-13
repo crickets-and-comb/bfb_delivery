@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="bfb_delivery.lib.schema.checks package" href="bfb_delivery.lib.schema.checks.html" /><link rel="prev" title="bfb_delivery.lib.formatting package" href="bfb_delivery.lib.formatting.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>bfb_delivery.lib.schema package - bfb_delivery 0.5.2 documentation</title>
+        <title>bfb_delivery.lib.schema package - bfb_delivery 0.6.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.5.2 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.6.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.5.2 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.6.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -201,8 +201,8 @@
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow.html">The Delivery-Planning Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="create_manifests_from_circuit.html">Create Printable Manifests from Optimized Routes from Circuit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_routes_from_chunked.html">Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_to_bash.html">Intro to Command Line and Bash</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -312,7 +312,7 @@
 <p>The data schema for ETL steps.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitPlansFromDict">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitPlansFromDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitPlansFromDict" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitPlansFromDict</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitPlansFromDict" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitPlansOut" title="bfb_delivery.lib.schema.schema.CircuitPlansOut"><code class="xref py py-class docutils literal notranslate"><span class="pre">CircuitPlansOut</span></code></a></p>
 <p>The schema for the Circuit plans data from a JSON-esque dict.</p>
 <p>bfb_delivery.lib.dispatch.read_circuit._make_plans_df input.</p>
@@ -347,7 +347,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitPlansOut">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitPlansOut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitPlansOut" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitPlansOut</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitPlansOut" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameModel</span></code></p>
 <p>The schema for the Circuit plans data.</p>
 <p>bfb_delivery.lib.dispatch.read_circuit._make_plans_df output.</p>
@@ -382,7 +382,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitPlansTransformIn">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitPlansTransformIn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitPlansTransformIn" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitPlansTransformIn</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitPlansTransformIn" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitPlansOut" title="bfb_delivery.lib.schema.schema.CircuitPlansOut"><code class="xref py py-class docutils literal notranslate"><span class="pre">CircuitPlansOut</span></code></a></p>
 <p>The schema for the Circuit plans data.</p>
 <p>bfb_delivery.lib.dispatch.read_circuit._transform_routes_df input.</p>
@@ -401,7 +401,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitRoutesTransformInFromDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitRoutesTransformInFromDict</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameModel</span></code></p>
 <p>The schema for the Circuit routes data from a JSON-esque dict.</p>
 <p>bfb_delivery.lib.dispatch.read_circuit._transform_routes_df input.</p>
@@ -496,7 +496,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitRoutesTransformOut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitRoutesTransformOut</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameModel</span></code></p>
 <p>The schema for the Circuit routes data after transformation.</p>
 <p>bfb_delivery.lib.dispatch.read_circuit._transform_routes_df output.</p>
@@ -651,7 +651,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitRoutesWriteIn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitRoutesWriteIn</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameModel</span></code></p>
 <p>The schema for the Circuit routes data before writing.</p>
 <p>bfb_delivery.lib.dispatch.read_circuit._write_routes_df input.</p>
@@ -761,7 +761,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteInAllHHs">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitRoutesWriteInAllHHs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteInAllHHs" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitRoutesWriteInAllHHs</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteInAllHHs" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn" title="bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn"><code class="xref py py-class docutils literal notranslate"><span class="pre">CircuitRoutesWriteIn</span></code></a></p>
 <p>The schema for the Circuit routes data before writing for “All HHs”.</p>
 <p>bfb_delivery.lib.dispatch.read_circuit._write_routes_df_all_hhs input.</p>
@@ -791,7 +791,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitRoutesWriteOut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">CircuitRoutesWriteOut</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameModel</span></code></p>
 <p>The schema for the Circuit routes data after writing.</p>
 <p>bfb_delivery.lib.dispatch.read_circuit._write_routes_df input,
@@ -856,6 +856,567 @@ called within _write_routes_df as its “output.”</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.stop_no">
 <span class="sig-name descname"><span class="pre">stop_no</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Stop</span> <span class="pre">#'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.stop_no" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.DriversAssignDriverIn">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">DriversAssignDriverIn</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.DriversAssignDriverIn" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.DriversAssignDriversIn" title="bfb_delivery.lib.schema.schema.DriversAssignDriversIn"><code class="xref py py-class docutils literal notranslate"><span class="pre">DriversAssignDriversIn</span></code></a></p>
+<p>The schema for the driver data before assigning a driver.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.DriversAssignDriverIn.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.DriversAssignDriverIn.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config" title="pandera.api.dataframe.model.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.DriversAssignDriverIn.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DriversAssignDriverIn'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.DriversAssignDriverIn.Config.name" title="Link to this definition">¶</a></dt>
+<dd><p>name of schema</p>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.DriversAssignDriversIn">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">DriversAssignDriversIn</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.DriversAssignDriversIn" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut" title="bfb_delivery.lib.schema.schema.DriversGetAllDriversOut"><code class="xref py py-class docutils literal notranslate"><span class="pre">DriversGetAllDriversOut</span></code></a></p>
+<p>The schema for the drivers data before assigning drivers.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.DriversAssignDriversIn.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.DriversAssignDriversIn.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config" title="pandera.api.dataframe.model.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.DriversAssignDriversIn.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DriversAssignDriversIn'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.DriversAssignDriversIn.Config.name" title="Link to this definition">¶</a></dt>
+<dd><p>name of schema</p>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.DriversGetAllDriversOut">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">DriversGetAllDriversOut</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameModel</span></code></p>
+<p>The schema for the drivers data after getting all drivers.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseConfig</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DriversGetAllDriversOut'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.Config.name" title="Link to this definition">¶</a></dt>
+<dd><p>name of schema</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.active">
+<span class="sig-name descname"><span class="pre">active</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'active'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.active" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.email">
+<span class="sig-name descname"><span class="pre">email</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'email'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.email" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'id'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'name'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriverIn">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">PlansAssignDriverIn</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriverIn" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversIn" title="bfb_delivery.lib.schema.schema.PlansAssignDriversIn"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlansAssignDriversIn</span></code></a></p>
+<p>The schema for the plan data before assigning a driver.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriverIn.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriverIn.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config" title="pandera.api.dataframe.model.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriverIn.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PlansAssignDriverIn'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriverIn.Config.name" title="Link to this definition">¶</a></dt>
+<dd><p>name of schema</p>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriverOut">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">PlansAssignDriverOut</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriverOut" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriverIn" title="bfb_delivery.lib.schema.schema.PlansAssignDriverIn"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlansAssignDriverIn</span></code></a></p>
+<p>The schema for the plan data after assigning a driver.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriverOut.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriverOut.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config" title="pandera.api.dataframe.model.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriverOut.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PlansAssignDriverOut'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriverOut.Config.name" title="Link to this definition">¶</a></dt>
+<dd><p>name of schema</p>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriversIn">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">PlansAssignDriversIn</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversIn" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameModel</span></code></p>
+<p>The schema for the plans data before assigning drivers.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriversIn.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseConfig</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriversIn.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PlansAssignDriversIn'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.Config.name" title="Link to this definition">¶</a></dt>
+<dd><p>name of schema</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriversIn.driver_name">
+<span class="sig-name descname"><span class="pre">driver_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'driver_name'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.driver_name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriversIn.email">
+<span class="sig-name descname"><span class="pre">email</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'email'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.email" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriversIn.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'id'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriversIn.route_title">
+<span class="sig-name descname"><span class="pre">route_title</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'route_title'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.route_title" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriversOut">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">PlansAssignDriversOut</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversOut" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriverOut" title="bfb_delivery.lib.schema.schema.PlansAssignDriverOut"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlansAssignDriverOut</span></code></a></p>
+<p>The schema for the plans data after assigning drivers.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriversOut.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversOut.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config" title="pandera.api.dataframe.model.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriversOut.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PlansAssignDriversOut'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversOut.Config.name" title="Link to this definition">¶</a></dt>
+<dd><p>name of schema</p>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">PlansAssignDriversToPlansOut</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversOut" title="bfb_delivery.lib.schema.schema.PlansAssignDriversOut"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlansAssignDriversOut</span></code></a></p>
+<p>The schema for the plans data after assigning drivers.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The configuration for the schema.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.Config.many_to_one">
+<span class="sig-name descname"><span class="pre">many_to_one</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'many_col':</span> <span class="pre">'route_title',</span> <span class="pre">'one_col':</span> <span class="pre">'id'}</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.Config.many_to_one" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PlansAssignDriversToPlansOut'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.driver_name">
+<span class="sig-name descname"><span class="pre">driver_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'driver_name'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.driver_name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.email">
+<span class="sig-name descname"><span class="pre">email</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'email'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.email" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'id'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansBuildStopsIn">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">PlansBuildStopsIn</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansBuildStopsIn" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansCreatePlansOut" title="bfb_delivery.lib.schema.schema.PlansCreatePlansOut"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlansCreatePlansOut</span></code></a></p>
+<p>The schema for the plans data before building stops.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansBuildStopsIn.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansBuildStopsIn.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config" title="pandera.api.dataframe.model.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansBuildStopsIn.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PlansBuildStopsIn'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansBuildStopsIn.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">PlansConfirmOptimizationsIn</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesIn" title="bfb_delivery.lib.schema.schema.PlansOptimizeRoutesIn"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlansOptimizeRoutesIn</span></code></a></p>
+<p>The schema for the plans data after before confirming optimizations.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config" title="pandera.api.dataframe.model.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PlansConfirmOptimizationsIn'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn.routes_optimized">
+<span class="sig-name descname"><span class="pre">routes_optimized</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'optimized'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn.routes_optimized" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">PlansConfirmOptimizationsOut</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn" title="bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlansConfirmOptimizationsIn</span></code></a></p>
+<p>The schema for the plans data after confirming optimizations.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config" title="pandera.api.dataframe.model.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PlansConfirmOptimizationsOut'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut.routes_optimized">
+<span class="sig-name descname"><span class="pre">routes_optimized</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'optimized'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut.routes_optimized" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansCreatePlansOut">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">PlansCreatePlansOut</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansCreatePlansOut" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansOut" title="bfb_delivery.lib.schema.schema.PlansInitializePlansOut"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlansInitializePlansOut</span></code></a></p>
+<p>The schema for the plans data after creating.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansCreatePlansOut.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansCreatePlansOut.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.Config" title="bfb_delivery.lib.schema.schema.PlansInitializePlansOut.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansCreatePlansOut.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PlansCreatePlansOut'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansCreatePlansOut.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansDistributeRoutesIn">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">PlansDistributeRoutesIn</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansDistributeRoutesIn" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesOut" title="bfb_delivery.lib.schema.schema.PlansOptimizeRoutesOut"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlansOptimizeRoutesOut</span></code></a></p>
+<p>The schema for the plans data before distributing routes.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansDistributeRoutesIn.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansDistributeRoutesIn.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config" title="pandera.api.dataframe.model.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansDistributeRoutesIn.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PlansDistributeRoutesIn'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansDistributeRoutesIn.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">PlansDistributeRoutesOut</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansDistributeRoutesIn" title="bfb_delivery.lib.schema.schema.PlansDistributeRoutesIn"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlansDistributeRoutesIn</span></code></a></p>
+<p>The schema for the plans data after distributing routes.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config" title="pandera.api.dataframe.model.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PlansDistributeRoutesOut'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut.distributed">
+<span class="sig-name descname"><span class="pre">distributed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'distributed'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut.distributed" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansInitializePlansIn">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">PlansInitializePlansIn</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansIn" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut" title="bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlansAssignDriversToPlansOut</span></code></a></p>
+<p>The schema for the plans data before initializing.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansInitializePlansIn.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansIn.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.Config" title="bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansInitializePlansIn.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PlansInitializePlansIn'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansIn.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansInitializePlansOut">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">PlansInitializePlansOut</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansOut" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansIn" title="bfb_delivery.lib.schema.schema.PlansInitializePlansIn"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlansInitializePlansIn</span></code></a></p>
+<p>The schema for the plans data after initializing.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansInitializePlansOut.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The configuration for the schema.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansInitializePlansOut.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PlansInitializePlansOut'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansInitializePlansOut.Config.one_to_one">
+<span class="sig-name descname"><span class="pre">one_to_one</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'col_a':</span> <span class="pre">'route_title',</span> <span class="pre">'col_b':</span> <span class="pre">'plan_id'}</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.Config.one_to_one" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansInitializePlansOut.initialized">
+<span class="sig-name descname"><span class="pre">initialized</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'initialized'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.initialized" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansInitializePlansOut.optimization">
+<span class="sig-name descname"><span class="pre">optimization</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'optimization'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.optimization" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansInitializePlansOut.plan_id">
+<span class="sig-name descname"><span class="pre">plan_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'plan_id'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.plan_id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansInitializePlansOut.writable">
+<span class="sig-name descname"><span class="pre">writable</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'writable'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.writable" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansOptimizeRoutesIn">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">PlansOptimizeRoutesIn</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesIn" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut" title="bfb_delivery.lib.schema.schema.PlansUploadStopsOut"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlansUploadStopsOut</span></code></a></p>
+<p>The schema for the plans data before optimizing routes.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansOptimizeRoutesIn.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesIn.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config" title="pandera.api.dataframe.model.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansOptimizeRoutesIn.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PlansOptimizeRoutesIn'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesIn.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansOptimizeRoutesOut">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">PlansOptimizeRoutesOut</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesOut" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut" title="bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlansConfirmOptimizationsOut</span></code></a></p>
+<p>The schema for the plans data after optimizing routes.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansOptimizeRoutesOut.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesOut.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config" title="pandera.api.dataframe.model.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansOptimizeRoutesOut.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PlansOptimizeRoutesOut'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesOut.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansUploadSplitChunkedOut">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">PlansUploadSplitChunkedOut</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansUploadSplitChunkedOut" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut" title="bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlansDistributeRoutesOut</span></code></a></p>
+<p>The schema for the plans data after uploading split chunked routes.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansUploadSplitChunkedOut.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansUploadSplitChunkedOut.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config" title="pandera.api.dataframe.model.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansUploadSplitChunkedOut.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PlansUploadSplitChunkedOut'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansUploadSplitChunkedOut.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansUploadStopsIn">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">PlansUploadStopsIn</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsIn" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansCreatePlansOut" title="bfb_delivery.lib.schema.schema.PlansCreatePlansOut"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlansCreatePlansOut</span></code></a></p>
+<p>The schema for the plans data before uploading stops.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansUploadStopsIn.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsIn.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config" title="pandera.api.dataframe.model.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansUploadStopsIn.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PlansUploadStopsIn'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsIn.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansUploadStopsOut">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">PlansUploadStopsOut</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsIn" title="bfb_delivery.lib.schema.schema.PlansUploadStopsIn"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlansUploadStopsIn</span></code></a></p>
+<p>The schema for the plan data after uploading stops.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config" title="pandera.api.dataframe.model.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PlansUploadStopsOut'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.PlansUploadStopsOut.stops_uploaded">
+<span class="sig-name descname"><span class="pre">stops_uploaded</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'stops_uploaded'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.stops_uploaded" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.Stops">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.schema.</span></span><span class="sig-name descname"><span class="pre">Stops</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.Stops" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameModel</span></code></p>
+<p>The schema for the stops data to upload.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.Stops.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#bfb_delivery.lib.schema.schema.Stops.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The configuration for the schema.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.Stops.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Stops'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.Stops.Config.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.Stops.Config.unique">
+<span class="sig-name descname"><span class="pre">unique</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Name',</span> <span class="pre">'Address',</span> <span class="pre">'Product</span> <span class="pre">Type']</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.Stops.Config.unique" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.Stops.address">
+<span class="sig-name descname"><span class="pre">address</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Address'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.Stops.address" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.Stops.email">
+<span class="sig-name descname"><span class="pre">email</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Email'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.Stops.email" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.Stops.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Name'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.Stops.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.Stops.neighborhood">
+<span class="sig-name descname"><span class="pre">neighborhood</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Neighborhood'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.Stops.neighborhood" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.Stops.notes">
+<span class="sig-name descname"><span class="pre">notes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Notes'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.Stops.notes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.Stops.order_count">
+<span class="sig-name descname"><span class="pre">order_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Order</span> <span class="pre">Count'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.Stops.order_count" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.Stops.phone">
+<span class="sig-name descname"><span class="pre">phone</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Phone'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.Stops.phone" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.Stops.product_type">
+<span class="sig-name descname"><span class="pre">product_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Category</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Product</span> <span class="pre">Type'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.Stops.product_type" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.schema.Stops.sheet_name">
+<span class="sig-name descname"><span class="pre">sheet_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sheet_name'</span></em><a class="headerlink" href="#bfb_delivery.lib.schema.schema.Stops.sheet_name" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1076,6 +1637,191 @@ called within _write_routes_df as its “output.”</p>
 <li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.stop_no"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteOut.stop_no</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.DriversAssignDriverIn"><code class="docutils literal notranslate"><span class="pre">DriversAssignDriverIn</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.DriversAssignDriverIn.Config"><code class="docutils literal notranslate"><span class="pre">DriversAssignDriverIn.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.DriversAssignDriverIn.Config.name"><code class="docutils literal notranslate"><span class="pre">DriversAssignDriverIn.Config.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.DriversAssignDriversIn"><code class="docutils literal notranslate"><span class="pre">DriversAssignDriversIn</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.DriversAssignDriversIn.Config"><code class="docutils literal notranslate"><span class="pre">DriversAssignDriversIn.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.DriversAssignDriversIn.Config.name"><code class="docutils literal notranslate"><span class="pre">DriversAssignDriversIn.Config.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut"><code class="docutils literal notranslate"><span class="pre">DriversGetAllDriversOut</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.Config"><code class="docutils literal notranslate"><span class="pre">DriversGetAllDriversOut.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.Config.name"><code class="docutils literal notranslate"><span class="pre">DriversGetAllDriversOut.Config.name</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.active"><code class="docutils literal notranslate"><span class="pre">DriversGetAllDriversOut.active</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.email"><code class="docutils literal notranslate"><span class="pre">DriversGetAllDriversOut.email</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.id"><code class="docutils literal notranslate"><span class="pre">DriversGetAllDriversOut.id</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.name"><code class="docutils literal notranslate"><span class="pre">DriversGetAllDriversOut.name</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriverIn"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriverIn</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriverIn.Config"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriverIn.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriverIn.Config.name"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriverIn.Config.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriverOut"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriverOut</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriverOut.Config"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriverOut.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriverOut.Config.name"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriverOut.Config.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversIn"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversIn</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.Config"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversIn.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.Config.name"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversIn.Config.name</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.driver_name"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversIn.driver_name</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.email"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversIn.email</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.id"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversIn.id</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.route_title"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversIn.route_title</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversOut"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversOut</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversOut.Config"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversOut.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversOut.Config.name"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversOut.Config.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversToPlansOut</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.Config"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversToPlansOut.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.Config.many_to_one"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversToPlansOut.Config.many_to_one</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.Config.name"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversToPlansOut.Config.name</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.driver_name"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversToPlansOut.driver_name</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.email"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversToPlansOut.email</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.id"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversToPlansOut.id</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansBuildStopsIn"><code class="docutils literal notranslate"><span class="pre">PlansBuildStopsIn</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansBuildStopsIn.Config"><code class="docutils literal notranslate"><span class="pre">PlansBuildStopsIn.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansBuildStopsIn.Config.name"><code class="docutils literal notranslate"><span class="pre">PlansBuildStopsIn.Config.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn"><code class="docutils literal notranslate"><span class="pre">PlansConfirmOptimizationsIn</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn.Config"><code class="docutils literal notranslate"><span class="pre">PlansConfirmOptimizationsIn.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn.Config.name"><code class="docutils literal notranslate"><span class="pre">PlansConfirmOptimizationsIn.Config.name</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn.routes_optimized"><code class="docutils literal notranslate"><span class="pre">PlansConfirmOptimizationsIn.routes_optimized</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut"><code class="docutils literal notranslate"><span class="pre">PlansConfirmOptimizationsOut</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut.Config"><code class="docutils literal notranslate"><span class="pre">PlansConfirmOptimizationsOut.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut.Config.name"><code class="docutils literal notranslate"><span class="pre">PlansConfirmOptimizationsOut.Config.name</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut.routes_optimized"><code class="docutils literal notranslate"><span class="pre">PlansConfirmOptimizationsOut.routes_optimized</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansCreatePlansOut"><code class="docutils literal notranslate"><span class="pre">PlansCreatePlansOut</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansCreatePlansOut.Config"><code class="docutils literal notranslate"><span class="pre">PlansCreatePlansOut.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansCreatePlansOut.Config.name"><code class="docutils literal notranslate"><span class="pre">PlansCreatePlansOut.Config.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansDistributeRoutesIn"><code class="docutils literal notranslate"><span class="pre">PlansDistributeRoutesIn</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansDistributeRoutesIn.Config"><code class="docutils literal notranslate"><span class="pre">PlansDistributeRoutesIn.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansDistributeRoutesIn.Config.name"><code class="docutils literal notranslate"><span class="pre">PlansDistributeRoutesIn.Config.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut"><code class="docutils literal notranslate"><span class="pre">PlansDistributeRoutesOut</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut.Config"><code class="docutils literal notranslate"><span class="pre">PlansDistributeRoutesOut.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut.Config.name"><code class="docutils literal notranslate"><span class="pre">PlansDistributeRoutesOut.Config.name</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut.distributed"><code class="docutils literal notranslate"><span class="pre">PlansDistributeRoutesOut.distributed</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansIn"><code class="docutils literal notranslate"><span class="pre">PlansInitializePlansIn</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansIn.Config"><code class="docutils literal notranslate"><span class="pre">PlansInitializePlansIn.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansIn.Config.name"><code class="docutils literal notranslate"><span class="pre">PlansInitializePlansIn.Config.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansOut"><code class="docutils literal notranslate"><span class="pre">PlansInitializePlansOut</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.Config"><code class="docutils literal notranslate"><span class="pre">PlansInitializePlansOut.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.Config.name"><code class="docutils literal notranslate"><span class="pre">PlansInitializePlansOut.Config.name</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.Config.one_to_one"><code class="docutils literal notranslate"><span class="pre">PlansInitializePlansOut.Config.one_to_one</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.initialized"><code class="docutils literal notranslate"><span class="pre">PlansInitializePlansOut.initialized</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.optimization"><code class="docutils literal notranslate"><span class="pre">PlansInitializePlansOut.optimization</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.plan_id"><code class="docutils literal notranslate"><span class="pre">PlansInitializePlansOut.plan_id</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.writable"><code class="docutils literal notranslate"><span class="pre">PlansInitializePlansOut.writable</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesIn"><code class="docutils literal notranslate"><span class="pre">PlansOptimizeRoutesIn</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesIn.Config"><code class="docutils literal notranslate"><span class="pre">PlansOptimizeRoutesIn.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesIn.Config.name"><code class="docutils literal notranslate"><span class="pre">PlansOptimizeRoutesIn.Config.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesOut"><code class="docutils literal notranslate"><span class="pre">PlansOptimizeRoutesOut</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesOut.Config"><code class="docutils literal notranslate"><span class="pre">PlansOptimizeRoutesOut.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesOut.Config.name"><code class="docutils literal notranslate"><span class="pre">PlansOptimizeRoutesOut.Config.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadSplitChunkedOut"><code class="docutils literal notranslate"><span class="pre">PlansUploadSplitChunkedOut</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadSplitChunkedOut.Config"><code class="docutils literal notranslate"><span class="pre">PlansUploadSplitChunkedOut.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadSplitChunkedOut.Config.name"><code class="docutils literal notranslate"><span class="pre">PlansUploadSplitChunkedOut.Config.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsIn"><code class="docutils literal notranslate"><span class="pre">PlansUploadStopsIn</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsIn.Config"><code class="docutils literal notranslate"><span class="pre">PlansUploadStopsIn.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsIn.Config.name"><code class="docutils literal notranslate"><span class="pre">PlansUploadStopsIn.Config.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut"><code class="docutils literal notranslate"><span class="pre">PlansUploadStopsOut</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config"><code class="docutils literal notranslate"><span class="pre">PlansUploadStopsOut.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config.name"><code class="docutils literal notranslate"><span class="pre">PlansUploadStopsOut.Config.name</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.stops_uploaded"><code class="docutils literal notranslate"><span class="pre">PlansUploadStopsOut.stops_uploaded</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.Stops"><code class="docutils literal notranslate"><span class="pre">Stops</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.Stops.Config"><code class="docutils literal notranslate"><span class="pre">Stops.Config</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.Stops.Config.name"><code class="docutils literal notranslate"><span class="pre">Stops.Config.name</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.Stops.Config.unique"><code class="docutils literal notranslate"><span class="pre">Stops.Config.unique</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.Stops.address"><code class="docutils literal notranslate"><span class="pre">Stops.address</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.Stops.email"><code class="docutils literal notranslate"><span class="pre">Stops.email</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.Stops.name"><code class="docutils literal notranslate"><span class="pre">Stops.name</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.Stops.neighborhood"><code class="docutils literal notranslate"><span class="pre">Stops.neighborhood</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.Stops.notes"><code class="docutils literal notranslate"><span class="pre">Stops.notes</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.Stops.order_count"><code class="docutils literal notranslate"><span class="pre">Stops.order_count</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.Stops.phone"><code class="docutils literal notranslate"><span class="pre">Stops.phone</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.Stops.product_type"><code class="docutils literal notranslate"><span class="pre">Stops.product_type</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.schema.Stops.sheet_name"><code class="docutils literal notranslate"><span class="pre">Stops.sheet_name</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-bfb_delivery.lib.schema.utils">bfb_delivery.lib.schema.utils module</a><ul>
@@ -1094,7 +1840,7 @@ called within _write_routes_df as its “output.”</p>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=8e576371"></script>
+</div><script src="_static/documentation_options.js?v=2bd037f0"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

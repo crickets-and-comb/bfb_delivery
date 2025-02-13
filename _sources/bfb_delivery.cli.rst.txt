@@ -4,6 +4,14 @@ bfb\_delivery.cli package
 Submodules
 ----------
 
+bfb\_delivery.cli.build\_routes\_from\_chunked module
+-----------------------------------------------------
+
+.. automodule:: bfb_delivery.cli.build_routes_from_chunked
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bfb\_delivery.cli.combine\_route\_tables module
 -----------------------------------------------
 

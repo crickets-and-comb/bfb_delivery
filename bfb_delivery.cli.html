@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="bfb_delivery.lib package" href="bfb_delivery.lib.html" /><link rel="prev" title="bfb_delivery.api package" href="bfb_delivery.api.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>bfb_delivery.cli package - bfb_delivery 0.5.2 documentation</title>
+        <title>bfb_delivery.cli package - bfb_delivery 0.6.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.5.2 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.6.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.5.2 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.6.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -201,8 +201,8 @@
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow.html">The Delivery-Planning Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="create_manifests_from_circuit.html">Create Printable Manifests from Optimized Routes from Circuit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_routes_from_chunked.html">Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_to_bash.html">Intro to Command Line and Bash</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -266,6 +266,61 @@
 <h1>bfb_delivery.cli package<a class="headerlink" href="#bfb-delivery-cli-package" title="Link to this heading">¶</a></h1>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-bfb_delivery.cli.build_routes_from_chunked">
+<span id="bfb-delivery-cli-build-routes-from-chunked-module"></span><h2>bfb_delivery.cli.build_routes_from_chunked module<a class="headerlink" href="#module-bfb_delivery.cli.build_routes_from_chunked" title="Link to this heading">¶</a></h2>
+<section id="create-manifests-from-circuit">
+<h3>create_manifests_from_circuit<a class="headerlink" href="#create-manifests-from-circuit" title="Link to this heading">¶</a></h3>
+<p>Build and disbribute routes from chunked routes.</p>
+<p>From a chunked route spreadsheet, builds, optimizes, and distributes routes to drivers.
+Produces a final manifest spreadsheet.</p>
+<p>Prompts interactive user input to confirm driver assignments.</p>
+<p>See <a class="reference internal" href="build_routes_from_chunked.html"><span class="doc">Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet</span></a> for more information.</p>
+<p>Returns:</p>
+<blockquote>
+<div><p>The path to the final manifest spreadsheet.</p>
+</div></blockquote>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>create_manifests_from_circuit<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-create_manifests_from_circuit-input_path">
+<span class="sig-name descname"><span class="pre">--input_path</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;input_path&gt;</span></span><a class="headerlink" href="#cmdoption-create_manifests_from_circuit-input_path" title="Link to this definition">¶</a></dt>
+<dd><p><strong>Required</strong> Path to the chunked route spreadsheet.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-create_manifests_from_circuit-output_dir">
+<span class="sig-name descname"><span class="pre">--output_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_dir&gt;</span></span><a class="headerlink" href="#cmdoption-create_manifests_from_circuit-output_dir" title="Link to this definition">¶</a></dt>
+<dd><p>Path to the output directory. Empty defaults to a new directory in the present working directory, named “deliveries_{date}”.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-create_manifests_from_circuit-start_date">
+<span class="sig-name descname"><span class="pre">--start_date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;start_date&gt;</span></span><a class="headerlink" href="#cmdoption-create_manifests_from_circuit-start_date" title="Link to this definition">¶</a></dt>
+<dd><p>The date to start the routes, as “YYYY-MM-DD”. Empty string defaults to the soonest Friday.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-create_manifests_from_circuit-no_distribute">
+<span class="sig-name descname"><span class="pre">--no_distribute</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-create_manifests_from_circuit-no_distribute" title="Link to this definition">¶</a></dt>
+<dd><p>To skip distributing the routes to drivers after optimizing.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-create_manifests_from_circuit-verbose">
+<span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-create_manifests_from_circuit-verbose" title="Link to this definition">¶</a></dt>
+<dd><p>Whether to print verbose output.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-create_manifests_from_circuit-extra_notes_file">
+<span class="sig-name descname"><span class="pre">--extra_notes_file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;extra_notes_file&gt;</span></span><a class="headerlink" href="#cmdoption-create_manifests_from_circuit-extra_notes_file" title="Link to this definition">¶</a></dt>
+<dd><p>Path to the extra notes file. If empty, uses a constant DataFrame. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes" title="bfb_delivery.lib.constants.ExtraNotes"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.ExtraNotes</span></code></a>.</p>
+</dd></dl>
+
+</section>
 </section>
 <section id="module-bfb_delivery.cli.combine_route_tables">
 <span id="bfb-delivery-cli-combine-route-tables-module"></span><h2>bfb_delivery.cli.combine_route_tables module<a class="headerlink" href="#module-bfb_delivery.cli.combine_route_tables" title="Link to this heading">¶</a></h2>
@@ -389,27 +444,27 @@ output workbook with all routes combined, then formats it.</p>
 </div>
 <p class="rubric">Options</p>
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-create_manifests_from_circuit-start_date">
-<span class="sig-name descname"><span class="pre">--start_date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;start_date&gt;</span></span><a class="headerlink" href="#cmdoption-create_manifests_from_circuit-start_date" title="Link to this definition">¶</a></dt>
-<dd><p>The start date to use in the output workbook sheetnames as “YYYYMMDD”. Empty string (default) uses the soonest Friday. Range is inclusive.</p>
+<dt class="sig sig-object std" id="cmdoption-create_manifests_from_circuit-0">
+<span class="sig-name descname"><span class="pre">--start_date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;start_date&gt;</span></span><a class="headerlink" href="#cmdoption-create_manifests_from_circuit-0" title="Link to this definition">¶</a></dt>
+<dd><p>The start date to use in the output workbook sheetnames as “YYYYMMDD”. Empty string uses the soonest Friday. Range is inclusive.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-create_manifests_from_circuit-end_date">
 <span class="sig-name descname"><span class="pre">--end_date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;end_date&gt;</span></span><a class="headerlink" href="#cmdoption-create_manifests_from_circuit-end_date" title="Link to this definition">¶</a></dt>
-<dd><p>The end date to use in the output workbook sheetnames as “YYYYMMDD”. Empty string (default) uses the start date. Range is inclusive.</p>
+<dd><p>The end date to use in the output workbook sheetnames as “YYYYMMDD”. Empty string uses the start date. Range is inclusive.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-create_manifests_from_circuit-output_dir">
-<span class="sig-name descname"><span class="pre">--output_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_dir&gt;</span></span><a class="headerlink" href="#cmdoption-create_manifests_from_circuit-output_dir" title="Link to this definition">¶</a></dt>
-<dd><p>The directory to write the formatted manifest workbook to. Empty string (default) saves to the <cite>input_dir</cite> directory.</p>
+<dt class="sig sig-object std" id="cmdoption-create_manifests_from_circuit-1">
+<span class="sig-name descname"><span class="pre">--output_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_dir&gt;</span></span><a class="headerlink" href="#cmdoption-create_manifests_from_circuit-1" title="Link to this definition">¶</a></dt>
+<dd><p>The directory to write the formatted manifest workbook to. Empty string saves to the <cite>input_dir</cite> directory.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-create_manifests_from_circuit-output_filename">
 <span class="sig-name descname"><span class="pre">--output_filename</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_filename&gt;</span></span><a class="headerlink" href="#cmdoption-create_manifests_from_circuit-output_filename" title="Link to this definition">¶</a></dt>
-<dd><p>The name of the output workbook. Empty string (default) sets filename to “final_manifests_{date}.xlsx”.</p>
+<dd><p>The name of the output workbook. Empty string sets filename to “final_manifests_{date}.xlsx”.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -421,19 +476,19 @@ output workbook with all routes combined, then formats it.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-create_manifests_from_circuit-all_hhs">
 <span class="sig-name descname"><span class="pre">--all_hhs</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-create_manifests_from_circuit-all_hhs" title="Link to this definition">¶</a></dt>
-<dd><p>Flag to get only the “All HHs” route. False gets all routes except “All HHs”. True gets only the “All HHs” route. NOTE: True returns email column in CSV, for reuploading after splitting.</p>
+<dd><p>Flag to get only the “All HHs” route. False gets all routes except “All HHs”. True gets only the “All HHs” route. Overridden by <cite>plan_ids</cite>.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-create_manifests_from_circuit-verbose">
-<span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-create_manifests_from_circuit-verbose" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object std" id="cmdoption-create_manifests_from_circuit-2">
+<span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-create_manifests_from_circuit-2" title="Link to this definition">¶</a></dt>
 <dd><p>verbose: Flag to print verbose output.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-create_manifests_from_circuit-extra_notes_file">
-<span class="sig-name descname"><span class="pre">--extra_notes_file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;extra_notes_file&gt;</span></span><a class="headerlink" href="#cmdoption-create_manifests_from_circuit-extra_notes_file" title="Link to this definition">¶</a></dt>
-<dd><p>Path to the extra notes file. If empty (default), uses a constant DataFrame. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes" title="bfb_delivery.lib.constants.ExtraNotes"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.ExtraNotes</span></code></a>.</p>
+<dt class="sig sig-object std" id="cmdoption-create_manifests_from_circuit-3">
+<span class="sig-name descname"><span class="pre">--extra_notes_file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;extra_notes_file&gt;</span></span><a class="headerlink" href="#cmdoption-create_manifests_from_circuit-3" title="Link to this definition">¶</a></dt>
+<dd><p>Path to the extra notes file. If empty, uses a constant DataFrame. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes" title="bfb_delivery.lib.constants.ExtraNotes"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.ExtraNotes</span></code></a>.</p>
 </dd></dl>
 
 </section>
@@ -554,7 +609,7 @@ make the manifests: <a class="reference internal" href="bfb_delivery.api.html#bf
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-split_chunked_route-book_one_drivers_file">
 <span class="sig-name descname"><span class="pre">--book_one_drivers_file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;book_one_drivers_file&gt;</span></span><a class="headerlink" href="#cmdoption-split_chunked_route-book_one_drivers_file" title="Link to this definition">¶</a></dt>
-<dd><p>Path to the book-one driver’s file. If empty (default), uses a constant list. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.BookOneDrivers" title="bfb_delivery.lib.constants.BookOneDrivers"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.BookOneDrivers</span></code></a>.</p>
+<dd><p>Path to the book-one driver’s file. If empty, uses a constant list. See <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.BookOneDrivers" title="bfb_delivery.lib.constants.BookOneDrivers"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.BookOneDrivers</span></code></a>.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -628,6 +683,10 @@ make the manifests: <a class="reference internal" href="bfb_delivery.api.html#bf
             <ul>
 <li><a class="reference internal" href="#">bfb_delivery.cli package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-bfb_delivery.cli.build_routes_from_chunked">bfb_delivery.cli.build_routes_from_chunked module</a><ul>
+<li><a class="reference internal" href="#create-manifests-from-circuit">create_manifests_from_circuit</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#module-bfb_delivery.cli.combine_route_tables">bfb_delivery.cli.combine_route_tables module</a><ul>
 <li><a class="reference internal" href="#combine-route-tables">combine_route_tables</a></li>
 </ul>
@@ -660,7 +719,7 @@ make the manifests: <a class="reference internal" href="bfb_delivery.api.html#bf
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=8e576371"></script>
+</div><script src="_static/documentation_options.js?v=2bd037f0"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

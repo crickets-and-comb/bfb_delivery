@@ -6,7 +6,11 @@ Each tool includes a `--help` flag to see all the optional arguments in the CLI.
 
 .. code:: bash
 
-    split_chunked_route --help
+    build_routes_from_chunked --help
+
+.. click:: bfb_delivery.cli.build_routes_from_chunked:main
+   :prog: build_routes_from_chunked
+   :nested: full
 
 .. click:: bfb_delivery.cli.split_chunked_route:main
    :prog: split_chunked_route

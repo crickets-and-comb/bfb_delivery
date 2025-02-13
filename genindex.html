@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#" /><link rel="search" title="Search" href="search.html" />
 
-    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 --><title>Index - bfb_delivery 0.5.2 documentation</title>
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 --><title>Index - bfb_delivery 0.6.1 documentation</title>
 <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -164,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.5.2 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.6.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -188,7 +188,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.5.2 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.6.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -199,8 +199,8 @@
   <ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow.html">The Delivery-Planning Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="create_manifests_from_circuit.html">Create Printable Manifests from Optimized Routes from Circuit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_routes_from_chunked.html">Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_to_bash.html">Intro to Command Line and Bash</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -257,7 +257,7 @@
           
 <section class="genindex-section">
   <h1 id="index">Index</h1>
-  <div class="genindex-jumpbox"><a href="#Symbols"><strong>Symbols</strong></a> | <a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#V"><strong>V</strong></a> | <a href="#W"><strong>W</strong></a></div>
+  <div class="genindex-jumpbox"><a href="#Symbols"><strong>Symbols</strong></a> | <a href="#_"><strong>_</strong></a> | <a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#V"><strong>V</strong></a> | <a href="#W"><strong>W</strong></a> | <a href="#Y"><strong>Y</strong></a> | <a href="#Z"><strong>Z</strong></a></div>
 </section>
 <section id="Symbols" class="genindex-section">
   <h2>Symbols</h2>
@@ -302,9 +302,11 @@
     --extra_notes_file
 
         <ul>
+          <li><a href="CLI.html#cmdoption-build_routes_from_chunked-extra_notes_file">build_routes_from_chunked command line option</a>
+</li>
           <li><a href="CLI.html#cmdoption-create_manifests-extra_notes_file">create_manifests command line option</a>
 </li>
-          <li><a href="CLI.html#cmdoption-create_manifests_from_circuit-extra_notes_file">create_manifests_from_circuit command line option</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-extra_notes_file">[1]</a>
+          <li><a href="CLI.html#cmdoption-create_manifests_from_circuit-extra_notes_file">create_manifests_from_circuit command line option</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-3">[1]</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-extra_notes_file">[2]</a>
 </li>
           <li><a href="CLI.html#cmdoption-format_combined_routes-extra_notes_file">format_combined_routes command line option</a>, <a href="bfb_delivery.cli.html#cmdoption-format_combined_routes-extra_notes_file">[1]</a>
 </li>
@@ -322,6 +324,10 @@
     --input_path
 
         <ul>
+          <li><a href="CLI.html#cmdoption-build_routes_from_chunked-input_path">build_routes_from_chunked command line option</a>
+</li>
+          <li><a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-input_path">create_manifests_from_circuit command line option</a>
+</li>
           <li><a href="CLI.html#cmdoption-format_combined_routes-input_path">format_combined_routes command line option</a>, <a href="bfb_delivery.cli.html#cmdoption-format_combined_routes-input_path">[1]</a>
 </li>
           <li><a href="CLI.html#cmdoption-split_chunked_route-input_path">split_chunked_route command line option</a>, <a href="bfb_delivery.cli.html#cmdoption-split_chunked_route-input_path">[1]</a>
@@ -337,14 +343,25 @@
 </li>
         </ul></li>
         <li>
+    --no_distribute
+
+        <ul>
+          <li><a href="CLI.html#cmdoption-build_routes_from_chunked-no_distribute">build_routes_from_chunked command line option</a>
+</li>
+          <li><a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-no_distribute">create_manifests_from_circuit command line option</a>
+</li>
+        </ul></li>
+        <li>
     --output_dir
 
         <ul>
+          <li><a href="CLI.html#cmdoption-build_routes_from_chunked-output_dir">build_routes_from_chunked command line option</a>
+</li>
           <li><a href="bfb_delivery.cli.html#cmdoption-combine_route_tables-1">combine_route_tables command line option</a>, <a href="bfb_delivery.cli.html#cmdoption-combine_route_tables-output_dir">[1]</a>
 </li>
           <li><a href="CLI.html#cmdoption-create_manifests-output_dir">create_manifests command line option</a>
 </li>
-          <li><a href="CLI.html#cmdoption-create_manifests_from_circuit-output_dir">create_manifests_from_circuit command line option</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-output_dir">[1]</a>
+          <li><a href="CLI.html#cmdoption-create_manifests_from_circuit-output_dir">create_manifests_from_circuit command line option</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-1">[1]</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-output_dir">[2]</a>
 </li>
           <li><a href="CLI.html#cmdoption-format_combined_routes-output_dir">format_combined_routes command line option</a>, <a href="bfb_delivery.cli.html#cmdoption-format_combined_routes-output_dir">[1]</a>
 </li>
@@ -370,16 +387,312 @@
     --start_date
 
         <ul>
-          <li><a href="CLI.html#cmdoption-create_manifests_from_circuit-start_date">create_manifests_from_circuit command line option</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-start_date">[1]</a>
+          <li><a href="CLI.html#cmdoption-build_routes_from_chunked-start_date">build_routes_from_chunked command line option</a>
+</li>
+          <li><a href="CLI.html#cmdoption-create_manifests_from_circuit-start_date">create_manifests_from_circuit command line option</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-0">[1]</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-start_date">[2]</a>
 </li>
         </ul></li>
         <li>
     --verbose
 
         <ul>
-          <li><a href="CLI.html#cmdoption-create_manifests_from_circuit-verbose">create_manifests_from_circuit command line option</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-verbose">[1]</a>
+          <li><a href="CLI.html#cmdoption-build_routes_from_chunked-verbose">build_routes_from_chunked command line option</a>
+</li>
+          <li><a href="CLI.html#cmdoption-create_manifests_from_circuit-verbose">create_manifests_from_circuit command line option</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-2">[1]</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-verbose">[2]</a>
 </li>
         </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="_" class="genindex-section">
+  <h2>_</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes.__init__">__init__() (bfb_delivery.lib.constants.ExtraNotes method)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller.__init__">(bfb_delivery.lib.dispatch.api_callers.BaseCaller method)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller.__init__">(bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller method)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.OptimizationChecker.__init__">(bfb_delivery.lib.dispatch.api_callers.OptimizationChecker method)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PagedResponseGetter.__init__">(bfb_delivery.lib.dispatch.api_callers.PagedResponseGetter method)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDeleter.__init__">(bfb_delivery.lib.dispatch.api_callers.PlanDeleter method)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDistributor.__init__">(bfb_delivery.lib.dispatch.api_callers.PlanDistributor method)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanInitializer.__init__">(bfb_delivery.lib.dispatch.api_callers.PlanInitializer method)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.StopUploader.__init__">(bfb_delivery.lib.dispatch.api_callers.StopUploader method)</a>
+</li>
+        </ul></li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.BookOneDrivers.__new__">__new__() (bfb_delivery.lib.constants.BookOneDrivers method)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.BoxType.__new__">(bfb_delivery.lib.constants.BoxType method)</a>
+</li>
+        </ul></li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._add_aggregate_block">_add_aggregate_block() (in module bfb_delivery.lib.formatting.sheet_shaping)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._add_header_row">_add_header_row() (in module bfb_delivery.lib.formatting.sheet_shaping)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._aggregate_route_data">_aggregate_route_data() (in module bfb_delivery.lib.formatting.sheet_shaping)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._append_extra_notes">_append_extra_notes() (in module bfb_delivery.lib.formatting.sheet_shaping)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._auto_adjust_column_widths">_auto_adjust_column_widths() (in module bfb_delivery.lib.formatting.sheet_shaping)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.write_to_circuit._build_stop_array">_build_stop_array() (in module bfb_delivery.lib.dispatch.write_to_circuit)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._call_api">_call_api() (bfb_delivery.lib.dispatch.api_callers.BaseCaller method)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._call_kwargs">_call_kwargs (bfb_delivery.lib.dispatch.api_callers.BaseCaller attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._clean_title">_clean_title() (in module bfb_delivery.lib.dispatch.read_circuit)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._count_allhhs_dropped">_count_allhhs_dropped() (in module bfb_delivery.lib.dispatch.read_circuit)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._count_plan_ids_dropped">_count_plan_ids_dropped() (in module bfb_delivery.lib.dispatch.read_circuit)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.write_to_circuit._create_stops_df">_create_stops_df() (in module bfb_delivery.lib.dispatch.write_to_circuit)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._decrease_wait_time">_decrease_wait_time() (bfb_delivery.lib.dispatch.api_callers.BaseCaller method)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_address">_format_and_validate_address() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_box_type">_format_and_validate_box_type() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_driver">_format_and_validate_driver() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_email">_format_and_validate_email() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_name">_format_and_validate_name() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_names_base">_format_and_validate_names_base() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_names_title">_format_and_validate_names_title() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_names_to_upper">_format_and_validate_names_to_upper() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_neighborhood">_format_and_validate_neighborhood() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_order_count">_format_and_validate_order_count() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_phone">_format_and_validate_phone() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_product_or_box_type">_format_and_validate_product_or_box_type() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_product_type">_format_and_validate_product_type() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_stop_no">_format_and_validate_stop_no() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_int">_format_int() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_notes">_format_notes() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_string">_format_string() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
+</li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.BookOneDrivers._generate_next_value_">_generate_next_value_() (bfb_delivery.lib.constants.BookOneDrivers static method)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.BoxType._generate_next_value_">(bfb_delivery.lib.constants.BoxType static method)</a>
+</li>
+        </ul></li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._get_driver_sets">_get_driver_sets() (in module bfb_delivery.lib.formatting.sheet_shaping)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._get_left_block">_get_left_block() (in module bfb_delivery.lib.formatting.sheet_shaping)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._get_plan_responses">_get_plan_responses() (in module bfb_delivery.lib.dispatch.read_circuit)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._get_raw_plans">_get_raw_plans() (in module bfb_delivery.lib.dispatch.read_circuit)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._get_raw_stops">_get_raw_stops() (in module bfb_delivery.lib.dispatch.read_circuit)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list">_get_raw_stops_list() (in module bfb_delivery.lib.dispatch.read_circuit)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._get_right_block">_get_right_block() (in module bfb_delivery.lib.formatting.sheet_shaping)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._get_stops_responses">_get_stops_responses() (in module bfb_delivery.lib.dispatch.read_circuit)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._getcwd">_getcwd() (in module bfb_delivery.lib.dispatch.read_circuit)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._group_numbered_drivers">_group_numbered_drivers() (in module bfb_delivery.lib.formatting.sheet_shaping)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._handle_200">_handle_200() (bfb_delivery.lib.dispatch.api_callers.BaseCaller method)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller._handle_200">(bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller method)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PagedResponseGetter._handle_200">(bfb_delivery.lib.dispatch.api_callers.PagedResponseGetter method)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDistributor._handle_200">(bfb_delivery.lib.dispatch.api_callers.PlanDistributor method)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanInitializer._handle_200">(bfb_delivery.lib.dispatch.api_callers.PlanInitializer method)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.StopUploader._handle_200">(bfb_delivery.lib.dispatch.api_callers.StopUploader method)</a>
+</li>
+        </ul></li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._handle_204">_handle_204() (bfb_delivery.lib.dispatch.api_callers.BaseCaller method)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDeleter._handle_204">(bfb_delivery.lib.dispatch.api_callers.PlanDeleter method)</a>
+</li>
+        </ul></li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._handle_429">_handle_429() (bfb_delivery.lib.dispatch.api_callers.BaseCaller method)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._handle_timeout">_handle_timeout() (bfb_delivery.lib.dispatch.api_callers.BaseCaller method)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._handle_unknown_error">_handle_unknown_error() (bfb_delivery.lib.dispatch.api_callers.BaseCaller method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._increase_timeout">_increase_timeout() (bfb_delivery.lib.dispatch.api_callers.BaseCaller method)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._increase_wait_time">_increase_wait_time() (bfb_delivery.lib.dispatch.api_callers.BaseCaller method)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._make_call">_make_call() (bfb_delivery.lib.dispatch.api_callers.BaseCaller method)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._make_manifest_sheet">_make_manifest_sheet() (in module bfb_delivery.lib.formatting.sheet_shaping)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._make_plans_df">_make_plans_df() (in module bfb_delivery.lib.dispatch.read_circuit)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._merge_and_wrap_neighborhoods">_merge_and_wrap_neighborhoods() (in module bfb_delivery.lib.formatting.sheet_shaping)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._min_wait_seconds">_min_wait_seconds (bfb_delivery.lib.dispatch.api_callers.BaseCaller attribute)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseGetCaller._min_wait_seconds">(bfb_delivery.lib.dispatch.api_callers.BaseGetCaller attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller._min_wait_seconds">(bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BasePostCaller._min_wait_seconds">(bfb_delivery.lib.dispatch.api_callers.BasePostCaller attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.OptimizationChecker._min_wait_seconds">(bfb_delivery.lib.dispatch.api_callers.OptimizationChecker attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.StopUploader._min_wait_seconds">(bfb_delivery.lib.dispatch.api_callers.StopUploader attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._move_book_one_drivers_to_front">_move_book_one_drivers_to_front() (in module bfb_delivery.lib.formatting.sheet_shaping)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PagedResponseGetter._page_url">_page_url (bfb_delivery.lib.dispatch.api_callers.PagedResponseGetter attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._pare_routes_df">_pare_routes_df() (in module bfb_delivery.lib.dispatch.read_circuit)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.write_to_circuit._parse_addresses">_parse_addresses() (in module bfb_delivery.lib.dispatch.write_to_circuit)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._parse_response">_parse_response() (bfb_delivery.lib.dispatch.api_callers.BaseCaller method)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanInitializer._plan_data">_plan_data (bfb_delivery.lib.dispatch.api_callers.PlanInitializer attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller._plan_id">_plan_id (bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller attribute)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDistributor._plan_id">(bfb_delivery.lib.dispatch.api_callers.PlanDistributor attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.StopUploader._plan_id">(bfb_delivery.lib.dispatch.api_callers.StopUploader attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller._plan_title">_plan_title (bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller attribute)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDistributor._plan_title">(bfb_delivery.lib.dispatch.api_callers.PlanDistributor attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.StopUploader._plan_title">(bfb_delivery.lib.dispatch.api_callers.StopUploader attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.write_to_circuit._print_report">_print_report() (in module bfb_delivery.lib.dispatch.write_to_circuit)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._raise_for_status">_raise_for_status() (bfb_delivery.lib.dispatch.api_callers.BaseCaller method)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._request_call">_request_call (bfb_delivery.lib.dispatch.api_callers.BaseCaller attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._response">_response (bfb_delivery.lib.dispatch.api_callers.BaseCaller attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._set_request_call">_set_request_call() (bfb_delivery.lib.dispatch.api_callers.BaseCaller method)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseDeleteCaller._set_request_call">(bfb_delivery.lib.dispatch.api_callers.BaseDeleteCaller method)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseGetCaller._set_request_call">(bfb_delivery.lib.dispatch.api_callers.BaseGetCaller method)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BasePostCaller._set_request_call">(bfb_delivery.lib.dispatch.api_callers.BasePostCaller method)</a>
+</li>
+        </ul></li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._set_routes_df_values">_set_routes_df_values() (in module bfb_delivery.lib.dispatch.read_circuit)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._set_url">_set_url() (bfb_delivery.lib.dispatch.api_callers.BaseCaller method)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.OptimizationChecker._set_url">(bfb_delivery.lib.dispatch.api_callers.OptimizationChecker method)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.OptimizationLauncher._set_url">(bfb_delivery.lib.dispatch.api_callers.OptimizationLauncher method)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PagedResponseGetter._set_url">(bfb_delivery.lib.dispatch.api_callers.PagedResponseGetter method)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDeleter._set_url">(bfb_delivery.lib.dispatch.api_callers.PlanDeleter method)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDistributor._set_url">(bfb_delivery.lib.dispatch.api_callers.PlanDistributor method)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanInitializer._set_url">(bfb_delivery.lib.dispatch.api_callers.PlanInitializer method)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.StopUploader._set_url">(bfb_delivery.lib.dispatch.api_callers.StopUploader method)</a>
+</li>
+        </ul></li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._split_driver_list">_split_driver_list() (in module bfb_delivery.lib.formatting.sheet_shaping)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._split_multi_route_drivers">_split_multi_route_drivers() (in module bfb_delivery.lib.dispatch.read_circuit)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._timeout">_timeout (bfb_delivery.lib.dispatch.api_callers.BaseCaller attribute)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseGetCaller._timeout">(bfb_delivery.lib.dispatch.api_callers.BaseGetCaller attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller._timeout">(bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BasePostCaller._timeout">(bfb_delivery.lib.dispatch.api_callers.BasePostCaller attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.OptimizationChecker._timeout">(bfb_delivery.lib.dispatch.api_callers.OptimizationChecker attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._url">_url (bfb_delivery.lib.dispatch.api_callers.BaseCaller attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._validate_col_not_empty">_validate_col_not_empty() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._validate_greater_than_zero">_validate_greater_than_zero() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._validate_order_count">_validate_order_count() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._validate_stop_no">_validate_stop_no() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._wait_decrease_scalar">_wait_decrease_scalar (bfb_delivery.lib.dispatch.api_callers.BaseCaller attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._wait_increase_scalar">_wait_increase_scalar (bfb_delivery.lib.dispatch.api_callers.BaseCaller attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._wait_seconds">_wait_seconds (bfb_delivery.lib.dispatch.api_callers.BaseCaller attribute)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseGetCaller._wait_seconds">(bfb_delivery.lib.dispatch.api_callers.BaseGetCaller attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller._wait_seconds">(bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BasePostCaller._wait_seconds">(bfb_delivery.lib.dispatch.api_callers.BasePostCaller attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.OptimizationChecker._wait_seconds">(bfb_delivery.lib.dispatch.api_callers.OptimizationChecker attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.StopUploader._wait_seconds">(bfb_delivery.lib.dispatch.api_callers.StopUploader attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._warn_and_impute">_warn_and_impute() (in module bfb_delivery.lib.dispatch.read_circuit)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._word_wrap_column">_word_wrap_column() (in module bfb_delivery.lib.formatting.sheet_shaping)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._word_wrap_columns">_word_wrap_columns() (in module bfb_delivery.lib.formatting.sheet_shaping)</a>
+</li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._write_data_to_sheet">_write_data_to_sheet() (in module bfb_delivery.lib.formatting.sheet_shaping)</a>
+</li>
     </ul></td>
   </tr></table>
 </section>
@@ -388,6 +701,10 @@
   <h2>A</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.ACTIVE">ACTIVE (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.active">active (bfb_delivery.lib.schema.schema.DriversGetAllDriversOut attribute)</a>
+</li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.ADDRESS">ADDRESS (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
 
         <ul>
@@ -403,6 +720,8 @@
 </li>
           <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.address">(bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut attribute)</a>
 </li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.address">(bfb_delivery.lib.schema.schema.Stops attribute)</a>
+</li>
         </ul></li>
         <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config.address1_in_address">address1_in_address (bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.Config attribute)</a>
 </li>
@@ -416,10 +735,14 @@
 </li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.ADDRESS_LINE_2">ADDRESS_LINE_2 (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
 </li>
-        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.at_least_one_in_group">at_least_one_in_group (bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config attribute)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.ADDRESS_NAME">ADDRESS_NAME (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.ALLOWED_DRIVERS">ALLOWED_DRIVERS (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.at_least_one_in_group">at_least_one_in_group (bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config attribute)</a>
+</li>
         <li><a href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.dataframe_checks.at_least_one_in_group">at_least_one_in_group() (in module bfb_delivery.lib.schema.checks.dataframe_checks)</a>
 </li>
         <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config.at_least_one_in_group_route_sheet">at_least_one_in_group_route_sheet (bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.Config attribute)</a>
@@ -460,6 +783,16 @@
   <h2>B</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller">BaseCaller (class in bfb_delivery.lib.dispatch.api_callers)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseDeleteCaller">BaseDeleteCaller (class in bfb_delivery.lib.dispatch.api_callers)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseGetCaller">BaseGetCaller (class in bfb_delivery.lib.dispatch.api_callers)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller">BaseOptimizationCaller (class in bfb_delivery.lib.dispatch.api_callers)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BasePostCaller">BasePostCaller (class in bfb_delivery.lib.dispatch.api_callers)</a>
+</li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.BoxType.BASIC">BASIC (bfb_delivery.lib.constants.BoxType attribute)</a>
 
         <ul>
@@ -503,6 +836,13 @@
 
         <ul>
           <li><a href="bfb_delivery.cli.html#module-bfb_delivery.cli">module</a>
+</li>
+        </ul></li>
+        <li>
+    bfb_delivery.cli.build_routes_from_chunked
+
+        <ul>
+          <li><a href="bfb_delivery.cli.html#module-bfb_delivery.cli.build_routes_from_chunked">module</a>
 </li>
         </ul></li>
         <li>
@@ -562,19 +902,33 @@
 </li>
         </ul></li>
         <li>
+    bfb_delivery.lib.dispatch.api_callers
+
+        <ul>
+          <li><a href="bfb_delivery.lib.dispatch.html#module-bfb_delivery.lib.dispatch.api_callers">module</a>
+</li>
+        </ul></li>
+        <li>
     bfb_delivery.lib.dispatch.read_circuit
 
         <ul>
           <li><a href="bfb_delivery.lib.dispatch.html#module-bfb_delivery.lib.dispatch.read_circuit">module</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     bfb_delivery.lib.dispatch.utils
 
         <ul>
           <li><a href="bfb_delivery.lib.dispatch.html#module-bfb_delivery.lib.dispatch.utils">module</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li>
+    bfb_delivery.lib.dispatch.write_to_circuit
+
+        <ul>
+          <li><a href="bfb_delivery.lib.dispatch.html#module-bfb_delivery.lib.dispatch.write_to_circuit">module</a>
 </li>
         </ul></li>
         <li>
@@ -670,6 +1024,37 @@
         </ul></li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.BoxType">BoxType (class in bfb_delivery.lib.constants)</a>
 </li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Defaults.BUILD_ROUTES_FROM_CHUNKED">BUILD_ROUTES_FROM_CHUNKED (bfb_delivery.lib.constants.Defaults attribute)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.DocStrings.BUILD_ROUTES_FROM_CHUNKED">(bfb_delivery.lib.constants.DocStrings attribute)</a>
+</li>
+        </ul></li>
+        <li>
+    build_routes_from_chunked command line option
+
+        <ul>
+          <li><a href="CLI.html#cmdoption-build_routes_from_chunked-extra_notes_file">--extra_notes_file</a>
+</li>
+          <li><a href="CLI.html#cmdoption-build_routes_from_chunked-input_path">--input_path</a>
+</li>
+          <li><a href="CLI.html#cmdoption-build_routes_from_chunked-no_distribute">--no_distribute</a>
+</li>
+          <li><a href="CLI.html#cmdoption-build_routes_from_chunked-output_dir">--output_dir</a>
+</li>
+          <li><a href="CLI.html#cmdoption-build_routes_from_chunked-start_date">--start_date</a>
+</li>
+          <li><a href="CLI.html#cmdoption-build_routes_from_chunked-verbose">--verbose</a>
+</li>
+        </ul></li>
+        <li><a href="bfb_delivery.api.html#bfb_delivery.api.internal.build_routes_from_chunked">build_routes_from_chunked() (in module bfb_delivery.api.internal)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.api.html#bfb_delivery.api.public.build_routes_from_chunked">(in module bfb_delivery.api.public)</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.write_to_circuit.build_routes_from_chunked">(in module bfb_delivery.lib.dispatch.write_to_circuit)</a>
+</li>
+        </ul></li>
     </ul></td>
   </tr></table>
 </section>
@@ -678,6 +1063,8 @@
   <h2>C</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller.call_api">call_api() (bfb_delivery.lib.dispatch.api_callers.BaseCaller method)</a>
+</li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CellColors">CellColors (class in bfb_delivery.lib.constants)</a>
 </li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns">CircuitColumns (class in bfb_delivery.lib.constants)</a>
@@ -714,6 +1101,8 @@
 </li>
         <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.Config">CircuitRoutesWriteOut.Config (class in bfb_delivery.lib.schema.schema)</a>
 </li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.CITY">CITY (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
+</li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Columns">Columns (class in bfb_delivery.lib.constants)</a>
 </li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Defaults.COMBINE_ROUTE_TABLES">COMBINE_ROUTE_TABLES (bfb_delivery.lib.constants.Defaults attribute)</a>
@@ -741,6 +1130,8 @@
           <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping.combine_route_tables">(in module bfb_delivery.lib.formatting.sheet_shaping)</a>
 </li>
         </ul></li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.utils.concat_response_pages">concat_response_pages() (in module bfb_delivery.lib.dispatch.utils)</a>
+</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.field_checks.contiguous">contiguous() (in module bfb_delivery.lib.schema.checks.field_checks)</a>
@@ -754,6 +1145,8 @@
 </li>
         </ul></li>
         <li><a href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.dataframe_checks.contiguous_group">contiguous_group() (in module bfb_delivery.lib.schema.checks.dataframe_checks)</a>
+</li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.COUNTRY">COUNTRY (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
 </li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Defaults.CREATE_MANIFESTS">CREATE_MANIFESTS (bfb_delivery.lib.constants.Defaults attribute)</a>
 
@@ -798,15 +1191,19 @@
 </li>
           <li><a href="CLI.html#cmdoption-create_manifests_from_circuit-end_date">--end_date</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-end_date">[1]</a>
 </li>
-          <li><a href="CLI.html#cmdoption-create_manifests_from_circuit-extra_notes_file">--extra_notes_file</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-extra_notes_file">[1]</a>
+          <li><a href="CLI.html#cmdoption-create_manifests_from_circuit-extra_notes_file">--extra_notes_file</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-3">[1]</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-extra_notes_file">[2]</a>
 </li>
-          <li><a href="CLI.html#cmdoption-create_manifests_from_circuit-output_dir">--output_dir</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-output_dir">[1]</a>
+          <li><a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-input_path">--input_path</a>
+</li>
+          <li><a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-no_distribute">--no_distribute</a>
+</li>
+          <li><a href="CLI.html#cmdoption-create_manifests_from_circuit-output_dir">--output_dir</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-1">[1]</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-output_dir">[2]</a>
 </li>
           <li><a href="CLI.html#cmdoption-create_manifests_from_circuit-output_filename">--output_filename</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-output_filename">[1]</a>
 </li>
-          <li><a href="CLI.html#cmdoption-create_manifests_from_circuit-start_date">--start_date</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-start_date">[1]</a>
+          <li><a href="CLI.html#cmdoption-create_manifests_from_circuit-start_date">--start_date</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-0">[1]</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-start_date">[2]</a>
 </li>
-          <li><a href="CLI.html#cmdoption-create_manifests_from_circuit-verbose">--verbose</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-verbose">[1]</a>
+          <li><a href="CLI.html#cmdoption-create_manifests_from_circuit-verbose">--verbose</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-2">[1]</a>, <a href="bfb_delivery.cli.html#cmdoption-create_manifests_from_circuit-verbose">[2]</a>
 </li>
         </ul></li>
         <li><a href="bfb_delivery.api.html#bfb_delivery.api.internal.create_manifests_from_circuit">create_manifests_from_circuit() (in module bfb_delivery.api.internal)</a>
@@ -823,16 +1220,42 @@
   <h2>D</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.DAY">DAY (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
+</li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Defaults">Defaults (class in bfb_delivery.lib.constants)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.write_to_circuit.delete_plan">delete_plan() (in module bfb_delivery.lib.dispatch.write_to_circuit)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.write_to_circuit.delete_plans">delete_plans() (in module bfb_delivery.lib.dispatch.write_to_circuit)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDeleter.deletion">deletion (bfb_delivery.lib.dispatch.api_callers.PlanDeleter attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.DEPOT">DEPOT (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
 </li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes.df">df (bfb_delivery.lib.constants.ExtraNotes attribute)</a>
 </li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.DISTRIBUTED">DISTRIBUTED (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDistributor.distributed">distributed (bfb_delivery.lib.dispatch.api_callers.PlanDistributor attribute)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut.distributed">(bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut attribute)</a>
+</li>
+        </ul></li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.DocStrings">DocStrings (class in bfb_delivery.lib.constants)</a>
 </li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Columns.DRIVER">DRIVER (bfb_delivery.lib.constants.Columns attribute)</a>
 </li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.IntermediateColumns.DRIVER_NAME">DRIVER_NAME (bfb_delivery.lib.constants.IntermediateColumns attribute)</a>
+</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.driver_name">driver_name (bfb_delivery.lib.schema.schema.PlansAssignDriversIn attribute)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.driver_name">(bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut attribute)</a>
+</li>
+        </ul></li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.IntermediateColumns.DRIVER_SHEET_NAME">DRIVER_SHEET_NAME (bfb_delivery.lib.constants.IntermediateColumns attribute)</a>
 </li>
         <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.driver_sheet_name">driver_sheet_name (bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut attribute)</a>
@@ -841,6 +1264,20 @@
           <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.driver_sheet_name">(bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn attribute)</a>
 </li>
         </ul></li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.DRIVERS">DRIVERS (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversAssignDriverIn">DriversAssignDriverIn (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversAssignDriverIn.Config">DriversAssignDriverIn.Config (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversAssignDriversIn">DriversAssignDriversIn (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversAssignDriversIn.Config">DriversAssignDriversIn.Config (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut">DriversGetAllDriversOut (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.Config">DriversGetAllDriversOut.Config (class in bfb_delivery.lib.schema.schema)</a>
+</li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.BookOneDrivers.DUMMY">DUMMY (bfb_delivery.lib.constants.BookOneDrivers attribute)</a>
 </li>
     </ul></td>
@@ -866,6 +1303,14 @@
 </li>
           <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.email">(bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut attribute)</a>
 </li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.email">(bfb_delivery.lib.schema.schema.DriversGetAllDriversOut attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.email">(bfb_delivery.lib.schema.schema.PlansAssignDriversIn attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.email">(bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.email">(bfb_delivery.lib.schema.schema.Stops attribute)</a>
+</li>
         </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
@@ -883,6 +1328,8 @@
   <h2>F</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller.finished">finished (bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller attribute)</a>
+</li>
         <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning.format_and_validate_data">format_and_validate_data() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
 </li>
         <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning.format_column_names">format_column_names() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
@@ -938,9 +1385,11 @@
 </li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.utils.get_friday">get_friday() (in module bfb_delivery.lib.utils)</a>
 </li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.utils.get_phone_number">get_phone_number() (in module bfb_delivery.lib.formatting.utils)</a>
+</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.utils.get_phone_number">get_phone_number() (in module bfb_delivery.lib.formatting.utils)</a>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.utils.get_response_dict">get_response_dict() (in module bfb_delivery.lib.dispatch.utils)</a>
 </li>
         <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.utils.get_responses">get_responses() (in module bfb_delivery.lib.dispatch.utils)</a>
 </li>
@@ -979,6 +1428,12 @@
 </li>
           <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.id">(bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut attribute)</a>
 </li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.id">(bfb_delivery.lib.schema.schema.DriversGetAllDriversOut attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.id">(bfb_delivery.lib.schema.schema.PlansAssignDriversIn attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.id">(bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut attribute)</a>
+</li>
         </ul></li>
         <li><a href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.field_checks.in_list_case_insensitive">in_list_case_insensitive() (in module bfb_delivery.lib.schema.checks.field_checks)</a>
 </li>
@@ -991,6 +1446,10 @@
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.dataframe_checks.increasing_by">increasing_by() (in module bfb_delivery.lib.schema.checks.dataframe_checks)</a>
+</li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.IntermediateColumns.INITIALIZED">INITIALIZED (bfb_delivery.lib.constants.IntermediateColumns attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.initialized">initialized (bfb_delivery.lib.schema.schema.PlansInitializePlansOut attribute)</a>
 </li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.IntermediateColumns">IntermediateColumns (class in bfb_delivery.lib.constants)</a>
 </li>
@@ -1033,6 +1492,8 @@
 </li>
           <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesWriteInAllHHs.Config.many_to_one">(bfb_delivery.lib.schema.schema.CircuitRoutesWriteInAllHHs.Config attribute)</a>
 </li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.Config.many_to_one">(bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.Config attribute)</a>
+</li>
         </ul></li>
         <li><a href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.dataframe_checks.many_to_one">many_to_one() (in module bfb_delivery.lib.schema.checks.dataframe_checks)</a>
 </li>
@@ -1052,6 +1513,8 @@
 </li>
           <li><a href="bfb_delivery.cli.html#module-bfb_delivery.cli">bfb_delivery.cli</a>
 </li>
+          <li><a href="bfb_delivery.cli.html#module-bfb_delivery.cli.build_routes_from_chunked">bfb_delivery.cli.build_routes_from_chunked</a>
+</li>
           <li><a href="bfb_delivery.cli.html#module-bfb_delivery.cli.combine_route_tables">bfb_delivery.cli.combine_route_tables</a>
 </li>
           <li><a href="bfb_delivery.cli.html#module-bfb_delivery.cli.create_manifests">bfb_delivery.cli.create_manifests</a>
@@ -1068,9 +1531,13 @@
 </li>
           <li><a href="bfb_delivery.lib.dispatch.html#module-bfb_delivery.lib.dispatch">bfb_delivery.lib.dispatch</a>
 </li>
+          <li><a href="bfb_delivery.lib.dispatch.html#module-bfb_delivery.lib.dispatch.api_callers">bfb_delivery.lib.dispatch.api_callers</a>
+</li>
           <li><a href="bfb_delivery.lib.dispatch.html#module-bfb_delivery.lib.dispatch.read_circuit">bfb_delivery.lib.dispatch.read_circuit</a>
 </li>
           <li><a href="bfb_delivery.lib.dispatch.html#module-bfb_delivery.lib.dispatch.utils">bfb_delivery.lib.dispatch.utils</a>
+</li>
+          <li><a href="bfb_delivery.lib.dispatch.html#module-bfb_delivery.lib.dispatch.write_to_circuit">bfb_delivery.lib.dispatch.write_to_circuit</a>
 </li>
           <li><a href="bfb_delivery.lib.formatting.html#module-bfb_delivery.lib.formatting">bfb_delivery.lib.formatting</a>
 </li>
@@ -1095,6 +1562,10 @@
           <li><a href="bfb_delivery.lib.html#module-bfb_delivery.lib.utils">bfb_delivery.lib.utils</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.MONTH">MONTH (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
+</li>
     </ul></td>
   </tr></table>
 </section>
@@ -1132,6 +1603,54 @@
 </li>
           <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.Config.name">(bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.Config attribute)</a>
 </li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversAssignDriverIn.Config.name">(bfb_delivery.lib.schema.schema.DriversAssignDriverIn.Config attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversAssignDriversIn.Config.name">(bfb_delivery.lib.schema.schema.DriversAssignDriversIn.Config attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.name">(bfb_delivery.lib.schema.schema.DriversGetAllDriversOut attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.Config.name">(bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.Config attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriverIn.Config.name">(bfb_delivery.lib.schema.schema.PlansAssignDriverIn.Config attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriverOut.Config.name">(bfb_delivery.lib.schema.schema.PlansAssignDriverOut.Config attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.Config.name">(bfb_delivery.lib.schema.schema.PlansAssignDriversIn.Config attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversOut.Config.name">(bfb_delivery.lib.schema.schema.PlansAssignDriversOut.Config attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.Config.name">(bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.Config attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansBuildStopsIn.Config.name">(bfb_delivery.lib.schema.schema.PlansBuildStopsIn.Config attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn.Config.name">(bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn.Config attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut.Config.name">(bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut.Config attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansCreatePlansOut.Config.name">(bfb_delivery.lib.schema.schema.PlansCreatePlansOut.Config attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansDistributeRoutesIn.Config.name">(bfb_delivery.lib.schema.schema.PlansDistributeRoutesIn.Config attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut.Config.name">(bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut.Config attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansInitializePlansIn.Config.name">(bfb_delivery.lib.schema.schema.PlansInitializePlansIn.Config attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.Config.name">(bfb_delivery.lib.schema.schema.PlansInitializePlansOut.Config attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesIn.Config.name">(bfb_delivery.lib.schema.schema.PlansOptimizeRoutesIn.Config attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesOut.Config.name">(bfb_delivery.lib.schema.schema.PlansOptimizeRoutesOut.Config attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansUploadSplitChunkedOut.Config.name">(bfb_delivery.lib.schema.schema.PlansUploadSplitChunkedOut.Config attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansUploadStopsIn.Config.name">(bfb_delivery.lib.schema.schema.PlansUploadStopsIn.Config attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config.name">(bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.name">(bfb_delivery.lib.schema.schema.Stops attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.Config.name">(bfb_delivery.lib.schema.schema.Stops.Config attribute)</a>
+</li>
         </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
@@ -1144,7 +1663,11 @@
 </li>
           <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.neighborhood">(bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut attribute)</a>
 </li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.neighborhood">(bfb_delivery.lib.schema.schema.Stops attribute)</a>
+</li>
         </ul></li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PagedResponseGetter.next_page_salsa">next_page_salsa (bfb_delivery.lib.dispatch.api_callers.PagedResponseGetter attribute)</a>
+</li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.NOTES">NOTES (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
 
         <ul>
@@ -1162,6 +1685,8 @@
 </li>
           <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.notes">(bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut attribute)</a>
 </li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.notes">(bfb_delivery.lib.schema.schema.Stops attribute)</a>
+</li>
         </ul></li>
     </ul></td>
   </tr></table>
@@ -1178,6 +1703,8 @@
         <ul>
           <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config.one_to_one">(bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.Config attribute)</a>
 </li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.Config.one_to_one">(bfb_delivery.lib.schema.schema.PlansInitializePlansOut.Config attribute)</a>
+</li>
         </ul></li>
         <li><a href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.dataframe_checks.one_to_one">one_to_one() (in module bfb_delivery.lib.schema.checks.dataframe_checks)</a>
 </li>
@@ -1185,10 +1712,24 @@
 </li>
         <li><a href="bfb_delivery.lib.schema.checks.html#bfb_delivery.lib.schema.checks.dataframe_checks.one_to_one_route_sheet">one_to_one_route_sheet() (in module bfb_delivery.lib.schema.checks.dataframe_checks)</a>
 </li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller.operation_id">operation_id (bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.OPTIMIZATION">OPTIMIZATION (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.optimization">optimization (bfb_delivery.lib.schema.schema.PlansInitializePlansOut attribute)</a>
+</li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.RateLimits.OPTIMIZATION_PER_SECOND">OPTIMIZATION_PER_SECOND (bfb_delivery.lib.constants.RateLimits attribute)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.RateLimits.OPTIMIZATION_TIMEOUT_SECONDS">OPTIMIZATION_TIMEOUT_SECONDS (bfb_delivery.lib.constants.RateLimits attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.OptimizationChecker">OptimizationChecker (class in bfb_delivery.lib.dispatch.api_callers)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.OptimizationLauncher">OptimizationLauncher (class in bfb_delivery.lib.dispatch.api_callers)</a>
+</li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.IntermediateColumns.OPTIMIZED">OPTIMIZED (bfb_delivery.lib.constants.IntermediateColumns attribute)</a>
+</li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Columns.ORDER_COUNT">ORDER_COUNT (bfb_delivery.lib.constants.Columns attribute)</a>
 </li>
         <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.order_count">order_count (bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut attribute)</a>
@@ -1197,6 +1738,8 @@
           <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.order_count">(bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn attribute)</a>
 </li>
           <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.order_count">(bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.order_count">(bfb_delivery.lib.schema.schema.Stops attribute)</a>
 </li>
         </ul></li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.ORDER_INFO">ORDER_INFO (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
@@ -1219,6 +1762,8 @@
 </li>
         <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.packageCount">packageCount (bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict attribute)</a>
 </li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PagedResponseGetter">PagedResponseGetter (class in bfb_delivery.lib.dispatch.api_callers)</a>
+</li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.PHONE">PHONE (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
 
         <ul>
@@ -1232,9 +1777,9 @@
 </li>
           <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.phone">(bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut attribute)</a>
 </li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.phone">(bfb_delivery.lib.schema.schema.Stops attribute)</a>
+</li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.PLACE_ID">PLACE_ID (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
 </li>
         <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.placeId">placeId (bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut attribute)</a>
@@ -1247,7 +1792,97 @@
           <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.plan">(bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut attribute)</a>
 </li>
         </ul></li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.IntermediateColumns.PLAN_ID">PLAN_ID (bfb_delivery.lib.constants.IntermediateColumns attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanInitializer.plan_id">plan_id (bfb_delivery.lib.dispatch.api_callers.PlanInitializer attribute)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.plan_id">(bfb_delivery.lib.schema.schema.PlansInitializePlansOut attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDeleter">PlanDeleter (class in bfb_delivery.lib.dispatch.api_callers)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDistributor">PlanDistributor (class in bfb_delivery.lib.dispatch.api_callers)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanInitializer">PlanInitializer (class in bfb_delivery.lib.dispatch.api_callers)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriverIn">PlansAssignDriverIn (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriverIn.Config">PlansAssignDriverIn.Config (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriverOut">PlansAssignDriverOut (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriverOut.Config">PlansAssignDriverOut.Config (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversIn">PlansAssignDriversIn (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.Config">PlansAssignDriversIn.Config (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversOut">PlansAssignDriversOut (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversOut.Config">PlansAssignDriversOut.Config (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut">PlansAssignDriversToPlansOut (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.Config">PlansAssignDriversToPlansOut.Config (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansBuildStopsIn">PlansBuildStopsIn (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansBuildStopsIn.Config">PlansBuildStopsIn.Config (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn">PlansConfirmOptimizationsIn (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn.Config">PlansConfirmOptimizationsIn.Config (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut">PlansConfirmOptimizationsOut (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut.Config">PlansConfirmOptimizationsOut.Config (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansCreatePlansOut">PlansCreatePlansOut (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansCreatePlansOut.Config">PlansCreatePlansOut.Config (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansDistributeRoutesIn">PlansDistributeRoutesIn (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansDistributeRoutesIn.Config">PlansDistributeRoutesIn.Config (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut">PlansDistributeRoutesOut (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut.Config">PlansDistributeRoutesOut.Config (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansInitializePlansIn">PlansInitializePlansIn (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansInitializePlansIn.Config">PlansInitializePlansIn.Config (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansInitializePlansOut">PlansInitializePlansOut (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.Config">PlansInitializePlansOut.Config (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesIn">PlansOptimizeRoutesIn (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesIn.Config">PlansOptimizeRoutesIn.Config (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesOut">PlansOptimizeRoutesOut (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesOut.Config">PlansOptimizeRoutesOut.Config (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansUploadSplitChunkedOut">PlansUploadSplitChunkedOut (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansUploadSplitChunkedOut.Config">PlansUploadSplitChunkedOut.Config (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansUploadStopsIn">PlansUploadStopsIn (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansUploadStopsIn.Config">PlansUploadStopsIn.Config (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansUploadStopsOut">PlansUploadStopsOut (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config">PlansUploadStopsOut.Config (class in bfb_delivery.lib.schema.schema)</a>
+</li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Columns.PRODUCT_TYPE">PRODUCT_TYPE (bfb_delivery.lib.constants.Columns attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.product_type">product_type (bfb_delivery.lib.schema.schema.Stops attribute)</a>
 </li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.PRODUCTS">PRODUCTS (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
 </li>
@@ -1269,10 +1904,12 @@
 </li>
         <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.recipient">recipient (bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict attribute)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller.response_json">response_json (bfb_delivery.lib.dispatch.api_callers.BaseCaller attribute)</a>
+</li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.ROUTE">ROUTE (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.route">route (bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict attribute)</a>
 
         <ul>
@@ -1282,9 +1919,19 @@
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.IntermediateColumns.ROUTE_TITLE">ROUTE_TITLE (bfb_delivery.lib.constants.IntermediateColumns attribute)</a>
 </li>
         <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.route_title">route_title (bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut attribute)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.route_title">(bfb_delivery.lib.schema.schema.PlansAssignDriversIn attribute)</a>
 </li>
+        </ul></li>
         <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitPlansFromDict.routes">routes (bfb_delivery.lib.schema.schema.CircuitPlansFromDict attribute)</a>
 </li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn.routes_optimized">routes_optimized (bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn attribute)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut.routes_optimized">(bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut attribute)</a>
+</li>
+        </ul></li>
     </ul></td>
   </tr></table>
 </section>
@@ -1294,6 +1941,10 @@
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.utils.schema_error_handler">schema_error_handler() (in module bfb_delivery.lib.schema.utils)</a>
+</li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.IntermediateColumns.SHEET_NAME">SHEET_NAME (bfb_delivery.lib.constants.IntermediateColumns attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.sheet_name">sheet_name (bfb_delivery.lib.schema.schema.Stops attribute)</a>
 </li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Defaults.SPLIT_CHUNKED_ROUTE">SPLIT_CHUNKED_ROUTE (bfb_delivery.lib.constants.Defaults attribute)</a>
 
@@ -1326,8 +1977,16 @@
           <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping.split_chunked_route">(in module bfb_delivery.lib.formatting.sheet_shaping)</a>
 </li>
         </ul></li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.IntermediateColumns.START_DATE">START_DATE (bfb_delivery.lib.constants.IntermediateColumns attribute)</a>
+</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.STARTS">STARTS (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.STATE">STATE (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.StopUploader.stop_ids">stop_ids (bfb_delivery.lib.dispatch.api_callers.StopUploader attribute)</a>
+</li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Columns.STOP_NO">STOP_NO (bfb_delivery.lib.constants.Columns attribute)</a>
 </li>
         <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.stop_no">stop_no (bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut attribute)</a>
@@ -1343,6 +2002,16 @@
         <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.stopPosition">stopPosition (bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict attribute)</a>
 </li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.STOPS">STOPS (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops">Stops (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.Config">Stops.Config (class in bfb_delivery.lib.schema.schema)</a>
+</li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.IntermediateColumns.STOPS_UPLOADED">STOPS_UPLOADED (bfb_delivery.lib.constants.IntermediateColumns attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.stops_uploaded">stops_uploaded (bfb_delivery.lib.schema.schema.PlansUploadStopsOut attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.StopUploader">StopUploader (class in bfb_delivery.lib.dispatch.api_callers)</a>
 </li>
         <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitPlansFromDict.Config.strict">strict (bfb_delivery.lib.schema.schema.CircuitPlansFromDict.Config attribute)</a>
 
@@ -1379,6 +2048,8 @@
 </li>
           <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.Config.unique">(bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.Config attribute)</a>
 </li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.Config.unique">(bfb_delivery.lib.schema.schema.Stops.Config attribute)</a>
+</li>
         </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
@@ -1408,7 +2079,43 @@
   <h2>W</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.RateLimits.WAIT_DECREASE_SECONDS">WAIT_DECREASE_SECONDS (bfb_delivery.lib.constants.RateLimits attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.RateLimits.WAIT_INCREASE_SCALAR">WAIT_INCREASE_SCALAR (bfb_delivery.lib.constants.RateLimits attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.WRITABLE">WRITABLE (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanInitializer.writable">writable (bfb_delivery.lib.dispatch.api_callers.PlanInitializer attribute)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.writable">(bfb_delivery.lib.schema.schema.PlansInitializePlansOut attribute)</a>
+</li>
+        </ul></li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.RateLimits.WRITE_SECONDS">WRITE_SECONDS (bfb_delivery.lib.constants.RateLimits attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.RateLimits.WRITE_TIMEOUT_SECONDS">WRITE_TIMEOUT_SECONDS (bfb_delivery.lib.constants.RateLimits attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="Y" class="genindex-section">
+  <h2>Y</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.YEAR">YEAR (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="Z" class="genindex-section">
+  <h2>Z</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.ZIP">ZIP (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -1446,7 +2153,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=8e576371"></script>
+</div><script src="_static/documentation_options.js?v=2bd037f0"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

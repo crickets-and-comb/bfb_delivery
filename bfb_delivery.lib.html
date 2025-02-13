@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="bfb_delivery.lib.dispatch package" href="bfb_delivery.lib.dispatch.html" /><link rel="prev" title="bfb_delivery.cli package" href="bfb_delivery.cli.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>bfb_delivery.lib package - bfb_delivery 0.5.2 documentation</title>
+        <title>bfb_delivery.lib package - bfb_delivery 0.6.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.5.2 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.6.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.5.2 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.6.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -201,8 +201,8 @@
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow.html">The Delivery-Planning Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="split_chunked_route.html">Split Chunked Route Sheet into Multiple Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="create_manifests_from_circuit.html">Create Printable Manifests from Optimized Routes from Circuit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_routes_from_chunked.html">Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro_to_bash.html">Intro to Command Line and Bash</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of bfb_delivery</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current has-children"><a class="reference internal" href="bfb_delivery.html">bfb_delivery package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of bfb_delivery package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -270,13 +270,157 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="bfb_delivery.lib.dispatch.html">bfb_delivery.lib.dispatch package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#module-bfb_delivery.lib.dispatch.api_callers">bfb_delivery.lib.dispatch.api_callers module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller"><code class="docutils literal notranslate"><span class="pre">BaseCaller</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller.__init__"><code class="docutils literal notranslate"><span class="pre">BaseCaller.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._call_api"><code class="docutils literal notranslate"><span class="pre">BaseCaller._call_api()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._call_kwargs"><code class="docutils literal notranslate"><span class="pre">BaseCaller._call_kwargs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._decrease_wait_time"><code class="docutils literal notranslate"><span class="pre">BaseCaller._decrease_wait_time()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._handle_200"><code class="docutils literal notranslate"><span class="pre">BaseCaller._handle_200()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._handle_204"><code class="docutils literal notranslate"><span class="pre">BaseCaller._handle_204()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._handle_429"><code class="docutils literal notranslate"><span class="pre">BaseCaller._handle_429()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._handle_timeout"><code class="docutils literal notranslate"><span class="pre">BaseCaller._handle_timeout()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._handle_unknown_error"><code class="docutils literal notranslate"><span class="pre">BaseCaller._handle_unknown_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._increase_timeout"><code class="docutils literal notranslate"><span class="pre">BaseCaller._increase_timeout()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._increase_wait_time"><code class="docutils literal notranslate"><span class="pre">BaseCaller._increase_wait_time()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._make_call"><code class="docutils literal notranslate"><span class="pre">BaseCaller._make_call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._min_wait_seconds"><code class="docutils literal notranslate"><span class="pre">BaseCaller._min_wait_seconds</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._parse_response"><code class="docutils literal notranslate"><span class="pre">BaseCaller._parse_response()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._raise_for_status"><code class="docutils literal notranslate"><span class="pre">BaseCaller._raise_for_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._request_call"><code class="docutils literal notranslate"><span class="pre">BaseCaller._request_call</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._response"><code class="docutils literal notranslate"><span class="pre">BaseCaller._response</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._set_request_call"><code class="docutils literal notranslate"><span class="pre">BaseCaller._set_request_call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._set_url"><code class="docutils literal notranslate"><span class="pre">BaseCaller._set_url()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._timeout"><code class="docutils literal notranslate"><span class="pre">BaseCaller._timeout</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._url"><code class="docutils literal notranslate"><span class="pre">BaseCaller._url</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._wait_decrease_scalar"><code class="docutils literal notranslate"><span class="pre">BaseCaller._wait_decrease_scalar</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._wait_increase_scalar"><code class="docutils literal notranslate"><span class="pre">BaseCaller._wait_increase_scalar</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller._wait_seconds"><code class="docutils literal notranslate"><span class="pre">BaseCaller._wait_seconds</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller.call_api"><code class="docutils literal notranslate"><span class="pre">BaseCaller.call_api()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseCaller.response_json"><code class="docutils literal notranslate"><span class="pre">BaseCaller.response_json</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseDeleteCaller"><code class="docutils literal notranslate"><span class="pre">BaseDeleteCaller</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseDeleteCaller._set_request_call"><code class="docutils literal notranslate"><span class="pre">BaseDeleteCaller._set_request_call()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseGetCaller"><code class="docutils literal notranslate"><span class="pre">BaseGetCaller</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseGetCaller._min_wait_seconds"><code class="docutils literal notranslate"><span class="pre">BaseGetCaller._min_wait_seconds</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseGetCaller._set_request_call"><code class="docutils literal notranslate"><span class="pre">BaseGetCaller._set_request_call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseGetCaller._timeout"><code class="docutils literal notranslate"><span class="pre">BaseGetCaller._timeout</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseGetCaller._wait_seconds"><code class="docutils literal notranslate"><span class="pre">BaseGetCaller._wait_seconds</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller"><code class="docutils literal notranslate"><span class="pre">BaseOptimizationCaller</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller.__init__"><code class="docutils literal notranslate"><span class="pre">BaseOptimizationCaller.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller._handle_200"><code class="docutils literal notranslate"><span class="pre">BaseOptimizationCaller._handle_200()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller._min_wait_seconds"><code class="docutils literal notranslate"><span class="pre">BaseOptimizationCaller._min_wait_seconds</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller._plan_id"><code class="docutils literal notranslate"><span class="pre">BaseOptimizationCaller._plan_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller._plan_title"><code class="docutils literal notranslate"><span class="pre">BaseOptimizationCaller._plan_title</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller._timeout"><code class="docutils literal notranslate"><span class="pre">BaseOptimizationCaller._timeout</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller._wait_seconds"><code class="docutils literal notranslate"><span class="pre">BaseOptimizationCaller._wait_seconds</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller.finished"><code class="docutils literal notranslate"><span class="pre">BaseOptimizationCaller.finished</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller.operation_id"><code class="docutils literal notranslate"><span class="pre">BaseOptimizationCaller.operation_id</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BasePostCaller"><code class="docutils literal notranslate"><span class="pre">BasePostCaller</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BasePostCaller._min_wait_seconds"><code class="docutils literal notranslate"><span class="pre">BasePostCaller._min_wait_seconds</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BasePostCaller._set_request_call"><code class="docutils literal notranslate"><span class="pre">BasePostCaller._set_request_call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BasePostCaller._timeout"><code class="docutils literal notranslate"><span class="pre">BasePostCaller._timeout</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BasePostCaller._wait_seconds"><code class="docutils literal notranslate"><span class="pre">BasePostCaller._wait_seconds</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.OptimizationChecker"><code class="docutils literal notranslate"><span class="pre">OptimizationChecker</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.OptimizationChecker.__init__"><code class="docutils literal notranslate"><span class="pre">OptimizationChecker.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.OptimizationChecker._min_wait_seconds"><code class="docutils literal notranslate"><span class="pre">OptimizationChecker._min_wait_seconds</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.OptimizationChecker._set_url"><code class="docutils literal notranslate"><span class="pre">OptimizationChecker._set_url()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.OptimizationChecker._timeout"><code class="docutils literal notranslate"><span class="pre">OptimizationChecker._timeout</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.OptimizationChecker._wait_seconds"><code class="docutils literal notranslate"><span class="pre">OptimizationChecker._wait_seconds</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.OptimizationLauncher"><code class="docutils literal notranslate"><span class="pre">OptimizationLauncher</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.OptimizationLauncher._set_url"><code class="docutils literal notranslate"><span class="pre">OptimizationLauncher._set_url()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PagedResponseGetter"><code class="docutils literal notranslate"><span class="pre">PagedResponseGetter</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PagedResponseGetter.__init__"><code class="docutils literal notranslate"><span class="pre">PagedResponseGetter.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PagedResponseGetter._handle_200"><code class="docutils literal notranslate"><span class="pre">PagedResponseGetter._handle_200()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PagedResponseGetter._page_url"><code class="docutils literal notranslate"><span class="pre">PagedResponseGetter._page_url</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PagedResponseGetter._set_url"><code class="docutils literal notranslate"><span class="pre">PagedResponseGetter._set_url()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PagedResponseGetter.next_page_salsa"><code class="docutils literal notranslate"><span class="pre">PagedResponseGetter.next_page_salsa</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDeleter"><code class="docutils literal notranslate"><span class="pre">PlanDeleter</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDeleter.__init__"><code class="docutils literal notranslate"><span class="pre">PlanDeleter.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDeleter._handle_204"><code class="docutils literal notranslate"><span class="pre">PlanDeleter._handle_204()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDeleter._set_url"><code class="docutils literal notranslate"><span class="pre">PlanDeleter._set_url()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDeleter.deletion"><code class="docutils literal notranslate"><span class="pre">PlanDeleter.deletion</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDistributor"><code class="docutils literal notranslate"><span class="pre">PlanDistributor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDistributor.__init__"><code class="docutils literal notranslate"><span class="pre">PlanDistributor.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDistributor._handle_200"><code class="docutils literal notranslate"><span class="pre">PlanDistributor._handle_200()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDistributor._plan_id"><code class="docutils literal notranslate"><span class="pre">PlanDistributor._plan_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDistributor._plan_title"><code class="docutils literal notranslate"><span class="pre">PlanDistributor._plan_title</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDistributor._set_url"><code class="docutils literal notranslate"><span class="pre">PlanDistributor._set_url()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanDistributor.distributed"><code class="docutils literal notranslate"><span class="pre">PlanDistributor.distributed</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanInitializer"><code class="docutils literal notranslate"><span class="pre">PlanInitializer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanInitializer.__init__"><code class="docutils literal notranslate"><span class="pre">PlanInitializer.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanInitializer._handle_200"><code class="docutils literal notranslate"><span class="pre">PlanInitializer._handle_200()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanInitializer._plan_data"><code class="docutils literal notranslate"><span class="pre">PlanInitializer._plan_data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanInitializer._set_url"><code class="docutils literal notranslate"><span class="pre">PlanInitializer._set_url()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanInitializer.plan_id"><code class="docutils literal notranslate"><span class="pre">PlanInitializer.plan_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.PlanInitializer.writable"><code class="docutils literal notranslate"><span class="pre">PlanInitializer.writable</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.StopUploader"><code class="docutils literal notranslate"><span class="pre">StopUploader</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.StopUploader.__init__"><code class="docutils literal notranslate"><span class="pre">StopUploader.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.StopUploader._handle_200"><code class="docutils literal notranslate"><span class="pre">StopUploader._handle_200()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.StopUploader._min_wait_seconds"><code class="docutils literal notranslate"><span class="pre">StopUploader._min_wait_seconds</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.StopUploader._plan_id"><code class="docutils literal notranslate"><span class="pre">StopUploader._plan_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.StopUploader._plan_title"><code class="docutils literal notranslate"><span class="pre">StopUploader._plan_title</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.StopUploader._set_url"><code class="docutils literal notranslate"><span class="pre">StopUploader._set_url()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.StopUploader._wait_seconds"><code class="docutils literal notranslate"><span class="pre">StopUploader._wait_seconds</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.StopUploader.stop_ids"><code class="docutils literal notranslate"><span class="pre">StopUploader.stop_ids</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#module-bfb_delivery.lib.dispatch.read_circuit">bfb_delivery.lib.dispatch.read_circuit module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._clean_title"><code class="docutils literal notranslate"><span class="pre">_clean_title()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._count_allhhs_dropped"><code class="docutils literal notranslate"><span class="pre">_count_allhhs_dropped()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._count_plan_ids_dropped"><code class="docutils literal notranslate"><span class="pre">_count_plan_ids_dropped()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._get_plan_responses"><code class="docutils literal notranslate"><span class="pre">_get_plan_responses()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._get_raw_plans"><code class="docutils literal notranslate"><span class="pre">_get_raw_plans()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._get_raw_stops"><code class="docutils literal notranslate"><span class="pre">_get_raw_stops()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list"><code class="docutils literal notranslate"><span class="pre">_get_raw_stops_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._get_stops_responses"><code class="docutils literal notranslate"><span class="pre">_get_stops_responses()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._getcwd"><code class="docutils literal notranslate"><span class="pre">_getcwd()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._make_plans_df"><code class="docutils literal notranslate"><span class="pre">_make_plans_df()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._pare_routes_df"><code class="docutils literal notranslate"><span class="pre">_pare_routes_df()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._set_routes_df_values"><code class="docutils literal notranslate"><span class="pre">_set_routes_df_values()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._split_multi_route_drivers"><code class="docutils literal notranslate"><span class="pre">_split_multi_route_drivers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._warn_and_impute"><code class="docutils literal notranslate"><span class="pre">_warn_and_impute()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit.get_route_files"><code class="docutils literal notranslate"><span class="pre">get_route_files()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#module-bfb_delivery.lib.dispatch.utils">bfb_delivery.lib.dispatch.utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.utils.concat_response_pages"><code class="docutils literal notranslate"><span class="pre">concat_response_pages()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.utils.get_circuit_key"><code class="docutils literal notranslate"><span class="pre">get_circuit_key()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.utils.get_response_dict"><code class="docutils literal notranslate"><span class="pre">get_response_dict()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.utils.get_responses"><code class="docutils literal notranslate"><span class="pre">get_responses()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#module-bfb_delivery.lib.dispatch.write_to_circuit">bfb_delivery.lib.dispatch.write_to_circuit module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.write_to_circuit._build_stop_array"><code class="docutils literal notranslate"><span class="pre">_build_stop_array()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.write_to_circuit._create_stops_df"><code class="docutils literal notranslate"><span class="pre">_create_stops_df()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.write_to_circuit._parse_addresses"><code class="docutils literal notranslate"><span class="pre">_parse_addresses()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.write_to_circuit._print_report"><code class="docutils literal notranslate"><span class="pre">_print_report()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.write_to_circuit.build_routes_from_chunked"><code class="docutils literal notranslate"><span class="pre">build_routes_from_chunked()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.write_to_circuit.delete_plan"><code class="docutils literal notranslate"><span class="pre">delete_plan()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.write_to_circuit.delete_plans"><code class="docutils literal notranslate"><span class="pre">delete_plans()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="bfb_delivery.lib.dispatch.html#module-bfb_delivery.lib.dispatch">Module contents</a></li>
@@ -285,11 +429,48 @@
 <li class="toctree-l1"><a class="reference internal" href="bfb_delivery.lib.formatting.html">bfb_delivery.lib.formatting package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="bfb_delivery.lib.formatting.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bfb_delivery.lib.formatting.html#module-bfb_delivery.lib.formatting.data_cleaning">bfb_delivery.lib.formatting.data_cleaning module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_address"><code class="docutils literal notranslate"><span class="pre">_format_and_validate_address()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_box_type"><code class="docutils literal notranslate"><span class="pre">_format_and_validate_box_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_driver"><code class="docutils literal notranslate"><span class="pre">_format_and_validate_driver()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_email"><code class="docutils literal notranslate"><span class="pre">_format_and_validate_email()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_name"><code class="docutils literal notranslate"><span class="pre">_format_and_validate_name()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_names_base"><code class="docutils literal notranslate"><span class="pre">_format_and_validate_names_base()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_names_title"><code class="docutils literal notranslate"><span class="pre">_format_and_validate_names_title()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_names_to_upper"><code class="docutils literal notranslate"><span class="pre">_format_and_validate_names_to_upper()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_neighborhood"><code class="docutils literal notranslate"><span class="pre">_format_and_validate_neighborhood()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_order_count"><code class="docutils literal notranslate"><span class="pre">_format_and_validate_order_count()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_phone"><code class="docutils literal notranslate"><span class="pre">_format_and_validate_phone()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_product_or_box_type"><code class="docutils literal notranslate"><span class="pre">_format_and_validate_product_or_box_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_product_type"><code class="docutils literal notranslate"><span class="pre">_format_and_validate_product_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_stop_no"><code class="docutils literal notranslate"><span class="pre">_format_and_validate_stop_no()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_int"><code class="docutils literal notranslate"><span class="pre">_format_int()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_notes"><code class="docutils literal notranslate"><span class="pre">_format_notes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_string"><code class="docutils literal notranslate"><span class="pre">_format_string()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._validate_col_not_empty"><code class="docutils literal notranslate"><span class="pre">_validate_col_not_empty()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._validate_greater_than_zero"><code class="docutils literal notranslate"><span class="pre">_validate_greater_than_zero()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._validate_order_count"><code class="docutils literal notranslate"><span class="pre">_validate_order_count()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._validate_stop_no"><code class="docutils literal notranslate"><span class="pre">_validate_stop_no()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning.format_and_validate_data"><code class="docutils literal notranslate"><span class="pre">format_and_validate_data()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning.format_column_names"><code class="docutils literal notranslate"><span class="pre">format_column_names()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="bfb_delivery.lib.formatting.html#module-bfb_delivery.lib.formatting.sheet_shaping">bfb_delivery.lib.formatting.sheet_shaping module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._add_aggregate_block"><code class="docutils literal notranslate"><span class="pre">_add_aggregate_block()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._add_header_row"><code class="docutils literal notranslate"><span class="pre">_add_header_row()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._aggregate_route_data"><code class="docutils literal notranslate"><span class="pre">_aggregate_route_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._append_extra_notes"><code class="docutils literal notranslate"><span class="pre">_append_extra_notes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._auto_adjust_column_widths"><code class="docutils literal notranslate"><span class="pre">_auto_adjust_column_widths()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._get_driver_sets"><code class="docutils literal notranslate"><span class="pre">_get_driver_sets()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._get_left_block"><code class="docutils literal notranslate"><span class="pre">_get_left_block()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._get_right_block"><code class="docutils literal notranslate"><span class="pre">_get_right_block()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._group_numbered_drivers"><code class="docutils literal notranslate"><span class="pre">_group_numbered_drivers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._make_manifest_sheet"><code class="docutils literal notranslate"><span class="pre">_make_manifest_sheet()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._merge_and_wrap_neighborhoods"><code class="docutils literal notranslate"><span class="pre">_merge_and_wrap_neighborhoods()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._move_book_one_drivers_to_front"><code class="docutils literal notranslate"><span class="pre">_move_book_one_drivers_to_front()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._split_driver_list"><code class="docutils literal notranslate"><span class="pre">_split_driver_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._word_wrap_column"><code class="docutils literal notranslate"><span class="pre">_word_wrap_column()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._word_wrap_columns"><code class="docutils literal notranslate"><span class="pre">_word_wrap_columns()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._write_data_to_sheet"><code class="docutils literal notranslate"><span class="pre">_write_data_to_sheet()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping.combine_route_tables"><code class="docutils literal notranslate"><span class="pre">combine_route_tables()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping.create_manifests"><code class="docutils literal notranslate"><span class="pre">create_manifests()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping.format_combined_routes"><code class="docutils literal notranslate"><span class="pre">format_combined_routes()</span></code></a></li>
@@ -399,6 +580,122 @@
 <li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.stop_no"><code class="docutils literal notranslate"><span class="pre">CircuitRoutesWriteOut.stop_no</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversAssignDriverIn"><code class="docutils literal notranslate"><span class="pre">DriversAssignDriverIn</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversAssignDriverIn.Config"><code class="docutils literal notranslate"><span class="pre">DriversAssignDriverIn.Config</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversAssignDriversIn"><code class="docutils literal notranslate"><span class="pre">DriversAssignDriversIn</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversAssignDriversIn.Config"><code class="docutils literal notranslate"><span class="pre">DriversAssignDriversIn.Config</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut"><code class="docutils literal notranslate"><span class="pre">DriversGetAllDriversOut</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.Config"><code class="docutils literal notranslate"><span class="pre">DriversGetAllDriversOut.Config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.active"><code class="docutils literal notranslate"><span class="pre">DriversGetAllDriversOut.active</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.email"><code class="docutils literal notranslate"><span class="pre">DriversGetAllDriversOut.email</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.id"><code class="docutils literal notranslate"><span class="pre">DriversGetAllDriversOut.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.DriversGetAllDriversOut.name"><code class="docutils literal notranslate"><span class="pre">DriversGetAllDriversOut.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriverIn"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriverIn</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriverIn.Config"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriverIn.Config</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriverOut"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriverOut</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriverOut.Config"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriverOut.Config</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversIn"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversIn</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.Config"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversIn.Config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.driver_name"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversIn.driver_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.email"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversIn.email</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.id"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversIn.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversIn.route_title"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversIn.route_title</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversOut"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversOut</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversOut.Config"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversOut.Config</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversToPlansOut</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.Config"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversToPlansOut.Config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.driver_name"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversToPlansOut.driver_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.email"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversToPlansOut.email</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.id"><code class="docutils literal notranslate"><span class="pre">PlansAssignDriversToPlansOut.id</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansBuildStopsIn"><code class="docutils literal notranslate"><span class="pre">PlansBuildStopsIn</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansBuildStopsIn.Config"><code class="docutils literal notranslate"><span class="pre">PlansBuildStopsIn.Config</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn"><code class="docutils literal notranslate"><span class="pre">PlansConfirmOptimizationsIn</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn.Config"><code class="docutils literal notranslate"><span class="pre">PlansConfirmOptimizationsIn.Config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn.routes_optimized"><code class="docutils literal notranslate"><span class="pre">PlansConfirmOptimizationsIn.routes_optimized</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut"><code class="docutils literal notranslate"><span class="pre">PlansConfirmOptimizationsOut</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut.Config"><code class="docutils literal notranslate"><span class="pre">PlansConfirmOptimizationsOut.Config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsOut.routes_optimized"><code class="docutils literal notranslate"><span class="pre">PlansConfirmOptimizationsOut.routes_optimized</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansCreatePlansOut"><code class="docutils literal notranslate"><span class="pre">PlansCreatePlansOut</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansCreatePlansOut.Config"><code class="docutils literal notranslate"><span class="pre">PlansCreatePlansOut.Config</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansDistributeRoutesIn"><code class="docutils literal notranslate"><span class="pre">PlansDistributeRoutesIn</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansDistributeRoutesIn.Config"><code class="docutils literal notranslate"><span class="pre">PlansDistributeRoutesIn.Config</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut"><code class="docutils literal notranslate"><span class="pre">PlansDistributeRoutesOut</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut.Config"><code class="docutils literal notranslate"><span class="pre">PlansDistributeRoutesOut.Config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansDistributeRoutesOut.distributed"><code class="docutils literal notranslate"><span class="pre">PlansDistributeRoutesOut.distributed</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansInitializePlansIn"><code class="docutils literal notranslate"><span class="pre">PlansInitializePlansIn</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansInitializePlansIn.Config"><code class="docutils literal notranslate"><span class="pre">PlansInitializePlansIn.Config</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansInitializePlansOut"><code class="docutils literal notranslate"><span class="pre">PlansInitializePlansOut</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.Config"><code class="docutils literal notranslate"><span class="pre">PlansInitializePlansOut.Config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.initialized"><code class="docutils literal notranslate"><span class="pre">PlansInitializePlansOut.initialized</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.optimization"><code class="docutils literal notranslate"><span class="pre">PlansInitializePlansOut.optimization</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.plan_id"><code class="docutils literal notranslate"><span class="pre">PlansInitializePlansOut.plan_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansInitializePlansOut.writable"><code class="docutils literal notranslate"><span class="pre">PlansInitializePlansOut.writable</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesIn"><code class="docutils literal notranslate"><span class="pre">PlansOptimizeRoutesIn</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesIn.Config"><code class="docutils literal notranslate"><span class="pre">PlansOptimizeRoutesIn.Config</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesOut"><code class="docutils literal notranslate"><span class="pre">PlansOptimizeRoutesOut</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansOptimizeRoutesOut.Config"><code class="docutils literal notranslate"><span class="pre">PlansOptimizeRoutesOut.Config</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansUploadSplitChunkedOut"><code class="docutils literal notranslate"><span class="pre">PlansUploadSplitChunkedOut</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansUploadSplitChunkedOut.Config"><code class="docutils literal notranslate"><span class="pre">PlansUploadSplitChunkedOut.Config</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansUploadStopsIn"><code class="docutils literal notranslate"><span class="pre">PlansUploadStopsIn</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansUploadStopsIn.Config"><code class="docutils literal notranslate"><span class="pre">PlansUploadStopsIn.Config</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansUploadStopsOut"><code class="docutils literal notranslate"><span class="pre">PlansUploadStopsOut</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.Config"><code class="docutils literal notranslate"><span class="pre">PlansUploadStopsOut.Config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansUploadStopsOut.stops_uploaded"><code class="docutils literal notranslate"><span class="pre">PlansUploadStopsOut.stops_uploaded</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops"><code class="docutils literal notranslate"><span class="pre">Stops</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.Config"><code class="docutils literal notranslate"><span class="pre">Stops.Config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.address"><code class="docutils literal notranslate"><span class="pre">Stops.address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.email"><code class="docutils literal notranslate"><span class="pre">Stops.email</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.name"><code class="docutils literal notranslate"><span class="pre">Stops.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.neighborhood"><code class="docutils literal notranslate"><span class="pre">Stops.neighborhood</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.notes"><code class="docutils literal notranslate"><span class="pre">Stops.notes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.order_count"><code class="docutils literal notranslate"><span class="pre">Stops.order_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.phone"><code class="docutils literal notranslate"><span class="pre">Stops.phone</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.product_type"><code class="docutils literal notranslate"><span class="pre">Stops.product_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.sheet_name"><code class="docutils literal notranslate"><span class="pre">Stops.sheet_name</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="bfb_delivery.lib.schema.html#module-bfb_delivery.lib.schema.utils">bfb_delivery.lib.schema.utils module</a><ul>
@@ -419,7 +716,7 @@
 <p>Constants used in the project.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bfb_delivery.lib.constants.BookOneDrivers">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.constants.</span></span><span class="sig-name descname"><span class="pre">BookOneDrivers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.constants.BookOneDrivers" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.constants.</span></span><span class="sig-name descname"><span class="pre">BookOneDrivers</span></span><a class="headerlink" href="#bfb_delivery.lib.constants.BookOneDrivers" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">StrEnum</span></code></p>
 <p>Drivers for the first book.</p>
 <p>This is only an enum so it appears in docs.</p>
@@ -428,11 +725,22 @@
 <span class="sig-name descname"><span class="pre">DUMMY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Dummy'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.BookOneDrivers.DUMMY" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.BookOneDrivers.__new__">
+<span class="sig-name descname"><span class="pre">__new__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.constants.BookOneDrivers.__new__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.BookOneDrivers._generate_next_value_">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_generate_next_value_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.constants.BookOneDrivers._generate_next_value_" title="Link to this definition">¶</a></dt>
+<dd><p>Return the lower-cased version of the member name.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bfb_delivery.lib.constants.BoxType">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.constants.</span></span><span class="sig-name descname"><span class="pre">BoxType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.constants.BoxType" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.constants.</span></span><span class="sig-name descname"><span class="pre">BoxType</span></span><a class="headerlink" href="#bfb_delivery.lib.constants.BoxType" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">StrEnum</span></code></p>
 <p>Box types for the delivery service.</p>
 <dl class="py attribute">
@@ -454,6 +762,17 @@
 <dt class="sig sig-object py" id="bfb_delivery.lib.constants.BoxType.VEGAN">
 <span class="sig-name descname"><span class="pre">VEGAN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'VEGAN'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.BoxType.VEGAN" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.BoxType.__new__">
+<span class="sig-name descname"><span class="pre">__new__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.constants.BoxType.__new__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.BoxType._generate_next_value_">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_generate_next_value_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.constants.BoxType._generate_next_value_" title="Link to this definition">¶</a></dt>
+<dd><p>Return the lower-cased version of the member name.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -495,6 +814,11 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Column/field/doc name constants for Circuit API.</p>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.CircuitColumns.ACTIVE">
+<span class="sig-name descname"><span class="pre">ACTIVE</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'active'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CircuitColumns.ACTIVE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bfb_delivery.lib.constants.CircuitColumns.ADDRESS">
 <span class="sig-name descname"><span class="pre">ADDRESS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'address'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CircuitColumns.ADDRESS" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -507,6 +831,46 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfb_delivery.lib.constants.CircuitColumns.ADDRESS_LINE_2">
 <span class="sig-name descname"><span class="pre">ADDRESS_LINE_2</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'addressLineTwo'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CircuitColumns.ADDRESS_LINE_2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.CircuitColumns.ADDRESS_NAME">
+<span class="sig-name descname"><span class="pre">ADDRESS_NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'addressName'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CircuitColumns.ADDRESS_NAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.CircuitColumns.ALLOWED_DRIVERS">
+<span class="sig-name descname"><span class="pre">ALLOWED_DRIVERS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'allowedDrivers'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CircuitColumns.ALLOWED_DRIVERS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.CircuitColumns.CITY">
+<span class="sig-name descname"><span class="pre">CITY</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'city'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CircuitColumns.CITY" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.CircuitColumns.COUNTRY">
+<span class="sig-name descname"><span class="pre">COUNTRY</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'country'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CircuitColumns.COUNTRY" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.CircuitColumns.DAY">
+<span class="sig-name descname"><span class="pre">DAY</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'day'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CircuitColumns.DAY" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.CircuitColumns.DEPOT">
+<span class="sig-name descname"><span class="pre">DEPOT</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'depot'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CircuitColumns.DEPOT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.CircuitColumns.DISTRIBUTED">
+<span class="sig-name descname"><span class="pre">DISTRIBUTED</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'distributed'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CircuitColumns.DISTRIBUTED" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.CircuitColumns.DRIVERS">
+<span class="sig-name descname"><span class="pre">DRIVERS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'drivers'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CircuitColumns.DRIVERS" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -525,6 +889,11 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.CircuitColumns.MONTH">
+<span class="sig-name descname"><span class="pre">MONTH</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'month'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CircuitColumns.MONTH" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bfb_delivery.lib.constants.CircuitColumns.NAME">
 <span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'name'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CircuitColumns.NAME" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -532,6 +901,11 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfb_delivery.lib.constants.CircuitColumns.NOTES">
 <span class="sig-name descname"><span class="pre">NOTES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'notes'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CircuitColumns.NOTES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.CircuitColumns.OPTIMIZATION">
+<span class="sig-name descname"><span class="pre">OPTIMIZATION</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'optimization'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CircuitColumns.OPTIMIZATION" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -575,6 +949,16 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.CircuitColumns.STARTS">
+<span class="sig-name descname"><span class="pre">STARTS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'starts'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CircuitColumns.STARTS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.CircuitColumns.STATE">
+<span class="sig-name descname"><span class="pre">STATE</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'state'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CircuitColumns.STATE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bfb_delivery.lib.constants.CircuitColumns.STOPS">
 <span class="sig-name descname"><span class="pre">STOPS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'stops'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CircuitColumns.STOPS" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -587,6 +971,21 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfb_delivery.lib.constants.CircuitColumns.TITLE">
 <span class="sig-name descname"><span class="pre">TITLE</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'title'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CircuitColumns.TITLE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.CircuitColumns.WRITABLE">
+<span class="sig-name descname"><span class="pre">WRITABLE</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'writable'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CircuitColumns.WRITABLE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.CircuitColumns.YEAR">
+<span class="sig-name descname"><span class="pre">YEAR</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'year'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CircuitColumns.YEAR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.CircuitColumns.ZIP">
+<span class="sig-name descname"><span class="pre">ZIP</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'zip'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.CircuitColumns.ZIP" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -664,6 +1063,11 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Default values. E.g., for syncing public API with CLI.</p>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.Defaults.BUILD_ROUTES_FROM_CHUNKED">
+<span class="sig-name descname"><span class="pre">BUILD_ROUTES_FROM_CHUNKED</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> <span class="pre">|</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'book_one_drivers_file':</span> <span class="pre">'',</span> <span class="pre">'extra_notes_file':</span> <span class="pre">'',</span> <span class="pre">'no_distribute':</span> <span class="pre">False,</span> <span class="pre">'output_dir':</span> <span class="pre">'',</span> <span class="pre">'start_date':</span> <span class="pre">'',</span> <span class="pre">'verbose':</span> <span class="pre">False}</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.Defaults.BUILD_ROUTES_FROM_CHUNKED" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bfb_delivery.lib.constants.Defaults.COMBINE_ROUTE_TABLES">
 <span class="sig-name descname"><span class="pre">COMBINE_ROUTE_TABLES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'output_dir':</span> <span class="pre">'',</span> <span class="pre">'output_filename':</span> <span class="pre">''}</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.Defaults.COMBINE_ROUTE_TABLES" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -675,7 +1079,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfb_delivery.lib.constants.Defaults.CREATE_MANIFESTS_FROM_CIRCUIT">
-<span class="sig-name descname"><span class="pre">CREATE_MANIFESTS_FROM_CIRCUIT</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> <span class="pre">|</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'all_hhs':</span> <span class="pre">False,</span> <span class="pre">'circuit_output_dir':</span> <span class="pre">'',</span> <span class="pre">'end_date':</span> <span class="pre">'',</span> <span class="pre">'extra_notes_file':</span> <span class="pre">'',</span> <span class="pre">'output_dir':</span> <span class="pre">'',</span> <span class="pre">'output_filename':</span> <span class="pre">'',</span> <span class="pre">'start_date':</span> <span class="pre">'',</span> <span class="pre">'verbose':</span> <span class="pre">False}</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.Defaults.CREATE_MANIFESTS_FROM_CIRCUIT" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">CREATE_MANIFESTS_FROM_CIRCUIT</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> <span class="pre">|</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code> <span class="pre">|</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'all_hhs':</span> <span class="pre">False,</span> <span class="pre">'circuit_output_dir':</span> <span class="pre">'',</span> <span class="pre">'end_date':</span> <span class="pre">'',</span> <span class="pre">'extra_notes_file':</span> <span class="pre">'',</span> <span class="pre">'output_dir':</span> <span class="pre">'',</span> <span class="pre">'output_filename':</span> <span class="pre">'',</span> <span class="pre">'plan_ids':</span> <span class="pre">[],</span> <span class="pre">'start_date':</span> <span class="pre">'',</span> <span class="pre">'verbose':</span> <span class="pre">False}</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.Defaults.CREATE_MANIFESTS_FROM_CIRCUIT" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -695,6 +1099,11 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.constants.</span></span><span class="sig-name descname"><span class="pre">DocStrings</span></span><a class="headerlink" href="#bfb_delivery.lib.constants.DocStrings" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Docstrings for the public API.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.DocStrings.BUILD_ROUTES_FROM_CHUNKED">
+<span class="sig-name descname"><span class="pre">BUILD_ROUTES_FROM_CHUNKED</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;comb_utils.lib.docs.DocString</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.DocStrings.BUILD_ROUTES_FROM_CHUNKED" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfb_delivery.lib.constants.DocStrings.COMBINE_ROUTE_TABLES">
 <span class="sig-name descname"><span class="pre">COMBINE_ROUTE_TABLES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;comb_utils.lib.docs.DocString</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.DocStrings.COMBINE_ROUTE_TABLES" title="Link to this definition">¶</a></dt>
@@ -726,17 +1135,30 @@
 <dt class="sig sig-object py" id="bfb_delivery.lib.constants.ExtraNotes">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.constants.</span></span><span class="sig-name descname"><span class="pre">ExtraNotes</span></span><a class="headerlink" href="#bfb_delivery.lib.constants.ExtraNotes" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Extra notes for the combined routes.</p>
+<p>Extra notes to add at bottom of manifests when any stop is tagged.</p>
 <p>Is a class so it appears in docs.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.ExtraNotes.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.constants.ExtraNotes.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the extra notes <cite>df</cite>.</p>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfb_delivery.lib.constants.ExtraNotes.df">
 <span class="sig-name descname"><span class="pre">df</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code><span class="pre">]</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.ExtraNotes.df" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Extra notes DataFrame. The columns are “tag” and “note”. Made from <cite>notes</cite>.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfb_delivery.lib.constants.ExtraNotes.notes">
 <span class="sig-name descname"><span class="pre">notes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.ExtraNotes.notes" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>(“Cascade Meadows Apartments*”, “Note here.”)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuples of tag and note. Example</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -746,13 +1168,48 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Column name constants for intermediate tables.</p>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.IntermediateColumns.DRIVER_NAME">
+<span class="sig-name descname"><span class="pre">DRIVER_NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'driver_name'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.IntermediateColumns.DRIVER_NAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bfb_delivery.lib.constants.IntermediateColumns.DRIVER_SHEET_NAME">
 <span class="sig-name descname"><span class="pre">DRIVER_SHEET_NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'driver_sheet_name'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.IntermediateColumns.DRIVER_SHEET_NAME" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.IntermediateColumns.INITIALIZED">
+<span class="sig-name descname"><span class="pre">INITIALIZED</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'initialized'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.IntermediateColumns.INITIALIZED" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.IntermediateColumns.OPTIMIZED">
+<span class="sig-name descname"><span class="pre">OPTIMIZED</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'optimized'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.IntermediateColumns.OPTIMIZED" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.IntermediateColumns.PLAN_ID">
+<span class="sig-name descname"><span class="pre">PLAN_ID</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'plan_id'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.IntermediateColumns.PLAN_ID" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bfb_delivery.lib.constants.IntermediateColumns.ROUTE_TITLE">
 <span class="sig-name descname"><span class="pre">ROUTE_TITLE</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'route_title'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.IntermediateColumns.ROUTE_TITLE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.IntermediateColumns.SHEET_NAME">
+<span class="sig-name descname"><span class="pre">SHEET_NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sheet_name'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.IntermediateColumns.SHEET_NAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.IntermediateColumns.START_DATE">
+<span class="sig-name descname"><span class="pre">START_DATE</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'start_date'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.IntermediateColumns.START_DATE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.IntermediateColumns.STOPS_UPLOADED">
+<span class="sig-name descname"><span class="pre">STOPS_UPLOADED</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'stops_uploaded'</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.IntermediateColumns.STOPS_UPLOADED" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -769,12 +1226,17 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfb_delivery.lib.constants.RateLimits.BATCH_STOP_IMPORT_SECONDS">
-<span class="sig-name descname"><span class="pre">BATCH_STOP_IMPORT_SECONDS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6.0</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.RateLimits.BATCH_STOP_IMPORT_SECONDS" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">BATCH_STOP_IMPORT_SECONDS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.RateLimits.BATCH_STOP_IMPORT_SECONDS" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfb_delivery.lib.constants.RateLimits.OPTIMIZATION_PER_SECOND">
-<span class="sig-name descname"><span class="pre">OPTIMIZATION_PER_SECOND</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">20.0</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.RateLimits.OPTIMIZATION_PER_SECOND" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">OPTIMIZATION_PER_SECOND</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">20</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.RateLimits.OPTIMIZATION_PER_SECOND" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.RateLimits.OPTIMIZATION_TIMEOUT_SECONDS">
+<span class="sig-name descname"><span class="pre">OPTIMIZATION_TIMEOUT_SECONDS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.RateLimits.OPTIMIZATION_TIMEOUT_SECONDS" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -784,12 +1246,27 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfb_delivery.lib.constants.RateLimits.READ_TIMEOUT_SECONDS">
-<span class="sig-name descname"><span class="pre">READ_TIMEOUT_SECONDS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.RateLimits.READ_TIMEOUT_SECONDS" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">READ_TIMEOUT_SECONDS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.RateLimits.READ_TIMEOUT_SECONDS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.RateLimits.WAIT_DECREASE_SECONDS">
+<span class="sig-name descname"><span class="pre">WAIT_DECREASE_SECONDS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.6</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.RateLimits.WAIT_DECREASE_SECONDS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.RateLimits.WAIT_INCREASE_SCALAR">
+<span class="sig-name descname"><span class="pre">WAIT_INCREASE_SCALAR</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.RateLimits.WAIT_INCREASE_SCALAR" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfb_delivery.lib.constants.RateLimits.WRITE_SECONDS">
 <span class="sig-name descname"><span class="pre">WRITE_SECONDS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.2</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.RateLimits.WRITE_SECONDS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.constants.RateLimits.WRITE_TIMEOUT_SECONDS">
+<span class="sig-name descname"><span class="pre">WRITE_TIMEOUT_SECONDS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Final</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#bfb_delivery.lib.constants.RateLimits.WRITE_TIMEOUT_SECONDS" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -877,6 +1354,8 @@
 <li><a class="reference internal" href="#module-bfb_delivery.lib.constants">bfb_delivery.lib.constants module</a><ul>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.BookOneDrivers"><code class="docutils literal notranslate"><span class="pre">BookOneDrivers</span></code></a><ul>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.BookOneDrivers.DUMMY"><code class="docutils literal notranslate"><span class="pre">BookOneDrivers.DUMMY</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.BookOneDrivers.__new__"><code class="docutils literal notranslate"><span class="pre">BookOneDrivers.__new__()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.BookOneDrivers._generate_next_value_"><code class="docutils literal notranslate"><span class="pre">BookOneDrivers._generate_next_value_()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.BoxType"><code class="docutils literal notranslate"><span class="pre">BoxType</span></code></a><ul>
@@ -884,6 +1363,8 @@
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.BoxType.GF"><code class="docutils literal notranslate"><span class="pre">BoxType.GF</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.BoxType.LA"><code class="docutils literal notranslate"><span class="pre">BoxType.LA</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.BoxType.VEGAN"><code class="docutils literal notranslate"><span class="pre">BoxType.VEGAN</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.BoxType.__new__"><code class="docutils literal notranslate"><span class="pre">BoxType.__new__()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.BoxType._generate_next_value_"><code class="docutils literal notranslate"><span class="pre">BoxType._generate_next_value_()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.CellColors"><code class="docutils literal notranslate"><span class="pre">CellColors</span></code></a><ul>
@@ -895,14 +1376,25 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns"><code class="docutils literal notranslate"><span class="pre">CircuitColumns</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.ACTIVE"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.ACTIVE</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.ADDRESS"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.ADDRESS</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.ADDRESS_LINE_1"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.ADDRESS_LINE_1</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.ADDRESS_LINE_2"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.ADDRESS_LINE_2</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.ADDRESS_NAME"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.ADDRESS_NAME</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.ALLOWED_DRIVERS"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.ALLOWED_DRIVERS</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.CITY"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.CITY</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.COUNTRY"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.COUNTRY</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.DAY"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.DAY</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.DEPOT"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.DEPOT</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.DISTRIBUTED"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.DISTRIBUTED</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.DRIVERS"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.DRIVERS</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.EMAIL"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.EMAIL</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.EXTERNAL_ID"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.EXTERNAL_ID</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.ID"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.ID</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.MONTH"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.MONTH</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.NAME"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.NAME</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.NOTES"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.NOTES</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.OPTIMIZATION"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.OPTIMIZATION</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.ORDER_INFO"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.ORDER_INFO</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.PACKAGE_COUNT"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.PACKAGE_COUNT</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.PHONE"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.PHONE</span></code></a></li>
@@ -911,9 +1403,14 @@
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.PRODUCTS"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.PRODUCTS</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.RECIPIENT"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.RECIPIENT</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.ROUTE"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.ROUTE</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.STARTS"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.STARTS</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.STATE"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.STATE</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.STOPS"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.STOPS</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.STOP_POSITION"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.STOP_POSITION</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.TITLE"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.TITLE</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.WRITABLE"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.WRITABLE</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.YEAR"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.YEAR</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.CircuitColumns.ZIP"><code class="docutils literal notranslate"><span class="pre">CircuitColumns.ZIP</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.Columns"><code class="docutils literal notranslate"><span class="pre">Columns</span></code></a><ul>
@@ -932,6 +1429,7 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.Defaults"><code class="docutils literal notranslate"><span class="pre">Defaults</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.Defaults.BUILD_ROUTES_FROM_CHUNKED"><code class="docutils literal notranslate"><span class="pre">Defaults.BUILD_ROUTES_FROM_CHUNKED</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.Defaults.COMBINE_ROUTE_TABLES"><code class="docutils literal notranslate"><span class="pre">Defaults.COMBINE_ROUTE_TABLES</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.Defaults.CREATE_MANIFESTS"><code class="docutils literal notranslate"><span class="pre">Defaults.CREATE_MANIFESTS</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.Defaults.CREATE_MANIFESTS_FROM_CIRCUIT"><code class="docutils literal notranslate"><span class="pre">Defaults.CREATE_MANIFESTS_FROM_CIRCUIT</span></code></a></li>
@@ -940,6 +1438,7 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.DocStrings"><code class="docutils literal notranslate"><span class="pre">DocStrings</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.DocStrings.BUILD_ROUTES_FROM_CHUNKED"><code class="docutils literal notranslate"><span class="pre">DocStrings.BUILD_ROUTES_FROM_CHUNKED</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.DocStrings.COMBINE_ROUTE_TABLES"><code class="docutils literal notranslate"><span class="pre">DocStrings.COMBINE_ROUTE_TABLES</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.DocStrings.CREATE_MANIFESTS"><code class="docutils literal notranslate"><span class="pre">DocStrings.CREATE_MANIFESTS</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT"><code class="docutils literal notranslate"><span class="pre">DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT</span></code></a></li>
@@ -948,22 +1447,34 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.ExtraNotes"><code class="docutils literal notranslate"><span class="pre">ExtraNotes</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.ExtraNotes.__init__"><code class="docutils literal notranslate"><span class="pre">ExtraNotes.__init__()</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.ExtraNotes.df"><code class="docutils literal notranslate"><span class="pre">ExtraNotes.df</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.ExtraNotes.notes"><code class="docutils literal notranslate"><span class="pre">ExtraNotes.notes</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.IntermediateColumns"><code class="docutils literal notranslate"><span class="pre">IntermediateColumns</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.IntermediateColumns.DRIVER_NAME"><code class="docutils literal notranslate"><span class="pre">IntermediateColumns.DRIVER_NAME</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.IntermediateColumns.DRIVER_SHEET_NAME"><code class="docutils literal notranslate"><span class="pre">IntermediateColumns.DRIVER_SHEET_NAME</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.IntermediateColumns.INITIALIZED"><code class="docutils literal notranslate"><span class="pre">IntermediateColumns.INITIALIZED</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.IntermediateColumns.OPTIMIZED"><code class="docutils literal notranslate"><span class="pre">IntermediateColumns.OPTIMIZED</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.IntermediateColumns.PLAN_ID"><code class="docutils literal notranslate"><span class="pre">IntermediateColumns.PLAN_ID</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.IntermediateColumns.ROUTE_TITLE"><code class="docutils literal notranslate"><span class="pre">IntermediateColumns.ROUTE_TITLE</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.IntermediateColumns.SHEET_NAME"><code class="docutils literal notranslate"><span class="pre">IntermediateColumns.SHEET_NAME</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.IntermediateColumns.START_DATE"><code class="docutils literal notranslate"><span class="pre">IntermediateColumns.START_DATE</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.IntermediateColumns.STOPS_UPLOADED"><code class="docutils literal notranslate"><span class="pre">IntermediateColumns.STOPS_UPLOADED</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.RateLimits"><code class="docutils literal notranslate"><span class="pre">RateLimits</span></code></a><ul>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.RateLimits.BATCH_STOP_IMPORT_MAX_STOPS"><code class="docutils literal notranslate"><span class="pre">RateLimits.BATCH_STOP_IMPORT_MAX_STOPS</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.RateLimits.BATCH_STOP_IMPORT_SECONDS"><code class="docutils literal notranslate"><span class="pre">RateLimits.BATCH_STOP_IMPORT_SECONDS</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.RateLimits.OPTIMIZATION_PER_SECOND"><code class="docutils literal notranslate"><span class="pre">RateLimits.OPTIMIZATION_PER_SECOND</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.RateLimits.OPTIMIZATION_TIMEOUT_SECONDS"><code class="docutils literal notranslate"><span class="pre">RateLimits.OPTIMIZATION_TIMEOUT_SECONDS</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.RateLimits.READ_SECONDS"><code class="docutils literal notranslate"><span class="pre">RateLimits.READ_SECONDS</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.RateLimits.READ_TIMEOUT_SECONDS"><code class="docutils literal notranslate"><span class="pre">RateLimits.READ_TIMEOUT_SECONDS</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.RateLimits.WAIT_DECREASE_SECONDS"><code class="docutils literal notranslate"><span class="pre">RateLimits.WAIT_DECREASE_SECONDS</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.RateLimits.WAIT_INCREASE_SCALAR"><code class="docutils literal notranslate"><span class="pre">RateLimits.WAIT_INCREASE_SCALAR</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.constants.RateLimits.WRITE_SECONDS"><code class="docutils literal notranslate"><span class="pre">RateLimits.WRITE_SECONDS</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.constants.RateLimits.WRITE_TIMEOUT_SECONDS"><code class="docutils literal notranslate"><span class="pre">RateLimits.WRITE_TIMEOUT_SECONDS</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -984,7 +1495,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=8e576371"></script>
+</div><script src="_static/documentation_options.js?v=2bd037f0"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

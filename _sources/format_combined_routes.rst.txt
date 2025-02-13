@@ -1,3 +1,5 @@
+:orphan:
+
 ================
 Format Manifests
 ================
@@ -114,7 +116,7 @@ Supplying extra notes
 
 Use the optional argument :code:`extra_notes_file` to specify a CSV file with extra notes to include in the manifest. The CSV file should have two columns: :code:`tag` and :code:`note`. The tag is the text (usually asterisked) that appears in the standard notes field for a delivery. The note is then added to the bottom of the manifest with the tag. For example:
 
-.. code:: csv
+.. code-block:: text
 
     tag,note
     Cedarwood Apartments*,Please call the recipient when you arrive.
