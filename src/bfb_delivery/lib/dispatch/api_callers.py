@@ -19,8 +19,10 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
+# TODO: Move base classes to comb_utils.
+
 class BaseCaller:
-    """Am abstract class for making API calls.
+    """An abstract class for making API calls.
 
     Example:
         .. code:: python

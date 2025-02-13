@@ -48,8 +48,7 @@ logger = logging.getLogger(__name__)
     "--verbose",
     is_flag=True,
     default=Defaults.BUILD_ROUTES_FROM_CHUNKED["verbose"],
-    # TODO: Add this to DocString.
-    help="verbose: Flag to print verbose output.",
+    help=DocStrings.BUILD_ROUTES_FROM_CHUNKED.args["verbose"],
 )
 @click.option(
     "--book_one_drivers_file",

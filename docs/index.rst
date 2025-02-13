@@ -4,10 +4,7 @@ BFB Delivery: A Cruft Cutter
 
 Library and CLI for Bellingham Food Bank Delivery.
 
-So far, you can use this package to cut some cruft around creating delivery route manifests:
-
-    1. Split a driver-labeled route spreadsheet into individual driver spreadsheets. See :doc:`split_chunked_route` for more information.
-    2. Create printable manifests. See :doc:`create_manifests_from_circuit` for more information.
+Use this package to cut some cruft around creating delivery route manifests. There is one main tool :doc:`build_routes_from_chunked`, which is a CLI tool to take spreadsheet of stops assigned to drivers ("chunked" routes, as staff call it) and upload to Circuit to build, optimize, and distribute routes to drivers, producing also a final manifest spreadsheet to print for each driver.
 
 
 Contents
@@ -18,8 +15,7 @@ Contents
 
    getting_started
    workflow
-   split_chunked_route
-   create_manifests_from_circuit
+   build_routes_from_chunked
    CLI
    modules
    developers

@@ -180,7 +180,9 @@ Build and disbribute routes from chunked routes.
 From a chunked route spreadsheet, builds, optimizes, and distributes routes to drivers.
 Produces a final manifest spreadsheet.
 
-Requires interactive user input to confirm driver assignments.
+Prompts interactive user input to confirm driver assignments.
+
+See :doc:`build_routes_from_chunked` for more information.
 """,
         args={
             "input_path": "Path to the chunked route spreadsheet.",

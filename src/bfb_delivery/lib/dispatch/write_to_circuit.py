@@ -413,7 +413,7 @@ def _optimize_routes(
                 )
 
     logger.info(
-        "Finished initializing route optimizations: for "
+        "Finished initializing route optimizations for "
         f"{len(plan_df[~(plan_df[IntermediateColumns.ROUTE_TITLE]).isin(errors.keys())])} "
         "plans."
     )
@@ -471,7 +471,7 @@ def _distribute_routes(
             errors[plan_title] = e
 
     logger.info(
-        "Finished distributing routes: for "
+        "Finished distributing routes for "
         f"{len(plan_df[~(plan_df[IntermediateColumns.ROUTE_TITLE]).isin(errors.keys())])} "
         "plans."
     )
