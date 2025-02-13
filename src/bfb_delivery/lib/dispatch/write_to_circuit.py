@@ -1,6 +1,7 @@
 """Write routes to Circuit."""
 
 import logging
+import warnings
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -872,10 +873,15 @@ def _confirm_optimizations(
         "Finished optimizing routes. Optimized "
         f"{len([val for val in optimizations_finished.values() if val is True])} routes."
     )
-    plan_df.loc[
-        plan_df[IntermediateColumns.ROUTE_TITLE].isin(errors.keys()),
-        IntermediateColumns.OPTIMIZED,
-    ] = None
+    # TODO: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise
+    # an error in a future version of pandas. Value 'nan' has dtype incompatible with bool,
+    # please explicitly cast to a compatible dtype first.
+    with warnings.catch_warnings():
+        warnings.simplefilter(action="ignore", category=FutureWarning)
+        plan_df.loc[
+            plan_df[IntermediateColumns.ROUTE_TITLE].isin(errors.keys()),
+            IntermediateColumns.OPTIMIZED,
+        ] = None
     if errors:
         logger.warning(f"Errors checking optimizations:\n{errors}")
 
