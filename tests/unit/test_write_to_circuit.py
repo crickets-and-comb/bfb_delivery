@@ -129,6 +129,30 @@ def mock_plan_df_initial(mock_stops_df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+@pytest.fixture
+@typechecked
+def mock_plan_df_drivers_assigned(
+    mock_plan_df_initial: pd.DataFrame, mock_driver_df: pd.DataFrame
+) -> pd.DataFrame:
+    """Return a mock plan DataFrame with drivers assigned."""
+    plan_df = mock_plan_df_initial.copy()[[IntermediateColumns.ROUTE_TITLE]]
+    plan_df[IntermediateColumns.DRIVER_NAME] = [
+        mock_driver_df[
+            mock_driver_df[CircuitColumns.NAME].apply(lambda x: x in title)  # noqa: B023
+        ][CircuitColumns.NAME].iloc[0]
+        for title in plan_df[IntermediateColumns.ROUTE_TITLE]
+    ]
+    plan_df = plan_df.merge(
+        mock_driver_df,
+        left_on=IntermediateColumns.DRIVER_NAME,
+        right_on=CircuitColumns.NAME,
+        how="left",
+    )
+    plan_df = plan_df[mock_plan_df_initial.columns.to_list() + [CircuitColumns.ACTIVE]]
+
+    return plan_df
+
+
 @typechecked
 def test_get_all_drivers(
     mock_driver_df: pd.DataFrame, mock_all_drivers_simple: Mocker
@@ -153,26 +177,10 @@ def test_assign_drivers(
     mock_plan_df_initial: pd.DataFrame,
     mock_driver_df: pd.DataFrame,
     mock_stops_df: pd.DataFrame,
+    mock_plan_df_drivers_assigned: pd.DataFrame,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Test that _assign_drivers assigns drivers to routes correctly."""
-    expected_df = mock_plan_df_initial.copy()[[IntermediateColumns.ROUTE_TITLE]]
-    expected_df[IntermediateColumns.DRIVER_NAME] = [
-        mock_driver_df[
-            mock_driver_df[CircuitColumns.NAME].apply(lambda x: x in title)  # noqa: B023
-        ][CircuitColumns.NAME].iloc[0]
-        for title in expected_df[IntermediateColumns.ROUTE_TITLE]
-    ]
-    expected_df = expected_df.merge(
-        mock_driver_df,
-        left_on=IntermediateColumns.DRIVER_NAME,
-        right_on=CircuitColumns.NAME,
-        how="left",
-    )
-    expected_df = expected_df[
-        mock_plan_df_initial.columns.to_list() + [CircuitColumns.ACTIVE]
-    ]
-
     driver_selections = []
     for sheet_name in sorted(mock_stops_df[IntermediateColumns.SHEET_NAME].unique()):
         driver_row = mock_driver_df[
@@ -194,4 +202,4 @@ def test_assign_drivers(
     result_df = _assign_drivers(drivers_df=mock_driver_df, plan_df=mock_plan_df_initial)
 
     result_df[CircuitColumns.ACTIVE] = result_df[CircuitColumns.ACTIVE].astype(bool)
-    pd.testing.assert_frame_equal(result_df, expected_df)
+    pd.testing.assert_frame_equal(result_df, mock_plan_df_drivers_assigned)
