@@ -7,7 +7,58 @@ If you're reading this, you are probably an end user who, at the current state o
 Setting up your machine
 -----------------------
 
-You need to create a couple of files and install a terminal app, conda, and the ``bfb_delivery`` Python package. The files you create should be in the same directory where you'll be running the tool.
+You need to install a terminal app, conda, and the ``bfb_delivery`` Python package, and you need to create a couple of files. The files you create should be in the same directory where you'll be running the tool.
+
+First-time setup: Installing the package
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``bfb_delivery`` is a Python package. To use it, you should install this package within a virtual environment (a "venv" or an "env"). Here's how.
+
+Install conda and terminal
+##########################
+
+A venv is basically a controlled space to install and run stuff. The best way to build an env is to use ``conda``.
+
+Go to https://www.anaconda.com to download and install ``conda`` on your machine. You'll have the option to install Anaconda or Miniconda. Miniconda is a smaller version of Anaconda that doesn't come with all the bells and whistles that Anaconda does. You can install all the packages you need with Miniconda.
+
+But, the full Anaconda installation comes with a terminal, Anaconda Command Prompt, and you'll need a terminal to work in your env. You can use the Anaconda Command Prompt that gets installed with Anaconda, or you can use Git Bash or another conda-friendly terminal.
+
+Build the env and install the package
+#####################################
+
+Once you have a terminal and ``conda`` installed, open your terminal and create an env with the following command:
+
+.. code:: bash
+
+    conda create -n bfb_delivery python=3.12 --yes
+
+This will create an env named "bfb_delivery" with Python 3.12 installed. You can name it something else if you'd like.
+
+Activate the env with the following command:
+
+.. code:: bash
+
+    conda activate bfb_delivery
+
+Now install the package in the env:
+
+.. code:: bash
+
+    pip install bfb_delivery
+
+.. note::
+
+    It's important to have the env activated when you install. You want to install the package in the env, not out in the global environment of your machine.
+
+Using the package once installed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Once the package installed, all you need to do is activate the env and you're good to go. Open your terminal and activate the env with the following command:
+
+.. code:: bash
+
+    conda activate my_bfb_delivery_env_name
+
 
 Config file setup
 ~~~~~~~~~~~~~~~~~
@@ -62,56 +113,6 @@ To check that the key was added correctly, run the following command:
 .. code:: bash
 
     cat .env
-
-First-time setup: Installing the package
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-``bfb_delivery`` is a Python package. To use it, you should install this package within a virtual environment (a "venv" or an "env"). Here's how.
-
-Install conda and terminal
-##########################
-
-A venv is basically a controlled space to install and run stuff. The best way to build an env is to use ``conda``.
-
-Go to https://www.anaconda.com to download and install ``conda`` on your machine. You'll have the option to install Anaconda or Miniconda. Miniconda is a smaller version of Anaconda that doesn't come with all the bells and whistles that Anaconda does. You can install all the packages you need with Miniconda.
-
-But, the full Anaconda installation comes with a terminal, Anaconda Command Prompt, and you'll need a terminal to work in your env. You can use the Anaconda Command Prompt that gets installed with Anaconda, or you can use Git Bash or another conda-friendly terminal.
-
-Build the env and install the package
-#####################################
-
-Once you have a terminal and ``conda`` installed, open your terminal and create an env with the following command:
-
-.. code:: bash
-
-    conda create -n bfb_delivery python=3.12 --yes
-
-This will create an env named "bfb_delivery" with Python 3.12 installed. You can name it something else if you'd like.
-
-Activate the env with the following command:
-
-.. code:: bash
-
-    conda activate bfb_delivery
-
-Now install the package in the env:
-
-.. code:: bash
-
-    pip install bfb_delivery
-
-.. note::
-
-    It's important to have the env activated when you install. You want to install the package in the env, not out in the global environment of your machine.
-
-Using the package once installed
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Once the package installed, all you need to do is activate the env and you're good to go. Open your terminal and activate the env with the following command:
-
-.. code:: bash
-
-    conda activate my_bfb_delivery_env_name
 
 Usage examples
 --------------
