@@ -585,6 +585,7 @@ def _initialize_plans(
     """Initialize Circuit plans with drivers."""
     plan_df[IntermediateColumns.PLAN_ID] = None
     plan_df[CircuitColumns.WRITABLE] = None
+    # TODO: Do we need this column?
     plan_df[CircuitColumns.OPTIMIZATION] = None
 
     logger.info("Initializing plans ...")
@@ -592,6 +593,7 @@ def _initialize_plans(
     for idx, row in plan_df.iterrows():
         plan_data = {
             CircuitColumns.TITLE: row[IntermediateColumns.ROUTE_TITLE],
+            # TODO: Just make this once.
             CircuitColumns.STARTS: {
                 CircuitColumns.DAY: int(start_date.split("-")[2]),
                 CircuitColumns.MONTH: int(start_date.split("-")[1]),

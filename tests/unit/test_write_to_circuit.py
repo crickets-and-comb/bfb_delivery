@@ -15,6 +15,7 @@
 import builtins
 from collections.abc import Iterator
 from pathlib import Path
+from typing import Any, Final
 
 import pandas as pd
 import pytest
@@ -25,6 +26,7 @@ from typeguard import typechecked
 from bfb_delivery import split_chunked_route
 from bfb_delivery.lib.constants import (
     CIRCUIT_DRIVERS_URL,
+    CIRCUIT_URL,
     CircuitColumns,
     Columns,
     IntermediateColumns,
@@ -34,7 +36,10 @@ from bfb_delivery.lib.dispatch.write_to_circuit import (
     _assign_drivers_to_plans,
     _create_stops_df,
     _get_all_drivers,
+    _initialize_plans,
 )
+
+_START_DATE: Final[str] = "2025-01-01"
 
 
 @pytest.fixture
@@ -90,6 +95,7 @@ def mock_all_drivers_simple(
         },
     )
 
+    # TODO: Do we need to yield anything?
     yield requests_mock
 
 
@@ -179,6 +185,49 @@ def mock_driver_assignment(
     monkeypatch.setattr("builtins.input", fake_input)
 
 
+@pytest.fixture
+@typechecked
+def mock_plan_df_plans_initialized(
+    mock_plan_df_drivers_assigned: pd.DataFrame,
+) -> pd.DataFrame:
+    """Return a mock plan DataFrame with drivers assigned."""
+    plan_df = mock_plan_df_drivers_assigned.copy()
+    plan_df[IntermediateColumns.PLAN_ID] = mock_plan_df_drivers_assigned[
+        IntermediateColumns.ROUTE_TITLE
+    ].apply(lambda title: f"plans/{title.replace(' ', '')}")
+    plan_df[CircuitColumns.WRITABLE] = True
+    # TODO: Do we need this column?
+    plan_df[CircuitColumns.OPTIMIZATION] = None
+    plan_df[IntermediateColumns.INITIALIZED] = True
+
+    return plan_df
+
+
+@pytest.fixture
+@typechecked
+def mock_plan_inialization_posts(
+    mock_plan_df_plans_initialized: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+) -> None:
+    """Mock requests.post calls for plan initialization."""
+    responses_by_title = {}
+    for _, row in mock_plan_df_plans_initialized.iterrows():
+        title = row[IntermediateColumns.ROUTE_TITLE]
+        responses_by_title[title] = {
+            # Use the same keys that PlanInitializer expects.
+            CircuitColumns.ID: f"plans/{title.replace(' ', '')}",
+            CircuitColumns.WRITABLE: True,
+        }
+
+    def post_callback(request: Any, context: Any) -> Any:
+        data = request.json()
+        plan_title = data.get(CircuitColumns.TITLE)
+        return responses_by_title[plan_title]
+
+    requests_mock.register_uri(
+        "POST", f"{CIRCUIT_URL}/plans", json=post_callback, status_code=200
+    )
+
+
 @typechecked
 def test_get_all_drivers(
     mock_driver_df: pd.DataFrame, mock_all_drivers_simple: Mocker
@@ -229,3 +278,16 @@ def test_assign_drivers_to_plans(
 
     result_df[CircuitColumns.ACTIVE] = result_df[CircuitColumns.ACTIVE].astype(bool)
     pd.testing.assert_frame_equal(result_df, mock_plan_df_drivers_assigned)
+
+
+@typechecked
+def test_initialize_plans(
+    mock_plan_df_drivers_assigned: pd.DataFrame,
+    mock_plan_df_plans_initialized: pd.DataFrame,
+    mock_plan_inialization_posts: None,
+) -> None:
+    """Test that _initialize_plans initializes plans correctly."""
+    result_df = _initialize_plans(
+        plan_df=mock_plan_df_drivers_assigned, start_date=_START_DATE, verbose=False
+    )
+    pd.testing.assert_frame_equal(result_df, mock_plan_df_plans_initialized)
