@@ -31,6 +31,7 @@ from bfb_delivery.lib.constants import (
 )
 from bfb_delivery.lib.dispatch.write_to_circuit import (
     _assign_drivers,
+    _assign_drivers_to_plans,
     _create_stops_df,
     _get_all_drivers,
 )
@@ -198,14 +199,33 @@ def test_get_all_drivers(
 # TODO: Test errors etc.:
 # - Invalid inputs. (Just put them right in the middle of the list?)
 # - Retry if confirm.lower() != "y"
+@typechecked
 def test_assign_drivers(
     mock_plan_df_initial: pd.DataFrame,
     mock_driver_df: pd.DataFrame,
     mock_plan_df_drivers_assigned: pd.DataFrame,
-    mock_driver_assignment: Mocker,
+    mock_driver_assignment: None,
 ) -> None:
     """Test that _assign_drivers assigns drivers to routes correctly."""
     result_df = _assign_drivers(drivers_df=mock_driver_df, plan_df=mock_plan_df_initial)
+
+    result_df[CircuitColumns.ACTIVE] = result_df[CircuitColumns.ACTIVE].astype(bool)
+    pd.testing.assert_frame_equal(result_df, mock_plan_df_drivers_assigned)
+
+
+# TODO: Test errors etc.:
+# - Invalid inputs. (Just put them right in the middle of the list?)
+# - Retry if confirm.lower() != "y"
+# - Raise if inactive drivers selected.
+@typechecked
+def test_assign_drivers_to_plans(
+    mock_stops_df: pd.DataFrame,
+    mock_plan_df_drivers_assigned: pd.DataFrame,
+    mock_all_drivers_simple: Mocker,
+    mock_driver_assignment: None,
+) -> None:
+    """Test that _assign_drivers_to_plans assigns drivers to routes correctly."""
+    result_df = _assign_drivers_to_plans(stops_df=mock_stops_df)
 
     result_df[CircuitColumns.ACTIVE] = result_df[CircuitColumns.ACTIVE].astype(bool)
     pd.testing.assert_frame_equal(result_df, mock_plan_df_drivers_assigned)
