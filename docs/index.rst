@@ -16,6 +16,7 @@ Contents
    getting_started
    workflow
    build_routes_from_chunked
+   intro_to_bash
    CLI
    modules
    developers
