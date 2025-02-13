@@ -68,7 +68,6 @@ def build_routes_from_chunked(  # noqa: D103
     start_date: str,
     no_distribute: bool,
     verbose: bool,
-    book_one_drivers_file: str,
     extra_notes_file: str,
 ) -> Path:
     start_date = start_date or get_friday(fmt=CIRCUIT_DATE_FORMAT)
@@ -85,7 +84,7 @@ def build_routes_from_chunked(  # noqa: D103
         output_dir=split_chunked_output_dir,
         output_filename="",
         n_books=1,
-        book_one_drivers_file=str(book_one_drivers_file) if book_one_drivers_file else "",
+        book_one_drivers_file="",
         date=datetime.strptime(start_date, CIRCUIT_DATE_FORMAT).strftime(
             MANIFEST_DATE_FORMAT
         ),

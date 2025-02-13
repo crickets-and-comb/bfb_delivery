@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 # TODO: Move base classes to comb_utils.
 
+
 class BaseCaller:
     """An abstract class for making API calls.
 

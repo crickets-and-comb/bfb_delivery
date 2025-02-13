@@ -21,7 +21,6 @@ def build_routes_from_chunked(  # noqa: D103
     start_date: str,
     no_distribute: bool,
     verbose: bool,
-    book_one_drivers_file: str,
     extra_notes_file: str,
 ) -> Path:
     return write_to_circuit.build_routes_from_chunked(
@@ -30,7 +29,6 @@ def build_routes_from_chunked(  # noqa: D103
         start_date=start_date,
         no_distribute=no_distribute,
         verbose=verbose,
-        book_one_drivers_file=book_one_drivers_file,
         extra_notes_file=extra_notes_file,
     )
 

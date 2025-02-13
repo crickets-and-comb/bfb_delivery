@@ -18,7 +18,6 @@ def build_routes_from_chunked(  # noqa: D103
     start_date: str = Defaults.BUILD_ROUTES_FROM_CHUNKED["start_date"],
     no_distribute: bool = Defaults.BUILD_ROUTES_FROM_CHUNKED["no_distribute"],
     verbose: bool = Defaults.BUILD_ROUTES_FROM_CHUNKED["verbose"],
-    book_one_drivers_file: str = Defaults.BUILD_ROUTES_FROM_CHUNKED["book_one_drivers_file"],
     extra_notes_file: str = Defaults.BUILD_ROUTES_FROM_CHUNKED["extra_notes_file"],
 ) -> Path:
     return internal.build_routes_from_chunked(
@@ -27,7 +26,6 @@ def build_routes_from_chunked(  # noqa: D103
         start_date=start_date,
         no_distribute=no_distribute,
         verbose=verbose,
-        book_one_drivers_file=book_one_drivers_file,
         extra_notes_file=extra_notes_file,
     )
 

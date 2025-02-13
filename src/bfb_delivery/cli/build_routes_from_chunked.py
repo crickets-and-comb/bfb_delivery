@@ -51,13 +51,6 @@ logger = logging.getLogger(__name__)
     help=DocStrings.BUILD_ROUTES_FROM_CHUNKED.args["verbose"],
 )
 @click.option(
-    "--book_one_drivers_file",
-    type=str,
-    required=False,
-    default=Defaults.BUILD_ROUTES_FROM_CHUNKED["book_one_drivers_file"],
-    help=DocStrings.BUILD_ROUTES_FROM_CHUNKED.args["book_one_drivers_file"],
-)
-@click.option(
     "--extra_notes_file",
     type=str,
     required=False,
@@ -71,7 +64,6 @@ def main(  # noqa: D103
     start_date: str,
     no_distribute: bool,
     verbose: bool,
-    book_one_drivers_file: str,
     extra_notes_file: str,
 ) -> str:
     final_manifest_path = build_routes_from_chunked(
@@ -80,7 +72,6 @@ def main(  # noqa: D103
         start_date=start_date,
         no_distribute=no_distribute,
         verbose=verbose,
-        book_one_drivers_file=book_one_drivers_file,
         extra_notes_file=extra_notes_file,
     )
     logger.info(f"Formatted workbook saved to:\n{final_manifest_path.resolve()}")

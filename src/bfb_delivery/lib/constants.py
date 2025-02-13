@@ -196,10 +196,6 @@ See :doc:`build_routes_from_chunked` for more information.
             ),
             "no_distribute": "To skip distributing the routes to drivers after optimizing.",
             "verbose": "Whether to print verbose output.",
-            "book_one_drivers_file": (
-                "Path to the book-one driver's file. If empty, uses a constant "
-                "list. See :py:data:`bfb_delivery.lib.constants.BookOneDrivers`."
-            ),
             "extra_notes_file": (
                 "Path to the extra notes file. If empty, uses a constant DataFrame. "
                 "See :py:data:`bfb_delivery.lib.constants.ExtraNotes`."
