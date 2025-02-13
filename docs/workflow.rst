@@ -42,11 +42,11 @@ Route all stops with Circuit
 
 When you have all the stops for the week, you need to upload them to Circuit and optimize them in a single route with the title "All HHs". You'll use this single route as a starting point to allocate stops to drivers.
 
-You can build the single route manually, or you can use :code:`build_routes_from_chunked` to upload the stops to Circuit and optimize the route for you. Just put "All HHs" in the driver column for all stops in the routes spreadsheet, then run the tool with the `--all_hhs` flag:
+You can build the single route manually, or you can use :code:`build_routes_from_chunked` to upload the stops to Circuit and optimize the route for you. Just put "All HHs" in the driver column for all stops in the routes spreadsheet, then run the tool:
 
 .. code:: bash
 
-    build_routes_from_chunked --input_path "path/to/all_hhs.xlsx" --all_hhs
+    build_routes_from_chunked --input_path "path/to/all_hhs.xlsx"
 
 The tool will prompt you to confirm the driver assignment. See :doc:`build_routes_from_chunked` for an example, as well as e.g. for how to set the output directory. You may also use `--help` to see all the optional arguments in the CLI:
 
