@@ -153,6 +153,31 @@ def mock_plan_df_drivers_assigned(
     return plan_df
 
 
+@pytest.fixture
+@typechecked
+def mock_driver_assignment(
+    mock_stops_df: pd.DataFrame, mock_driver_df: pd.DataFrame, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Mock user inputs for driver selection."""
+    driver_selections = []
+    for sheet_name in sorted(mock_stops_df[IntermediateColumns.SHEET_NAME].unique()):
+        driver_row = mock_driver_df[
+            mock_driver_df[CircuitColumns.NAME].apply(lambda x: x in sheet_name)  # noqa: B023
+        ]
+        driver_selections.append(f"{driver_row.index[0] + 1}")
+
+    inputs = iter(driver_selections + ["y"])
+
+    original_input = builtins.input
+
+    def fake_input(prompt: str) -> str:
+        if prompt.strip() == "(Pdb)":
+            return original_input(prompt)
+        return next(inputs)
+
+    monkeypatch.setattr("builtins.input", fake_input)
+
+
 @typechecked
 def test_get_all_drivers(
     mock_driver_df: pd.DataFrame, mock_all_drivers_simple: Mocker
@@ -176,29 +201,10 @@ def test_get_all_drivers(
 def test_assign_drivers(
     mock_plan_df_initial: pd.DataFrame,
     mock_driver_df: pd.DataFrame,
-    mock_stops_df: pd.DataFrame,
     mock_plan_df_drivers_assigned: pd.DataFrame,
-    monkeypatch: pytest.MonkeyPatch,
+    mock_driver_assignment: Mocker,
 ) -> None:
     """Test that _assign_drivers assigns drivers to routes correctly."""
-    driver_selections = []
-    for sheet_name in sorted(mock_stops_df[IntermediateColumns.SHEET_NAME].unique()):
-        driver_row = mock_driver_df[
-            mock_driver_df[CircuitColumns.NAME].apply(lambda x: x in sheet_name)  # noqa: B023
-        ]
-        driver_selections.append(f"{driver_row.index[0] + 1}")
-
-    inputs = iter(driver_selections + ["y"])
-
-    original_input = builtins.input
-
-    def fake_input(prompt: str) -> str:
-        if prompt.strip() == "(Pdb)":
-            return original_input(prompt)
-        return next(inputs)
-
-    monkeypatch.setattr("builtins.input", fake_input)
-
     result_df = _assign_drivers(drivers_df=mock_driver_df, plan_df=mock_plan_df_initial)
 
     result_df[CircuitColumns.ACTIVE] = result_df[CircuitColumns.ACTIVE].astype(bool)
