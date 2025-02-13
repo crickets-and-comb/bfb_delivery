@@ -24,6 +24,7 @@ ADDRESS_FIELD = partial(_COERCE_FIELD, alias=Columns.ADDRESS)
 BOX_TYPE_FIELD = partial(
     _COERCE_FIELD, in_list_case_insensitive={"category_list": BoxType}, alias=Columns.BOX_TYPE
 )
+DRIVER_ID_FIELD = partial(_COERCE_FIELD, str_startswith="drivers/")
 # Renamed CircuitColumns.TITLE column, e.g. "1.17 Andy W":
 EMAIL_FIELD = partial(_NULLABLE_FIELD, alias=Columns.EMAIL)
 NAME_FIELD = partial(_COERCE_FIELD, alias=Columns.NAME)
@@ -43,6 +44,8 @@ STOP_ID_FIELD = partial(
 )
 STOP_NO_FIELD = partial(_COERCE_FIELD, ge=1, alias=Columns.STOP_NO)
 TITLE_FIELD = partial(_COERCE_FIELD, at_least_two_words=True)
+
+# TODO: Unsmurf.
 
 
 class CircuitPlansOut(pa.DataFrameModel):
@@ -270,3 +273,161 @@ class CircuitRoutesWriteOut(pa.DataFrameModel):
         """The configuration for the schema."""
 
         unique = [Columns.NAME, Columns.ADDRESS, Columns.BOX_TYPE]
+
+
+class Stops(pa.DataFrameModel):
+    """The schema for the stops data to upload."""
+
+    name: Series[str] = NAME_FIELD()
+    address: Series[str] = ADDRESS_FIELD()
+    phone: Series[str] = PHONE_FIELD()
+    email: Series[str] = EMAIL_FIELD()
+    notes: Series[str] = NOTES_FIELD()
+    order_count: Series[float] = ORDER_COUNT_FIELD()
+    product_type: Series[pa.Category] = BOX_TYPE_FIELD(alias=Columns.PRODUCT_TYPE)
+    neighborhood: Series[str] = NEIGHBORHOOD_FIELD()
+    sheet_name: Series[str] = TITLE_FIELD(alias=IntermediateColumns.SHEET_NAME)
+
+    class Config:
+        """The configuration for the schema."""
+
+        unique = [Columns.NAME, Columns.ADDRESS, Columns.PRODUCT_TYPE]
+
+
+class DriversGetAllDriversOut(pa.DataFrameModel):
+    """The schema for the drivers data after getting all drivers."""
+
+    id: Series[str] = DRIVER_ID_FIELD(unique=True, alias=CircuitColumns.ID)
+    name: Series[str] = NAME_FIELD(alias=CircuitColumns.NAME)
+    email: Series[str] = EMAIL_FIELD(nullable=False, alias=CircuitColumns.EMAIL)
+    active: Series[bool] = _COERCE_FIELD(alias=CircuitColumns.ACTIVE)
+
+
+class DriversAssignDriversIn(DriversGetAllDriversOut):
+    """The schema for the drivers data before assigning drivers."""
+
+
+class DriversAssignDriverIn(DriversAssignDriversIn):
+    """The schema for the driver data before assigning a driver."""
+
+
+class PlansAssignDriversIn(pa.DataFrameModel):
+    """The schema for the plans data before assigning drivers."""
+
+    route_title: Series[str] = TITLE_FIELD(unique=True, alias=IntermediateColumns.ROUTE_TITLE)
+    driver_name: Series[str] = NAME_FIELD(
+        nullable=True, alias=IntermediateColumns.DRIVER_NAME
+    )
+    email: Series[str] = EMAIL_FIELD(alias=CircuitColumns.EMAIL)
+    id: Series[str] = DRIVER_ID_FIELD(nullable=True, alias=CircuitColumns.ID)
+
+
+class PlansAssignDriverIn(PlansAssignDriversIn):
+    """The schema for the plan data before assigning a driver."""
+
+
+class PlansAssignDriverOut(PlansAssignDriverIn):
+    """The schema for the plan data after assigning a driver."""
+
+
+class PlansAssignDriversOut(PlansAssignDriverOut):
+    """The schema for the plans data after assigning drivers."""
+
+
+class PlansAssignDriversToPlansOut(PlansAssignDriversOut):
+    """The schema for the plans data after assigning drivers."""
+
+    driver_name: Series[str] = NAME_FIELD(alias=IntermediateColumns.DRIVER_NAME)
+    email: Series[str] = EMAIL_FIELD(nullable=False, alias=CircuitColumns.EMAIL)
+    id: Series[str] = DRIVER_ID_FIELD(alias=CircuitColumns.ID)
+
+    class Config:
+        """The configuration for the schema."""
+
+        many_to_one = {
+            "many_col": IntermediateColumns.ROUTE_TITLE,
+            "one_col": CircuitColumns.ID,  # Driver ID
+        }
+
+
+class PlansInitializePlansIn(PlansAssignDriversToPlansOut):
+    """The schema for the plans data before initializing."""
+
+
+class PlansInitializePlansOut(PlansInitializePlansIn):
+    """The schema for the plans data after initializing."""
+
+    plan_id: Series[str] = PLAN_ID_FIELD(
+        unique=True, nullable=True, alias=IntermediateColumns.PLAN_ID
+    )
+    writable: Series[bool] = _NULLABLE_FIELD(alias=CircuitColumns.WRITABLE)
+    optimization: Series[str] = _NULLABLE_FIELD(alias=CircuitColumns.OPTIMIZATION)
+    initialized: Series[bool] = _COERCE_FIELD(alias=IntermediateColumns.INITIALIZED)
+
+    class Config:
+        """The configuration for the schema."""
+
+        # TODO: Make sure this accomodates null plan IDs.
+        one_to_one = {
+            "col_a": IntermediateColumns.ROUTE_TITLE,
+            "col_b": IntermediateColumns.PLAN_ID,
+        }
+
+
+class PlansCreatePlansOut(PlansInitializePlansOut):
+    """The schema for the plans data after creating."""
+
+
+class PlansUploadStopsIn(PlansCreatePlansOut):
+    """The schema for the plans data before uploading stops."""
+
+
+class PlansBuildStopsIn(PlansCreatePlansOut):
+    """The schema for the plans data before building stops."""
+
+    # TODO: Refactor to relax the requirements, here and elsewhere.
+
+
+class PlansUploadStopsOut(PlansUploadStopsIn):
+    """The schema for the plan data after uploading stops."""
+
+    stops_uploaded: Series[bool] = _COERCE_FIELD(alias=IntermediateColumns.STOPS_UPLOADED)
+
+
+# TODO: Build a from/to dict validator for _build_stop_array?
+
+
+class PlansOptimizeRoutesIn(PlansUploadStopsOut):
+    """The schema for the plans data before optimizing routes."""
+
+
+class PlansConfirmOptimizationsIn(PlansOptimizeRoutesIn):
+    """The schema for the plans data after before confirming optimizations."""
+
+    routes_optimized: Series[bool] = _COERCE_FIELD(alias=IntermediateColumns.OPTIMIZED)
+
+
+class PlansConfirmOptimizationsOut(PlansConfirmOptimizationsIn):
+    """The schema for the plans data after confirming optimizations."""
+
+    routes_optimized: Series = pa.Field(
+        nullable=True, coerce=False, alias=IntermediateColumns.OPTIMIZED
+    )
+
+
+class PlansOptimizeRoutesOut(PlansConfirmOptimizationsOut):
+    """The schema for the plans data after optimizing routes."""
+
+
+class PlansDistributeRoutesIn(PlansOptimizeRoutesOut):
+    """The schema for the plans data before distributing routes."""
+
+
+class PlansDistributeRoutesOut(PlansDistributeRoutesIn):
+    """The schema for the plans data after distributing routes."""
+
+    distributed: Series[bool] = _COERCE_FIELD(alias=CircuitColumns.DISTRIBUTED)
+
+
+class PlansUploadSplitChunkedOut(PlansDistributeRoutesOut):
+    """The schema for the plans data after uploading split chunked routes."""

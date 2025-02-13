@@ -50,14 +50,25 @@ BOX_TYPE_COLOR_MAP: Final[dict[str, str]] = {
 class CircuitColumns:
     """Column/field/doc name constants for Circuit API."""
 
+    ACTIVE: Final[str] = "active"
     ADDRESS: Final[str] = "address"
+    ADDRESS_NAME: Final[str] = "addressName"
     ADDRESS_LINE_1: Final[str] = "addressLineOne"
     ADDRESS_LINE_2: Final[str] = "addressLineTwo"
+    ALLOWED_DRIVERS: Final[str] = "allowedDrivers"
+    CITY: Final[str] = "city"
+    COUNTRY: Final[str] = "country"
+    DAY: Final[str] = "day"
+    DEPOT: Final[str] = "depot"
+    DISTRIBUTED: Final[str] = "distributed"
+    DRIVERS: Final[str] = "drivers"
     EMAIL: Final[str] = "email"
     EXTERNAL_ID: Final[str] = "externalId"
     ID: Final[str] = "id"
+    MONTH: Final[str] = "month"
     NAME: Final[str] = "name"
     NOTES: Final[str] = "notes"
+    OPTIMIZATION: Final[str] = "optimization"
     ORDER_INFO: Final[str] = "orderInfo"
     PACKAGE_COUNT: Final[str] = "packageCount"
     PHONE: Final[str] = "phone"
@@ -66,9 +77,18 @@ class CircuitColumns:
     PRODUCTS: Final[str] = "products"
     RECIPIENT: Final[str] = "recipient"
     ROUTE: Final[str] = "route"
+    STARTS: Final[str] = "starts"
+    STATE: Final[str] = "state"
     STOP_POSITION: Final[str] = "stopPosition"
     STOPS: Final[str] = "stops"
     TITLE: Final[str] = "title"
+    WRITABLE: Final[str] = "writable"
+    YEAR: Final[str] = "year"
+    ZIP: Final[str] = "zip"
+
+
+CIRCUIT_URL: Final[str] = "https://api.getcircuit.com/public/v0.2b"
+CIRCUIT_DRIVERS_URL: Final[str] = f"{CIRCUIT_URL}/drivers"
 
 
 class Columns:
@@ -87,6 +107,8 @@ class Columns:
     PRODUCT_TYPE: Final[str] = "Product Type"
     STOP_NO: Final[str] = "Stop #"
 
+
+CIRCUIT_DATE_FORMAT: Final[str] = "%Y-%m-%d"
 
 COLUMN_NAME_MAP: Final[dict[str, str]] = {Columns.BOX_TYPE: Columns.PRODUCT_TYPE}
 
@@ -109,15 +131,24 @@ CIRCUIT_DOWNLOAD_COLUMNS: Final[list[str]] = COMBINED_ROUTES_COLUMNS + [Columns.
 class Defaults:
     """Default values. E.g., for syncing public API with CLI."""
 
+    BUILD_ROUTES_FROM_CHUNKED: Final[dict[str, str | bool]] = {
+        "output_dir": "",
+        "start_date": "",
+        "no_distribute": False,
+        "verbose": False,
+        "book_one_drivers_file": "",
+        "extra_notes_file": "",
+    }
     COMBINE_ROUTE_TABLES: Final[dict[str, str]] = {"output_dir": "", "output_filename": ""}
     CREATE_MANIFESTS: Final[dict[str, str]] = {
         "output_dir": "",
         "output_filename": "",
         "extra_notes_file": "",
     }
-    CREATE_MANIFESTS_FROM_CIRCUIT: Final[dict[str, str | bool]] = {
+    CREATE_MANIFESTS_FROM_CIRCUIT: Final[dict[str, str | bool | list]] = {
         "start_date": "",
         "end_date": "",
+        "plan_ids": [],
         "output_dir": CREATE_MANIFESTS["output_dir"],
         "output_filename": CREATE_MANIFESTS["output_filename"],
         "circuit_output_dir": "",
@@ -141,6 +172,38 @@ class Defaults:
 
 class DocStrings:
     """Docstrings for the public API."""
+
+    BUILD_ROUTES_FROM_CHUNKED: Final = DocString(
+        opening="""
+Build and disbribute routes from chunked routes.
+
+From a chunked route spreadsheet, builds, optimizes, and distributes routes to drivers.
+Produces a final manifest spreadsheet.
+
+Prompts interactive user input to confirm driver assignments.
+
+See :doc:`build_routes_from_chunked` for more information.
+""",
+        args={
+            "input_path": "Path to the chunked route spreadsheet.",
+            "output_dir": (
+                "Path to the output directory. Empty defaults to a new directory in the "
+                'present working directory, named "deliveries_{date}".'
+            ),
+            "start_date": (
+                'The date to start the routes, as "YYYY-MM-DD". Empty string defaults to '
+                "the soonest Friday."
+            ),
+            "no_distribute": "To skip distributing the routes to drivers after optimizing.",
+            "verbose": "Whether to print verbose output.",
+            "extra_notes_file": (
+                "Path to the extra notes file. If empty, uses a constant DataFrame. "
+                "See :py:data:`bfb_delivery.lib.constants.ExtraNotes`."
+            ),
+        },
+        returns=["The path to the final manifest spreadsheet."],
+        raises=[],
+    )
 
     COMBINE_ROUTE_TABLES: Final = DocString(
         opening="""
@@ -246,19 +309,23 @@ See :doc:`create_manifests_from_circuit` for more information.
         args={
             "start_date": (
                 'The start date to use in the output workbook sheetnames as "YYYYMMDD". '
-                "Empty string (default) uses the soonest Friday. Range is inclusive."
+                "Empty string uses the soonest Friday. Range is inclusive."
             ),
             "end_date": (
                 'The end date to use in the output workbook sheetnames as "YYYYMMDD". '
-                "Empty string (default) uses the start date. Range is inclusive."
+                "Empty string uses the start date. Range is inclusive."
+            ),
+            "plan_ids": (
+                "The list of plan IDs to filter the Circuit routes by. Overrides `all_hhs`. "
+                "Not valid for CLI."
             ),
             "output_dir": (
                 "The directory to write the formatted manifest workbook to. "
-                "Empty string (default) saves to the `input_dir` directory."
+                "Empty string saves to the `input_dir` directory."
             ),
             "output_filename": (
                 "The name of the output workbook. "
-                'Empty string (default) sets filename to "final_manifests_{date}.xlsx".'
+                'Empty string sets filename to "final_manifests_{date}.xlsx".'
             ),
             "circuit_output_dir": (
                 "The directory to create a subdir to save the routes to. Creates "
@@ -269,11 +336,11 @@ See :doc:`create_manifests_from_circuit` for more information.
             "all_hhs": (
                 'Flag to get only the "All HHs" route. '
                 'False gets all routes except "All HHs". True gets only the "All HHs" route. '
-                "NOTE: True returns email column in CSV, for reuploading after splitting."
+                "Overridden by `plan_ids`."
             ),
             "verbose": "Flag to print verbose output.",
             "extra_notes_file": (
-                "Path to the extra notes file. If empty (default), uses a constant "
+                "Path to the extra notes file. If empty, uses a constant "
                 "DataFrame. See :py:data:`bfb_delivery.lib.constants.ExtraNotes`."
             ),
         },
@@ -362,9 +429,11 @@ See :doc:`split_chunked_route` for more information.
                 'Empty string sets filename to "split_workbook_{date}_{i of n_books}.xlsx".'
             ),
             "n_books": "Number of workbooks to split into.",
+            # TODO: Standardize some of these definitions as well. Wait until we clean up the
+            # outputs and trim the CLIs.
             "book_one_drivers_file": (
-                "Path to the book-one driver's file. If empty (default), uses "
-                "a constant list. See :py:data:`bfb_delivery.lib.constants.BookOneDrivers`."
+                "Path to the book-one driver's file. If empty, uses a constant list. "
+                "See :py:data:`bfb_delivery.lib.constants.BookOneDrivers`."
             ),
             "date": (
                 "The date to use in the output workbook sheetnames. Empty string (default) "
@@ -390,11 +459,12 @@ DEPOT_PLACE_ID: Final[str] = "ChIJFw9CDZejhVQRizqiyJSmPqo"
 
 
 class ExtraNotes:
-    """Extra notes for the combined routes.
+    """Extra notes to add at bottom of manifests when any stop is tagged.
 
     Is a class so it appears in docs.
     """
 
+    #: Tuples of tag and note. Example: ("Cascade Meadows Apartments*", "Note here.")
     notes: Final[list[tuple[str, str]]] = [
         # ("Cascade Meadows Apartments*", ""),
         # ("Deer Run Terrace Apartments*", ""),
@@ -416,10 +486,11 @@ class ExtraNotes:
         # ("Washington Grocery Building*", ""),
     ]
 
+    #: Extra notes DataFrame. The columns are "tag" and "note". Made from `notes`.
     df: Final[pd.DataFrame]
 
     def __init__(self) -> None:
-        """Initialize the extra notes df."""
+        """Initialize the extra notes `df`."""
         self.df = pd.DataFrame(columns=["tag", "note"], data=self.notes)
 
 
@@ -438,8 +509,15 @@ FORMATTED_ROUTES_COLUMNS: Final[list[str]] = [
 class IntermediateColumns:
     """Column name constants for intermediate tables."""
 
+    DRIVER_NAME: Final[str] = "driver_name"
     DRIVER_SHEET_NAME: Final[str] = "driver_sheet_name"
-    ROUTE_TITLE: Final[str] = "route_title"
+    INITIALIZED: Final[str] = "initialized"
+    OPTIMIZED: Final[str] = "optimized"
+    PLAN_ID: Final[str] = "plan_id"
+    ROUTE_TITLE: Final[str] = "route_title"  # AKA plan title, since 1:1.
+    SHEET_NAME: Final[str] = "sheet_name"
+    START_DATE: Final[str] = "start_date"
+    STOPS_UPLOADED: Final[str] = "stops_uploaded"
 
 
 MANIFEST_DATE_FORMAT: Final[str] = "%m.%d"
@@ -454,12 +532,16 @@ PROTEIN_BOX_TYPES: Final[list[str]] = ["BASIC", "GF", "LA"]
 class RateLimits:
     """Rate limits for Circuit API."""
 
-    BATCH_STOP_IMPORT_SECONDS: Final[float] = 1 / (10 / 60)
+    BATCH_STOP_IMPORT_SECONDS: Final[float] = 6
     BATCH_STOP_IMPORT_MAX_STOPS: Final[int] = 1000
-    OPTIMIZATION_PER_SECOND: Final[float] = 1 / (3 / 60)
-    READ_TIMEOUT_SECONDS: Final[int] = 10
+    OPTIMIZATION_PER_SECOND: Final[float] = 20
+    OPTIMIZATION_TIMEOUT_SECONDS: Final[float] = 10
+    READ_TIMEOUT_SECONDS: Final[float] = OPTIMIZATION_TIMEOUT_SECONDS
     READ_SECONDS: Final[float] = 1 / 10
+    WAIT_DECREASE_SECONDS: Final[float] = 0.6
+    WAIT_INCREASE_SCALAR: Final[float] = 2
     WRITE_SECONDS: Final[float] = 1 / 5
+    WRITE_TIMEOUT_SECONDS: Final[float] = OPTIMIZATION_TIMEOUT_SECONDS
 
 
 SPLIT_ROUTE_COLUMNS: Final[list[str]] = [

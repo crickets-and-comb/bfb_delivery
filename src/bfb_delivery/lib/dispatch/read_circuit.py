@@ -19,7 +19,7 @@ from bfb_delivery.lib.constants import (
     Columns,
     IntermediateColumns,
 )
-from bfb_delivery.lib.dispatch.utils import get_responses
+from bfb_delivery.lib.dispatch.utils import concat_response_pages, get_responses
 from bfb_delivery.lib.schema import (
     CircuitPlansFromDict,
     CircuitPlansOut,
@@ -38,7 +38,12 @@ logger = logging.getLogger(__name__)
 
 @typechecked
 def get_route_files(
-    start_date: str, end_date: str, output_dir: str, all_hhs: bool, verbose: bool
+    start_date: str,
+    end_date: str,
+    plan_ids: list[str],
+    output_dir: str,
+    all_hhs: bool = False,
+    verbose: bool = False,
 ) -> str:
     """Get the route files for the given date.
 
@@ -47,12 +52,14 @@ def get_route_files(
             Empty string uses the soonest Friday.
         end_date: The end date to get the routes for, as "YYYYMMDD".
             Empty string uses the start date.
+        plan_ids: The plan IDs to get the routes for. Overrides `all_hhs`.
         output_dir: The directory to create a subdir to save the routes to.
             Creates "routes_{date}" directory within the `output_dir`.
             Empty string uses the current working directory.
             If the directory does not exist, it is created. If it exists, it is overwritten.
         all_hhs: Flag to get only the "All HHs" route.
             False gets all routes except "All HHs". True gets only the "All HHs" route.
+            Overriden by `plan_ids`.
         verbose: Flag to print verbose output.
 
     Returns:
@@ -72,13 +79,17 @@ def get_route_files(
     )
 
     plans_list = _get_raw_plans(start_date=start_date, end_date=end_date, verbose=verbose)
-    plans_df = _make_plans_df(plans_list=plans_list, all_hhs=all_hhs)
+    plans_df = _make_plans_df(
+        plans_list=plans_list, plan_ids=plan_ids, all_hhs=all_hhs, verbose=verbose
+    )
     # TODO: Add external ID for delivery day so we can filter stops by it in request?
     # After taking over upload.
     plan_stops_list = _get_raw_stops(
         plan_ids=plans_df[CircuitColumns.ID].tolist(), verbose=verbose
     )
-    routes_df = _transform_routes_df(plan_stops_list=plan_stops_list, plans_df=plans_df)
+    routes_df = _transform_routes_df(
+        plan_stops_list=plan_stops_list, plans_df=plans_df, verbose=verbose
+    )
     _write_routes_dfs(routes_df=routes_df, output_dir=Path(output_dir))
 
     return output_dir
@@ -102,7 +113,7 @@ def _get_raw_plans(start_date: str, end_date: str, verbose: bool) -> list[dict[s
         logger.info(f"Getting route plans from {url} ...")
     plans = _get_plan_responses(url=url)
     logger.info("Finished getting route plans.")
-    plans_list = _concat_response_pages(page_list=plans, data_key="plans")
+    plans_list = concat_response_pages(page_list=plans, data_key="plans")
 
     if not plans_list:
         raise ValueError(f"No plans found for {start_date} to {end_date}.")
@@ -117,7 +128,10 @@ def _get_raw_plans(start_date: str, end_date: str, verbose: bool) -> list[dict[s
 # NOTE: with_pydantic allows check of other params.
 @pa.check_types(with_pydantic=True, lazy=True)
 def _make_plans_df(
-    plans_list: DataFrame[CircuitPlansFromDict], all_hhs: bool
+    plans_list: DataFrame[CircuitPlansFromDict],
+    all_hhs: bool,
+    plan_ids: list[str] | None = None,
+    verbose: bool = False,
 ) -> DataFrame[CircuitPlansOut]:
     """Make the plans DataFrame from the plans."""
     # What we'd do if not using from_format config:
@@ -134,23 +148,64 @@ def _make_plans_df(
     # Worst to best in order.
     # TODO: Set validation once we've settled on filter method.
     plan_count = len(plans_list)
-    if all_hhs:
-        logger.info(f'Filtering to only the "{ALL_HHS_DRIVER}" plan.')  # noqa: B907
-        plans_df = plans_list[
-            [
+    plan_mask = [True] * plan_count
+    if not plan_ids:
+        if all_hhs:
+            plan_mask = [
                 ALL_HHS_DRIVER.upper() in title.upper()
                 for title in plans_list[CircuitColumns.TITLE]
             ]
-        ]
-    else:
-        logger.info(f'Filtering to all plans except "{ALL_HHS_DRIVER}".')  # noqa: B907
-        plans_df = plans_list[
-            [
+        else:
+            plan_mask = [
                 ALL_HHS_DRIVER.upper() not in title.upper()
                 for title in plans_list[CircuitColumns.TITLE]
             ]
-        ]
-    dropped_count = plan_count - len(plans_df)
+
+        if verbose:
+            _count_allhhs_dropped(all_hhs=all_hhs, plan_count=plan_count, plan_mask=plan_mask)
+
+    else:
+        plan_mask = [plan_id in plan_ids for plan_id in plans_list[CircuitColumns.ID]]
+        if verbose:
+            _count_plan_ids_dropped(plan_count=plan_count, plan_mask=plan_mask)
+
+    plans_df = plans_list[plan_mask]
+    plan_count = len(plans_df)
+
+    if all_hhs and plan_count != 1 and verbose:
+        logger.warning(
+            f'Got {plan_count} "{ALL_HHS_DRIVER}" plans. Expected 1.'  # noqa: B907
+        )
+
+    routed_plans_mask = [isinstance(val, list) and len(val) > 0 for val in plans_df["routes"]]
+    plans_df = plans_df[routed_plans_mask]
+    if verbose:
+        logger.info("Filtering out plans with no routes.")
+        dropped_count = plan_count - len(plans_df)
+        if dropped_count:
+            logger.warning(f"Dropped {dropped_count} plans without routes.")
+        else:
+            logger.info("Dropped no plans.")
+
+    plan_count = len(plans_df)
+    if not plan_count:
+        raise ValueError("No routes found for the given date range.")
+    elif verbose:
+        logger.info(f"Left with {plan_count} plans.")
+
+    plans_df = plans_df[[CircuitColumns.ID, CircuitColumns.TITLE]]
+
+    return plans_df
+
+
+@typechecked
+def _count_allhhs_dropped(all_hhs: bool, plan_count: int, plan_mask: list[bool]) -> None:
+    if all_hhs:
+        logger.info(f'Filtered to only the "{ALL_HHS_DRIVER}" plan.')  # noqa: B907
+    else:
+        logger.info(f'Filtered to all plans except "{ALL_HHS_DRIVER}".')  # noqa: B907
+
+    dropped_count = plan_count - sum(plan_mask)
     if not all_hhs and dropped_count != 1:
         logger.warning(f"Dropped {dropped_count} plans.")
     elif dropped_count:
@@ -158,31 +213,15 @@ def _make_plans_df(
     else:
         logger.info("Dropped no plans.")
 
-    plan_count = len(plans_df)
-    if all_hhs and plan_count != 1:
-        logger.warning(
-            f'Got {plan_count} "{ALL_HHS_DRIVER}" plans. Expected 1.'  # noqa: B907
-        )
 
-    logger.info("Filtering out plans with no routes.")
-    plan_count = len(plans_df)
-    routed_plans_mask = [isinstance(val, list) and len(val) > 0 for val in plans_df["routes"]]
-    plans_df = plans_df[routed_plans_mask]
-    dropped_count = plan_count - len(plans_df)
+@typechecked
+def _count_plan_ids_dropped(plan_count: int, plan_mask: list[bool]) -> None:
+    logger.info("Filtering to specified plan IDs.")
+    dropped_count = plan_count - sum(plan_mask)
     if dropped_count:
-        logger.warning(f"Dropped {dropped_count} plans without routes.")
+        logger.warning(f"Dropped {dropped_count} plans.")
     else:
         logger.info("Dropped no plans.")
-
-    plan_count = len(plans_df)
-    if not plan_count:
-        raise ValueError("No routes found for the given date range.")
-    else:
-        logger.info(f"Left with {plan_count} plans.")
-
-    plans_df = plans_df[[CircuitColumns.ID, CircuitColumns.TITLE]]
-
-    return plans_df
 
 
 @typechecked
@@ -194,7 +233,7 @@ def _get_raw_stops(plan_ids: list[str], verbose: bool) -> list[dict[str, Any]]:
 
     plan_stops_list = []
     for stop_lists in stops_lists_list:
-        plan_stops_list += _concat_response_pages(
+        plan_stops_list += concat_response_pages(
             page_list=stop_lists, data_key=CircuitColumns.STOPS
         )
     if not plan_stops_list:
@@ -222,9 +261,10 @@ def _get_raw_stops_list(plan_ids: list[str], verbose: bool) -> list[Any]:
 def _transform_routes_df(
     plan_stops_list: DataFrame[CircuitRoutesTransformInFromDict],
     plans_df: DataFrame[CircuitPlansTransformIn],
+    verbose: bool = False,
 ) -> DataFrame[CircuitRoutesTransformOut]:
     """Transform the raw routes DataFrame."""
-    routes_df = _pare_routes_df(routes_df=plan_stops_list)
+    routes_df = _pare_routes_df(routes_df=plan_stops_list, verbose=verbose)
     del plan_stops_list
 
     routes_df = routes_df.merge(
@@ -247,7 +287,7 @@ def _transform_routes_df(
         inplace=True,
     )
 
-    routes_df = _set_routes_df_values(routes_df=routes_df)
+    routes_df = _set_routes_df_values(routes_df=routes_df, verbose=verbose)
 
     routes_df.sort_values(
         by=[IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO], inplace=True
@@ -264,7 +304,6 @@ def _write_routes_dfs(routes_df: DataFrame[CircuitRoutesWriteIn], output_dir: Pa
     Args:
         routes_df: The routes DataFrame to write.
         output_dir: The directory to save the routes to.
-        all_hhs: Flag to ensure email colum is in CSV for reuploading after splitting.
     """
     if output_dir.exists():
         logger.warning(f"Output directory exists {output_dir}. Overwriting.")
@@ -304,19 +343,7 @@ def _get_stops_responses(url: str) -> list[dict[str, Any]]:
 
 
 @typechecked
-def _concat_response_pages(
-    page_list: list[dict[str, Any]], data_key: str
-) -> list[dict[str, Any]]:
-    """Extract and concatenate the data lists from response pages."""
-    data_list = []
-    for page in page_list:
-        data_list += page[data_key]
-
-    return data_list
-
-
-@typechecked
-def _pare_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
+def _pare_routes_df(routes_df: pd.DataFrame, verbose: bool) -> pd.DataFrame:
     routes_df = routes_df[
         [
             # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
@@ -333,39 +360,45 @@ def _pare_routes_df(routes_df: pd.DataFrame) -> pd.DataFrame:
         ]
     ]
 
-    logger.info("Filtering out stops without routes.")
-    stop_count = len(routes_df)
+    if verbose:
+        logger.info("Filtering out stops without routes.")
+        stop_count = len(routes_df)
+
     routed_stops_mask = [
         isinstance(route_dict, dict) and route_dict.get(CircuitColumns.ID, "") != ""
         for route_dict in routes_df[CircuitColumns.ROUTE]
     ]
     routes_df = routes_df[routed_stops_mask]
-    dropped_count = stop_count - len(routes_df)
-    if dropped_count:
-        logger.warning(f"Dropped {dropped_count} stops without routes.")
-    else:
-        logger.info("Dropped no stops.")
+    if verbose:
+        dropped_count = stop_count - len(routes_df)
+        if dropped_count:
+            logger.warning(f"Dropped {dropped_count} stops without routes.")
+        else:
+            logger.info("Dropped no stops.")
 
-    logger.info("Filtering out depot stops.")
-    stop_count = len(routes_df)
+        logger.info("Filtering out depot stops.")
+        stop_count = len(routes_df)
+
     routes_df[CircuitColumns.PLACE_ID] = routes_df[CircuitColumns.ADDRESS].apply(
         lambda address_dict: address_dict.get(CircuitColumns.PLACE_ID)
     )
     routes_df = routes_df[routes_df[CircuitColumns.PLACE_ID] != DEPOT_PLACE_ID]
-    dropped_count = stop_count - len(routes_df)
-    logger.info(f"Dropped {dropped_count} stops.")
+
+    if verbose:
+        dropped_count = stop_count - len(routes_df)
+        logger.info(f"Dropped {dropped_count} stops.")
 
     stop_count = len(routes_df)
     if not stop_count:
         raise ValueError("No routed stops found for the given plans.")
-    else:
+    elif verbose:
         logger.info(f"Left with {stop_count} routed stops.")
 
     return routes_df
 
 
 @typechecked
-def _set_routes_df_values(routes_df: pd.DataFrame) -> pd.DataFrame:
+def _set_routes_df_values(routes_df: pd.DataFrame, verbose: bool) -> pd.DataFrame:
     routes_df[IntermediateColumns.ROUTE_TITLE] = routes_df[CircuitColumns.ROUTE].apply(
         lambda route_dict: route_dict.get(CircuitColumns.TITLE)
     )
@@ -434,7 +467,7 @@ def _warn_and_impute(routes_df: pd.DataFrame) -> None:
     missing_order_count = routes_df[Columns.ORDER_COUNT].isna()
     if missing_order_count.any():
         logger.warning(
-            f"Missing order count for {missing_order_count.sum()} stops. Imputing 1 order."
+            f"Missing order count for {missing_order_count.sum()} stops. " "Imputing 1 order."
         )
     routes_df[Columns.ORDER_COUNT] = routes_df[Columns.ORDER_COUNT].fillna(1)
 
@@ -442,8 +475,8 @@ def _warn_and_impute(routes_df: pd.DataFrame) -> None:
     missing_neighborhood = routes_df[Columns.NEIGHBORHOOD].isna()
     if missing_neighborhood.any():
         logger.warning(
-            f"Missing neighborhood for {missing_neighborhood.sum()} stops."
-            " Imputing best guesses from Circuit-supplied address."
+            f"Missing neighborhood for {missing_neighborhood.sum()} stops. "
+            "Imputing best guesses from Circuit-supplied address."
         )
     routes_df[Columns.NEIGHBORHOOD] = routes_df[
         [Columns.NEIGHBORHOOD, Columns.ADDRESS]
