@@ -315,7 +315,7 @@ You can use the ``echo`` command to display a string in the terminal. Here is an
 This command will display ``Hello, world!`` in the terminal.
 
 Appending a string to a file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can use the ``>>`` command to append a string to a file. Here is an example:
 
