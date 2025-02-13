@@ -10,6 +10,8 @@
 # - Mock 2 pages from PagedResponseGetter._make_call for _get_all_drivers get_responses call.
 # TODO: Mock user inputs.
 # TODO: Call upload_split_chunked, and check outputs, called withs, raises.
+# TODO: Use schema in typehints where applicable.
+
 import builtins
 from collections.abc import Iterator
 from pathlib import Path
@@ -112,6 +114,21 @@ def mock_stops_df(mock_split_chunked_sheet: Path, tmp_path: Path) -> pd.DataFram
     )
 
 
+@pytest.fixture
+def mock_plan_df_initial(mock_stops_df: pd.DataFrame) -> pd.DataFrame:
+    """Return a mock plan DataFrame initialized with just the route titles."""
+    return pd.DataFrame(
+        {
+            IntermediateColumns.ROUTE_TITLE: mock_stops_df[
+                IntermediateColumns.SHEET_NAME
+            ].unique(),
+            IntermediateColumns.DRIVER_NAME: None,
+            CircuitColumns.EMAIL: None,
+            CircuitColumns.ID: None,
+        }
+    )
+
+
 @typechecked
 def test_get_all_drivers(
     mock_driver_df: pd.DataFrame, mock_all_drivers_simple: Mocker
@@ -133,21 +150,13 @@ def test_get_all_drivers(
 # - Invalid inputs. (Just put them right in the middle of the list?)
 # - Retry if confirm.lower() != "y"
 def test_assign_drivers(
-    mock_driver_df: pd.DataFrame, mock_stops_df: pd.DataFrame, monkeypatch: pytest.MonkeyPatch
+    mock_plan_df_initial: pd.DataFrame,
+    mock_driver_df: pd.DataFrame,
+    mock_stops_df: pd.DataFrame,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Test that _assign_drivers assigns drivers to routes correctly."""
-    plan_df = pd.DataFrame(
-        {
-            IntermediateColumns.ROUTE_TITLE: mock_stops_df[
-                IntermediateColumns.SHEET_NAME
-            ].unique(),
-            IntermediateColumns.DRIVER_NAME: None,
-            CircuitColumns.EMAIL: None,
-            CircuitColumns.ID: None,
-        }
-    )
-
-    expected_df = plan_df.copy()[[IntermediateColumns.ROUTE_TITLE]]
+    expected_df = mock_plan_df_initial.copy()[[IntermediateColumns.ROUTE_TITLE]]
     expected_df[IntermediateColumns.DRIVER_NAME] = [
         mock_driver_df[
             mock_driver_df[CircuitColumns.NAME].apply(lambda x: x in title)  # noqa: B023
@@ -160,7 +169,9 @@ def test_assign_drivers(
         right_on=CircuitColumns.NAME,
         how="left",
     )
-    expected_df = expected_df[plan_df.columns.to_list() + [CircuitColumns.ACTIVE]]
+    expected_df = expected_df[
+        mock_plan_df_initial.columns.to_list() + [CircuitColumns.ACTIVE]
+    ]
 
     driver_selections = []
     for sheet_name in sorted(mock_stops_df[IntermediateColumns.SHEET_NAME].unique()):
@@ -180,7 +191,7 @@ def test_assign_drivers(
 
     monkeypatch.setattr("builtins.input", fake_input)
 
-    result_df = _assign_drivers(drivers_df=mock_driver_df, plan_df=plan_df)
+    result_df = _assign_drivers(drivers_df=mock_driver_df, plan_df=mock_plan_df_initial)
 
     result_df[CircuitColumns.ACTIVE] = result_df[CircuitColumns.ACTIVE].astype(bool)
     pd.testing.assert_frame_equal(result_df, expected_df)
