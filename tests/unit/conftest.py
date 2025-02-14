@@ -19,6 +19,14 @@ def cli_runner() -> CliRunner:
     return CliRunner()
 
 
+@pytest.fixture(autouse=True)
+@typechecked
+def mock_sleep() -> Iterator[None]:
+    """Mock `time.sleep` to avoid waiting in tests."""
+    with patch("bfb_delivery.lib.dispatch.api_callers.sleep"):
+        yield
+
+
 @pytest.fixture()
 @typechecked
 def mock_is_valid_number() -> Iterator:

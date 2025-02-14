@@ -1,7 +1,6 @@
 """A test suite for the API callers module."""
 
 import re
-from collections.abc import Iterator
 from contextlib import AbstractContextManager, nullcontext
 from typing import Any, Final
 from unittest.mock import Mock, patch
@@ -81,14 +80,6 @@ _OPT_JSON_SKIPPED: dict[str, Any] = _OPT_JSON_200_DONE.copy()
 _OPT_JSON_SKIPPED["result"] = {"skippedStops": [1, 2, 3]}
 _OPT_JSON_ERROR_CODE: dict[str, Any] = _OPT_JSON_200_DONE.copy()
 _OPT_JSON_ERROR_CODE["result"] = {"code": "MOCK_ERROR_CODE"}
-
-
-@pytest.fixture(autouse=True)
-@typechecked
-def mock_sleep() -> Iterator[None]:
-    """Mock `time.sleep` to avoid waiting in tests."""
-    with patch("bfb_delivery.lib.dispatch.api_callers.sleep"):
-        yield
 
 
 @pytest.mark.parametrize("request_type", ["get", "post", "delete"])
