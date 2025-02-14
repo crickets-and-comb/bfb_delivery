@@ -288,6 +288,7 @@ def _create_plans(
     plan_df = _assign_drivers_to_plans(stops_df=stops_df)
     try:
         plan_df = _initialize_plans(plan_df=plan_df, start_date=start_date, verbose=verbose)
+    # TODO: Validate schema before returning, write before raising within _initialize_plans.
     except Exception as e:
         plan_df.to_csv(plan_df_path, index=False)
         raise e
@@ -618,10 +619,14 @@ def _initialize_plans(
                     f"{row[IntermediateColumns.ROUTE_TITLE]}."
                     f"\n{plan_initializer.response_json}"
                 )
-
-            plan_df.loc[idx, [IntermediateColumns.PLAN_ID, CircuitColumns.WRITABLE]] = (
-                plan_initializer.plan_id,
-                plan_initializer.writable,
+        finally:
+            plan_df.loc[idx, IntermediateColumns.PLAN_ID] = (
+                plan_initializer.plan_id
+                if "plan_id" in vars(plan_initializer)
+                else "plans/noID"
+            )
+            plan_df.loc[idx, CircuitColumns.WRITABLE] = (
+                plan_initializer.writable if "writable" in vars(plan_initializer) else False
             )
 
     logger.info(f"Finished initializing plans. Initialized {idx + 1 - len(errors)} plans.")
@@ -629,6 +634,7 @@ def _initialize_plans(
     plan_df[IntermediateColumns.INITIALIZED] = True
     plan_df.loc[
         (plan_df[IntermediateColumns.ROUTE_TITLE].isin(errors.keys()))
+        # TODO: Make not_writable a failure within class?
         | ~(plan_df[CircuitColumns.WRITABLE] == True),  # noqa: E712
         IntermediateColumns.INITIALIZED,
     ] = False

@@ -5,16 +5,16 @@
 # `upload_split_chunked`.
 
 # TODO: Use schema in typehints where applicable.
-# TODO: Test that plan_df dictates which next steps are taken.
-# Failures should be marked as False, and next steps should not be taken for failed plans.
 
 import builtins
 from pathlib import Path
 from typing import Any, Final
 
+import numpy as np
 import pandas as pd
 import pytest
 import requests_mock  # noqa: F401
+from requests import Request
 from requests_mock import Mocker
 from typeguard import typechecked
 
@@ -73,7 +73,7 @@ def mock_driver_df(mock_chunked_sheet_raw: Path) -> pd.DataFrame:
 
 
 @pytest.fixture
-def mock_get_all_drivers_simple(
+def mock_get_all_drivers(
     mock_driver_df: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
     """Mock the Circuit API to return a simple list of drivers."""
@@ -205,7 +205,7 @@ def mock_plan_df_plans_initialized(
 
 @pytest.fixture
 @typechecked
-def mock_plan_initialization_posts(
+def mock_plan_initialization(
     mock_plan_df_plans_initialized: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
     """Mock requests.post calls for plan initialization."""
@@ -217,7 +217,32 @@ def mock_plan_initialization_posts(
             CircuitColumns.WRITABLE: row[CircuitColumns.WRITABLE],
         }
 
-    def post_callback(request: Any, context: Any) -> Any:
+    def post_callback(request: Request, context: Any) -> Any:
+        data = request.json()
+        plan_title = data.get(CircuitColumns.TITLE)
+        return responses[plan_title]
+
+    requests_mock.register_uri(
+        "POST", f"{CIRCUIT_URL}/plans", json=post_callback, status_code=200
+    )
+
+
+# TODO: Abstract what is common between this and the success case.
+@pytest.fixture
+@typechecked
+def mock_plan_initialization_failure(
+    mock_plan_df_plans_initialized: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+) -> None:
+    """Mock requests.post calls for plan initialization."""
+    responses = {}
+    for idx, row in mock_plan_df_plans_initialized.iterrows():
+        title = row[IntermediateColumns.ROUTE_TITLE]
+        responses[title] = {
+            CircuitColumns.ID: row[IntermediateColumns.PLAN_ID],
+            CircuitColumns.WRITABLE: row[CircuitColumns.WRITABLE] if idx != 0 else False,
+        }
+
+    def post_callback(request: Request, context: Any) -> Any:
         data = request.json()
         plan_title = data.get(CircuitColumns.TITLE)
         return responses[plan_title]
@@ -239,7 +264,7 @@ def mock_plan_df_stops_uploaded(mock_plan_df_plans_initialized: pd.DataFrame) ->
 
 @pytest.fixture
 @typechecked
-def mock_stop_upload_posts(
+def mock_stop_upload(
     mock_plan_df_plans_initialized: pd.DataFrame,
     mock_stops_df: pd.DataFrame,
     requests_mock: Mocker,  # noqa: F811
@@ -267,6 +292,93 @@ def mock_stop_upload_posts(
             ],
             "failed": [],
         }
+
+    for plan_id in responses:
+        requests_mock.register_uri(
+            "POST",
+            f"{CIRCUIT_URL}/{plan_id}/stops:import",
+            json=responses[plan_id],
+            status_code=200,
+        )
+
+    return stop_arrays
+
+
+# TODO: Abstract what is common between this and the success case.
+@pytest.fixture
+@typechecked
+def mock_stop_upload_failure(
+    mock_plan_df_plans_initialized: pd.DataFrame,
+    mock_stops_df: pd.DataFrame,
+    requests_mock: Mocker,  # noqa: F811
+) -> dict[str, list]:
+    """Mock requests.post calls for stop uploads."""
+    stop_arrays = {}
+    responses = {}
+    for idx, row in mock_plan_df_plans_initialized.iterrows():
+        plan_id = row[IntermediateColumns.PLAN_ID]
+        title = row[IntermediateColumns.ROUTE_TITLE]
+
+        stops_df = mock_stops_df[mock_stops_df[IntermediateColumns.SHEET_NAME] == title]
+        # TODO: Build unit test for _parse_addresses.
+        stops_df = _parse_addresses(stops_df=stops_df)
+
+        # TODO: Build unit test for _build_stop_array.
+        stop_arrays[plan_id] = _build_stop_array(
+            route_stops=stops_df, driver_id=row[CircuitColumns.ID]
+        )
+
+        responses[plan_id] = {
+            "success": [
+                "stops/" + row[Columns.NAME] + row[Columns.PRODUCT_TYPE]
+                for _, row in stops_df.iterrows()
+                if idx != 0
+            ],
+            "failed": [] if idx != 0 else ["something failed"],
+        }
+
+    for plan_id in responses:
+        requests_mock.register_uri(
+            "POST",
+            f"{CIRCUIT_URL}/{plan_id}/stops:import",
+            json=responses[plan_id],
+            status_code=200,
+        )
+
+    return stop_arrays
+
+
+@pytest.fixture
+@typechecked
+def mock_stop_upload_after_failure(
+    mock_plan_df_plans_initialized: pd.DataFrame,
+    mock_stops_df: pd.DataFrame,
+    requests_mock: Mocker,  # noqa: F811
+) -> dict[str, list]:
+    """Mock requests.post calls for stop uploads."""
+    stop_arrays = {}
+    responses = {}
+    for idx, row in mock_plan_df_plans_initialized.iterrows():
+        if idx != 0:
+            plan_id = row[IntermediateColumns.PLAN_ID]
+            title = row[IntermediateColumns.ROUTE_TITLE]
+
+            stops_df = mock_stops_df[mock_stops_df[IntermediateColumns.SHEET_NAME] == title]
+            # TODO: Build unit test for _parse_addresses.
+            stops_df = _parse_addresses(stops_df=stops_df)
+
+            # TODO: Build unit test for _build_stop_array.
+            stop_arrays[plan_id] = _build_stop_array(
+                route_stops=stops_df, driver_id=row[CircuitColumns.ID]
+            )
+
+            responses[plan_id] = {
+                "success": [
+                    "stops/" + row[Columns.NAME] + row[Columns.PRODUCT_TYPE]
+                    for _, row in stops_df.iterrows()
+                ],
+                "failed": [],
+            }
 
     for plan_id in responses:
         requests_mock.register_uri(
@@ -318,6 +430,64 @@ def mock_optmization_launches(
         )
 
 
+# TODO: Abstract what is common between this and the success case.
+@pytest.fixture
+@typechecked
+def mock_optmization_launches_failure(
+    mock_plan_df_optimized: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+) -> None:
+    """Mock requests.post calls for optimization launches."""
+    responses = {}
+    for idx, row in mock_plan_df_optimized.iterrows():
+        plan_id = row[IntermediateColumns.PLAN_ID]
+        responses[plan_id] = {
+            CircuitColumns.ID: plan_id.replace(
+                CircuitColumns.PLANS, CircuitColumns.OPERATIONS
+            ),
+            CircuitColumns.DONE: False,
+            CircuitColumns.METADATA: (
+                {CircuitColumns.CANCELED: False}
+                if idx != 0
+                else {CircuitColumns.CANCELED: True}
+            ),
+        }
+
+    for plan_id in responses:
+        requests_mock.register_uri(
+            "POST",
+            f"{CIRCUIT_URL}/{plan_id}:optimize",
+            json=responses[plan_id],
+            status_code=200,
+        )
+
+
+@pytest.fixture
+@typechecked
+def mock_optmization_launches_after_failure(
+    mock_plan_df_optimized: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+) -> None:
+    """Mock requests.post calls for optimization launches."""
+    responses = {}
+    for idx, row in mock_plan_df_optimized.iterrows():
+        if idx != 0:
+            plan_id = row[IntermediateColumns.PLAN_ID]
+            responses[plan_id] = {
+                CircuitColumns.ID: plan_id.replace(
+                    CircuitColumns.PLANS, CircuitColumns.OPERATIONS
+                ),
+                CircuitColumns.DONE: False,
+                CircuitColumns.METADATA: {CircuitColumns.CANCELED: False},
+            }
+
+    for plan_id in responses:
+        requests_mock.register_uri(
+            "POST",
+            f"{CIRCUIT_URL}/{plan_id}:optimize",
+            json=responses[plan_id],
+            status_code=200,
+        )
+
+
 @pytest.fixture
 @typechecked
 def mock_optimization_confirmations(
@@ -334,6 +504,66 @@ def mock_optimization_confirmations(
             CircuitColumns.DONE: True,
             CircuitColumns.METADATA: {CircuitColumns.CANCELED: False},
         }
+
+    for plan_id in responses:
+        requests_mock.register_uri(
+            "GET",
+            (
+                f"{CIRCUIT_URL}/"
+                f"{plan_id.replace(CircuitColumns.PLANS, CircuitColumns.OPERATIONS)}"
+            ),
+            json=responses[plan_id],
+            status_code=200,
+        )
+
+
+# TODO: Abstract what is common between this and the success case.
+@pytest.fixture
+@typechecked
+def mock_optimization_confirmations_failure(
+    mock_plan_df_optimized: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+) -> None:
+    """Mock requests.get calls for optimization confirmations."""
+    responses = {}
+    for idx, row in mock_plan_df_optimized.iterrows():
+        plan_id = row[IntermediateColumns.PLAN_ID]
+        responses[plan_id] = {
+            CircuitColumns.ID: plan_id.replace(
+                CircuitColumns.PLANS, CircuitColumns.OPERATIONS
+            ),
+            CircuitColumns.DONE: True,
+            CircuitColumns.METADATA: {CircuitColumns.CANCELED: False if idx != 0 else True},
+        }
+
+    for plan_id in responses:
+        requests_mock.register_uri(
+            "GET",
+            (
+                f"{CIRCUIT_URL}/"
+                f"{plan_id.replace(CircuitColumns.PLANS, CircuitColumns.OPERATIONS)}"
+            ),
+            json=responses[plan_id],
+            status_code=200,
+        )
+
+
+@pytest.fixture
+@typechecked
+def mock_optimization_confirmations_after_failure(
+    mock_plan_df_optimized: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+) -> None:
+    """Mock requests.get calls for optimization confirmations."""
+    responses = {}
+    for idx, row in mock_plan_df_optimized.iterrows():
+        if idx != 0:
+            plan_id = row[IntermediateColumns.PLAN_ID]
+            responses[plan_id] = {
+                CircuitColumns.ID: plan_id.replace(
+                    CircuitColumns.PLANS, CircuitColumns.OPERATIONS
+                ),
+                CircuitColumns.DONE: True,
+                CircuitColumns.METADATA: {CircuitColumns.CANCELED: False},
+            }
 
     for plan_id in responses:
         requests_mock.register_uri(
@@ -377,10 +607,50 @@ def mock_route_distributions(
         )
 
 
+# TODO: Abstract what is common between this and the success case.
+@pytest.fixture
 @typechecked
-def test_get_all_drivers(
-    mock_driver_df: pd.DataFrame, mock_get_all_drivers_simple: None
+def mock_route_distributions_failure(
+    mock_plan_df_distributed: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
+    """Mock requests.post calls for route distributions."""
+    responses = {}
+    for idx, row in mock_plan_df_distributed.iterrows():
+        plan_id = row[IntermediateColumns.PLAN_ID]
+        responses[plan_id] = {CircuitColumns.DISTRIBUTED: True if idx != 0 else False}
+
+    for plan_id in responses:
+        requests_mock.register_uri(
+            "POST",
+            f"{CIRCUIT_URL}/{plan_id}:distribute",
+            json=responses[plan_id],
+            status_code=200,
+        )
+
+
+@pytest.fixture
+@typechecked
+def mock_route_distributions_after_failure(
+    mock_plan_df_distributed: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+) -> None:
+    """Mock requests.post calls for route distributions."""
+    responses = {}
+    for idx, row in mock_plan_df_distributed.iterrows():
+        if idx != 0:
+            plan_id = row[IntermediateColumns.PLAN_ID]
+            responses[plan_id] = {CircuitColumns.DISTRIBUTED: True}
+
+    for plan_id in responses:
+        requests_mock.register_uri(
+            "POST",
+            f"{CIRCUIT_URL}/{plan_id}:distribute",
+            json=responses[plan_id],
+            status_code=200,
+        )
+
+
+@typechecked
+def test_get_all_drivers(mock_driver_df: pd.DataFrame, mock_get_all_drivers: None) -> None:
     """Test that _get_all_drivers retrieves all drivers from the Circuit API."""
     drivers_df = _get_all_drivers()
 
@@ -419,7 +689,7 @@ def test_assign_drivers(
 def test_assign_drivers_to_plans(
     mock_stops_df: pd.DataFrame,
     mock_plan_df_drivers_assigned: pd.DataFrame,
-    mock_get_all_drivers_simple: None,
+    mock_get_all_drivers: None,
     mock_driver_assignment: None,
 ) -> None:
     """Test that _assign_drivers_to_plans assigns drivers to routes correctly."""
@@ -435,7 +705,7 @@ def test_assign_drivers_to_plans(
 def test_initialize_plans(
     mock_plan_df_drivers_assigned: pd.DataFrame,
     mock_plan_df_plans_initialized: pd.DataFrame,
-    mock_plan_initialization_posts: None,
+    mock_plan_initialization: None,
 ) -> None:
     """Test that _initialize_plans initializes plans correctly."""
     result_df = _initialize_plans(
@@ -454,9 +724,9 @@ def test_initialize_plans(
 def test_create_plans(
     mock_stops_df: pd.DataFrame,
     mock_plan_df_plans_initialized: pd.DataFrame,
-    mock_get_all_drivers_simple: None,
+    mock_get_all_drivers: None,
     mock_driver_assignment: None,
-    mock_plan_initialization_posts: None,
+    mock_plan_initialization: None,
     tmp_path: Path,
 ) -> None:
     """Test that _create_plans creates plans correctly."""
@@ -476,14 +746,14 @@ def test_create_plans(
 def test_upload_stops_calls(
     mock_stops_df: pd.DataFrame,
     mock_plan_df_plans_initialized: pd.DataFrame,
-    mock_stop_upload_posts: dict[str, list],
+    mock_stop_upload: dict[str, list],
     requests_mock: Mocker,  # noqa: F811
 ) -> None:
     """Test that _upload_stops uploads stops correctly."""
     _ = _upload_stops(
         stops_df=mock_stops_df, plan_df=mock_plan_df_plans_initialized, verbose=False
     )
-    for plan_id, expected_stop_array in mock_stop_upload_posts.items():
+    for plan_id, expected_stop_array in mock_stop_upload.items():
         expected_url = f"{CIRCUIT_URL}/{plan_id}/stops:import"
         matching_requests = [
             req for req in requests_mock.request_history if req.url == expected_url
@@ -499,7 +769,7 @@ def test_upload_stops_return(
     mock_stops_df: pd.DataFrame,
     mock_plan_df_plans_initialized: pd.DataFrame,
     mock_plan_df_stops_uploaded: pd.DataFrame,
-    mock_stop_upload_posts: dict[str, list],
+    mock_stop_upload: dict[str, list],
 ) -> None:
     """Test that _upload_stops uploads stops correctly."""
     result_df = _upload_stops(
@@ -536,24 +806,106 @@ def test_distribute_routes(
     pd.testing.assert_frame_equal(result_df, mock_plan_df_distributed)
 
 
-# TODO: Test errors etc.:
-# - Marks failed as False at each step amd does not take next steps on failed.
 @pytest.mark.parametrize("no_distribute", [True, False])
+@pytest.mark.parametrize(
+    [
+        "failure_step",
+        "mock_get_all_drivers_name",
+        "mock_driver_assignment_name",
+        "mock_plan_initialization_name",
+        "mock_stop_upload_name",
+        "mock_optmization_launches_name",
+        "mock_optimization_confirmations_name",
+        "mock_route_distributions_name",
+    ],
+    [
+        (
+            "no_failure",
+            "mock_get_all_drivers",
+            "mock_driver_assignment",
+            "mock_plan_initialization",
+            "mock_stop_upload",
+            "mock_optmization_launches",
+            "mock_optimization_confirmations",
+            "mock_route_distributions",
+        ),
+        (
+            "initialize_plans",
+            "mock_get_all_drivers",
+            "mock_driver_assignment",
+            "mock_plan_initialization_failure",
+            "mock_stop_upload_after_failure",
+            "mock_optmization_launches_after_failure",
+            "mock_optimization_confirmations_after_failure",
+            "mock_route_distributions_after_failure",
+        ),
+        (
+            "upload_stops",
+            "mock_get_all_drivers",
+            "mock_driver_assignment",
+            "mock_plan_initialization",
+            "mock_stop_upload_failure",
+            "mock_optmization_launches_after_failure",
+            "mock_optimization_confirmations_after_failure",
+            "mock_route_distributions_after_failure",
+        ),
+        (
+            "launch_optimizations",
+            "mock_get_all_drivers",
+            "mock_driver_assignment",
+            "mock_plan_initialization",
+            "mock_stop_upload",
+            "mock_optmization_launches_failure",
+            "mock_optimization_confirmations_after_failure",
+            "mock_route_distributions_after_failure",
+        ),
+        (
+            "confirm_optimizations",
+            "mock_get_all_drivers",
+            "mock_driver_assignment",
+            "mock_plan_initialization",
+            "mock_stop_upload",
+            "mock_optmization_launches",
+            "mock_optimization_confirmations_failure",
+            "mock_route_distributions_after_failure",
+        ),
+        (
+            "distribute_routes",
+            "mock_get_all_drivers",
+            "mock_driver_assignment",
+            "mock_plan_initialization",
+            "mock_stop_upload",
+            "mock_optmization_launches",
+            "mock_optimization_confirmations",
+            "mock_route_distributions_failure",
+        ),
+    ],
+)
 @typechecked
 def test_upload_split_chunked_calls(
     no_distribute: bool,
     mock_split_chunked_sheet: Path,
-    mock_get_all_drivers_simple: None,
-    mock_driver_assignment: None,
-    mock_plan_initialization_posts: None,
-    mock_stop_upload_posts: dict[str, list],
-    mock_optmization_launches: None,
-    mock_optimization_confirmations: None,
-    mock_route_distributions: None,
+    failure_step: str,
+    mock_get_all_drivers_name: str,
+    mock_driver_assignment_name: str,
+    mock_plan_initialization_name: str,
+    mock_stop_upload_name: str,
+    mock_optmization_launches_name: str,
+    mock_optimization_confirmations_name: str,
+    mock_route_distributions_name: str,
     requests_mock: Mocker,  # noqa: F811
+    request: pytest.FixtureRequest,
     tmp_path: Path,
 ) -> None:
     """Test that upload_split_chunked builds, optimizes, and distributes routes correctly."""
+    _ = request.getfixturevalue(mock_get_all_drivers_name)
+    _ = request.getfixturevalue(mock_driver_assignment_name)
+    _ = request.getfixturevalue(mock_plan_initialization_name)
+    mock_stop_upload: dict[str, list] = request.getfixturevalue(mock_stop_upload_name)
+    _ = request.getfixturevalue(mock_optmization_launches_name)
+    _ = request.getfixturevalue(mock_optimization_confirmations_name)
+    _ = request.getfixturevalue(mock_route_distributions_name)
+
     _ = upload_split_chunked(
         split_chunked_workbook_fp=mock_split_chunked_sheet,
         output_dir=tmp_path,
@@ -562,7 +914,7 @@ def test_upload_split_chunked_calls(
         verbose=False,
     )
 
-    for plan_id, expected_stop_array in mock_stop_upload_posts.items():
+    for plan_id, expected_stop_array in mock_stop_upload.items():
         expected_url = f"{CIRCUIT_URL}/{plan_id}/stops:import"
         matching_requests = [
             req for req in requests_mock.request_history if req.url == expected_url
@@ -574,21 +926,105 @@ def test_upload_split_chunked_calls(
 
 
 @pytest.mark.parametrize("no_distribute", [True, False])
+@pytest.mark.parametrize(
+    [
+        "failure_step",
+        "mock_get_all_drivers_name",
+        "mock_driver_assignment_name",
+        "mock_plan_initialization_name",
+        "mock_stop_upload_name",
+        "mock_optmization_launches_name",
+        "mock_optimization_confirmations_name",
+        "mock_route_distributions_name",
+    ],
+    [
+        (
+            "no_failure",
+            "mock_get_all_drivers",
+            "mock_driver_assignment",
+            "mock_plan_initialization",
+            "mock_stop_upload",
+            "mock_optmization_launches",
+            "mock_optimization_confirmations",
+            "mock_route_distributions",
+        ),
+        (
+            "initialize_plans",
+            "mock_get_all_drivers",
+            "mock_driver_assignment",
+            "mock_plan_initialization_failure",
+            "mock_stop_upload_after_failure",
+            "mock_optmization_launches_after_failure",
+            "mock_optimization_confirmations_after_failure",
+            "mock_route_distributions_after_failure",
+        ),
+        (
+            "upload_stops",
+            "mock_get_all_drivers",
+            "mock_driver_assignment",
+            "mock_plan_initialization",
+            "mock_stop_upload_failure",
+            "mock_optmization_launches_after_failure",
+            "mock_optimization_confirmations_after_failure",
+            "mock_route_distributions_after_failure",
+        ),
+        (
+            "launch_optimizations",
+            "mock_get_all_drivers",
+            "mock_driver_assignment",
+            "mock_plan_initialization",
+            "mock_stop_upload",
+            "mock_optmization_launches_failure",
+            "mock_optimization_confirmations_after_failure",
+            "mock_route_distributions_after_failure",
+        ),
+        (
+            "confirm_optimizations",
+            "mock_get_all_drivers",
+            "mock_driver_assignment",
+            "mock_plan_initialization",
+            "mock_stop_upload",
+            "mock_optmization_launches",
+            "mock_optimization_confirmations_failure",
+            "mock_route_distributions_after_failure",
+        ),
+        (
+            "distribute_routes",
+            "mock_get_all_drivers",
+            "mock_driver_assignment",
+            "mock_plan_initialization",
+            "mock_stop_upload",
+            "mock_optmization_launches",
+            "mock_optimization_confirmations",
+            "mock_route_distributions_failure",
+        ),
+    ],
+)
 @typechecked
 def test_upload_split_chunked_return(
     no_distribute: bool,
     mock_split_chunked_sheet: Path,
     mock_plan_df_distributed: pd.DataFrame,
-    mock_get_all_drivers_simple: None,
-    mock_driver_assignment: None,
-    mock_plan_initialization_posts: None,
-    mock_stop_upload_posts: dict[str, list],
-    mock_optmization_launches: None,
-    mock_optimization_confirmations: None,
-    mock_route_distributions: None,
+    failure_step: str,
+    mock_get_all_drivers_name: str,
+    mock_driver_assignment_name: str,
+    mock_plan_initialization_name: str,
+    mock_stop_upload_name: str,
+    mock_optmization_launches_name: str,
+    mock_optimization_confirmations_name: str,
+    mock_route_distributions_name: str,
+    request: pytest.FixtureRequest,
     tmp_path: Path,
 ) -> None:
     """Test that upload_split_chunked builds, optimizes, and distributes routes correctly."""
+    _ = request.getfixturevalue(mock_get_all_drivers_name)
+    _ = request.getfixturevalue(mock_driver_assignment_name)
+    _ = request.getfixturevalue(mock_plan_initialization_name)
+    _ = request.getfixturevalue(mock_stop_upload_name)
+    _ = request.getfixturevalue(mock_optmization_launches_name)
+    _ = request.getfixturevalue(mock_optimization_confirmations_name)
+    _ = request.getfixturevalue(mock_route_distributions_name)
+
     result_df = upload_split_chunked(
         split_chunked_workbook_fp=mock_split_chunked_sheet,
         output_dir=tmp_path,
@@ -600,6 +1036,45 @@ def test_upload_split_chunked_return(
     expected_df = mock_plan_df_distributed.copy()
     expected_df[IntermediateColumns.START_DATE] = _START_DATE
     expected_df[CircuitColumns.ACTIVE] = expected_df[CircuitColumns.ACTIVE].astype(object)
+
+    failure_route_title = expected_df[IntermediateColumns.ROUTE_TITLE].iloc[0]
+
+    if failure_step == "initialize_plans":
+        expected_df.loc[
+            expected_df[IntermediateColumns.ROUTE_TITLE] == failure_route_title,
+            IntermediateColumns.INITIALIZED,
+        ] = False
+        expected_df.loc[
+            expected_df[IntermediateColumns.ROUTE_TITLE] == failure_route_title,
+            CircuitColumns.WRITABLE,
+        ] = False
+    if failure_step in ["initialize_plans", "upload_stops"]:
+        expected_df.loc[
+            expected_df[IntermediateColumns.ROUTE_TITLE] == failure_route_title,
+            IntermediateColumns.STOPS_UPLOADED,
+        ] = False
+    if failure_step in ["initialize_plans", "upload_stops", "launch_optimizations"]:
+        expected_df.loc[
+            expected_df[IntermediateColumns.ROUTE_TITLE] == failure_route_title,
+            IntermediateColumns.OPTIMIZED,
+        ] = False
+    if failure_step == "confirm_optimizations":
+        expected_df.loc[
+            expected_df[IntermediateColumns.ROUTE_TITLE] == failure_route_title,
+            IntermediateColumns.OPTIMIZED,
+        ] = np.nan
+    if failure_step in [
+        "initialize_plans",
+        "upload_stops",
+        "launch_optimizations",
+        "confirm_optimizations",
+        "distribute_routes",
+    ]:
+        expected_df.loc[
+            expected_df[IntermediateColumns.ROUTE_TITLE] == failure_route_title,
+            CircuitColumns.DISTRIBUTED,
+        ] = False
+
     if no_distribute:
         expected_df[CircuitColumns.DISTRIBUTED] = False
         pd.testing.assert_frame_equal(result_df, expected_df)
