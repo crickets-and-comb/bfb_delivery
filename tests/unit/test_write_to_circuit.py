@@ -4,7 +4,6 @@
 # already under test, except the parts defined in the write_to_circuit module itself, i.e.
 # `upload_split_chunked`.
 
-# TODO: Spit up tests with mutliple asserts.
 # TODO: Use schema in typehints where applicable.
 # TODO: Test that plan_df dictates which next steps are taken.
 # Failures should be marked as False, and next steps should not be taken for failed plans.
@@ -541,7 +540,42 @@ def test_distribute_routes(
 # - Marks failed as False at each step amd does not take next steps on failed.
 @pytest.mark.parametrize("no_distribute", [True, False])
 @typechecked
-def test_upload_split_chunked(
+def test_upload_split_chunked_calls(
+    no_distribute: bool,
+    mock_split_chunked_sheet: Path,
+    mock_get_all_drivers_simple: None,
+    mock_driver_assignment: None,
+    mock_plan_initialization_posts: None,
+    mock_stop_upload_posts: dict[str, list],
+    mock_optmization_launches: None,
+    mock_optimization_confirmations: None,
+    mock_route_distributions: None,
+    requests_mock: Mocker,  # noqa: F811
+    tmp_path: Path,
+) -> None:
+    """Test that upload_split_chunked builds, optimizes, and distributes routes correctly."""
+    _ = upload_split_chunked(
+        split_chunked_workbook_fp=mock_split_chunked_sheet,
+        output_dir=tmp_path,
+        start_date=_START_DATE,
+        no_distribute=no_distribute,
+        verbose=False,
+    )
+
+    for plan_id, expected_stop_array in mock_stop_upload_posts.items():
+        expected_url = f"{CIRCUIT_URL}/{plan_id}/stops:import"
+        matching_requests = [
+            req for req in requests_mock.request_history if req.url == expected_url
+        ]
+        assert len(matching_requests) == 1
+
+        actual_payload = matching_requests[0].json()
+        assert actual_payload == expected_stop_array
+
+
+@pytest.mark.parametrize("no_distribute", [True, False])
+@typechecked
+def test_upload_split_chunked_return(
     no_distribute: bool,
     mock_split_chunked_sheet: Path,
     mock_plan_df_distributed: pd.DataFrame,
@@ -552,7 +586,6 @@ def test_upload_split_chunked(
     mock_optmization_launches: None,
     mock_optimization_confirmations: None,
     mock_route_distributions: None,
-    requests_mock: Mocker,  # noqa: F811
     tmp_path: Path,
 ) -> None:
     """Test that upload_split_chunked builds, optimizes, and distributes routes correctly."""
@@ -572,13 +605,3 @@ def test_upload_split_chunked(
         pd.testing.assert_frame_equal(result_df, expected_df)
     else:
         pd.testing.assert_frame_equal(result_df, expected_df)
-
-    for plan_id, expected_stop_array in mock_stop_upload_posts.items():
-        expected_url = f"{CIRCUIT_URL}/{plan_id}/stops:import"
-        matching_requests = [
-            req for req in requests_mock.request_history if req.url == expected_url
-        ]
-        assert len(matching_requests) == 1
-
-        actual_payload = matching_requests[0].json()
-        assert actual_payload == expected_stop_array
