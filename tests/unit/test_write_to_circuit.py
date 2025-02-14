@@ -10,6 +10,7 @@ import builtins
 from contextlib import AbstractContextManager, nullcontext
 from pathlib import Path
 from typing import Any, Final
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
@@ -39,6 +40,7 @@ from bfb_delivery.lib.dispatch.write_to_circuit import (
     _optimize_routes,
     _parse_addresses,
     _upload_stops,
+    delete_plan,
     delete_plans,
     upload_split_chunked,
 )
@@ -1146,3 +1148,42 @@ def test_delete_plans(
         returned_plan_ids = delete_plans(plan_ids=input_plan_ids, plan_df_fp=plan_df_fp)
 
         assert sorted(returned_plan_ids) == sorted(plan_ids_to_delete)
+
+
+@pytest.mark.parametrize(
+    "fail, error_context",
+    [
+        (False, nullcontext()),
+        (True, pytest.raises(ValueError, match="Unexpected response 400")),
+    ],
+)
+@typechecked
+def test_delete_plan_call(fail: bool, error_context: AbstractContextManager) -> None:
+    """Test that delete_plan deletes a plan correctly."""
+    plan_id = "plans/plan1"
+    with patch("bfb_delivery.lib.dispatch.api_callers.requests.delete") as mock_delete:
+        mock_delete.return_value.status_code = 204 if not fail else 400
+
+        with error_context:
+            _ = delete_plan(plan_id=plan_id)
+
+        assert mock_delete.call_args_list[0][1]["url"] == f"{CIRCUIT_URL}/{plan_id}"
+
+
+@pytest.mark.parametrize(
+    "fail, error_context",
+    [
+        (False, nullcontext()),
+        (True, pytest.raises(ValueError, match="Unexpected response 400")),
+    ],
+)
+@typechecked
+def test_delete_plan_return(fail: bool, error_context: AbstractContextManager) -> None:
+    """Test that delete_plan deletes a plan correctly."""
+    plan_id = "plans/plan1"
+    with patch("bfb_delivery.lib.dispatch.api_callers.requests.delete") as mock_delete:
+        mock_delete.return_value.status_code = 204 if not fail else 400
+
+        with error_context:
+            deletion = delete_plan(plan_id=plan_id)
+            assert deletion == (not fail)
