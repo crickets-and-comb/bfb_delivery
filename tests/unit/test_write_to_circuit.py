@@ -34,10 +34,13 @@ from bfb_delivery.lib.constants import (
 from bfb_delivery.lib.dispatch.write_to_circuit import (
     _assign_drivers,
     _assign_drivers_to_plans,
+    _build_stop_array,
     _create_plans,
     _create_stops_df,
     _get_all_drivers,
     _initialize_plans,
+    _parse_addresses,
+    _upload_stops,
 )
 
 _START_DATE: Final[str] = "2025-01-01"
@@ -116,6 +119,7 @@ def mock_split_chunked_sheet(mock_chunked_sheet_raw: Path, tmp_path: Path) -> Pa
 @pytest.fixture
 def mock_stops_df(mock_split_chunked_sheet: Path, tmp_path: Path) -> pd.DataFrame:
     """Return a mock stops DataFrame."""
+    # TODO: Build unit test for this function.
     return _create_stops_df(
         split_chunked_workbook_fp=mock_split_chunked_sheet,
         stops_df_path=tmp_path / "stops_df.csv",
@@ -195,7 +199,7 @@ def mock_plan_df_plans_initialized(
     plan_df = mock_plan_df_drivers_assigned.copy()
     plan_df[IntermediateColumns.PLAN_ID] = mock_plan_df_drivers_assigned[
         IntermediateColumns.ROUTE_TITLE
-    ].apply(lambda title: f"plans/{title.replace(' ', '')}")
+    ].apply(lambda title: f"plans/{title.replace(' ', '').replace("#", '')}")
     plan_df[CircuitColumns.WRITABLE] = True
     # TODO: Do we need this column?
     plan_df[CircuitColumns.OPTIMIZATION] = None
@@ -210,23 +214,73 @@ def mock_plan_inialization_posts(
     mock_plan_df_plans_initialized: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
     """Mock requests.post calls for plan initialization."""
-    responses_by_title = {}
+    responses = {}
     for _, row in mock_plan_df_plans_initialized.iterrows():
         title = row[IntermediateColumns.ROUTE_TITLE]
-        responses_by_title[title] = {
-            # Use the same keys that PlanInitializer expects.
-            CircuitColumns.ID: f"plans/{title.replace(' ', '')}",
-            CircuitColumns.WRITABLE: True,
+        responses[title] = {
+            CircuitColumns.ID: row[IntermediateColumns.PLAN_ID],
+            CircuitColumns.WRITABLE: row[CircuitColumns.WRITABLE],
         }
 
     def post_callback(request: Any, context: Any) -> Any:
         data = request.json()
         plan_title = data.get(CircuitColumns.TITLE)
-        return responses_by_title[plan_title]
+        return responses[plan_title]
 
     requests_mock.register_uri(
         "POST", f"{CIRCUIT_URL}/plans", json=post_callback, status_code=200
     )
+
+
+@pytest.fixture
+def mock_plan_df_stops_uploaded(mock_plan_df_plans_initialized: pd.DataFrame) -> pd.DataFrame:
+    """Return a mock plan DataFrame with stops uploaded."""
+    plan_df = mock_plan_df_plans_initialized.copy()
+    plan_df[IntermediateColumns.STOPS_UPLOADED] = True
+
+    return plan_df
+
+
+@pytest.fixture
+@typechecked
+def mock_stop_upload_posts(
+    mock_plan_df_plans_initialized: pd.DataFrame,
+    mock_stops_df: pd.DataFrame,
+    requests_mock: Mocker,  # noqa: F811
+) -> dict[str, list]:
+    """Mock requests.post calls for stop uploads."""
+    stop_arrays = {}
+    responses = {}
+    for _, row in mock_plan_df_plans_initialized.iterrows():
+        plan_id = row[IntermediateColumns.PLAN_ID]
+        title = row[IntermediateColumns.ROUTE_TITLE]
+
+        stops_df = mock_stops_df[mock_stops_df[IntermediateColumns.SHEET_NAME] == title]
+        # TODO: Build unit test for _parse_addresses.
+        stops_df = _parse_addresses(stops_df=stops_df)
+
+        # TODO: Build unit test for _build_stop_array.
+        stop_arrays[plan_id] = _build_stop_array(
+            route_stops=stops_df, driver_id=row[CircuitColumns.ID]
+        )
+
+        responses[plan_id] = {
+            "success": [
+                "stops/" + row[Columns.NAME] + row[Columns.PRODUCT_TYPE]
+                for _, row in stops_df.iterrows()
+            ],
+            "failed": [],
+        }
+
+    for plan_id in responses:
+        requests_mock.register_uri(
+            "POST",
+            f"{CIRCUIT_URL}/{plan_id}/stops:import",
+            json=responses[plan_id],
+            status_code=200,
+        )
+
+    return stop_arrays
 
 
 @typechecked
@@ -315,4 +369,33 @@ def test_create_plans(
     result_df = _create_plans(
         stops_df=mock_stops_df, start_date=_START_DATE, plan_df_path=tmp_path, verbose=False
     )
+    mock_plan_df_plans_initialized[CircuitColumns.ACTIVE] = mock_plan_df_plans_initialized[
+        CircuitColumns.ACTIVE
+    ].astype(object)
     pd.testing.assert_frame_equal(result_df, mock_plan_df_plans_initialized)
+
+
+# TODO: Expanded test data so we have more stops per route.
+@typechecked
+def test_upload_stops(
+    mock_stops_df: pd.DataFrame,
+    mock_plan_df_plans_initialized: pd.DataFrame,
+    mock_plan_df_stops_uploaded: pd.DataFrame,
+    mock_stop_upload_posts: dict[str, list],
+    requests_mock: Mocker,  # noqa: F811
+) -> None:
+    """Test that _upload_stops uploads stops correctly."""
+    result_df = _upload_stops(
+        stops_df=mock_stops_df, plan_df=mock_plan_df_plans_initialized, verbose=False
+    )
+    for plan_id, expected_stop_array in mock_stop_upload_posts.items():
+        expected_url = f"{CIRCUIT_URL}/{plan_id}/stops:import"
+        matching_requests = [
+            req for req in requests_mock.request_history if req.url == expected_url
+        ]
+        assert len(matching_requests) == 1
+
+        actual_payload = matching_requests[0].json()
+        assert actual_payload == expected_stop_array
+
+    pd.testing.assert_frame_equal(result_df, mock_plan_df_stops_uploaded)
