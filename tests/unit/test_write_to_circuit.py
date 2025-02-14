@@ -474,15 +474,14 @@ def test_create_plans(
 # TODO: Test errors etc.:
 # - Marks failed as False.
 @typechecked
-def test_upload_stops(
+def test_upload_stops_calls(
     mock_stops_df: pd.DataFrame,
     mock_plan_df_plans_initialized: pd.DataFrame,
-    mock_plan_df_stops_uploaded: pd.DataFrame,
     mock_stop_upload_posts: dict[str, list],
     requests_mock: Mocker,  # noqa: F811
 ) -> None:
     """Test that _upload_stops uploads stops correctly."""
-    result_df = _upload_stops(
+    _ = _upload_stops(
         stops_df=mock_stops_df, plan_df=mock_plan_df_plans_initialized, verbose=False
     )
     for plan_id, expected_stop_array in mock_stop_upload_posts.items():
@@ -495,6 +494,18 @@ def test_upload_stops(
         actual_payload = matching_requests[0].json()
         assert actual_payload == expected_stop_array
 
+
+@typechecked
+def test_upload_stops_return(
+    mock_stops_df: pd.DataFrame,
+    mock_plan_df_plans_initialized: pd.DataFrame,
+    mock_plan_df_stops_uploaded: pd.DataFrame,
+    mock_stop_upload_posts: dict[str, list],
+) -> None:
+    """Test that _upload_stops uploads stops correctly."""
+    result_df = _upload_stops(
+        stops_df=mock_stops_df, plan_df=mock_plan_df_plans_initialized, verbose=False
+    )
     pd.testing.assert_frame_equal(result_df, mock_plan_df_stops_uploaded)
 
 
