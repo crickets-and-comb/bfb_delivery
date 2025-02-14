@@ -583,7 +583,7 @@ class PlanDistributor(BasePostCaller):
             RuntimeError: If the plan was not distributed.
         """
         super()._handle_200()
-        self.distributed = self.response_json["distributed"]
+        self.distributed = self.response_json[CircuitColumns.DISTRIBUTED]
         if not self.distributed:
             raise RuntimeError(
                 f"Failed to distribute plan {self._plan_title} ({self._plan_id}):"

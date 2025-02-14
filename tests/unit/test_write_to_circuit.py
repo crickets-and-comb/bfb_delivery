@@ -39,6 +39,7 @@ from bfb_delivery.lib.dispatch.write_to_circuit import (
     _build_stop_array,
     _create_plans,
     _create_stops_df,
+    _distribute_routes,
     _get_all_drivers,
     _initialize_plans,
     _optimize_routes,
@@ -331,7 +332,7 @@ def mock_optmization_launches(
 def mock_optimization_confirmations(
     mock_plan_df_optimized: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
-    """Mock requests.post calls for optimization confirmations."""
+    """Mock requests.get calls for optimization confirmations."""
     responses = {}
     for _, row in mock_plan_df_optimized.iterrows():
         plan_id = row[IntermediateColumns.PLAN_ID]
@@ -350,6 +351,36 @@ def mock_optimization_confirmations(
                 f"{CIRCUIT_URL}/"
                 f"{plan_id.replace(CircuitColumns.PLANS, CircuitColumns.OPERATIONS)}"
             ),
+            json=responses[plan_id],
+            status_code=200,
+        )
+
+
+@pytest.fixture
+@typechecked
+def mock_plan_df_distributed(mock_plan_df_optimized: pd.DataFrame) -> pd.DataFrame:
+    """Return a mock plan DataFrame with optimizations confirmed."""
+    plan_df = mock_plan_df_optimized.copy()
+    plan_df[CircuitColumns.DISTRIBUTED] = True
+
+    return plan_df
+
+
+@pytest.fixture
+@typechecked
+def mock_route_distributions(
+    mock_plan_df_distributed: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+) -> None:
+    """Mock requests.post calls for route distributions."""
+    responses = {}
+    for _, row in mock_plan_df_distributed.iterrows():
+        plan_id = row[IntermediateColumns.PLAN_ID]
+        responses[plan_id] = {CircuitColumns.DISTRIBUTED: True}
+
+    for plan_id in responses:
+        requests_mock.register_uri(
+            "POST",
+            f"{CIRCUIT_URL}/{plan_id}:distribute",
             json=responses[plan_id],
             status_code=200,
         )
@@ -448,6 +479,8 @@ def test_create_plans(
 
 
 # TODO: Expanded test data so we have more stops per route.
+# TODO: Test errors etc.:
+# - Marks failed as False.
 @typechecked
 def test_upload_stops(
     mock_stops_df: pd.DataFrame,
@@ -474,6 +507,8 @@ def test_upload_stops(
 
 
 # TODO: Test errors etc.:
+# - Marks failed as False.
+# TODO: Test _confirm_optimizations.
 @typechecked
 def test_optimize_routes(
     mock_plan_df_stops_uploaded: pd.DataFrame,
@@ -484,3 +519,16 @@ def test_optimize_routes(
     """Test that _optimize_routes optimizes routes correctly."""
     result_df = _optimize_routes(plan_df=mock_plan_df_stops_uploaded, verbose=False)
     pd.testing.assert_frame_equal(result_df, mock_plan_df_optimized)
+
+
+# TODO: Test errors etc.:
+# - Marks failed as False.
+@typechecked
+def test_distribute_routes(
+    mock_plan_df_optimized: pd.DataFrame,
+    mock_plan_df_distributed: pd.DataFrame,
+    mock_route_distributions: None,
+) -> None:
+    """Test that _distribute_routes distribtues routes correctly."""
+    result_df = _distribute_routes(plan_df=mock_plan_df_optimized, verbose=False)
+    pd.testing.assert_frame_equal(result_df, mock_plan_df_distributed)
