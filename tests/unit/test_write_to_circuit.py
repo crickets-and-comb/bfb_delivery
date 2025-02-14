@@ -11,6 +11,8 @@
 # TODO: Mock user inputs.
 # TODO: Call upload_split_chunked, and check outputs, called withs, raises.
 # TODO: Use schema in typehints where applicable.
+# TODO: Test that plan_df dictates which next steps are taken.
+# Failures should be marked as False, and next steps should not be taken for failed plans.
 
 import builtins
 from collections.abc import Iterator
@@ -39,6 +41,7 @@ from bfb_delivery.lib.dispatch.write_to_circuit import (
     _create_stops_df,
     _get_all_drivers,
     _initialize_plans,
+    _optimize_routes,
     _parse_addresses,
     _upload_stops,
 )
@@ -233,6 +236,7 @@ def mock_plan_inialization_posts(
 
 
 @pytest.fixture
+@typechecked
 def mock_plan_df_stops_uploaded(mock_plan_df_plans_initialized: pd.DataFrame) -> pd.DataFrame:
     """Return a mock plan DataFrame with stops uploaded."""
     plan_df = mock_plan_df_plans_initialized.copy()
@@ -281,6 +285,74 @@ def mock_stop_upload_posts(
         )
 
     return stop_arrays
+
+
+@pytest.fixture
+@typechecked
+def mock_plan_df_optimized(mock_plan_df_stops_uploaded: pd.DataFrame) -> pd.DataFrame:
+    """Return a mock plan DataFrame with optimizations confirmed."""
+    plan_df = mock_plan_df_stops_uploaded.copy()
+    plan_df[IntermediateColumns.OPTIMIZED] = True
+    plan_df[IntermediateColumns.OPTIMIZED] = plan_df[IntermediateColumns.OPTIMIZED].astype(
+        object
+    )
+
+    return plan_df
+
+
+@pytest.fixture
+@typechecked
+def mock_optmization_launches(
+    mock_plan_df_optimized: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+) -> None:
+    """Mock requests.post calls for optimization launches."""
+    responses = {}
+    for _, row in mock_plan_df_optimized.iterrows():
+        plan_id = row[IntermediateColumns.PLAN_ID]
+        responses[plan_id] = {
+            CircuitColumns.ID: plan_id.replace(
+                CircuitColumns.PLANS, CircuitColumns.OPERATIONS
+            ),
+            CircuitColumns.DONE: False,
+            CircuitColumns.METADATA: {CircuitColumns.CANCELED: False},
+        }
+
+    for plan_id in responses:
+        requests_mock.register_uri(
+            "POST",
+            f"{CIRCUIT_URL}/{plan_id}:optimize",
+            json=responses[plan_id],
+            status_code=200,
+        )
+
+
+@pytest.fixture
+@typechecked
+def mock_optimization_confirmations(
+    mock_plan_df_optimized: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+) -> None:
+    """Mock requests.post calls for optimization confirmations."""
+    responses = {}
+    for _, row in mock_plan_df_optimized.iterrows():
+        plan_id = row[IntermediateColumns.PLAN_ID]
+        responses[plan_id] = {
+            CircuitColumns.ID: plan_id.replace(
+                CircuitColumns.PLANS, CircuitColumns.OPERATIONS
+            ),
+            CircuitColumns.DONE: True,
+            CircuitColumns.METADATA: {CircuitColumns.CANCELED: False},
+        }
+
+    for plan_id in responses:
+        requests_mock.register_uri(
+            "GET",
+            (
+                f"{CIRCUIT_URL}/"
+                f"{plan_id.replace(CircuitColumns.PLANS, CircuitColumns.OPERATIONS)}"
+            ),
+            json=responses[plan_id],
+            status_code=200,
+        )
 
 
 @typechecked
@@ -399,3 +471,16 @@ def test_upload_stops(
         assert actual_payload == expected_stop_array
 
     pd.testing.assert_frame_equal(result_df, mock_plan_df_stops_uploaded)
+
+
+# TODO: Test errors etc.:
+@typechecked
+def test_optimize_routes(
+    mock_plan_df_stops_uploaded: pd.DataFrame,
+    mock_plan_df_optimized: pd.DataFrame,
+    mock_optmization_launches: None,
+    mock_optimization_confirmations: None,
+) -> None:
+    """Test that _optimize_routes optimizes routes correctly."""
+    result_df = _optimize_routes(plan_df=mock_plan_df_stops_uploaded, verbose=False)
+    pd.testing.assert_frame_equal(result_df, mock_plan_df_optimized)
