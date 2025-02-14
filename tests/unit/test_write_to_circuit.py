@@ -7,6 +7,7 @@
 # TODO: Use schema in typehints where applicable.
 
 import builtins
+from contextlib import AbstractContextManager, nullcontext
 from pathlib import Path
 from typing import Any, Final
 
@@ -38,10 +39,15 @@ from bfb_delivery.lib.dispatch.write_to_circuit import (
     _optimize_routes,
     _parse_addresses,
     _upload_stops,
+    delete_plans,
     upload_split_chunked,
 )
 
 _START_DATE: Final[str] = "2025-01-01"
+_DELETE_PLAN_IDS: Final[list[str]] = ["plans/plan1", "plans/plan2", "plans/plan3"]
+_DELETE_PLAN_DF: Final[pd.DataFrame] = pd.DataFrame(
+    {IntermediateColumns.PLAN_ID: [f"{plan_id}_df" for plan_id in _DELETE_PLAN_IDS]}
+)
 
 
 @pytest.fixture
@@ -1080,3 +1086,63 @@ def test_upload_split_chunked_return(
         pd.testing.assert_frame_equal(result_df, expected_df)
     else:
         pd.testing.assert_frame_equal(result_df, expected_df)
+
+
+@pytest.mark.parametrize(
+    "use_plan_ids, plan_df_fp, fail_deletion, error_context",
+    [
+        (True, "", False, nullcontext()),
+        (False, "plans.csv", False, nullcontext()),
+        (
+            True,
+            "plans.csv",
+            False,
+            pytest.raises(
+                ValueError, match="Please provide either plan_ids or plan_ids_fp, not both."
+            ),
+        ),
+        (
+            False,
+            "",
+            False,
+            pytest.raises(ValueError, match="Please provide either plan_ids or plan_ids_fp."),
+        ),
+        (
+            True,
+            "",
+            True,
+            pytest.raises(RuntimeError, match="Errors deleting plans:\n{'plans/plan1'"),
+        ),
+    ],
+)
+def test_delete_plans(
+    use_plan_ids: bool,
+    plan_df_fp: str,
+    fail_deletion: bool,
+    error_context: AbstractContextManager,
+    requests_mock: Mocker,  # noqa: F811
+    tmp_path: Path,
+) -> None:
+    """Test that delete_plans deletes plans correctly."""
+    plan_ids_to_delete = (
+        _DELETE_PLAN_IDS
+        if use_plan_ids
+        else _DELETE_PLAN_DF[IntermediateColumns.PLAN_ID].tolist()
+    )
+    for idx, plan_id in enumerate(plan_ids_to_delete):
+        requests_mock.register_uri(
+            "DELETE",
+            f"{CIRCUIT_URL}/{plan_id}",
+            json={},
+            status_code=204 if not fail_deletion or (fail_deletion and idx != 0) else 400,
+        )
+
+    input_plan_ids = _DELETE_PLAN_IDS if use_plan_ids else []
+    if plan_df_fp:
+        plan_df_fp = str(tmp_path / plan_df_fp)
+        _DELETE_PLAN_DF.to_csv(plan_df_fp, index=False)
+
+    with error_context:
+        returned_plan_ids = delete_plans(plan_ids=input_plan_ids, plan_df_fp=plan_df_fp)
+
+        assert sorted(returned_plan_ids) == sorted(plan_ids_to_delete)
