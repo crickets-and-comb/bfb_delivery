@@ -4,7 +4,7 @@
 # already under test, except the parts defined in the write_to_circuit module itself, i.e.
 # `upload_split_chunked`.
 
-# TODO: Call upload_split_chunked, and check outputs, called withs, raises.
+# TODO: Spit up tests with mutliple asserts.
 # TODO: Use schema in typehints where applicable.
 # TODO: Test that plan_df dictates which next steps are taken.
 # Failures should be marked as False, and next steps should not be taken for failed plans.
@@ -27,7 +27,7 @@ from bfb_delivery.lib.constants import (
     Columns,
     IntermediateColumns,
 )
-from bfb_delivery.lib.dispatch.write_to_circuit import (  # upload_split_chunked
+from bfb_delivery.lib.dispatch.write_to_circuit import (
     _assign_drivers,
     _assign_drivers_to_plans,
     _build_stop_array,
@@ -39,6 +39,7 @@ from bfb_delivery.lib.dispatch.write_to_circuit import (  # upload_split_chunked
     _optimize_routes,
     _parse_addresses,
     _upload_stops,
+    upload_split_chunked,
 )
 
 _START_DATE: Final[str] = "2025-01-01"
@@ -73,7 +74,7 @@ def mock_driver_df(mock_chunked_sheet_raw: Path) -> pd.DataFrame:
 
 
 @pytest.fixture
-def mock_all_drivers_simple(
+def mock_get_all_drivers_simple(
     mock_driver_df: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
     """Mock the Circuit API to return a simple list of drivers."""
@@ -205,7 +206,7 @@ def mock_plan_df_plans_initialized(
 
 @pytest.fixture
 @typechecked
-def mock_plan_inialization_posts(
+def mock_plan_initialization_posts(
     mock_plan_df_plans_initialized: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
     """Mock requests.post calls for plan initialization."""
@@ -378,7 +379,9 @@ def mock_route_distributions(
 
 
 @typechecked
-def test_get_all_drivers(mock_driver_df: pd.DataFrame, mock_all_drivers_simple: None) -> None:
+def test_get_all_drivers(
+    mock_driver_df: pd.DataFrame, mock_get_all_drivers_simple: None
+) -> None:
     """Test that _get_all_drivers retrieves all drivers from the Circuit API."""
     drivers_df = _get_all_drivers()
 
@@ -417,7 +420,7 @@ def test_assign_drivers(
 def test_assign_drivers_to_plans(
     mock_stops_df: pd.DataFrame,
     mock_plan_df_drivers_assigned: pd.DataFrame,
-    mock_all_drivers_simple: None,
+    mock_get_all_drivers_simple: None,
     mock_driver_assignment: None,
 ) -> None:
     """Test that _assign_drivers_to_plans assigns drivers to routes correctly."""
@@ -433,7 +436,7 @@ def test_assign_drivers_to_plans(
 def test_initialize_plans(
     mock_plan_df_drivers_assigned: pd.DataFrame,
     mock_plan_df_plans_initialized: pd.DataFrame,
-    mock_plan_inialization_posts: None,
+    mock_plan_initialization_posts: None,
 ) -> None:
     """Test that _initialize_plans initializes plans correctly."""
     result_df = _initialize_plans(
@@ -452,9 +455,9 @@ def test_initialize_plans(
 def test_create_plans(
     mock_stops_df: pd.DataFrame,
     mock_plan_df_plans_initialized: pd.DataFrame,
-    mock_all_drivers_simple: None,
+    mock_get_all_drivers_simple: None,
     mock_driver_assignment: None,
-    mock_plan_inialization_posts: None,
+    mock_plan_initialization_posts: None,
     tmp_path: Path,
 ) -> None:
     """Test that _create_plans creates plans correctly."""
@@ -523,29 +526,48 @@ def test_distribute_routes(
     pd.testing.assert_frame_equal(result_df, mock_plan_df_distributed)
 
 
-# # TODO: Test errors etc.:
-# # - Marks failed as False at each step amd does not take next steps on failed.
-# @pytest.mark.parametrize(
-#     "no_distribute", [True, False]
-# )
-# @typechecked
-# def test_upload_split_chunked(
-#     no_distribute: bool,
-#     mock_split_chunked_sheet: Path,
-#     mock_plan_df_optimized: pd.DataFrame,
-#     mock_plan_df_distributed: pd.DataFrame,
-#     mock_route_distributions: None,
-#     tmp_path: Path,
-# ) -> None:
-#     """Test that upload_split_chunked builds, optimizes, and distributes routes correctly.""" # noqa: E501
-#     result_df = upload_split_chunked(
-#         split_chunked_workbook_fp=mock_split_chunked_sheet,
-#         output_dir = tmp_path,
-#         start_date=_START_DATE,
-#         no_distribute=no_distribute,
-#         verbose=False
-#     )
-#     if no_distribute:
-#         pd.testing.assert_frame_equal(result_df, mock_plan_df_optimized)
-#     else:
-#         pd.testing.assert_frame_equal(result_df, mock_plan_df_distributed)
+# TODO: Test errors etc.:
+# - Marks failed as False at each step amd does not take next steps on failed.
+@pytest.mark.parametrize("no_distribute", [True, False])
+@typechecked
+def test_upload_split_chunked(
+    no_distribute: bool,
+    mock_split_chunked_sheet: Path,
+    mock_plan_df_distributed: pd.DataFrame,
+    mock_get_all_drivers_simple: None,
+    mock_driver_assignment: None,
+    mock_plan_initialization_posts: None,
+    mock_stop_upload_posts: dict[str, list],
+    mock_optmization_launches: None,
+    mock_optimization_confirmations: None,
+    mock_route_distributions: None,
+    requests_mock: Mocker,  # noqa: F811
+    tmp_path: Path,
+) -> None:
+    """Test that upload_split_chunked builds, optimizes, and distributes routes correctly."""
+    result_df = upload_split_chunked(
+        split_chunked_workbook_fp=mock_split_chunked_sheet,
+        output_dir=tmp_path,
+        start_date=_START_DATE,
+        no_distribute=no_distribute,
+        verbose=False,
+    )
+
+    expected_df = mock_plan_df_distributed.copy()
+    expected_df[IntermediateColumns.START_DATE] = _START_DATE
+    expected_df[CircuitColumns.ACTIVE] = expected_df[CircuitColumns.ACTIVE].astype(object)
+    if no_distribute:
+        expected_df[CircuitColumns.DISTRIBUTED] = False
+        pd.testing.assert_frame_equal(result_df, expected_df)
+    else:
+        pd.testing.assert_frame_equal(result_df, expected_df)
+
+    for plan_id, expected_stop_array in mock_stop_upload_posts.items():
+        expected_url = f"{CIRCUIT_URL}/{plan_id}/stops:import"
+        matching_requests = [
+            req for req in requests_mock.request_history if req.url == expected_url
+        ]
+        assert len(matching_requests) == 1
+
+        actual_payload = matching_requests[0].json()
+        assert actual_payload == expected_stop_array
