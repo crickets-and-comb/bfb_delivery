@@ -136,7 +136,7 @@ def upload_split_chunked(
     no_distribute: bool,
     verbose: bool,
 ) -> DataFrame[PlansUploadSplitChunkedOut]:
-    """Upload a split chunked Excel workbook of routes to Circuit.
+    """Upload, optimize, and distribute a split chunked Excel workbook of routes to Circuit.
 
     The workbook contains multiple sheets, one per route. Each sheet is named after the driver
     with the date. The columns are:
@@ -159,7 +159,7 @@ def upload_split_chunked(
 
     Returns:
         A DataFrame with the plan IDs and driver IDs for each sheet,
-            along with date and whether distributed.
+            along with date and statuses at each step.
     """
     plan_output_dir = output_dir / "plans"
     plan_output_dir.mkdir(exist_ok=True)

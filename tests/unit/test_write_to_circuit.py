@@ -4,18 +4,12 @@
 # already under test, except the parts defined in the write_to_circuit module itself, i.e.
 # `upload_split_chunked`.
 
-
-# TODO: Mock data from existing fixtures and tools.
-# TODO: Mock _make_call for each api_caller, including error responses.
-# - Mock 2 pages from PagedResponseGetter._make_call for _get_all_drivers get_responses call.
-# TODO: Mock user inputs.
 # TODO: Call upload_split_chunked, and check outputs, called withs, raises.
 # TODO: Use schema in typehints where applicable.
 # TODO: Test that plan_df dictates which next steps are taken.
 # Failures should be marked as False, and next steps should not be taken for failed plans.
 
 import builtins
-from collections.abc import Iterator
 from pathlib import Path
 from typing import Any, Final
 
@@ -33,7 +27,7 @@ from bfb_delivery.lib.constants import (
     Columns,
     IntermediateColumns,
 )
-from bfb_delivery.lib.dispatch.write_to_circuit import (
+from bfb_delivery.lib.dispatch.write_to_circuit import (  # upload_split_chunked
     _assign_drivers,
     _assign_drivers_to_plans,
     _build_stop_array,
@@ -81,7 +75,7 @@ def mock_driver_df(mock_chunked_sheet_raw: Path) -> pd.DataFrame:
 @pytest.fixture
 def mock_all_drivers_simple(
     mock_driver_df: pd.DataFrame, requests_mock: Mocker  # noqa: F811
-) -> Iterator[Mocker]:
+) -> None:
     """Mock the Circuit API to return a simple list of drivers."""
     drivers_array = mock_driver_df.to_dict(orient="records")
     next_page_token = "token123"
@@ -102,9 +96,6 @@ def mock_all_drivers_simple(
             "nextPageToken": None,
         },
     )
-
-    # TODO: Do we need to yield anything?
-    yield requests_mock
 
 
 @pytest.fixture
@@ -387,9 +378,7 @@ def mock_route_distributions(
 
 
 @typechecked
-def test_get_all_drivers(
-    mock_driver_df: pd.DataFrame, mock_all_drivers_simple: Mocker
-) -> None:
+def test_get_all_drivers(mock_driver_df: pd.DataFrame, mock_all_drivers_simple: None) -> None:
     """Test that _get_all_drivers retrieves all drivers from the Circuit API."""
     drivers_df = _get_all_drivers()
 
@@ -428,7 +417,7 @@ def test_assign_drivers(
 def test_assign_drivers_to_plans(
     mock_stops_df: pd.DataFrame,
     mock_plan_df_drivers_assigned: pd.DataFrame,
-    mock_all_drivers_simple: Mocker,
+    mock_all_drivers_simple: None,
     mock_driver_assignment: None,
 ) -> None:
     """Test that _assign_drivers_to_plans assigns drivers to routes correctly."""
@@ -463,7 +452,7 @@ def test_initialize_plans(
 def test_create_plans(
     mock_stops_df: pd.DataFrame,
     mock_plan_df_plans_initialized: pd.DataFrame,
-    mock_all_drivers_simple: Mocker,
+    mock_all_drivers_simple: None,
     mock_driver_assignment: None,
     mock_plan_inialization_posts: None,
     tmp_path: Path,
@@ -529,6 +518,34 @@ def test_distribute_routes(
     mock_plan_df_distributed: pd.DataFrame,
     mock_route_distributions: None,
 ) -> None:
-    """Test that _distribute_routes distribtues routes correctly."""
+    """Test that _distribute_routes distributes routes correctly."""
     result_df = _distribute_routes(plan_df=mock_plan_df_optimized, verbose=False)
     pd.testing.assert_frame_equal(result_df, mock_plan_df_distributed)
+
+
+# # TODO: Test errors etc.:
+# # - Marks failed as False at each step amd does not take next steps on failed.
+# @pytest.mark.parametrize(
+#     "no_distribute", [True, False]
+# )
+# @typechecked
+# def test_upload_split_chunked(
+#     no_distribute: bool,
+#     mock_split_chunked_sheet: Path,
+#     mock_plan_df_optimized: pd.DataFrame,
+#     mock_plan_df_distributed: pd.DataFrame,
+#     mock_route_distributions: None,
+#     tmp_path: Path,
+# ) -> None:
+#     """Test that upload_split_chunked builds, optimizes, and distributes routes correctly.""" # noqa: E501
+#     result_df = upload_split_chunked(
+#         split_chunked_workbook_fp=mock_split_chunked_sheet,
+#         output_dir = tmp_path,
+#         start_date=_START_DATE,
+#         no_distribute=no_distribute,
+#         verbose=False
+#     )
+#     if no_distribute:
+#         pd.testing.assert_frame_equal(result_df, mock_plan_df_optimized)
+#     else:
+#         pd.testing.assert_frame_equal(result_df, mock_plan_df_distributed)
