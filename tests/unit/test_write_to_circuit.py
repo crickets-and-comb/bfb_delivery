@@ -195,6 +195,61 @@ def mock_driver_assignment(
 
 @pytest.fixture
 @typechecked
+def mock_driver_assignment_with_derps(
+    mock_stops_df: pd.DataFrame, mock_driver_df: pd.DataFrame, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Mock user inputs for driver selection."""
+    driver_selections = []
+    for sheet_name in sorted(mock_stops_df[IntermediateColumns.SHEET_NAME].unique()):
+        driver_row = mock_driver_df[
+            mock_driver_df[CircuitColumns.NAME].apply(lambda x: x in sheet_name)  # noqa: B023
+        ]
+        driver_selections.append(f"{driver_row.index[0] + 1}")
+
+    inputs = iter(
+        driver_selections[0 : len(driver_selections) // 2]  # noqa: E203
+        + ["derp", "9999"]
+        + driver_selections[len(driver_selections) // 2 :]  # noqa: E203
+        + ["y"]
+    )
+
+    original_input = builtins.input
+
+    def fake_input(prompt: str) -> str:
+        if prompt.strip() == "(Pdb)":
+            return original_input(prompt)
+        return next(inputs)
+
+    monkeypatch.setattr("builtins.input", fake_input)
+
+
+@pytest.fixture
+@typechecked
+def mock_driver_assignment_with_retry(
+    mock_stops_df: pd.DataFrame, mock_driver_df: pd.DataFrame, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Mock user inputs for driver selection."""
+    driver_selections = []
+    for sheet_name in sorted(mock_stops_df[IntermediateColumns.SHEET_NAME].unique()):
+        driver_row = mock_driver_df[
+            mock_driver_df[CircuitColumns.NAME].apply(lambda x: x in sheet_name)  # noqa: B023
+        ]
+        driver_selections.append(f"{driver_row.index[0] + 1}")
+
+    inputs = iter(["1"] * len(driver_selections) + ["n"] + driver_selections + ["y"])
+
+    original_input = builtins.input
+
+    def fake_input(prompt: str) -> str:
+        if prompt.strip() == "(Pdb)":
+            return original_input(prompt)
+        return next(inputs)
+
+    monkeypatch.setattr("builtins.input", fake_input)
+
+
+@pytest.fixture
+@typechecked
 def mock_plan_df_plans_initialized(
     mock_plan_df_drivers_assigned: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -672,17 +727,25 @@ def test_get_all_drivers(mock_driver_df: pd.DataFrame, mock_get_all_drivers: Non
     )
 
 
-# TODO: Test errors etc.:
-# - Invalid inputs. (Just put them right in the middle of the list?)
-# - Retry if confirm.lower() != "y"
+@pytest.mark.parametrize(
+    "assignment_fixture",
+    [
+        "mock_driver_assignment",
+        "mock_driver_assignment_with_derps",
+        "mock_driver_assignment_with_retry",
+    ],
+)
 @typechecked
 def test_assign_drivers(
     mock_plan_df_initial: pd.DataFrame,
     mock_driver_df: pd.DataFrame,
     mock_plan_df_drivers_assigned: pd.DataFrame,
-    mock_driver_assignment: None,
+    assignment_fixture: str,
+    request: pytest.FixtureRequest,
 ) -> None:
     """Test that _assign_drivers assigns drivers to routes correctly."""
+    _ = request.getfixturevalue(assignment_fixture)
+
     result_df = _assign_drivers(drivers_df=mock_driver_df, plan_df=mock_plan_df_initial)
 
     result_df[CircuitColumns.ACTIVE] = result_df[CircuitColumns.ACTIVE].astype(bool)
