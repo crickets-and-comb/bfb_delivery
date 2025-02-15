@@ -894,7 +894,9 @@ def test_create_plans(
     _ = request.getfixturevalue(initialization_fixture)
 
     expected_plan_df = mock_plan_df_plans_initialized.copy()
-    expected_plan_df[CircuitColumns.ACTIVE] = expected_plan_df[CircuitColumns.ACTIVE].astype(object)
+    expected_plan_df[CircuitColumns.ACTIVE] = expected_plan_df[CircuitColumns.ACTIVE].astype(
+        object
+    )
     if initialization_fixture == "mock_plan_initialization_failure":
         expected_plan_df.loc[0, CircuitColumns.WRITABLE] = False
         expected_plan_df.loc[0, IntermediateColumns.INITIALIZED] = False
@@ -903,11 +905,38 @@ def test_create_plans(
         plan_df = _create_plans(
             stops_df=mock_stops_df,
             start_date=_START_DATE,
-            plan_df_path=tmp_path,
+            plan_df_path=tmp_path / "plan_df.csv",
             verbose=False,
         )
 
         pd.testing.assert_frame_equal(plan_df, expected_plan_df)
+
+
+@typechecked
+def test_create_plans_writes_if_initialization_raises(
+    mock_stops_df: pd.DataFrame,
+    mock_plan_df_plans_initialized: pd.DataFrame,
+    mock_get_all_drivers: None,
+    mock_driver_assignment: None,
+    mock_plan_initialization: None,
+    tmp_path: Path,
+) -> None:
+    """Test that _create_plans writes the plan_df if initialization raises."""
+    plan_df_path = tmp_path / "plan_df.csv"
+    with patch(
+        "bfb_delivery.lib.dispatch.write_to_circuit._initialize_plans"
+    ) as mock_initalize:
+        mock_initalize.side_effect = ValueError("Something went wrong.")
+
+        with pytest.raises(ValueError, match="Something went wrong"):
+            _ = _create_plans(
+                stops_df=mock_stops_df,
+                start_date=_START_DATE,
+                plan_df_path=plan_df_path,
+                verbose=False,
+            )
+
+    assert plan_df_path.exists()
 
 
 # TODO: Expanded test data so we have more stops per route.
