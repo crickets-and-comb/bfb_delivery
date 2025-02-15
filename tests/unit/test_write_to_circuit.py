@@ -756,14 +756,25 @@ def test_assign_drivers(
 # - Invalid inputs. (Just put them right in the middle of the list?)
 # - Retry if confirm.lower() != "y"
 # - Raise if inactive drivers selected.
+@pytest.mark.parametrize(
+    "assignment_fixture",
+    [
+        "mock_driver_assignment",
+        "mock_driver_assignment_with_derps",
+        "mock_driver_assignment_with_retry",
+    ],
+)
 @typechecked
 def test_assign_drivers_to_plans(
     mock_stops_df: pd.DataFrame,
     mock_plan_df_drivers_assigned: pd.DataFrame,
+    assignment_fixture: str,
     mock_get_all_drivers: None,
-    mock_driver_assignment: None,
+    request: pytest.FixtureRequest,
 ) -> None:
     """Test that _assign_drivers_to_plans assigns drivers to routes correctly."""
+    _ = request.getfixturevalue(assignment_fixture)
+
     result_df = _assign_drivers_to_plans(stops_df=mock_stops_df)
 
     result_df[CircuitColumns.ACTIVE] = result_df[CircuitColumns.ACTIVE].astype(bool)
