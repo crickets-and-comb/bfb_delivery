@@ -107,6 +107,33 @@ def mock_get_all_drivers(
 
 
 @pytest.fixture
+def mock_get_all_drivers_with_inactive(
+    mock_driver_df: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+) -> None:
+    """Mock the Circuit API to return a simple list of drivers."""
+    mock_driver_df.loc[0, CircuitColumns.ACTIVE] = False
+    drivers_array = mock_driver_df.to_dict(orient="records")
+    next_page_token = "token123"
+
+    requests_mock.get(
+        url=CIRCUIT_DRIVERS_URL,
+        json={
+            "drivers": drivers_array[0 : len(drivers_array) // 2],  # noqa: E203
+            "nextPageToken": next_page_token,
+        },
+    )
+    requests_mock.get(
+        url=CIRCUIT_DRIVERS_URL + f"?pageToken={next_page_token}",
+        json={
+            "drivers": drivers_array[
+                len(drivers_array) // 2 : len(drivers_array)  # noqa: E203
+            ],
+            "nextPageToken": None,
+        },
+    )
+
+
+@pytest.fixture
 def mock_split_chunked_sheet(mock_chunked_sheet_raw: Path, tmp_path: Path) -> Path:
     """Create and save a mock split chunked sheet."""
     path = split_chunked_route(
@@ -752,14 +779,19 @@ def test_assign_drivers(
     pd.testing.assert_frame_equal(result_df, mock_plan_df_drivers_assigned)
 
 
-# TODO: Test errors etc.:
-# - Raise if inactive drivers selected.
 @pytest.mark.parametrize(
-    "assignment_fixture",
+    "assignment_fixture, get_drivers_fixture, error_context",
     [
-        "mock_driver_assignment",
-        "mock_driver_assignment_with_derps",
-        "mock_driver_assignment_with_retry",
+        ("mock_driver_assignment", "mock_get_all_drivers", nullcontext()),
+        ("mock_driver_assignment_with_derps", "mock_get_all_drivers", nullcontext()),
+        ("mock_driver_assignment_with_retry", "mock_get_all_drivers", nullcontext()),
+        (
+            "mock_driver_assignment",
+            "mock_get_all_drivers_with_inactive",
+            pytest.raises(
+                ValueError, match="Inactive drivers. Please activate the following drivers"
+            ),
+        ),
     ],
 )
 @typechecked
@@ -767,16 +799,19 @@ def test_assign_drivers_to_plans(
     mock_stops_df: pd.DataFrame,
     mock_plan_df_drivers_assigned: pd.DataFrame,
     assignment_fixture: str,
-    mock_get_all_drivers: None,
+    get_drivers_fixture: str,
+    error_context: AbstractContextManager,
     request: pytest.FixtureRequest,
 ) -> None:
     """Test that _assign_drivers_to_plans assigns drivers to routes correctly."""
+    _ = request.getfixturevalue(get_drivers_fixture)
     _ = request.getfixturevalue(assignment_fixture)
 
-    result_df = _assign_drivers_to_plans(stops_df=mock_stops_df)
+    with error_context:
+        result_df = _assign_drivers_to_plans(stops_df=mock_stops_df)
 
-    result_df[CircuitColumns.ACTIVE] = result_df[CircuitColumns.ACTIVE].astype(bool)
-    pd.testing.assert_frame_equal(result_df, mock_plan_df_drivers_assigned)
+        result_df[CircuitColumns.ACTIVE] = result_df[CircuitColumns.ACTIVE].astype(bool)
+        pd.testing.assert_frame_equal(result_df, mock_plan_df_drivers_assigned)
 
 
 # TODO: Test errors etc.:
