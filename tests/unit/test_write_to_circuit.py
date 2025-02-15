@@ -753,8 +753,6 @@ def test_assign_drivers(
 
 
 # TODO: Test errors etc.:
-# - Invalid inputs. (Just put them right in the middle of the list?)
-# - Retry if confirm.lower() != "y"
 # - Raise if inactive drivers selected.
 @pytest.mark.parametrize(
     "assignment_fixture",
