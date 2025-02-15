@@ -814,19 +814,28 @@ def test_assign_drivers_to_plans(
         pd.testing.assert_frame_equal(result_df, mock_plan_df_drivers_assigned)
 
 
-# TODO: Test errors etc.:
-# - Marks failed initializations as False.
+@pytest.mark.parametrize(
+    "initialization_fixture", ["mock_plan_initialization", "mock_plan_initialization_failure"]
+)
 @typechecked
 def test_initialize_plans(
     mock_plan_df_drivers_assigned: pd.DataFrame,
     mock_plan_df_plans_initialized: pd.DataFrame,
-    mock_plan_initialization: None,
+    initialization_fixture: str,
+    request: pytest.FixtureRequest,
 ) -> None:
     """Test that _initialize_plans initializes plans correctly."""
-    result_df = _initialize_plans(
+    _ = request.getfixturevalue(initialization_fixture)
+
+    expected_plan_df = mock_plan_df_plans_initialized.copy()
+    if initialization_fixture == "mock_plan_initialization_failure":
+        expected_plan_df.loc[0, CircuitColumns.WRITABLE] = False
+        expected_plan_df.loc[0, IntermediateColumns.INITIALIZED] = False
+
+    plan_df = _initialize_plans(
         plan_df=mock_plan_df_drivers_assigned, start_date=_START_DATE, verbose=False
     )
-    pd.testing.assert_frame_equal(result_df, mock_plan_df_plans_initialized)
+    pd.testing.assert_frame_equal(plan_df, expected_plan_df)
 
 
 # TODO: Test errors etc.:
