@@ -839,28 +839,75 @@ def test_initialize_plans(
 
 
 # TODO: Test errors etc.:
-# - Invalid inputs. (Just put them right in the middle of the list?)
-# - Retry if confirm.lower() != "y"
-# - Raise if inactive drivers selected.
-# - Marks failed initializations as False.
 # - Writes plan_df if _initialize_plans raises.
+@pytest.mark.parametrize(
+    "assignment_fixture, get_drivers_fixture, initialization_fixture, error_context",
+    [
+        (
+            "mock_driver_assignment",
+            "mock_get_all_drivers",
+            "mock_plan_initialization",
+            nullcontext(),
+        ),
+        (
+            "mock_driver_assignment_with_derps",
+            "mock_get_all_drivers",
+            "mock_plan_initialization",
+            nullcontext(),
+        ),
+        (
+            "mock_driver_assignment_with_retry",
+            "mock_get_all_drivers",
+            "mock_plan_initialization",
+            nullcontext(),
+        ),
+        (
+            "mock_driver_assignment",
+            "mock_get_all_drivers_with_inactive",
+            "mock_plan_initialization",
+            pytest.raises(
+                ValueError, match="Inactive drivers. Please activate the following drivers"
+            ),
+        ),
+        (
+            "mock_driver_assignment",
+            "mock_get_all_drivers",
+            "mock_plan_initialization_failure",
+            nullcontext(),
+        ),
+    ],
+)
 @typechecked
 def test_create_plans(
     mock_stops_df: pd.DataFrame,
     mock_plan_df_plans_initialized: pd.DataFrame,
-    mock_get_all_drivers: None,
-    mock_driver_assignment: None,
-    mock_plan_initialization: None,
+    get_drivers_fixture: str,
+    assignment_fixture: str,
+    initialization_fixture: str,
+    error_context: AbstractContextManager,
+    request: pytest.FixtureRequest,
     tmp_path: Path,
 ) -> None:
     """Test that _create_plans creates plans correctly."""
-    result_df = _create_plans(
-        stops_df=mock_stops_df, start_date=_START_DATE, plan_df_path=tmp_path, verbose=False
-    )
-    mock_plan_df_plans_initialized[CircuitColumns.ACTIVE] = mock_plan_df_plans_initialized[
-        CircuitColumns.ACTIVE
-    ].astype(object)
-    pd.testing.assert_frame_equal(result_df, mock_plan_df_plans_initialized)
+    _ = request.getfixturevalue(get_drivers_fixture)
+    _ = request.getfixturevalue(assignment_fixture)
+    _ = request.getfixturevalue(initialization_fixture)
+
+    expected_plan_df = mock_plan_df_plans_initialized.copy()
+    expected_plan_df[CircuitColumns.ACTIVE] = expected_plan_df[CircuitColumns.ACTIVE].astype(object)
+    if initialization_fixture == "mock_plan_initialization_failure":
+        expected_plan_df.loc[0, CircuitColumns.WRITABLE] = False
+        expected_plan_df.loc[0, IntermediateColumns.INITIALIZED] = False
+
+    with error_context:
+        plan_df = _create_plans(
+            stops_df=mock_stops_df,
+            start_date=_START_DATE,
+            plan_df_path=tmp_path,
+            verbose=False,
+        )
+
+        pd.testing.assert_frame_equal(plan_df, expected_plan_df)
 
 
 # TODO: Expanded test data so we have more stops per route.
