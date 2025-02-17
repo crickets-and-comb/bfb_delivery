@@ -359,7 +359,6 @@ def mock_plan_df_stops_uploaded_with_error(
 ) -> pd.DataFrame:
     """Return a mock plan DataFrame with stops uploaded."""
     plan_df = mock_plan_df_plans_initialized.copy()
-    plan_df[IntermediateColumns.STOPS_UPLOADED] = True
     plan_df.loc[0, IntermediateColumns.STOPS_UPLOADED] = False
 
     return plan_df
