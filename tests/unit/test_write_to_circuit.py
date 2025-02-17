@@ -354,6 +354,19 @@ def mock_plan_df_stops_uploaded(mock_plan_df_plans_initialized: pd.DataFrame) ->
 
 @pytest.fixture
 @typechecked
+def mock_plan_df_stops_uploaded_with_error(
+    mock_plan_df_plans_initialized: pd.DataFrame,
+) -> pd.DataFrame:
+    """Return a mock plan DataFrame with stops uploaded."""
+    plan_df = mock_plan_df_plans_initialized.copy()
+    plan_df[IntermediateColumns.STOPS_UPLOADED] = True
+    plan_df.loc[0, IntermediateColumns.STOPS_UPLOADED] = False
+
+    return plan_df
+
+
+@pytest.fixture
+@typechecked
 def mock_stop_upload(
     mock_plan_df_plans_initialized: pd.DataFrame,
     mock_stops_df: pd.DataFrame,
@@ -395,17 +408,18 @@ def mock_stop_upload(
 
 
 # TODO: Abstract what is common between this and the success case.
+# TODO: Build all call failure fixtures from result failures fixtures.
 @pytest.fixture
 @typechecked
 def mock_stop_upload_failure(
-    mock_plan_df_plans_initialized: pd.DataFrame,
+    mock_plan_df_stops_uploaded_with_error: pd.DataFrame,
     mock_stops_df: pd.DataFrame,
     requests_mock: Mocker,  # noqa: F811
 ) -> dict[str, list]:
     """Mock requests.post calls for stop uploads."""
     stop_arrays = {}
     responses = {}
-    for idx, row in mock_plan_df_plans_initialized.iterrows():
+    for _, row in mock_plan_df_stops_uploaded_with_error.iterrows():
         plan_id = row[IntermediateColumns.PLAN_ID]
         title = row[IntermediateColumns.ROUTE_TITLE]
 
@@ -418,14 +432,17 @@ def mock_stop_upload_failure(
             route_stops=stops_df, driver_id=row[CircuitColumns.ID]
         )
 
-        responses[plan_id] = {
-            "success": [
-                "stops/" + row[Columns.NAME] + row[Columns.PRODUCT_TYPE]
-                for _, row in stops_df.iterrows()
-                if idx != 0
-            ],
-            "failed": [] if idx != 0 else ["something failed"],
-        }
+        responses[plan_id] = (
+            {
+                "success": [
+                    "stops/" + row[Columns.NAME] + row[Columns.PRODUCT_TYPE]
+                    for _, row in stops_df.iterrows()
+                ],
+                "failed": [],
+            }
+            if row[IntermediateColumns.STOPS_UPLOADED]
+            else {"success": [], "failed": ["something failed"]}
+        )
 
     for plan_id in responses:
         requests_mock.register_uri(
@@ -838,8 +855,7 @@ def test_initialize_plans(
     pd.testing.assert_frame_equal(plan_df, expected_plan_df)
 
 
-# TODO: Test errors etc.:
-# - Writes plan_df if _initialize_plans raises.
+# TODO: Check request histories.
 @pytest.mark.parametrize(
     "assignment_fixture, get_drivers_fixture, initialization_fixture, error_context",
     [
@@ -964,6 +980,9 @@ def test_upload_stops_calls(
         assert actual_payload == expected_stop_array
 
 
+# @pytest.mark.parametrize(
+#     ""
+# )
 @typechecked
 def test_upload_stops_return(
     mock_stops_df: pd.DataFrame,
