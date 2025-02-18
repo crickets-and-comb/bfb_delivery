@@ -352,78 +352,31 @@ def mock_plan_df_stops_uploaded_with_error(
     return plan_df
 
 
-@pytest.fixture
 @typechecked
-def mock_stop_upload(
-    mock_plan_df_plans_initialized: pd.DataFrame,
-    mock_stops_df: pd.DataFrame,
-    requests_mock: Mocker,  # noqa: F811
-) -> dict[str, list]:
-    """Mock requests.post calls for stop uploads."""
+def register_stop_upload(
+    stops_df: pd.DataFrame, plan_df: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+) -> dict[str, Any]:
+    """Register POST requests for stop uploads."""
     stop_arrays = {}
     responses = {}
-    for _, row in mock_plan_df_plans_initialized.iterrows():
+    for _, row in plan_df.iterrows():
         plan_id = row[IntermediateColumns.PLAN_ID]
         title = row[IntermediateColumns.ROUTE_TITLE]
 
-        stops_df = mock_stops_df[mock_stops_df[IntermediateColumns.SHEET_NAME] == title]
+        this_stops_df = stops_df[stops_df[IntermediateColumns.SHEET_NAME] == title]
         # TODO: Build unit test for _parse_addresses.
-        stops_df = _parse_addresses(stops_df=stops_df)
+        this_stops_df = _parse_addresses(stops_df=this_stops_df)
 
         # TODO: Build unit test for _build_stop_array.
         stop_arrays[plan_id] = _build_stop_array(
-            route_stops=stops_df, driver_id=row[CircuitColumns.ID]
-        )
-
-        responses[plan_id] = {
-            "success": [
-                "stops/" + row[Columns.NAME] + row[Columns.PRODUCT_TYPE]
-                for _, row in stops_df.iterrows()
-            ],
-            "failed": [],
-        }
-
-    for plan_id in responses:
-        requests_mock.register_uri(
-            "POST",
-            f"{CIRCUIT_URL}/{plan_id}/stops:import",
-            json=responses[plan_id],
-            status_code=200,
-        )
-
-    return stop_arrays
-
-
-# TODO: Abstract what is common between this and the success case.
-# TODO: Build all call failure fixtures from result failures fixtures.
-@pytest.fixture
-@typechecked
-def mock_stop_upload_failure(
-    mock_plan_df_stops_uploaded_with_error: pd.DataFrame,
-    mock_stops_df: pd.DataFrame,
-    requests_mock: Mocker,  # noqa: F811
-) -> dict[str, list]:
-    """Mock requests.post calls for stop uploads."""
-    stop_arrays = {}
-    responses = {}
-    for _, row in mock_plan_df_stops_uploaded_with_error.iterrows():
-        plan_id = row[IntermediateColumns.PLAN_ID]
-        title = row[IntermediateColumns.ROUTE_TITLE]
-
-        stops_df = mock_stops_df[mock_stops_df[IntermediateColumns.SHEET_NAME] == title]
-        # TODO: Build unit test for _parse_addresses.
-        stops_df = _parse_addresses(stops_df=stops_df)
-
-        # TODO: Build unit test for _build_stop_array.
-        stop_arrays[plan_id] = _build_stop_array(
-            route_stops=stops_df, driver_id=row[CircuitColumns.ID]
+            route_stops=this_stops_df, driver_id=row[CircuitColumns.ID]
         )
 
         responses[plan_id] = (
             {
                 "success": [
                     "stops/" + row[Columns.NAME] + row[Columns.PRODUCT_TYPE]
-                    for _, row in stops_df.iterrows()
+                    for _, row in this_stops_df.iterrows()
                 ],
                 "failed": [],
             }
@@ -440,6 +393,36 @@ def mock_stop_upload_failure(
         )
 
     return stop_arrays
+
+
+@pytest.fixture
+@typechecked
+def mock_stop_upload(
+    mock_plan_df_stops_uploaded: pd.DataFrame,
+    mock_stops_df: pd.DataFrame,
+    requests_mock: Mocker,  # noqa: F811
+) -> dict[str, list]:
+    """Mock requests.post calls for stop uploads."""
+    return register_stop_upload(
+        stops_df=mock_stops_df,
+        plan_df=mock_plan_df_stops_uploaded,
+        requests_mock=requests_mock,
+    )
+
+
+@pytest.fixture
+@typechecked
+def mock_stop_upload_failure(
+    mock_plan_df_stops_uploaded_with_error: pd.DataFrame,
+    mock_stops_df: pd.DataFrame,
+    requests_mock: Mocker,  # noqa: F811
+) -> dict[str, list]:
+    """Mock requests.post calls for stop uploads."""
+    return register_stop_upload(
+        stops_df=mock_stops_df,
+        plan_df=mock_plan_df_stops_uploaded_with_error,
+        requests_mock=requests_mock,
+    )
 
 
 @pytest.fixture
