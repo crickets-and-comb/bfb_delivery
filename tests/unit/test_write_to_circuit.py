@@ -150,7 +150,7 @@ def mock_split_chunked_sheet(mock_chunked_sheet_raw: Path, tmp_path: Path) -> Pa
 @pytest.fixture
 def mock_stops_df(mock_split_chunked_sheet: Path, tmp_path: Path) -> pd.DataFrame:
     """Return a mock stops DataFrame."""
-    # TODO: Build unit test for this function.
+    # TODO: Build unit test for _create_stops_df.
     return _create_stops_df(
         split_chunked_workbook_fp=mock_split_chunked_sheet,
         stops_df_path=tmp_path / "stops_df.csv",
@@ -294,6 +294,28 @@ def mock_plan_df_plans_initialized(
     return plan_df
 
 
+# TODO: Abstract what is common between this and the success case.
+@pytest.fixture
+@typechecked
+def mock_plan_df_plans_initialized_with_failure(
+    mock_plan_df_drivers_assigned: pd.DataFrame,
+) -> pd.DataFrame:
+    """Return a mock plan DataFrame with drivers assigned."""
+    plan_df = mock_plan_df_drivers_assigned.copy()
+    plan_df[IntermediateColumns.PLAN_ID] = mock_plan_df_drivers_assigned[
+        IntermediateColumns.ROUTE_TITLE
+    ].apply(lambda title: f"plans/{title.replace(' ', '').replace("#", '')}")
+    plan_df[CircuitColumns.WRITABLE] = True
+    # TODO: Do we need this column?
+    plan_df[CircuitColumns.OPTIMIZATION] = None
+    plan_df[IntermediateColumns.INITIALIZED] = True
+
+    plan_df.loc[_FAILURE_IDX, CircuitColumns.WRITABLE] = False
+    plan_df.loc[_FAILURE_IDX, IntermediateColumns.INITIALIZED] = False
+
+    return plan_df
+
+
 @pytest.fixture
 @typechecked
 def mock_plan_initialization(
@@ -322,17 +344,16 @@ def mock_plan_initialization(
 @pytest.fixture
 @typechecked
 def mock_plan_initialization_failure(
-    mock_plan_df_plans_initialized: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+    mock_plan_df_plans_initialized_with_failure: pd.DataFrame,
+    requests_mock: Mocker,  # noqa: F811
 ) -> None:
     """Mock requests.post calls for plan initialization."""
     responses = {}
-    for idx, row in mock_plan_df_plans_initialized.iterrows():
+    for _, row in mock_plan_df_plans_initialized_with_failure.iterrows():
         title = row[IntermediateColumns.ROUTE_TITLE]
         responses[title] = {
             CircuitColumns.ID: row[IntermediateColumns.PLAN_ID],
-            CircuitColumns.WRITABLE: (
-                row[CircuitColumns.WRITABLE] if idx != _FAILURE_IDX else False
-            ),
+            CircuitColumns.WRITABLE: (row[CircuitColumns.WRITABLE]),
         }
 
     def post_callback(request: Request, context: Any) -> Any:
@@ -838,26 +859,27 @@ def test_assign_drivers_to_plans(
 
 
 @pytest.mark.parametrize(
-    "initialization_fixture", ["mock_plan_initialization", "mock_plan_initialization_failure"]
+    "initialization_fixture, plans_df_fixture",
+    [
+        ("mock_plan_initialization", "mock_plan_df_plans_initialized"),
+        ("mock_plan_initialization_failure", "mock_plan_df_plans_initialized_with_failure"),
+    ],
 )
 @typechecked
 def test_initialize_plans(
     mock_plan_df_drivers_assigned: pd.DataFrame,
-    mock_plan_df_plans_initialized: pd.DataFrame,
     initialization_fixture: str,
+    plans_df_fixture: str,
     request: pytest.FixtureRequest,
 ) -> None:
     """Test that _initialize_plans initializes plans correctly."""
     _ = request.getfixturevalue(initialization_fixture)
-
-    expected_plan_df = mock_plan_df_plans_initialized.copy()
-    if initialization_fixture == "mock_plan_initialization_failure":
-        expected_plan_df.loc[_FAILURE_IDX, CircuitColumns.WRITABLE] = False
-        expected_plan_df.loc[_FAILURE_IDX, IntermediateColumns.INITIALIZED] = False
+    expected_plan_df = request.getfixturevalue(plans_df_fixture)
 
     plan_df = _initialize_plans(
         plan_df=mock_plan_df_drivers_assigned, start_date=_START_DATE, verbose=False
     )
+
     pd.testing.assert_frame_equal(plan_df, expected_plan_df)
 
 
@@ -914,14 +936,14 @@ def test_create_plans(
     _ = request.getfixturevalue(get_drivers_fixture)
     _ = request.getfixturevalue(assignment_fixture)
     _ = request.getfixturevalue(initialization_fixture)
-
-    expected_plan_df = mock_plan_df_plans_initialized.copy()
+    expected_plan_df = (
+        request.getfixturevalue("mock_plan_df_plans_initialized")
+        if initialization_fixture == "mock_plan_initialization"
+        else request.getfixturevalue("mock_plan_df_plans_initialized_with_failure")
+    )
     expected_plan_df[CircuitColumns.ACTIVE] = expected_plan_df[CircuitColumns.ACTIVE].astype(
         object
     )
-    if initialization_fixture == "mock_plan_initialization_failure":
-        expected_plan_df.loc[_FAILURE_IDX, CircuitColumns.WRITABLE] = False
-        expected_plan_df.loc[_FAILURE_IDX, IntermediateColumns.INITIALIZED] = False
 
     with error_context:
         plan_df = _create_plans(
@@ -1034,7 +1056,6 @@ def test_distribute_routes(
 @pytest.mark.parametrize("no_distribute", [True, False])
 @pytest.mark.parametrize(
     [
-        "failure_step",
         "mock_get_all_drivers_name",
         "mock_driver_assignment_name",
         "mock_plan_initialization_name",
@@ -1044,8 +1065,7 @@ def test_distribute_routes(
         "mock_route_distributions_name",
     ],
     [
-        (
-            "no_failure",
+        (  # No failure.
             "mock_get_all_drivers",
             "mock_driver_assignment",
             "mock_plan_initialization",
@@ -1054,8 +1074,7 @@ def test_distribute_routes(
             "mock_optimization_confirmations",
             "mock_route_distributions",
         ),
-        (
-            "initialize_plans",
+        (  # Failure at plan initialization.
             "mock_get_all_drivers",
             "mock_driver_assignment",
             "mock_plan_initialization_failure",
@@ -1064,8 +1083,7 @@ def test_distribute_routes(
             "mock_optimization_confirmations_after_failure",
             "mock_route_distributions_after_failure",
         ),
-        (
-            "upload_stops",
+        (  # Failure at stop upload.
             "mock_get_all_drivers",
             "mock_driver_assignment",
             "mock_plan_initialization",
@@ -1074,8 +1092,7 @@ def test_distribute_routes(
             "mock_optimization_confirmations_after_failure",
             "mock_route_distributions_after_failure",
         ),
-        (
-            "launch_optimizations",
+        (  # Failure at optmization launch.
             "mock_get_all_drivers",
             "mock_driver_assignment",
             "mock_plan_initialization",
@@ -1084,8 +1101,7 @@ def test_distribute_routes(
             "mock_optimization_confirmations_after_failure",
             "mock_route_distributions_after_failure",
         ),
-        (
-            "confirm_optimizations",
+        (  # Failure at optimization confirmation.
             "mock_get_all_drivers",
             "mock_driver_assignment",
             "mock_plan_initialization",
@@ -1094,8 +1110,7 @@ def test_distribute_routes(
             "mock_optimization_confirmations_failure",
             "mock_route_distributions_after_failure",
         ),
-        (
-            "distribute_routes",
+        (  # Failure at route distribution.
             "mock_get_all_drivers",
             "mock_driver_assignment",
             "mock_plan_initialization",
@@ -1110,7 +1125,6 @@ def test_distribute_routes(
 def test_upload_split_chunked_calls(
     no_distribute: bool,
     mock_split_chunked_sheet: Path,
-    failure_step: str,
     mock_get_all_drivers_name: str,
     mock_driver_assignment_name: str,
     mock_plan_initialization_name: str,
