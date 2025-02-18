@@ -7,7 +7,7 @@
 # TODO: Use schema in typehints where applicable.
 
 import builtins
-from collections.abc import Callable, Iterator
+from collections.abc import Iterator
 from contextlib import AbstractContextManager, nullcontext
 from pathlib import Path
 from typing import Any, Final
@@ -291,7 +291,9 @@ def mock_plan_df_plans_initialized_with_failure(
 
 
 @typechecked
-def make_plan_initialization_callback(plan_df: pd.DataFrame) -> Callable:
+def register_plan_initialization(
+    plan_df: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+) -> None:
     """Make responses for plan initialization."""
     responses = {}
     for _, row in plan_df.iterrows():
@@ -306,7 +308,9 @@ def make_plan_initialization_callback(plan_df: pd.DataFrame) -> Callable:
         plan_title = data.get(CircuitColumns.TITLE)
         return responses[plan_title]
 
-    return post_callback
+    requests_mock.register_uri(
+        "POST", f"{CIRCUIT_URL}/plans", json=post_callback, status_code=200
+    )
 
 
 @pytest.fixture
@@ -315,10 +319,8 @@ def mock_plan_initialization(
     mock_plan_df_plans_initialized: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
     """Mock requests.post calls for plan initialization."""
-    post_callback = make_plan_initialization_callback(plan_df=mock_plan_df_plans_initialized)
-
-    requests_mock.register_uri(
-        "POST", f"{CIRCUIT_URL}/plans", json=post_callback, status_code=200
+    register_plan_initialization(
+        plan_df=mock_plan_df_plans_initialized, requests_mock=requests_mock
     )
 
 
@@ -329,12 +331,8 @@ def mock_plan_initialization_failure(
     requests_mock: Mocker,  # noqa: F811
 ) -> None:
     """Mock requests.post calls for plan initialization."""
-    post_callback = make_plan_initialization_callback(
-        plan_df=mock_plan_df_plans_initialized_with_failure
-    )
-
-    requests_mock.register_uri(
-        "POST", f"{CIRCUIT_URL}/plans", json=post_callback, status_code=200
+    register_plan_initialization(
+        plan_df=mock_plan_df_plans_initialized_with_failure, requests_mock=requests_mock
     )
 
 
