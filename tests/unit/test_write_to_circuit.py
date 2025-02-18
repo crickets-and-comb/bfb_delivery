@@ -198,10 +198,8 @@ def mock_plan_df_drivers_assigned(
 
 @pytest.fixture
 @typechecked
-def mock_driver_assignment(
-    mock_stops_df: pd.DataFrame, mock_driver_df: pd.DataFrame, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """Mock user inputs for driver selection."""
+def driver_selections(mock_stops_df: pd.DataFrame, mock_driver_df: pd.DataFrame) -> list[str]:
+    """Make generic driver selections for each route."""
     driver_selections = []
     for sheet_name in sorted(mock_stops_df[IntermediateColumns.SHEET_NAME].unique()):
         driver_row = mock_driver_df[
@@ -209,6 +207,15 @@ def mock_driver_assignment(
         ]
         driver_selections.append(f"{driver_row.index[0] + 1}")
 
+    return driver_selections
+
+
+@pytest.fixture
+@typechecked
+def mock_driver_assignment(
+    driver_selections: list[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Mock user inputs for driver selection."""
     inputs = iter(driver_selections + ["y"])
 
     original_input = builtins.input
@@ -224,16 +231,9 @@ def mock_driver_assignment(
 @pytest.fixture
 @typechecked
 def mock_driver_assignment_with_derps(
-    mock_stops_df: pd.DataFrame, mock_driver_df: pd.DataFrame, monkeypatch: pytest.MonkeyPatch
+    driver_selections: list[str], monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Mock user inputs for driver selection."""
-    driver_selections = []
-    for sheet_name in sorted(mock_stops_df[IntermediateColumns.SHEET_NAME].unique()):
-        driver_row = mock_driver_df[
-            mock_driver_df[CircuitColumns.NAME].apply(lambda x: x in sheet_name)  # noqa: B023
-        ]
-        driver_selections.append(f"{driver_row.index[0] + 1}")
-
     inputs = iter(
         driver_selections[0 : len(driver_selections) // 2]  # noqa: E203
         + ["derp", "9999"]
@@ -254,16 +254,9 @@ def mock_driver_assignment_with_derps(
 @pytest.fixture
 @typechecked
 def mock_driver_assignment_with_retry(
-    mock_stops_df: pd.DataFrame, mock_driver_df: pd.DataFrame, monkeypatch: pytest.MonkeyPatch
+    driver_selections: list[str], monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Mock user inputs for driver selection."""
-    driver_selections = []
-    for sheet_name in sorted(mock_stops_df[IntermediateColumns.SHEET_NAME].unique()):
-        driver_row = mock_driver_df[
-            mock_driver_df[CircuitColumns.NAME].apply(lambda x: x in sheet_name)  # noqa: B023
-        ]
-        driver_selections.append(f"{driver_row.index[0] + 1}")
-
     inputs = iter(["1"] * len(driver_selections) + ["n"] + driver_selections + ["y"])
 
     original_input = builtins.input
