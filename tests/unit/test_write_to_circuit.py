@@ -428,42 +428,17 @@ def mock_stop_upload_failure(
 @pytest.fixture
 @typechecked
 def mock_stop_upload_after_failure(
-    mock_plan_df_plans_initialized: pd.DataFrame,
+    mock_plan_df_plans_initialized_with_failure: pd.DataFrame,
     mock_stops_df: pd.DataFrame,
     requests_mock: Mocker,  # noqa: F811
 ) -> dict[str, list]:
     """Mock requests.post calls for stop uploads."""
-    stop_arrays = {}
-    responses = {}
-    for idx, row in mock_plan_df_plans_initialized.iterrows():
-        if idx != _FAILURE_IDX:
-            plan_id = row[IntermediateColumns.PLAN_ID]
-            title = row[IntermediateColumns.ROUTE_TITLE]
-
-            stops_df = mock_stops_df[mock_stops_df[IntermediateColumns.SHEET_NAME] == title]
-            # TODO: Build unit test for _parse_addresses.
-            stops_df = _parse_addresses(stops_df=stops_df)
-
-            # TODO: Build unit test for _build_stop_array.
-            stop_arrays[plan_id] = _build_stop_array(
-                route_stops=stops_df, driver_id=row[CircuitColumns.ID]
-            )
-
-            responses[plan_id] = {
-                "success": [
-                    "stops/" + row[Columns.NAME] + row[Columns.PRODUCT_TYPE]
-                    for _, row in stops_df.iterrows()
-                ],
-                "failed": [],
-            }
-
-    for plan_id in responses:
-        requests_mock.register_uri(
-            "POST",
-            f"{CIRCUIT_URL}/{plan_id}/stops:import",
-            json=responses[plan_id],
-            status_code=200,
-        )
+    plan_df = mock_plan_df_plans_initialized_with_failure.copy()
+    plan_df = plan_df[plan_df[IntermediateColumns.INITIALIZED] == True]  # noqa: E712
+    plan_df[IntermediateColumns.STOPS_UPLOADED] = True
+    stop_arrays = register_stop_upload(
+        stops_df=mock_stops_df, plan_df=plan_df, requests_mock=requests_mock
+    )
 
     return stop_arrays
 
