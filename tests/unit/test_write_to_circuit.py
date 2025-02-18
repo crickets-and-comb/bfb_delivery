@@ -497,7 +497,7 @@ def register_optimizations(
 
 @pytest.fixture
 @typechecked
-def mock_optmization_launches(
+def mock_optimization_launches(
     mock_plan_df_optimized: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
     """Mock requests.post calls for optimization launches."""
@@ -506,7 +506,7 @@ def mock_optmization_launches(
 
 @pytest.fixture
 @typechecked
-def mock_optmization_launches_failure(
+def mock_optimization_launches_failure(
     mock_plan_df_optimized_with_failure: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
     """Mock requests.post calls for optimization launches."""
@@ -517,7 +517,7 @@ def mock_optmization_launches_failure(
 
 @pytest.fixture
 @typechecked
-def mock_optmization_launches_after_failure(
+def mock_optimization_launches_after_failure(
     mock_plan_df_stops_uploaded_with_error: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
     """Mock requests.post calls for optimization launches."""
@@ -556,7 +556,6 @@ def mock_optimization_confirmations(
         )
 
 
-# TODO: Abstract what is common between this and the success case.
 @pytest.fixture
 @typechecked
 def mock_optimization_confirmations_failure(
@@ -941,7 +940,7 @@ def test_upload_stops_return(
 def test_optimize_routes(
     mock_plan_df_stops_uploaded: pd.DataFrame,
     mock_plan_df_optimized: pd.DataFrame,
-    mock_optmization_launches: None,
+    mock_optimization_launches: None,
     mock_optimization_confirmations: None,
 ) -> None:
     """Test that _optimize_routes optimizes routes correctly."""
@@ -969,7 +968,7 @@ def test_distribute_routes(
         "mock_driver_assignment_name",
         "mock_plan_initialization_name",
         "mock_stop_upload_name",
-        "mock_optmization_launches_name",
+        "mock_optimization_launches_name",
         "mock_optimization_confirmations_name",
         "mock_route_distributions_name",
     ],
@@ -979,7 +978,7 @@ def test_distribute_routes(
             "mock_driver_assignment",
             "mock_plan_initialization",
             "mock_stop_upload",
-            "mock_optmization_launches",
+            "mock_optimization_launches",
             "mock_optimization_confirmations",
             "mock_route_distributions",
         ),
@@ -988,7 +987,7 @@ def test_distribute_routes(
             "mock_driver_assignment",
             "mock_plan_initialization_failure",
             "mock_stop_upload_after_failure",
-            "mock_optmization_launches_after_failure",
+            "mock_optimization_launches_after_failure",
             "mock_optimization_confirmations_after_failure",
             "mock_route_distributions_after_failure",
         ),
@@ -997,16 +996,16 @@ def test_distribute_routes(
             "mock_driver_assignment",
             "mock_plan_initialization",
             "mock_stop_upload_failure",
-            "mock_optmization_launches_after_failure",
+            "mock_optimization_launches_after_failure",
             "mock_optimization_confirmations_after_failure",
             "mock_route_distributions_after_failure",
         ),
-        (  # Failure at optmization launch.
+        (  # Failure at optimization launch.
             "mock_get_all_drivers",
             "mock_driver_assignment",
             "mock_plan_initialization",
             "mock_stop_upload",
-            "mock_optmization_launches_failure",
+            "mock_optimization_launches_failure",
             "mock_optimization_confirmations_after_failure",
             "mock_route_distributions_after_failure",
         ),
@@ -1015,7 +1014,7 @@ def test_distribute_routes(
             "mock_driver_assignment",
             "mock_plan_initialization",
             "mock_stop_upload",
-            "mock_optmization_launches",
+            "mock_optimization_launches",
             "mock_optimization_confirmations_failure",
             "mock_route_distributions_after_failure",
         ),
@@ -1024,7 +1023,7 @@ def test_distribute_routes(
             "mock_driver_assignment",
             "mock_plan_initialization",
             "mock_stop_upload",
-            "mock_optmization_launches",
+            "mock_optimization_launches",
             "mock_optimization_confirmations",
             "mock_route_distributions_failure",
         ),
@@ -1038,7 +1037,7 @@ def test_upload_split_chunked_calls(
     mock_driver_assignment_name: str,
     mock_plan_initialization_name: str,
     mock_stop_upload_name: str,
-    mock_optmization_launches_name: str,
+    mock_optimization_launches_name: str,
     mock_optimization_confirmations_name: str,
     mock_route_distributions_name: str,
     requests_mock: Mocker,  # noqa: F811
@@ -1050,7 +1049,7 @@ def test_upload_split_chunked_calls(
     _ = request.getfixturevalue(mock_driver_assignment_name)
     _ = request.getfixturevalue(mock_plan_initialization_name)
     mock_stop_upload: dict[str, list] = request.getfixturevalue(mock_stop_upload_name)
-    _ = request.getfixturevalue(mock_optmization_launches_name)
+    _ = request.getfixturevalue(mock_optimization_launches_name)
     _ = request.getfixturevalue(mock_optimization_confirmations_name)
     _ = request.getfixturevalue(mock_route_distributions_name)
 
@@ -1081,7 +1080,7 @@ def test_upload_split_chunked_calls(
         "mock_driver_assignment_name",
         "mock_plan_initialization_name",
         "mock_stop_upload_name",
-        "mock_optmization_launches_name",
+        "mock_optimization_launches_name",
         "mock_optimization_confirmations_name",
         "mock_route_distributions_name",
     ],
@@ -1092,7 +1091,7 @@ def test_upload_split_chunked_calls(
             "mock_driver_assignment",
             "mock_plan_initialization",
             "mock_stop_upload",
-            "mock_optmization_launches",
+            "mock_optimization_launches",
             "mock_optimization_confirmations",
             "mock_route_distributions",
         ),
@@ -1102,7 +1101,7 @@ def test_upload_split_chunked_calls(
             "mock_driver_assignment",
             "mock_plan_initialization_failure",
             "mock_stop_upload_after_failure",
-            "mock_optmization_launches_after_failure",
+            "mock_optimization_launches_after_failure",
             "mock_optimization_confirmations_after_failure",
             "mock_route_distributions_after_failure",
         ),
@@ -1112,7 +1111,7 @@ def test_upload_split_chunked_calls(
             "mock_driver_assignment",
             "mock_plan_initialization",
             "mock_stop_upload_failure",
-            "mock_optmization_launches_after_failure",
+            "mock_optimization_launches_after_failure",
             "mock_optimization_confirmations_after_failure",
             "mock_route_distributions_after_failure",
         ),
@@ -1122,7 +1121,7 @@ def test_upload_split_chunked_calls(
             "mock_driver_assignment",
             "mock_plan_initialization",
             "mock_stop_upload",
-            "mock_optmization_launches_failure",
+            "mock_optimization_launches_failure",
             "mock_optimization_confirmations_after_failure",
             "mock_route_distributions_after_failure",
         ),
@@ -1132,7 +1131,7 @@ def test_upload_split_chunked_calls(
             "mock_driver_assignment",
             "mock_plan_initialization",
             "mock_stop_upload",
-            "mock_optmization_launches",
+            "mock_optimization_launches",
             "mock_optimization_confirmations_failure",
             "mock_route_distributions_after_failure",
         ),
@@ -1142,7 +1141,7 @@ def test_upload_split_chunked_calls(
             "mock_driver_assignment",
             "mock_plan_initialization",
             "mock_stop_upload",
-            "mock_optmization_launches",
+            "mock_optimization_launches",
             "mock_optimization_confirmations",
             "mock_route_distributions_failure",
         ),
@@ -1158,7 +1157,7 @@ def test_upload_split_chunked_return(
     mock_driver_assignment_name: str,
     mock_plan_initialization_name: str,
     mock_stop_upload_name: str,
-    mock_optmization_launches_name: str,
+    mock_optimization_launches_name: str,
     mock_optimization_confirmations_name: str,
     mock_route_distributions_name: str,
     request: pytest.FixtureRequest,
@@ -1169,7 +1168,7 @@ def test_upload_split_chunked_return(
     _ = request.getfixturevalue(mock_driver_assignment_name)
     _ = request.getfixturevalue(mock_plan_initialization_name)
     _ = request.getfixturevalue(mock_stop_upload_name)
-    _ = request.getfixturevalue(mock_optmization_launches_name)
+    _ = request.getfixturevalue(mock_optimization_launches_name)
     _ = request.getfixturevalue(mock_optimization_confirmations_name)
     _ = request.getfixturevalue(mock_route_distributions_name)
 
