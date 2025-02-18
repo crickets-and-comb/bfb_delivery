@@ -619,36 +619,26 @@ def mock_plan_df_distributed(mock_plan_df_confirmed: pd.DataFrame) -> pd.DataFra
 
 @pytest.fixture
 @typechecked
-def mock_route_distributions(
-    mock_plan_df_distributed: pd.DataFrame, requests_mock: Mocker  # noqa: F811
-) -> None:
-    """Mock requests.post calls for route distributions."""
-    responses = {}
-    for _, row in mock_plan_df_distributed.iterrows():
-        plan_id = row[IntermediateColumns.PLAN_ID]
-        responses[plan_id] = {CircuitColumns.DISTRIBUTED: True}
+def mock_plan_df_distributed_with_failure(
+    mock_plan_df_distributed: pd.DataFrame,
+) -> pd.DataFrame:
+    """Return a mock plan DataFrame with optimizations confirmed."""
+    plan_df = mock_plan_df_distributed.copy()
+    plan_df.loc[_FAILURE_IDX, CircuitColumns.DISTRIBUTED] = False
 
-    for plan_id in responses:
-        requests_mock.register_uri(
-            "POST",
-            f"{CIRCUIT_URL}/{plan_id}:distribute",
-            json=responses[plan_id],
-            status_code=200,
-        )
+    return plan_df
 
 
-# TODO: Abstract what is common between this and the success case.
-@pytest.fixture
 @typechecked
-def mock_route_distributions_failure(
-    mock_plan_df_distributed: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+def register_route_distributions(
+    plan_df: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
-    """Mock requests.post calls for route distributions."""
+    """Register POST requests for route distributions."""
     responses = {}
-    for idx, row in mock_plan_df_distributed.iterrows():
+    for _, row in plan_df.iterrows():
         plan_id = row[IntermediateColumns.PLAN_ID]
         responses[plan_id] = {
-            CircuitColumns.DISTRIBUTED: True if idx != _FAILURE_IDX else False
+            CircuitColumns.DISTRIBUTED: True if row[CircuitColumns.DISTRIBUTED] else False
         }
 
     for plan_id in responses:
@@ -662,23 +652,36 @@ def mock_route_distributions_failure(
 
 @pytest.fixture
 @typechecked
-def mock_route_distributions_after_failure(
+def mock_route_distributions(
     mock_plan_df_distributed: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
     """Mock requests.post calls for route distributions."""
-    responses = {}
-    for idx, row in mock_plan_df_distributed.iterrows():
-        if idx != _FAILURE_IDX:
-            plan_id = row[IntermediateColumns.PLAN_ID]
-            responses[plan_id] = {CircuitColumns.DISTRIBUTED: True}
+    register_route_distributions(
+        plan_df=mock_plan_df_distributed, requests_mock=requests_mock
+    )
 
-    for plan_id in responses:
-        requests_mock.register_uri(
-            "POST",
-            f"{CIRCUIT_URL}/{plan_id}:distribute",
-            json=responses[plan_id],
-            status_code=200,
-        )
+
+@pytest.fixture
+@typechecked
+def mock_route_distributions_failure(
+    mock_plan_df_distributed_with_failure: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+) -> None:
+    """Mock requests.post calls for route distributions."""
+    register_route_distributions(
+        plan_df=mock_plan_df_distributed_with_failure, requests_mock=requests_mock
+    )
+
+
+@pytest.fixture
+@typechecked
+def mock_route_distributions_after_failure(
+    mock_plan_df_confirmed_with_failure: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+) -> None:
+    """Mock requests.post calls for route distributions."""
+    plan_df = mock_plan_df_confirmed_with_failure.copy()
+    plan_df = plan_df[plan_df[IntermediateColumns.OPTIMIZED] == True]  # noqa: E712
+    plan_df[CircuitColumns.DISTRIBUTED] = True
+    register_route_distributions(plan_df=plan_df, requests_mock=requests_mock)
 
 
 @typechecked
