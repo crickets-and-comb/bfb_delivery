@@ -982,16 +982,17 @@ def test_create_plans_writes_if_initialization_raises(
 
 
 # TODO: Expanded test data so we have more stops per route.
-# TODO: Test errors etc.:
-# - Marks failed as False.
+@pytest.mark.parametrize("upload_fixture", ["mock_stop_upload", "mock_stop_upload_failure"])
 @typechecked
 def test_upload_stops_calls(
     mock_stops_df: pd.DataFrame,
     mock_plan_df_plans_initialized: pd.DataFrame,
-    mock_stop_upload: dict[str, list],
+    upload_fixture: str,
+    request: pytest.FixtureRequest,
     requests_mock: Mocker,  # noqa: F811
 ) -> None:
     """Test that _upload_stops uploads stops correctly."""
+    mock_stop_upload = request.getfixturevalue(upload_fixture)
     _ = _upload_stops(
         stops_df=mock_stops_df, plan_df=mock_plan_df_plans_initialized, verbose=False
     )
@@ -1006,21 +1007,28 @@ def test_upload_stops_calls(
         assert actual_payload == expected_stop_array
 
 
-# @pytest.mark.parametrize(
-#     ""
-# )
+@pytest.mark.parametrize(
+    "upload_plan_df_fixture, upload_fixture",
+    [
+        ("mock_plan_df_stops_uploaded", "mock_stop_upload"),
+        ("mock_plan_df_stops_uploaded_with_error", "mock_stop_upload_failure"),
+    ],
+)
 @typechecked
 def test_upload_stops_return(
     mock_stops_df: pd.DataFrame,
     mock_plan_df_plans_initialized: pd.DataFrame,
-    mock_plan_df_stops_uploaded: pd.DataFrame,
-    mock_stop_upload: dict[str, list],
+    upload_plan_df_fixture: str,
+    upload_fixture: str,
+    request: pytest.FixtureRequest,
 ) -> None:
     """Test that _upload_stops uploads stops correctly."""
-    result_df = _upload_stops(
+    _ = request.getfixturevalue(upload_fixture)
+    expected_stops_uploaded = request.getfixturevalue(upload_plan_df_fixture)
+    stops_uploaded = _upload_stops(
         stops_df=mock_stops_df, plan_df=mock_plan_df_plans_initialized, verbose=False
     )
-    pd.testing.assert_frame_equal(result_df, mock_plan_df_stops_uploaded)
+    pd.testing.assert_frame_equal(stops_uploaded, expected_stops_uploaded)
 
 
 # TODO: Test errors etc.:
