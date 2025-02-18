@@ -82,12 +82,11 @@ def mock_driver_df(mock_chunked_sheet_raw: Path) -> pd.DataFrame:
     return driver_df
 
 
-@pytest.fixture
-def mock_get_all_drivers(
-    mock_driver_df: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+@typechecked
+def register_driver_gets(
+    drivers_array: list[dict], requests_mock: Mocker  # noqa: F811
 ) -> None:
-    """Mock the Circuit API to return a simple list of drivers."""
-    drivers_array = mock_driver_df.to_dict(orient="records")
+    """Register GET requests for drivers."""
     next_page_token = "token123"
 
     requests_mock.get(
@@ -105,6 +104,16 @@ def mock_get_all_drivers(
             ],
             "nextPageToken": None,
         },
+    )
+
+
+@pytest.fixture
+def mock_get_all_drivers(
+    mock_driver_df: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+) -> None:
+    """Mock the Circuit API to return a simple list of drivers."""
+    register_driver_gets(
+        drivers_array=mock_driver_df.to_dict(orient="records"), requests_mock=requests_mock
     )
 
 
@@ -113,25 +122,10 @@ def mock_get_all_drivers_with_inactive(
     mock_driver_df: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
     """Mock the Circuit API to return a simple list of drivers."""
-    mock_driver_df.loc[_FAILURE_IDX, CircuitColumns.ACTIVE] = False
-    drivers_array = mock_driver_df.to_dict(orient="records")
-    next_page_token = "token123"
-
-    requests_mock.get(
-        url=CIRCUIT_DRIVERS_URL,
-        json={
-            "drivers": drivers_array[0 : len(drivers_array) // 2],  # noqa: E203
-            "nextPageToken": next_page_token,
-        },
-    )
-    requests_mock.get(
-        url=CIRCUIT_DRIVERS_URL + f"?pageToken={next_page_token}",
-        json={
-            "drivers": drivers_array[
-                len(drivers_array) // 2 : len(drivers_array)  # noqa: E203
-            ],
-            "nextPageToken": None,
-        },
+    driver_df = mock_driver_df.copy()
+    driver_df.loc[_FAILURE_IDX, CircuitColumns.ACTIVE] = False
+    register_driver_gets(
+        drivers_array=driver_df.to_dict(orient="records"), requests_mock=requests_mock
     )
 
 
