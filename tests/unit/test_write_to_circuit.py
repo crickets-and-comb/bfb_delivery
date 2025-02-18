@@ -5,6 +5,7 @@
 # `upload_split_chunked`.
 
 # TODO: Use schema in typehints where applicable.
+# TODO: Test each step after preious failure. (Use previous plan_df).
 
 import builtins
 from collections.abc import Iterator
@@ -539,7 +540,18 @@ def mock_plan_df_confirmed(mock_plan_df_optimized: pd.DataFrame) -> pd.DataFrame
 def mock_plan_df_confirmed_with_failure(mock_plan_df_confirmed: pd.DataFrame) -> pd.DataFrame:
     """Return a mock plan DataFrame with optimizations confirmed."""
     plan_df = mock_plan_df_confirmed.copy()
-    plan_df.loc[_FAILURE_IDX, IntermediateColumns.OPTIMIZED] = False
+    plan_df.loc[_FAILURE_IDX, IntermediateColumns.OPTIMIZED] = None
+
+    return plan_df
+
+
+@pytest.fixture
+@typechecked
+def mock_plan_df_confirmed_after_failure(
+    mock_plan_df_optimized_with_failure: pd.DataFrame,
+) -> pd.DataFrame:
+    """Return a mock plan DataFrame with optimizations confirmed."""
+    plan_df = mock_plan_df_optimized_with_failure.copy()
 
     return plan_df
 
@@ -599,10 +611,10 @@ def mock_optimization_confirmations_failure(
 @pytest.fixture
 @typechecked
 def mock_optimization_confirmations_after_failure(
-    mock_plan_df_confirmed_with_failure: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+    mock_plan_df_optimized_with_failure: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
     """Mock requests.get calls for optimization confirmations."""
-    plan_df = mock_plan_df_confirmed_with_failure.copy()
+    plan_df = mock_plan_df_optimized_with_failure.copy()
     plan_df = plan_df[plan_df[IntermediateColumns.OPTIMIZED] == True]  # noqa: E712
     register_optimization_confirmations(plan_df=plan_df, requests_mock=requests_mock)
 
@@ -1031,19 +1043,91 @@ def test_upload_stops_return(
     pd.testing.assert_frame_equal(stops_uploaded, expected_stops_uploaded)
 
 
-# TODO: Test errors etc.:
-# - Marks failed as False.
 # TODO: Test _confirm_optimizations.
+@pytest.mark.parametrize(
+    "plan_df_launched_fixture, optimization_fixture, confirmation_fixture",
+    [
+        (
+            "mock_plan_df_optimized",
+            "mock_optimization_launches",
+            "mock_optimization_confirmations",
+        ),
+        (
+            "mock_plan_df_optimized",
+            "mock_optimization_launches",
+            "mock_optimization_confirmations_failure",
+        ),
+        (
+            "mock_plan_df_optimized_with_failure",
+            "mock_optimization_launches_failure",
+            "mock_optimization_confirmations_after_failure",
+        ),
+    ],
+)
 @typechecked
-def test_optimize_routes(
+def test_optimize_routes_calls(
     mock_plan_df_stops_uploaded: pd.DataFrame,
-    mock_plan_df_confirmed: pd.DataFrame,
-    mock_optimization_launches: None,
-    mock_optimization_confirmations: None,
+    plan_df_launched_fixture: str,
+    optimization_fixture: str,
+    confirmation_fixture: str,
+    request: pytest.FixtureRequest,
+    requests_mock: Mocker,  # noqa: F811
 ) -> None:
     """Test that _optimize_routes optimizes routes correctly."""
+    _ = request.getfixturevalue(optimization_fixture)
+    _ = request.getfixturevalue(confirmation_fixture)
+    plan_df_launched = request.getfixturevalue(plan_df_launched_fixture)
+    _ = _optimize_routes(plan_df=mock_plan_df_stops_uploaded, verbose=False)
+
+    for plan_id in mock_plan_df_stops_uploaded[
+        mock_plan_df_stops_uploaded[IntermediateColumns.STOPS_UPLOADED]
+    ][IntermediateColumns.PLAN_ID]:
+        assert f"{CIRCUIT_URL}/{plan_id}:optimize" in [
+            req.url for req in requests_mock.request_history
+        ]
+    for plan_id in plan_df_launched[plan_df_launched[IntermediateColumns.OPTIMIZED]][
+        IntermediateColumns.PLAN_ID
+    ]:
+        assert (
+            f"{CIRCUIT_URL}/"
+            f"{plan_id.replace(CircuitColumns.PLANS, CircuitColumns.OPERATIONS)}"
+        ) in [req.url for req in requests_mock.request_history]
+
+
+@pytest.mark.parametrize(
+    "plan_df_confirmed_fixture, optimization_fixture, confirmation_fixture",
+    [
+        (
+            "mock_plan_df_confirmed",
+            "mock_optimization_launches",
+            "mock_optimization_confirmations",
+        ),
+        (
+            "mock_plan_df_confirmed_with_failure",
+            "mock_optimization_launches",
+            "mock_optimization_confirmations_failure",
+        ),
+        (
+            "mock_plan_df_confirmed_after_failure",
+            "mock_optimization_launches_failure",
+            "mock_optimization_confirmations_after_failure",
+        ),
+    ],
+)
+@typechecked
+def test_optimize_routes_return(
+    mock_plan_df_stops_uploaded: pd.DataFrame,
+    plan_df_confirmed_fixture: str,
+    optimization_fixture: str,
+    confirmation_fixture: str,
+    request: pytest.FixtureRequest,
+) -> None:
+    """Test that _optimize_routes optimizes routes correctly."""
+    _ = request.getfixturevalue(optimization_fixture)
+    _ = request.getfixturevalue(confirmation_fixture)
+    plan_df_confirmed = request.getfixturevalue(plan_df_confirmed_fixture)
     result_df = _optimize_routes(plan_df=mock_plan_df_stops_uploaded, verbose=False)
-    pd.testing.assert_frame_equal(result_df, mock_plan_df_confirmed)
+    pd.testing.assert_frame_equal(result_df, plan_df_confirmed)
 
 
 # TODO: Test errors etc.:
