@@ -518,28 +518,13 @@ def mock_optmization_launches_failure(
 @pytest.fixture
 @typechecked
 def mock_optmization_launches_after_failure(
-    mock_plan_df_optimized: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+    mock_plan_df_stops_uploaded_with_error: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
     """Mock requests.post calls for optimization launches."""
-    responses = {}
-    for idx, row in mock_plan_df_optimized.iterrows():
-        if idx != _FAILURE_IDX:
-            plan_id = row[IntermediateColumns.PLAN_ID]
-            responses[plan_id] = {
-                CircuitColumns.ID: plan_id.replace(
-                    CircuitColumns.PLANS, CircuitColumns.OPERATIONS
-                ),
-                CircuitColumns.DONE: False,
-                CircuitColumns.METADATA: {CircuitColumns.CANCELED: False},
-            }
-
-    for plan_id in responses:
-        requests_mock.register_uri(
-            "POST",
-            f"{CIRCUIT_URL}/{plan_id}:optimize",
-            json=responses[plan_id],
-            status_code=200,
-        )
+    plan_df = mock_plan_df_stops_uploaded_with_error.copy()
+    plan_df = plan_df[plan_df[IntermediateColumns.STOPS_UPLOADED] == True]  # noqa: E712
+    plan_df[IntermediateColumns.OPTIMIZED] = True
+    register_optimizations(plan_df=plan_df, requests_mock=requests_mock)
 
 
 @pytest.fixture
