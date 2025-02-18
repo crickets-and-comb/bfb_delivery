@@ -290,19 +290,27 @@ def mock_plan_df_plans_initialized_with_failure(
     return plan_df
 
 
+@typechecked
+def make_plan_initialization_responses(plan_df: pd.DataFrame) -> dict[str, Any]:
+    """Make responses for plan initialization."""
+    responses = {}
+    for _, row in plan_df.iterrows():
+        title = row[IntermediateColumns.ROUTE_TITLE]
+        responses[title] = {
+            CircuitColumns.ID: row[IntermediateColumns.PLAN_ID],
+            CircuitColumns.WRITABLE: row[CircuitColumns.WRITABLE],
+        }
+
+    return responses
+
+
 @pytest.fixture
 @typechecked
 def mock_plan_initialization(
     mock_plan_df_plans_initialized: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
     """Mock requests.post calls for plan initialization."""
-    responses = {}
-    for _, row in mock_plan_df_plans_initialized.iterrows():
-        title = row[IntermediateColumns.ROUTE_TITLE]
-        responses[title] = {
-            CircuitColumns.ID: row[IntermediateColumns.PLAN_ID],
-            CircuitColumns.WRITABLE: row[CircuitColumns.WRITABLE],
-        }
+    responses = make_plan_initialization_responses(plan_df=mock_plan_df_plans_initialized)
 
     def post_callback(request: Request, context: Any) -> Any:
         data = request.json()
@@ -322,13 +330,9 @@ def mock_plan_initialization_failure(
     requests_mock: Mocker,  # noqa: F811
 ) -> None:
     """Mock requests.post calls for plan initialization."""
-    responses = {}
-    for _, row in mock_plan_df_plans_initialized_with_failure.iterrows():
-        title = row[IntermediateColumns.ROUTE_TITLE]
-        responses[title] = {
-            CircuitColumns.ID: row[IntermediateColumns.PLAN_ID],
-            CircuitColumns.WRITABLE: (row[CircuitColumns.WRITABLE]),
-        }
+    responses = make_plan_initialization_responses(
+        plan_df=mock_plan_df_plans_initialized_with_failure
+    )
 
     def post_callback(request: Request, context: Any) -> Any:
         data = request.json()
