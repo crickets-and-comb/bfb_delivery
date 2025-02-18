@@ -5,6 +5,13 @@
 # `upload_split_chunked`.
 
 # TODO: Use schema in typehints where applicable.
+# TODO: Test:
+# _create_stops_df
+# _build_plan_stops
+# _parse_addresses
+# _build_stop_array
+# _confirm_optimizations
+# _print_report
 
 import builtins
 from collections.abc import Iterator
@@ -145,7 +152,6 @@ def mock_get_all_drivers_with_inactive(
 @pytest.fixture
 def mock_stops_df(mock_split_chunked_sheet: Path, tmp_path: Path) -> pd.DataFrame:
     """Return a mock stops DataFrame."""
-    # TODO: Build unit test for _create_stops_df.
     return _create_stops_df(
         split_chunked_workbook_fp=mock_split_chunked_sheet,
         stops_df_path=tmp_path / "stops_df.csv",
@@ -376,10 +382,8 @@ def register_stop_upload(
         title = row[IntermediateColumns.ROUTE_TITLE]
 
         this_stops_df = stops_df[stops_df[IntermediateColumns.SHEET_NAME] == title]
-        # TODO: Build unit test for _parse_addresses.
         this_stops_df = _parse_addresses(stops_df=this_stops_df)
 
-        # TODO: Build unit test for _build_stop_array.
         stop_arrays[plan_id] = _build_stop_array(
             route_stops=this_stops_df, driver_id=row[CircuitColumns.ID]
         )
@@ -1033,20 +1037,28 @@ def test_create_plans_writes_if_initialization_raises(
 
 
 # TODO: Expanded test data so we have more stops per route.
-@pytest.mark.parametrize("upload_fixture", ["mock_stop_upload", "mock_stop_upload_failure"])
+@pytest.mark.parametrize(
+    "initialization_fixture, upload_fixture",
+    [
+        ("mock_plan_df_plans_initialized", "mock_stop_upload"),
+        ("mock_plan_df_plans_initialized", "mock_stop_upload_failure"),
+        ("mock_plan_df_plans_initialized_with_failure", "mock_stop_upload_after_failure"),
+    ],
+)
 @typechecked
 def test_upload_stops_calls(
     mock_stops_df: pd.DataFrame,
-    mock_plan_df_plans_initialized: pd.DataFrame,
+    initialization_fixture: str,
     upload_fixture: str,
     request: pytest.FixtureRequest,
     requests_mock: Mocker,  # noqa: F811
 ) -> None:
     """Test that _upload_stops uploads stops correctly."""
+    plan_df_initialized = request.getfixturevalue(initialization_fixture)
     mock_stop_upload = request.getfixturevalue(upload_fixture)
-    _ = _upload_stops(
-        stops_df=mock_stops_df, plan_df=mock_plan_df_plans_initialized, verbose=False
-    )
+
+    _ = _upload_stops(stops_df=mock_stops_df, plan_df=plan_df_initialized, verbose=False)
+
     for plan_id, expected_stop_array in mock_stop_upload.items():
         expected_url = f"{CIRCUIT_URL}/{plan_id}/stops:import"
         matching_requests = [
@@ -1059,30 +1071,41 @@ def test_upload_stops_calls(
 
 
 @pytest.mark.parametrize(
-    "upload_plan_df_fixture, upload_fixture",
+    "initialization_fixture, upload_fixture, upload_plan_df_fixture",
     [
-        ("mock_plan_df_stops_uploaded", "mock_stop_upload"),
-        ("mock_plan_df_stops_uploaded_with_failure", "mock_stop_upload_failure"),
+        ("mock_plan_df_plans_initialized", "mock_stop_upload", "mock_plan_df_stops_uploaded"),
+        (
+            "mock_plan_df_plans_initialized",
+            "mock_stop_upload_failure",
+            "mock_plan_df_stops_uploaded_with_failure",
+        ),
+        (
+            "mock_plan_df_plans_initialized_with_failure",
+            "mock_stop_upload_after_failure",
+            "mock_plan_df_stops_uploaded_after_failure",
+        ),
     ],
 )
 @typechecked
 def test_upload_stops_return(
     mock_stops_df: pd.DataFrame,
-    mock_plan_df_plans_initialized: pd.DataFrame,
+    initialization_fixture: str,
     upload_plan_df_fixture: str,
     upload_fixture: str,
     request: pytest.FixtureRequest,
 ) -> None:
     """Test that _upload_stops uploads stops correctly."""
+    plan_df_initialized = request.getfixturevalue(initialization_fixture)
     _ = request.getfixturevalue(upload_fixture)
     expected_stops_uploaded = request.getfixturevalue(upload_plan_df_fixture)
+
     stops_uploaded = _upload_stops(
-        stops_df=mock_stops_df, plan_df=mock_plan_df_plans_initialized, verbose=False
+        stops_df=mock_stops_df, plan_df=plan_df_initialized, verbose=False
     )
+
     pd.testing.assert_frame_equal(stops_uploaded, expected_stops_uploaded)
 
 
-# TODO: Test _confirm_optimizations.
 @pytest.mark.parametrize(
     "plan_df_launched_fixture, optimization_fixture, confirmation_fixture",
     [
