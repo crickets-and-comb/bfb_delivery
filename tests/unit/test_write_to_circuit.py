@@ -459,7 +459,7 @@ def mock_plan_df_optimized(mock_plan_df_stops_uploaded: pd.DataFrame) -> pd.Data
 @pytest.fixture
 @typechecked
 def mock_plan_df_optimized_with_failure(mock_plan_df_optimized: pd.DataFrame) -> pd.DataFrame:
-    """Return a mock plan DataFrame with optimizations confirmed."""
+    """Return a mock plan DataFrame with optimizations confirmed and a failure."""
     plan_df = mock_plan_df_optimized.copy()
     plan_df.loc[_FAILURE_IDX, IntermediateColumns.OPTIMIZED] = False
 
@@ -529,12 +529,29 @@ def mock_optimization_launches_after_failure(
 
 @pytest.fixture
 @typechecked
+def mock_plan_df_confirmed(mock_plan_df_optimized: pd.DataFrame) -> pd.DataFrame:
+    """Return a mock plan DataFrame with optimizations confirmed."""
+    return mock_plan_df_optimized.copy()
+
+
+@pytest.fixture
+@typechecked
+def mock_plan_df_confirmed_with_failure(mock_plan_df_confirmed: pd.DataFrame) -> pd.DataFrame:
+    """Return a mock plan DataFrame with optimizations confirmed."""
+    plan_df = mock_plan_df_confirmed.copy()
+    plan_df.loc[_FAILURE_IDX, IntermediateColumns.OPTIMIZED] = False
+
+    return plan_df
+
+
+@pytest.fixture
+@typechecked
 def mock_optimization_confirmations(
-    mock_plan_df_optimized: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+    mock_plan_df_confirmed: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
     """Mock requests.get calls for optimization confirmations."""
     responses = {}
-    for _, row in mock_plan_df_optimized.iterrows():
+    for _, row in mock_plan_df_confirmed.iterrows():
         plan_id = row[IntermediateColumns.PLAN_ID]
         responses[plan_id] = {
             CircuitColumns.ID: plan_id.replace(
@@ -559,11 +576,11 @@ def mock_optimization_confirmations(
 @pytest.fixture
 @typechecked
 def mock_optimization_confirmations_failure(
-    mock_plan_df_optimized: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+    mock_plan_df_confirmed_with_failure: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
     """Mock requests.get calls for optimization confirmations."""
     responses = {}
-    for idx, row in mock_plan_df_optimized.iterrows():
+    for _, row in mock_plan_df_confirmed_with_failure.iterrows():
         plan_id = row[IntermediateColumns.PLAN_ID]
         responses[plan_id] = {
             CircuitColumns.ID: plan_id.replace(
@@ -571,7 +588,7 @@ def mock_optimization_confirmations_failure(
             ),
             CircuitColumns.DONE: True,
             CircuitColumns.METADATA: {
-                CircuitColumns.CANCELED: False if idx != _FAILURE_IDX else True
+                CircuitColumns.CANCELED: False if row[IntermediateColumns.OPTIMIZED] else True
             },
         }
 
@@ -590,11 +607,13 @@ def mock_optimization_confirmations_failure(
 @pytest.fixture
 @typechecked
 def mock_optimization_confirmations_after_failure(
-    mock_plan_df_optimized: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+    mock_plan_df_confirmed_with_failure: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
     """Mock requests.get calls for optimization confirmations."""
+    plan_df = mock_plan_df_confirmed_with_failure.copy()
+    plan_df = plan_df[plan_df[IntermediateColumns.OPTIMIZED] == True]  # noqa: E712
     responses = {}
-    for idx, row in mock_plan_df_optimized.iterrows():
+    for idx, row in plan_df.iterrows():
         if idx != _FAILURE_IDX:
             plan_id = row[IntermediateColumns.PLAN_ID]
             responses[plan_id] = {
@@ -619,9 +638,9 @@ def mock_optimization_confirmations_after_failure(
 
 @pytest.fixture
 @typechecked
-def mock_plan_df_distributed(mock_plan_df_optimized: pd.DataFrame) -> pd.DataFrame:
+def mock_plan_df_distributed(mock_plan_df_confirmed: pd.DataFrame) -> pd.DataFrame:
     """Return a mock plan DataFrame with optimizations confirmed."""
-    plan_df = mock_plan_df_optimized.copy()
+    plan_df = mock_plan_df_confirmed.copy()
     plan_df[CircuitColumns.DISTRIBUTED] = True
 
     return plan_df
@@ -939,25 +958,25 @@ def test_upload_stops_return(
 @typechecked
 def test_optimize_routes(
     mock_plan_df_stops_uploaded: pd.DataFrame,
-    mock_plan_df_optimized: pd.DataFrame,
+    mock_plan_df_confirmed: pd.DataFrame,
     mock_optimization_launches: None,
     mock_optimization_confirmations: None,
 ) -> None:
     """Test that _optimize_routes optimizes routes correctly."""
     result_df = _optimize_routes(plan_df=mock_plan_df_stops_uploaded, verbose=False)
-    pd.testing.assert_frame_equal(result_df, mock_plan_df_optimized)
+    pd.testing.assert_frame_equal(result_df, mock_plan_df_confirmed)
 
 
 # TODO: Test errors etc.:
 # - Marks failed as False.
 @typechecked
 def test_distribute_routes(
-    mock_plan_df_optimized: pd.DataFrame,
+    mock_plan_df_confirmed: pd.DataFrame,
     mock_plan_df_distributed: pd.DataFrame,
     mock_route_distributions: None,
 ) -> None:
     """Test that _distribute_routes distributes routes correctly."""
-    result_df = _distribute_routes(plan_df=mock_plan_df_optimized, verbose=False)
+    result_df = _distribute_routes(plan_df=mock_plan_df_confirmed, verbose=False)
     pd.testing.assert_frame_equal(result_df, mock_plan_df_distributed)
 
 
