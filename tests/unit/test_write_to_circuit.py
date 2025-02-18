@@ -641,6 +641,22 @@ def mock_plan_df_distributed_with_failure(
     return plan_df
 
 
+@pytest.fixture
+@typechecked
+def mock_plan_df_distributed_after_failure(
+    mock_plan_df_confirmed_with_failure: pd.DataFrame,
+) -> pd.DataFrame:
+    """Return a mock plan DataFrame with optimizations confirmed."""
+    plan_df = mock_plan_df_confirmed_with_failure.copy()
+    plan_df[CircuitColumns.DISTRIBUTED] = False
+    plan_df.loc[
+        plan_df[IntermediateColumns.OPTIMIZED] == True,  # noqa: E712
+        CircuitColumns.DISTRIBUTED,
+    ] = True
+
+    return plan_df
+
+
 @typechecked
 def register_route_distributions(
     plan_df: pd.DataFrame, requests_mock: Mocker  # noqa: F811
@@ -1130,17 +1146,67 @@ def test_optimize_routes_return(
     pd.testing.assert_frame_equal(result_df, plan_df_confirmed)
 
 
-# TODO: Test errors etc.:
-# - Marks failed as False.
+@pytest.mark.parametrize(
+    "plan_df_optimized_fixture, distribution_fixture",
+    [
+        ("mock_plan_df_confirmed", "mock_route_distributions"),
+        ("mock_plan_df_confirmed", "mock_route_distributions_failure"),
+        ("mock_plan_df_confirmed_with_failure", "mock_route_distributions_after_failure"),
+    ],
+)
 @typechecked
-def test_distribute_routes(
-    mock_plan_df_confirmed: pd.DataFrame,
-    mock_plan_df_distributed: pd.DataFrame,
-    mock_route_distributions: None,
+def test_distribute_routes_calls(
+    plan_df_optimized_fixture: str,
+    distribution_fixture: str,
+    request: pytest.FixtureRequest,
+    requests_mock: Mocker,  # noqa: F811
 ) -> None:
     """Test that _distribute_routes distributes routes correctly."""
-    result_df = _distribute_routes(plan_df=mock_plan_df_confirmed, verbose=False)
-    pd.testing.assert_frame_equal(result_df, mock_plan_df_distributed)
+    plan_df_optimized = request.getfixturevalue(plan_df_optimized_fixture)
+    _ = request.getfixturevalue(distribution_fixture)
+
+    _ = _distribute_routes(plan_df=plan_df_optimized, verbose=False)
+
+    # TODO: Add E712 to ignore and remove throughout.
+    for plan_id in plan_df_optimized[
+        plan_df_optimized[IntermediateColumns.OPTIMIZED] == True  # noqa: E712
+    ][IntermediateColumns.PLAN_ID]:
+        assert f"{CIRCUIT_URL}/{plan_id}:distribute" in [
+            req.url for req in requests_mock.request_history
+        ]
+
+
+@pytest.mark.parametrize(
+    "plan_df_optimized_fixture, plan_df_distributed_fixture, distribution_fixture",
+    [
+        ("mock_plan_df_confirmed", "mock_plan_df_distributed", "mock_route_distributions"),
+        (
+            "mock_plan_df_confirmed",
+            "mock_plan_df_distributed_with_failure",
+            "mock_route_distributions_failure",
+        ),
+        (
+            "mock_plan_df_confirmed_with_failure",
+            "mock_plan_df_distributed_after_failure",
+            "mock_route_distributions_after_failure",
+        ),
+    ],
+)
+@typechecked
+def test_distribute_routes_return(
+    plan_df_optimized_fixture: str,
+    plan_df_distributed_fixture: str,
+    distribution_fixture: str,
+    request: pytest.FixtureRequest,
+) -> None:
+    """Test that _distribute_routes distributes routes correctly."""
+    plan_df_optimized = request.getfixturevalue(plan_df_optimized_fixture)
+    expected_plan_df_distributed = request.getfixturevalue(plan_df_distributed_fixture)
+    _ = request.getfixturevalue(distribution_fixture)
+
+    plan_df_distributed = _distribute_routes(plan_df=plan_df_optimized, verbose=False)
+
+    pd.testing.assert_frame_equal(plan_df_distributed, expected_plan_df_distributed)
 
 
 @pytest.mark.parametrize("no_distribute", [True, False])
