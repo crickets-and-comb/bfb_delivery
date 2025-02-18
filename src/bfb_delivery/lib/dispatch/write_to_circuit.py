@@ -256,7 +256,7 @@ def delete_plan(plan_id: str) -> bool:
     return deleter.deletion
 
 
-# TODO: Add schema for this.
+@typechecked
 def _create_stops_df(split_chunked_workbook_fp: Path, stops_df_path: Path) -> pd.DataFrame:
     stops_dfs = []
     with pd.ExcelFile(split_chunked_workbook_fp) as workbook:

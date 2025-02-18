@@ -62,6 +62,7 @@ _FAILURE_IDX: Final[int] = 0
 
 
 @pytest.fixture
+@typechecked
 def mock_split_chunked_sheet(mock_chunked_sheet_raw: Path, tmp_path: Path) -> Path:
     """Create and save a mock split chunked sheet."""
     path = split_chunked_route(
@@ -75,6 +76,7 @@ def mock_split_chunked_sheet(mock_chunked_sheet_raw: Path, tmp_path: Path) -> Pa
 
 
 @pytest.fixture
+@typechecked
 def mock_driver_df(mock_chunked_sheet_raw: Path) -> pd.DataFrame:
     """Return a DataFrame of drivers."""
     chunked_sheet = pd.read_excel(mock_chunked_sheet_raw)
@@ -128,6 +130,7 @@ def register_driver_gets(
 
 
 @pytest.fixture
+@typechecked
 def mock_get_all_drivers(
     mock_driver_df: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
@@ -138,6 +141,7 @@ def mock_get_all_drivers(
 
 
 @pytest.fixture
+@typechecked
 def mock_get_all_drivers_with_inactive(
     mock_driver_df: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
@@ -150,6 +154,7 @@ def mock_get_all_drivers_with_inactive(
 
 
 @pytest.fixture
+@typechecked
 def mock_stops_df(mock_split_chunked_sheet: Path, tmp_path: Path) -> pd.DataFrame:
     """Return a mock stops DataFrame."""
     return _create_stops_df(
@@ -159,6 +164,7 @@ def mock_stops_df(mock_split_chunked_sheet: Path, tmp_path: Path) -> pd.DataFram
 
 
 @pytest.fixture
+@typechecked
 def mock_plan_df_initial(mock_stops_df: pd.DataFrame) -> pd.DataFrame:
     """Return a mock plan DataFrame initialized with just the route titles."""
     return pd.DataFrame(
@@ -216,6 +222,7 @@ def patch_user_input(inputs: Iterator[str], monkeypatch: pytest.MonkeyPatch) -> 
     """Patch user input for driver selection."""
     original_input = builtins.input
 
+    @typechecked
     def fake_input(prompt: str) -> str:
         if prompt.strip() == "(Pdb)":
             return original_input(prompt)
@@ -303,6 +310,7 @@ def register_plan_initialization(
             CircuitColumns.WRITABLE: row[CircuitColumns.WRITABLE],
         }
 
+    @typechecked
     def post_callback(request: Request, context: Any) -> Any:
         data = request.json()
         plan_title = data.get(CircuitColumns.TITLE)
@@ -1550,6 +1558,7 @@ def test_upload_split_chunked_return(
         ),
     ],
 )
+@typechecked
 def test_delete_plans(
     use_plan_ids: bool,
     plan_df_fp: str,
