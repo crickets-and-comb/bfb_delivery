@@ -7,6 +7,7 @@
 # TODO: Use schema in typehints where applicable.
 
 import builtins
+from collections.abc import Iterator
 from contextlib import AbstractContextManager, nullcontext
 from pathlib import Path
 from typing import Any, Final
@@ -210,14 +211,9 @@ def driver_selections(mock_stops_df: pd.DataFrame, mock_driver_df: pd.DataFrame)
     return driver_selections
 
 
-@pytest.fixture
 @typechecked
-def mock_driver_assignment(
-    driver_selections: list[str], monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """Mock user inputs for driver selection."""
-    inputs = iter(driver_selections + ["y"])
-
+def patch_user_input(inputs: Iterator[str], monkeypatch: pytest.MonkeyPatch) -> None:
+    """Patch user input for driver selection."""
     original_input = builtins.input
 
     def fake_input(prompt: str) -> str:
@@ -226,6 +222,15 @@ def mock_driver_assignment(
         return next(inputs)
 
     monkeypatch.setattr("builtins.input", fake_input)
+
+
+@pytest.fixture
+@typechecked
+def mock_driver_assignment(
+    driver_selections: list[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Mock user inputs for driver selection."""
+    patch_user_input(inputs=iter(driver_selections + ["y"]), monkeypatch=monkeypatch)
 
 
 @pytest.fixture
@@ -241,14 +246,7 @@ def mock_driver_assignment_with_derps(
         + ["y"]
     )
 
-    original_input = builtins.input
-
-    def fake_input(prompt: str) -> str:
-        if prompt.strip() == "(Pdb)":
-            return original_input(prompt)
-        return next(inputs)
-
-    monkeypatch.setattr("builtins.input", fake_input)
+    patch_user_input(inputs=inputs, monkeypatch=monkeypatch)
 
 
 @pytest.fixture
@@ -258,15 +256,7 @@ def mock_driver_assignment_with_retry(
 ) -> None:
     """Mock user inputs for driver selection."""
     inputs = iter(["1"] * len(driver_selections) + ["n"] + driver_selections + ["y"])
-
-    original_input = builtins.input
-
-    def fake_input(prompt: str) -> str:
-        if prompt.strip() == "(Pdb)":
-            return original_input(prompt)
-        return next(inputs)
-
-    monkeypatch.setattr("builtins.input", fake_input)
+    patch_user_input(inputs=inputs, monkeypatch=monkeypatch)
 
 
 @pytest.fixture
