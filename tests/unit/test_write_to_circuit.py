@@ -50,6 +50,7 @@ _DELETE_PLAN_IDS: Final[list[str]] = ["plans/plan1", "plans/plan2", "plans/plan3
 _DELETE_PLAN_DF: Final[pd.DataFrame] = pd.DataFrame(
     {IntermediateColumns.PLAN_ID: [f"{plan_id}_df" for plan_id in _DELETE_PLAN_IDS]}
 )
+_FAILURE_IDX: Final[int] = 0
 
 
 @pytest.fixture
@@ -111,7 +112,7 @@ def mock_get_all_drivers_with_inactive(
     mock_driver_df: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
     """Mock the Circuit API to return a simple list of drivers."""
-    mock_driver_df.loc[0, CircuitColumns.ACTIVE] = False
+    mock_driver_df.loc[_FAILURE_IDX, CircuitColumns.ACTIVE] = False
     drivers_array = mock_driver_df.to_dict(orient="records")
     next_page_token = "token123"
 
@@ -329,7 +330,9 @@ def mock_plan_initialization_failure(
         title = row[IntermediateColumns.ROUTE_TITLE]
         responses[title] = {
             CircuitColumns.ID: row[IntermediateColumns.PLAN_ID],
-            CircuitColumns.WRITABLE: row[CircuitColumns.WRITABLE] if idx != 0 else False,
+            CircuitColumns.WRITABLE: (
+                row[CircuitColumns.WRITABLE] if idx != _FAILURE_IDX else False
+            ),
         }
 
     def post_callback(request: Request, context: Any) -> Any:
@@ -359,7 +362,7 @@ def mock_plan_df_stops_uploaded_with_error(
 ) -> pd.DataFrame:
     """Return a mock plan DataFrame with stops uploaded."""
     plan_df = mock_plan_df_plans_initialized.copy()
-    plan_df.loc[0, IntermediateColumns.STOPS_UPLOADED] = False
+    plan_df.loc[_FAILURE_IDX, IntermediateColumns.STOPS_UPLOADED] = False
 
     return plan_df
 
@@ -465,7 +468,7 @@ def mock_stop_upload_after_failure(
     stop_arrays = {}
     responses = {}
     for idx, row in mock_plan_df_plans_initialized.iterrows():
-        if idx != 0:
+        if idx != _FAILURE_IDX:
             plan_id = row[IntermediateColumns.PLAN_ID]
             title = row[IntermediateColumns.ROUTE_TITLE]
 
@@ -553,7 +556,7 @@ def mock_optmization_launches_failure(
             CircuitColumns.DONE: False,
             CircuitColumns.METADATA: (
                 {CircuitColumns.CANCELED: False}
-                if idx != 0
+                if idx != _FAILURE_IDX
                 else {CircuitColumns.CANCELED: True}
             ),
         }
@@ -575,7 +578,7 @@ def mock_optmization_launches_after_failure(
     """Mock requests.post calls for optimization launches."""
     responses = {}
     for idx, row in mock_plan_df_optimized.iterrows():
-        if idx != 0:
+        if idx != _FAILURE_IDX:
             plan_id = row[IntermediateColumns.PLAN_ID]
             responses[plan_id] = {
                 CircuitColumns.ID: plan_id.replace(
@@ -638,7 +641,9 @@ def mock_optimization_confirmations_failure(
                 CircuitColumns.PLANS, CircuitColumns.OPERATIONS
             ),
             CircuitColumns.DONE: True,
-            CircuitColumns.METADATA: {CircuitColumns.CANCELED: False if idx != 0 else True},
+            CircuitColumns.METADATA: {
+                CircuitColumns.CANCELED: False if idx != _FAILURE_IDX else True
+            },
         }
 
     for plan_id in responses:
@@ -661,7 +666,7 @@ def mock_optimization_confirmations_after_failure(
     """Mock requests.get calls for optimization confirmations."""
     responses = {}
     for idx, row in mock_plan_df_optimized.iterrows():
-        if idx != 0:
+        if idx != _FAILURE_IDX:
             plan_id = row[IntermediateColumns.PLAN_ID]
             responses[plan_id] = {
                 CircuitColumns.ID: plan_id.replace(
@@ -723,7 +728,9 @@ def mock_route_distributions_failure(
     responses = {}
     for idx, row in mock_plan_df_distributed.iterrows():
         plan_id = row[IntermediateColumns.PLAN_ID]
-        responses[plan_id] = {CircuitColumns.DISTRIBUTED: True if idx != 0 else False}
+        responses[plan_id] = {
+            CircuitColumns.DISTRIBUTED: True if idx != _FAILURE_IDX else False
+        }
 
     for plan_id in responses:
         requests_mock.register_uri(
@@ -742,7 +749,7 @@ def mock_route_distributions_after_failure(
     """Mock requests.post calls for route distributions."""
     responses = {}
     for idx, row in mock_plan_df_distributed.iterrows():
-        if idx != 0:
+        if idx != _FAILURE_IDX:
             plan_id = row[IntermediateColumns.PLAN_ID]
             responses[plan_id] = {CircuitColumns.DISTRIBUTED: True}
 
@@ -845,8 +852,8 @@ def test_initialize_plans(
 
     expected_plan_df = mock_plan_df_plans_initialized.copy()
     if initialization_fixture == "mock_plan_initialization_failure":
-        expected_plan_df.loc[0, CircuitColumns.WRITABLE] = False
-        expected_plan_df.loc[0, IntermediateColumns.INITIALIZED] = False
+        expected_plan_df.loc[_FAILURE_IDX, CircuitColumns.WRITABLE] = False
+        expected_plan_df.loc[_FAILURE_IDX, IntermediateColumns.INITIALIZED] = False
 
     plan_df = _initialize_plans(
         plan_df=mock_plan_df_drivers_assigned, start_date=_START_DATE, verbose=False
@@ -913,8 +920,8 @@ def test_create_plans(
         object
     )
     if initialization_fixture == "mock_plan_initialization_failure":
-        expected_plan_df.loc[0, CircuitColumns.WRITABLE] = False
-        expected_plan_df.loc[0, IntermediateColumns.INITIALIZED] = False
+        expected_plan_df.loc[_FAILURE_IDX, CircuitColumns.WRITABLE] = False
+        expected_plan_df.loc[_FAILURE_IDX, IntermediateColumns.INITIALIZED] = False
 
     with error_context:
         plan_df = _create_plans(
@@ -1255,7 +1262,7 @@ def test_upload_split_chunked_return(
     expected_df[IntermediateColumns.START_DATE] = _START_DATE
     expected_df[CircuitColumns.ACTIVE] = expected_df[CircuitColumns.ACTIVE].astype(object)
 
-    failure_route_title = expected_df[IntermediateColumns.ROUTE_TITLE].iloc[0]
+    failure_route_title = expected_df[IntermediateColumns.ROUTE_TITLE].iloc[_FAILURE_IDX]
 
     if failure_step == "initialize_plans":
         expected_df.loc[
@@ -1346,7 +1353,9 @@ def test_delete_plans(
             "DELETE",
             f"{CIRCUIT_URL}/{plan_id}",
             json={},
-            status_code=204 if not fail_deletion or (fail_deletion and idx != 0) else 400,
+            status_code=(
+                204 if not fail_deletion or (fail_deletion and idx != _FAILURE_IDX) else 400
+            ),
         )
 
     input_plan_ids = _DELETE_PLAN_IDS if use_plan_ids else []
