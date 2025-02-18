@@ -310,7 +310,6 @@ def register_plan_initialization(
             CircuitColumns.WRITABLE: row[CircuitColumns.WRITABLE],
         }
 
-    @typechecked
     def post_callback(request: Request, context: Any) -> Any:
         data = request.json()
         plan_title = data.get(CircuitColumns.TITLE)
