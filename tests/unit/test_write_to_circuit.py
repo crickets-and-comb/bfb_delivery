@@ -343,10 +343,10 @@ def mock_plan_df_stops_uploaded(mock_plan_df_plans_initialized: pd.DataFrame) ->
 @pytest.fixture
 @typechecked
 def mock_plan_df_stops_uploaded_with_error(
-    mock_plan_df_plans_initialized: pd.DataFrame,
+    mock_plan_df_stops_uploaded: pd.DataFrame,
 ) -> pd.DataFrame:
     """Return a mock plan DataFrame with stops uploaded."""
-    plan_df = mock_plan_df_plans_initialized.copy()
+    plan_df = mock_plan_df_stops_uploaded.copy()
     plan_df.loc[_FAILURE_IDX, IntermediateColumns.STOPS_UPLOADED] = False
 
     return plan_df
