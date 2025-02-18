@@ -55,6 +55,19 @@ _FAILURE_IDX: Final[int] = 0
 
 
 @pytest.fixture
+def mock_split_chunked_sheet(mock_chunked_sheet_raw: Path, tmp_path: Path) -> Path:
+    """Create and save a mock split chunked sheet."""
+    path = split_chunked_route(
+        input_path=mock_chunked_sheet_raw,
+        output_dir=tmp_path,
+        output_filename="test_split_chunked.xlsx",
+        n_books=1,
+    )
+
+    return path[0]
+
+
+@pytest.fixture
 def mock_driver_df(mock_chunked_sheet_raw: Path) -> pd.DataFrame:
     """Return a DataFrame of drivers."""
     chunked_sheet = pd.read_excel(mock_chunked_sheet_raw)
@@ -127,19 +140,6 @@ def mock_get_all_drivers_with_inactive(
     register_driver_gets(
         drivers_array=driver_df.to_dict(orient="records"), requests_mock=requests_mock
     )
-
-
-@pytest.fixture
-def mock_split_chunked_sheet(mock_chunked_sheet_raw: Path, tmp_path: Path) -> Path:
-    """Create and save a mock split chunked sheet."""
-    path = split_chunked_route(
-        input_path=mock_chunked_sheet_raw,
-        output_dir=tmp_path,
-        output_filename="test_split_chunked.xlsx",
-        n_books=1,
-    )
-
-    return path[0]
 
 
 @pytest.fixture
