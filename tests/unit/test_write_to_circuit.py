@@ -958,7 +958,6 @@ def test_create_plans_returns(
 @typechecked
 def test_create_plans_writes_if_initialization_raises(
     mock_stops_df: pd.DataFrame,
-    mock_plan_df_plans_initialized: pd.DataFrame,
     mock_get_all_drivers: None,
     mock_driver_assignment: None,
     mock_plan_initialization: None,
