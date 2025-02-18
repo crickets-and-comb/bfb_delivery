@@ -784,7 +784,6 @@ def test_initialize_plans(
     pd.testing.assert_frame_equal(plan_df, expected_plan_df)
 
 
-# TODO: Check request histories.
 @pytest.mark.parametrize(
     "assignment_fixture, get_drivers_fixture, initialization_fixture, error_context",
     [
@@ -823,9 +822,108 @@ def test_initialize_plans(
     ],
 )
 @typechecked
-def test_create_plans(
+def test_create_plans_calls(
     mock_stops_df: pd.DataFrame,
-    mock_plan_df_plans_initialized: pd.DataFrame,
+    get_drivers_fixture: str,
+    assignment_fixture: str,
+    initialization_fixture: str,
+    error_context: AbstractContextManager,
+    request: pytest.FixtureRequest,
+    tmp_path: Path,
+    requests_mock: Mocker,  # noqa: F811
+) -> None:
+    """Test that _create_plans creates plans correctly."""
+    _ = request.getfixturevalue(get_drivers_fixture)
+    _ = request.getfixturevalue(assignment_fixture)
+    _ = request.getfixturevalue(initialization_fixture)
+    expected_plan_df = (
+        request.getfixturevalue("mock_plan_df_plans_initialized")
+        if initialization_fixture == "mock_plan_initialization"
+        else request.getfixturevalue("mock_plan_df_plans_initialized_with_failure")
+    )
+
+    with error_context:
+        _ = _create_plans(
+            stops_df=mock_stops_df,
+            start_date=_START_DATE,
+            plan_df_path=tmp_path / "plan_df.csv",
+            verbose=False,
+        )
+
+        driver_requests = [
+            req
+            for req in requests_mock.request_history
+            if req.url.startswith(CIRCUIT_DRIVERS_URL)
+        ]
+        assert len(driver_requests) == 2
+
+        plan_posts = [
+            req for req in requests_mock.request_history if req.url == f"{CIRCUIT_URL}/plans"
+        ]
+        assert len(plan_posts) == len(expected_plan_df)
+
+        payloads = [req.json() for req in plan_posts]
+        expected_payloads = [
+            {
+                CircuitColumns.TITLE: row[IntermediateColumns.ROUTE_TITLE],
+                # TODO: Just make this once.
+                CircuitColumns.STARTS: {
+                    CircuitColumns.DAY: int(_START_DATE.split("-")[2]),
+                    CircuitColumns.MONTH: int(_START_DATE.split("-")[1]),
+                    CircuitColumns.YEAR: int(_START_DATE.split("-")[0]),
+                },
+                CircuitColumns.DRIVERS: [row[CircuitColumns.ID]],
+            }
+            for _, row in expected_plan_df.iterrows()
+        ]
+
+        missing_payloads = [
+            payload for payload in expected_payloads if payload not in payloads
+        ]
+        extra_payloads = [payload for payload in payloads if payload not in expected_payloads]
+        assert len(missing_payloads) == 0 and len(extra_payloads) == 0
+
+
+@pytest.mark.parametrize(
+    "assignment_fixture, get_drivers_fixture, initialization_fixture, error_context",
+    [
+        (
+            "mock_driver_assignment",
+            "mock_get_all_drivers",
+            "mock_plan_initialization",
+            nullcontext(),
+        ),
+        (
+            "mock_driver_assignment_with_derps",
+            "mock_get_all_drivers",
+            "mock_plan_initialization",
+            nullcontext(),
+        ),
+        (
+            "mock_driver_assignment_with_retry",
+            "mock_get_all_drivers",
+            "mock_plan_initialization",
+            nullcontext(),
+        ),
+        (
+            "mock_driver_assignment",
+            "mock_get_all_drivers_with_inactive",
+            "mock_plan_initialization",
+            pytest.raises(
+                ValueError, match="Inactive drivers. Please activate the following drivers"
+            ),
+        ),
+        (
+            "mock_driver_assignment",
+            "mock_get_all_drivers",
+            "mock_plan_initialization_failure",
+            nullcontext(),
+        ),
+    ],
+)
+@typechecked
+def test_create_plans_returns(
+    mock_stops_df: pd.DataFrame,
     get_drivers_fixture: str,
     assignment_fixture: str,
     initialization_fixture: str,
