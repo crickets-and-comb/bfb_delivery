@@ -5,7 +5,6 @@
 # `upload_split_chunked`.
 
 # TODO: Use schema in typehints where applicable.
-# TODO: Test each step after preious failure. (Use previous plan_df).
 
 import builtins
 from collections.abc import Iterator
@@ -343,12 +342,24 @@ def mock_plan_df_stops_uploaded(mock_plan_df_plans_initialized: pd.DataFrame) ->
 
 @pytest.fixture
 @typechecked
-def mock_plan_df_stops_uploaded_with_error(
+def mock_plan_df_stops_uploaded_with_failure(
     mock_plan_df_stops_uploaded: pd.DataFrame,
 ) -> pd.DataFrame:
     """Return a mock plan DataFrame with stops uploaded."""
     plan_df = mock_plan_df_stops_uploaded.copy()
     plan_df.loc[_FAILURE_IDX, IntermediateColumns.STOPS_UPLOADED] = False
+
+    return plan_df
+
+
+@pytest.fixture
+@typechecked
+def mock_plan_df_stops_uploaded_after_failure(
+    mock_plan_df_plans_initialized_with_failure: pd.DataFrame,
+) -> pd.DataFrame:
+    """Return a mock plan DataFrame with stops uploaded."""
+    plan_df = mock_plan_df_plans_initialized_with_failure.copy()
+    plan_df[IntermediateColumns.STOPS_UPLOADED] = plan_df[IntermediateColumns.INITIALIZED]
 
     return plan_df
 
@@ -414,14 +425,14 @@ def mock_stop_upload(
 @pytest.fixture
 @typechecked
 def mock_stop_upload_failure(
-    mock_plan_df_stops_uploaded_with_error: pd.DataFrame,
+    mock_plan_df_stops_uploaded_with_failure: pd.DataFrame,
     mock_stops_df: pd.DataFrame,
     requests_mock: Mocker,  # noqa: F811
 ) -> dict[str, list]:
     """Mock requests.post calls for stop uploads."""
     return register_stop_upload(
         stops_df=mock_stops_df,
-        plan_df=mock_plan_df_stops_uploaded_with_error,
+        plan_df=mock_plan_df_stops_uploaded_with_failure,
         requests_mock=requests_mock,
     )
 
@@ -429,14 +440,13 @@ def mock_stop_upload_failure(
 @pytest.fixture
 @typechecked
 def mock_stop_upload_after_failure(
-    mock_plan_df_plans_initialized_with_failure: pd.DataFrame,
+    mock_plan_df_stops_uploaded_after_failure: pd.DataFrame,
     mock_stops_df: pd.DataFrame,
     requests_mock: Mocker,  # noqa: F811
 ) -> dict[str, list]:
     """Mock requests.post calls for stop uploads."""
-    plan_df = mock_plan_df_plans_initialized_with_failure.copy()
+    plan_df = mock_plan_df_stops_uploaded_after_failure.copy()
     plan_df = plan_df[plan_df[IntermediateColumns.INITIALIZED] == True]  # noqa: E712
-    plan_df[IntermediateColumns.STOPS_UPLOADED] = True
     stop_arrays = register_stop_upload(
         stops_df=mock_stops_df, plan_df=plan_df, requests_mock=requests_mock
     )
@@ -463,6 +473,21 @@ def mock_plan_df_optimized_with_failure(mock_plan_df_optimized: pd.DataFrame) ->
     """Return a mock plan DataFrame with optimizations confirmed and a failure."""
     plan_df = mock_plan_df_optimized.copy()
     plan_df.loc[_FAILURE_IDX, IntermediateColumns.OPTIMIZED] = False
+
+    return plan_df
+
+
+@pytest.fixture
+@typechecked
+def mock_plan_df_optimized_after_failure(
+    mock_plan_df_stops_uploaded_with_failure: pd.DataFrame,
+) -> pd.DataFrame:
+    """Return a mock plan DataFrame with optimizations confirmed."""
+    plan_df = mock_plan_df_stops_uploaded_with_failure.copy()
+    plan_df[IntermediateColumns.OPTIMIZED] = plan_df[IntermediateColumns.STOPS_UPLOADED]
+    plan_df[IntermediateColumns.OPTIMIZED] = plan_df[IntermediateColumns.OPTIMIZED].astype(
+        object
+    )
 
     return plan_df
 
@@ -519,12 +544,11 @@ def mock_optimization_launches_failure(
 @pytest.fixture
 @typechecked
 def mock_optimization_launches_after_failure(
-    mock_plan_df_stops_uploaded_with_error: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+    mock_plan_df_optimized_after_failure: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
     """Mock requests.post calls for optimization launches."""
-    plan_df = mock_plan_df_stops_uploaded_with_error.copy()
+    plan_df = mock_plan_df_optimized_after_failure.copy()
     plan_df = plan_df[plan_df[IntermediateColumns.STOPS_UPLOADED] == True]  # noqa: E712
-    plan_df[IntermediateColumns.OPTIMIZED] = True
     register_optimizations(plan_df=plan_df, requests_mock=requests_mock)
 
 
@@ -611,10 +635,10 @@ def mock_optimization_confirmations_failure(
 @pytest.fixture
 @typechecked
 def mock_optimization_confirmations_after_failure(
-    mock_plan_df_optimized_with_failure: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+    mock_plan_df_confirmed_after_failure: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
     """Mock requests.get calls for optimization confirmations."""
-    plan_df = mock_plan_df_optimized_with_failure.copy()
+    plan_df = mock_plan_df_confirmed_after_failure.copy()
     plan_df = plan_df[plan_df[IntermediateColumns.OPTIMIZED] == True]  # noqa: E712
     register_optimization_confirmations(plan_df=plan_df, requests_mock=requests_mock)
 
@@ -703,12 +727,11 @@ def mock_route_distributions_failure(
 @pytest.fixture
 @typechecked
 def mock_route_distributions_after_failure(
-    mock_plan_df_confirmed_with_failure: pd.DataFrame, requests_mock: Mocker  # noqa: F811
+    mock_plan_df_distributed_after_failure: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
     """Mock requests.post calls for route distributions."""
-    plan_df = mock_plan_df_confirmed_with_failure.copy()
+    plan_df = mock_plan_df_distributed_after_failure.copy()
     plan_df = plan_df[plan_df[IntermediateColumns.OPTIMIZED] == True]  # noqa: E712
-    plan_df[CircuitColumns.DISTRIBUTED] = True
     register_route_distributions(plan_df=plan_df, requests_mock=requests_mock)
 
 
@@ -1039,7 +1062,7 @@ def test_upload_stops_calls(
     "upload_plan_df_fixture, upload_fixture",
     [
         ("mock_plan_df_stops_uploaded", "mock_stop_upload"),
-        ("mock_plan_df_stops_uploaded_with_error", "mock_stop_upload_failure"),
+        ("mock_plan_df_stops_uploaded_with_failure", "mock_stop_upload_failure"),
     ],
 )
 @typechecked
