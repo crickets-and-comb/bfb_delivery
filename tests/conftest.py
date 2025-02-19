@@ -32,19 +32,30 @@ def pytest_sessionfinish(session: Any, exitstatus: pytest.ExitCode) -> None:
         session.exitstatus = pytest.ExitCode.OK
 
 
+@pytest.fixture
+def FAKE_KEY() -> str:
+    """Fake Circuit API key."""
+    return "fake_key"
+
+
 @pytest.fixture(autouse=True)
 @typechecked
-def mock_get_circuit_key_dispatch_utils() -> Iterator:
+def mock_get_circuit_key_dispatch_utils(FAKE_KEY: str, tmp_path: Path) -> Iterator:
     """Mock get_circuit_key."""
-    with patch("bfb_delivery.lib.dispatch.utils.get_circuit_key", return_value="fakekey"):
+    env_path = tmp_path / ".env"
+    env_path.write_text(f"CIRCUIT_API_KEY={FAKE_KEY}")
+    with patch(
+        "bfb_delivery.lib.dispatch.utils.os_getcwd", return_value=tmp_path
+    ) as mock_getcwd:
+        mock_getcwd.return_value = tmp_path
         yield
 
 
 @pytest.fixture(autouse=True)
 @typechecked
-def mock_get_circuit_key_api_callers() -> Iterator:
+def mock_get_circuit_key_api_callers(FAKE_KEY: str) -> Iterator:
     """Mock get_circuit_key."""
     with patch(
-        "bfb_delivery.lib.dispatch.api_callers.get_circuit_key", return_value="fakekey"
+        "bfb_delivery.lib.dispatch.api_callers.get_circuit_key", return_value=FAKE_KEY
     ):
         yield

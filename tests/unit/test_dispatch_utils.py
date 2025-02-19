@@ -8,7 +8,7 @@ import pytest
 import requests
 from typeguard import typechecked
 
-from bfb_delivery.lib.dispatch.utils import get_responses
+from bfb_delivery.lib.dispatch.utils import get_circuit_key, get_responses
 
 BASE_URL: Final[str] = "http://example.com/api/v2/stops"
 
@@ -250,3 +250,9 @@ def test_get_responses_urls(responses: list[dict[str, Any]], params: str) -> Non
 #         actual_sleep_calls = [call.args[0] for call in mock_sleep.call_args_list]
 
 #         assert actual_sleep_calls == expected_sleep_calls
+
+
+@typechecked
+def test_get_circuit_key(FAKE_KEY: str) -> None:
+    """Test get_circuit_key function."""
+    assert get_circuit_key() == FAKE_KEY
