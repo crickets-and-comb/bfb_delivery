@@ -79,7 +79,7 @@ def get_phone_number(key: str, config_path: str = "config.ini") -> str:
         f"In config file, under '[{section_key}]', add '{key} = (555) 555-5555'."
     )
 
-    if os.path.exists(config_path):
+    if os.path.exists(full_config_path):
         config = configparser.ConfigParser()
         try:
             config.read(full_config_path)
