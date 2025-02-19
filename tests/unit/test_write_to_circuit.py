@@ -275,7 +275,7 @@ def mock_plan_df_plans_initialized(
     plan_df = mock_plan_df_drivers_assigned.copy()
     plan_df[IntermediateColumns.PLAN_ID] = mock_plan_df_drivers_assigned[
         IntermediateColumns.ROUTE_TITLE
-    ].apply(lambda title: f"plans/{title.replace(' ', '').replace("#", '')}")
+    ].apply(lambda title: f"plans/{title.replace(' ', '').replace('#', '')}")
     plan_df[CircuitColumns.WRITABLE] = True
     # TODO: Do we need this column?
     plan_df[CircuitColumns.OPTIMIZATION] = None
