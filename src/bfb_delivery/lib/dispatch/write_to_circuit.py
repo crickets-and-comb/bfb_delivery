@@ -11,6 +11,7 @@ import pandera as pa
 from pandera.typing import DataFrame
 from typeguard import typechecked
 
+from bfb_delivery.lib import schema
 from bfb_delivery.lib.constants import (
     CIRCUIT_DATE_FORMAT,
     CIRCUIT_DRIVERS_URL,
@@ -32,29 +33,6 @@ from bfb_delivery.lib.dispatch.api_callers import (
 from bfb_delivery.lib.dispatch.read_circuit import get_route_files
 from bfb_delivery.lib.dispatch.utils import concat_response_pages, get_responses
 from bfb_delivery.lib.formatting.sheet_shaping import create_manifests, split_chunked_route
-from bfb_delivery.lib.schema import (
-    DriversAssignDriverIn,
-    DriversAssignDriversIn,
-    DriversGetAllDriversOut,
-    PlansAssignDriverIn,
-    PlansAssignDriversIn,
-    PlansAssignDriversOut,
-    PlansAssignDriversToPlansOut,
-    PlansBuildStopsIn,
-    PlansConfirmOptimizationsIn,
-    PlansConfirmOptimizationsOut,
-    PlansCreatePlansOut,
-    PlansDistributeRoutesIn,
-    PlansDistributeRoutesOut,
-    PlansInitializePlansIn,
-    PlansInitializePlansOut,
-    PlansOptimizeRoutesIn,
-    PlansOptimizeRoutesOut,
-    PlansUploadSplitChunkedOut,
-    PlansUploadStopsIn,
-    PlansUploadStopsOut,
-    Stops,
-)
 from bfb_delivery.lib.schema.utils import schema_error_handler
 from bfb_delivery.lib.utils import get_friday
 
@@ -135,8 +113,8 @@ def upload_split_chunked(
     start_date: str,
     no_distribute: bool,
     verbose: bool,
-) -> DataFrame[PlansUploadSplitChunkedOut]:
-    """Upload a split chunked Excel workbook of routes to Circuit.
+) -> DataFrame[schema.PlansUploadSplitChunkedOut]:
+    """Upload, optimize, and distribute a split chunked Excel workbook of routes to Circuit.
 
     The workbook contains multiple sheets, one per route. Each sheet is named after the driver
     with the date. The columns are:
@@ -159,7 +137,7 @@ def upload_split_chunked(
 
     Returns:
         A DataFrame with the plan IDs and driver IDs for each sheet,
-            along with date and whether distributed.
+            along with date and statuses at each step.
     """
     plan_output_dir = output_dir / "plans"
     plan_output_dir.mkdir(exist_ok=True)
@@ -256,7 +234,7 @@ def delete_plan(plan_id: str) -> bool:
     return deleter.deletion
 
 
-# TODO: Add schema for this.
+@typechecked
 def _create_stops_df(split_chunked_workbook_fp: Path, stops_df_path: Path) -> pd.DataFrame:
     stops_dfs = []
     with pd.ExcelFile(split_chunked_workbook_fp) as workbook:
@@ -274,8 +252,8 @@ def _create_stops_df(split_chunked_workbook_fp: Path, stops_df_path: Path) -> pd
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
 def _create_plans(
-    stops_df: DataFrame[Stops], start_date: str, plan_df_path: Path, verbose: bool
-) -> DataFrame[PlansCreatePlansOut]:
+    stops_df: DataFrame[schema.Stops], start_date: str, plan_df_path: Path, verbose: bool
+) -> DataFrame[schema.PlansCreatePlansOut]:
     """Create a Circuit plan for each route.
 
     Args:
@@ -288,6 +266,7 @@ def _create_plans(
     plan_df = _assign_drivers_to_plans(stops_df=stops_df)
     try:
         plan_df = _initialize_plans(plan_df=plan_df, start_date=start_date, verbose=verbose)
+    # TODO: Validate schema before returning, write before raising within _initialize_plans.
     except Exception as e:
         plan_df.to_csv(plan_df_path, index=False)
         raise e
@@ -298,8 +277,10 @@ def _create_plans(
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
 def _upload_stops(
-    stops_df: DataFrame[Stops], plan_df: DataFrame[PlansUploadStopsIn], verbose: bool
-) -> DataFrame[PlansUploadStopsOut]:
+    stops_df: DataFrame[schema.Stops],
+    plan_df: DataFrame[schema.PlansUploadStopsIn],
+    verbose: bool,
+) -> DataFrame[schema.PlansUploadStopsOut]:
     """Upload stops for each route.
 
     Will skip plans marked as not initialized.
@@ -367,8 +348,8 @@ def _upload_stops(
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
 def _optimize_routes(
-    plan_df: DataFrame[PlansOptimizeRoutesIn], verbose: bool
-) -> DataFrame[PlansOptimizeRoutesOut]:
+    plan_df: DataFrame[schema.PlansOptimizeRoutesIn], verbose: bool
+) -> DataFrame[schema.PlansOptimizeRoutesOut]:
     """Optimize the routes.
 
     Will skip plans marked as without stops uploaded.
@@ -438,8 +419,8 @@ def _optimize_routes(
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
 def _distribute_routes(
-    plan_df: DataFrame[PlansDistributeRoutesIn], verbose: bool
-) -> DataFrame[PlansDistributeRoutesOut]:
+    plan_df: DataFrame[schema.PlansDistributeRoutesIn], verbose: bool
+) -> DataFrame[schema.PlansDistributeRoutesOut]:
     """Distribute the routes.
 
     Will skip plans marked as not initialized.
@@ -540,8 +521,8 @@ def _print_report(plan_df: pd.DataFrame, no_distribute: bool) -> None:
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
 def _assign_drivers_to_plans(
-    stops_df: DataFrame[Stops],
-) -> DataFrame[PlansAssignDriversToPlansOut]:
+    stops_df: DataFrame[schema.Stops],
+) -> DataFrame[schema.PlansAssignDriversToPlansOut]:
     """Get the driver IDs for each sheet.
 
     Args:
@@ -580,11 +561,12 @@ def _assign_drivers_to_plans(
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
 def _initialize_plans(
-    plan_df: DataFrame[PlansInitializePlansIn], start_date: str, verbose: bool
-) -> DataFrame[PlansInitializePlansOut]:
+    plan_df: DataFrame[schema.PlansInitializePlansIn], start_date: str, verbose: bool
+) -> DataFrame[schema.PlansInitializePlansOut]:
     """Initialize Circuit plans with drivers."""
     plan_df[IntermediateColumns.PLAN_ID] = None
     plan_df[CircuitColumns.WRITABLE] = None
+    # TODO: Do we need this column?
     plan_df[CircuitColumns.OPTIMIZATION] = None
 
     logger.info("Initializing plans ...")
@@ -592,6 +574,7 @@ def _initialize_plans(
     for idx, row in plan_df.iterrows():
         plan_data = {
             CircuitColumns.TITLE: row[IntermediateColumns.ROUTE_TITLE],
+            # TODO: Just make this once.
             CircuitColumns.STARTS: {
                 CircuitColumns.DAY: int(start_date.split("-")[2]),
                 CircuitColumns.MONTH: int(start_date.split("-")[1]),
@@ -616,10 +599,14 @@ def _initialize_plans(
                     f"{row[IntermediateColumns.ROUTE_TITLE]}."
                     f"\n{plan_initializer.response_json}"
                 )
-
-            plan_df.loc[idx, [IntermediateColumns.PLAN_ID, CircuitColumns.WRITABLE]] = (
-                plan_initializer.plan_id,
-                plan_initializer.writable,
+        finally:
+            plan_df.loc[idx, IntermediateColumns.PLAN_ID] = (
+                plan_initializer.plan_id
+                if "plan_id" in vars(plan_initializer)
+                else "plans/noID"
+            )
+            plan_df.loc[idx, CircuitColumns.WRITABLE] = (
+                plan_initializer.writable if "writable" in vars(plan_initializer) else False
             )
 
     logger.info(f"Finished initializing plans. Initialized {idx + 1 - len(errors)} plans.")
@@ -627,6 +614,7 @@ def _initialize_plans(
     plan_df[IntermediateColumns.INITIALIZED] = True
     plan_df.loc[
         (plan_df[IntermediateColumns.ROUTE_TITLE].isin(errors.keys()))
+        # TODO: Make not_writable a failure within class?
         | ~(plan_df[CircuitColumns.WRITABLE] == True),  # noqa: E712
         IntermediateColumns.INITIALIZED,
     ] = False
@@ -644,7 +632,7 @@ def _initialize_plans(
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
 def _build_plan_stops(
-    stops_df: DataFrame[Stops], plan_df: DataFrame[PlansBuildStopsIn]
+    stops_df: DataFrame[schema.Stops], plan_df: DataFrame[schema.PlansBuildStopsIn]
 ) -> dict[str, list[list[dict[str, dict[str, str] | list[str] | int | str]]]]:
     """Build stop arrays for each route.
 
@@ -681,7 +669,7 @@ def _build_plan_stops(
 # TODO: Why isn't this throwing when driver ID is invalid?
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
-def _get_all_drivers() -> DriversGetAllDriversOut:
+def _get_all_drivers() -> schema.DriversGetAllDriversOut:
     """Get all drivers."""
     logger.info("Getting all drivers from Circuit ...")
     driver_pages = get_responses(url=CIRCUIT_DRIVERS_URL)
@@ -698,8 +686,9 @@ def _get_all_drivers() -> DriversGetAllDriversOut:
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
 def _assign_drivers(
-    drivers_df: DataFrame[DriversAssignDriversIn], plan_df: DataFrame[PlansAssignDriversIn]
-) -> DataFrame[PlansAssignDriversOut]:
+    drivers_df: DataFrame[schema.DriversAssignDriversIn],
+    plan_df: DataFrame[schema.PlansAssignDriversIn],
+) -> DataFrame[schema.PlansAssignDriversOut]:
     """Ask users to assign drivers to each route."""
     for idx, row in drivers_df.iterrows():
         print(f"{idx + 1}. {row[CircuitColumns.NAME]} {row[CircuitColumns.EMAIL]}")
@@ -727,8 +716,8 @@ def _assign_drivers(
 @pa.check_types(with_pydantic=True, lazy=True)
 def _assign_driver(
     route_title: str,
-    drivers_df: DataFrame[DriversAssignDriverIn],
-    plan_df: DataFrame[PlansAssignDriverIn],
+    drivers_df: DataFrame[schema.DriversAssignDriverIn],
+    plan_df: DataFrame[schema.PlansAssignDriverIn],
 ) -> pd.DataFrame:
     """Ask user to assign driver to a route."""
     # TODO: Warn/raise if driver not active.
@@ -821,10 +810,10 @@ def _parse_addresses(stops_df: pd.DataFrame) -> pd.DataFrame:
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
 def _confirm_optimizations(
-    plan_df: DataFrame[PlansConfirmOptimizationsIn],
+    plan_df: DataFrame[schema.PlansConfirmOptimizationsIn],
     optimizations: dict[str, str],
     verbose: bool,
-) -> DataFrame[PlansConfirmOptimizationsOut]:
+) -> DataFrame[schema.PlansConfirmOptimizationsOut]:
     """Confirm all optimizations have finished."""
     logger.info("Confirming optimizations have finished ...")
 

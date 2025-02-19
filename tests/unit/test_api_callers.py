@@ -1,7 +1,6 @@
 """A test suite for the API callers module."""
 
 import re
-from collections.abc import Iterator
 from contextlib import AbstractContextManager, nullcontext
 from typing import Any, Final
 from unittest.mock import Mock, patch
@@ -64,31 +63,23 @@ _CALLER_KWARGS_DICT: Final[dict[str, dict[str, Any]]] = {
 }
 
 _OPT_JSON_200_DONE: Final[dict[str, Any]] = {
-    "metadata": {"canceled": False},
-    "result": {},
-    "id": _MOCK_OPERATION_ID,
-    "done": True,
+    CircuitColumns.METADATA: {CircuitColumns.CANCELED: False},
+    CircuitColumns.RESULT: {},
+    CircuitColumns.ID: _MOCK_OPERATION_ID,
+    CircuitColumns.DONE: True,
 }
 _OPT_JSON_200_UNFINISHED: Final[dict[str, Any]] = {
-    "metadata": {"canceled": False},
-    "result": {},
-    "id": _MOCK_OPERATION_ID,
-    "done": False,
+    CircuitColumns.METADATA: {CircuitColumns.CANCELED: False},
+    CircuitColumns.RESULT: {},
+    CircuitColumns.ID: _MOCK_OPERATION_ID,
+    CircuitColumns.DONE: False,
 }
 _OPT_JSON_CANCELED: dict[str, Any] = _OPT_JSON_200_DONE.copy()
-_OPT_JSON_CANCELED.update({"metadata": {"canceled": True}})
+_OPT_JSON_CANCELED.update({CircuitColumns.METADATA: {CircuitColumns.CANCELED: True}})
 _OPT_JSON_SKIPPED: dict[str, Any] = _OPT_JSON_200_DONE.copy()
-_OPT_JSON_SKIPPED["result"] = {"skippedStops": [1, 2, 3]}
+_OPT_JSON_SKIPPED[CircuitColumns.RESULT] = {CircuitColumns.SKIPPED_STOPS: [1, 2, 3]}
 _OPT_JSON_ERROR_CODE: dict[str, Any] = _OPT_JSON_200_DONE.copy()
-_OPT_JSON_ERROR_CODE["result"] = {"code": "MOCK_ERROR_CODE"}
-
-
-@pytest.fixture(autouse=True)
-@typechecked
-def mock_sleep() -> Iterator[None]:
-    """Mock `time.sleep` to avoid waiting in tests."""
-    with patch("bfb_delivery.lib.dispatch.api_callers.sleep"):
-        yield
+_OPT_JSON_ERROR_CODE[CircuitColumns.RESULT] = {CircuitColumns.CODE: "MOCK_ERROR_CODE"}
 
 
 @pytest.mark.parametrize("request_type", ["get", "post", "delete"])

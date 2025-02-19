@@ -353,25 +353,25 @@ class BaseOptimizationCaller(BaseCaller):
         """
         super()._handle_200()
 
-        if self.response_json["metadata"]["canceled"]:
+        if self.response_json[CircuitColumns.METADATA][CircuitColumns.CANCELED]:
             raise RuntimeError(
                 f"Optimization canceled for {self._plan_title} ({self._plan_id}):"
                 f"\n{self.response_json}"
             )
-        if self.response_json.get("result"):
-            if self.response_json["result"].get("skippedStops"):
+        if self.response_json.get(CircuitColumns.RESULT):
+            if self.response_json[CircuitColumns.RESULT].get(CircuitColumns.SKIPPED_STOPS):
                 raise RuntimeError(
                     f"Skipped optimization stops for {self._plan_title} ({self._plan_id}):"
                     f"\n{self.response_json}"
                 )
-            if self.response_json["result"].get("code"):
+            if self.response_json[CircuitColumns.RESULT].get(CircuitColumns.CODE):
                 raise RuntimeError(
                     f"Errors in optimization for {self._plan_title} ({self._plan_id}):"
                     f"\n{self.response_json}"
                 )
 
-        self.operation_id = self.response_json["id"]
-        self.finished = self.response_json = self.response_json["done"]
+        self.operation_id = self.response_json[CircuitColumns.ID]
+        self.finished = self.response_json[CircuitColumns.DONE]
 
 
 class PagedResponseGetter(BaseGetCaller):
@@ -583,7 +583,7 @@ class PlanDistributor(BasePostCaller):
             RuntimeError: If the plan was not distributed.
         """
         super()._handle_200()
-        self.distributed = self.response_json["distributed"]
+        self.distributed = self.response_json[CircuitColumns.DISTRIBUTED]
         if not self.distributed:
             raise RuntimeError(
                 f"Failed to distribute plan {self._plan_title} ({self._plan_id}):"

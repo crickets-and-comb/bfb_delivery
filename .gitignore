@@ -43,7 +43,7 @@ docs/modules.rst
 docs/**/*.pickle
 
 # Env
-.env
+.env*
 # .venv
 # env/
 # venv/
