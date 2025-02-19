@@ -2,6 +2,7 @@
 
 import logging
 import os
+from os import getcwd as os_getcwd  # For test patching.
 from pathlib import Path
 from typing import Any
 
@@ -18,7 +19,7 @@ logger = logging.getLogger(__name__)
 @typechecked
 def get_circuit_key() -> str:
     """Get the Circuit API key."""
-    load_dotenv(Path(os.getcwd()) / ".env")
+    load_dotenv(Path(os_getcwd()) / ".env")
     key = os.getenv("CIRCUIT_API_KEY")
     if not key:
         raise ValueError(
