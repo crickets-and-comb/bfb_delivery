@@ -42,13 +42,6 @@ from bfb_delivery.lib.constants import Defaults, DocStrings
     help="verbose: Flag to print verbose output.",
 )
 @click.option(
-    "--book_one_drivers_file",
-    type=str,
-    required=False,
-    default=Defaults.BUILD_ROUTES_FROM_CHUNKED["book_one_drivers_file"],
-    help=DocStrings.BUILD_ROUTES_FROM_CHUNKED.args["book_one_drivers_file"],
-)
-@click.option(
     "--extra_notes_file",
     type=str,
     required=False,
@@ -61,7 +54,6 @@ def main(
     start_date: str,
     no_distribute: bool,
     verbose: bool,
-    book_one_drivers_file: str,
     extra_notes_file: str,
 ) -> None:
     """Run the main function."""
@@ -72,8 +64,6 @@ def main(
         start_date,
         "--output_dir",
         output_dir,
-        "--book_one_drivers_file",
-        book_one_drivers_file,
         "--extra_notes_file",
         extra_notes_file,
     ]
