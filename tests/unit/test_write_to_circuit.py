@@ -268,6 +268,20 @@ def mock_driver_assignment_with_retry(
 
 @pytest.fixture
 @typechecked
+def mock_driver_assignment_with_inactive(
+    driver_selections: list[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Mock user inputs for driver selection."""
+    new_driver_selections = (
+        driver_selections[0 : _FAILURE_IDX + 1]  # noqa: E203
+        + [str(int(driver_selections[_FAILURE_IDX]) + 1)]
+        + driver_selections[_FAILURE_IDX + 1 :]  # noqa: E203
+    )
+    patch_user_input(inputs=iter(new_driver_selections + ["y"]), monkeypatch=monkeypatch)
+
+
+@pytest.fixture
+@typechecked
 def mock_plan_df_plans_initialized(
     mock_plan_df_drivers_assigned: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -787,18 +801,12 @@ def test_assign_drivers(
 
 
 @pytest.mark.parametrize(
-    "assignment_fixture, get_drivers_fixture, error_context",
+    "assignment_fixture, get_drivers_fixture",
     [
-        ("mock_driver_assignment", "mock_get_all_drivers", nullcontext()),
-        ("mock_driver_assignment_with_derps", "mock_get_all_drivers", nullcontext()),
-        ("mock_driver_assignment_with_retry", "mock_get_all_drivers", nullcontext()),
-        (
-            "mock_driver_assignment",
-            "mock_get_all_drivers_with_inactive",
-            pytest.raises(
-                ValueError, match="Inactive drivers. Please activate the following drivers"
-            ),
-        ),
+        ("mock_driver_assignment", "mock_get_all_drivers"),
+        ("mock_driver_assignment_with_derps", "mock_get_all_drivers"),
+        ("mock_driver_assignment_with_retry", "mock_get_all_drivers"),
+        ("mock_driver_assignment_with_inactive", "mock_get_all_drivers_with_inactive"),
     ],
 )
 @typechecked
@@ -807,18 +815,24 @@ def test_assign_drivers_to_plans(
     mock_plan_df_drivers_assigned: pd.DataFrame,
     assignment_fixture: str,
     get_drivers_fixture: str,
-    error_context: AbstractContextManager,
     request: pytest.FixtureRequest,
 ) -> None:
     """Test that _assign_drivers_to_plans assigns drivers to routes correctly."""
     _ = request.getfixturevalue(get_drivers_fixture)
     _ = request.getfixturevalue(assignment_fixture)
 
-    with error_context:
-        result_df = _assign_drivers_to_plans(stops_df=mock_stops_df)
+    if assignment_fixture == "mock_driver_assignment_with_inactive":
+        mock_plan_df_drivers_assigned.loc[
+            _FAILURE_IDX,
+            [IntermediateColumns.DRIVER_NAME, CircuitColumns.EMAIL, CircuitColumns.ID],
+        ] = mock_plan_df_drivers_assigned.iloc[_FAILURE_IDX + 1][
+            [IntermediateColumns.DRIVER_NAME, CircuitColumns.EMAIL, CircuitColumns.ID]
+        ]
 
-        result_df[CircuitColumns.ACTIVE] = result_df[CircuitColumns.ACTIVE].astype(bool)
-        pd.testing.assert_frame_equal(result_df, mock_plan_df_drivers_assigned)
+    result_df = _assign_drivers_to_plans(stops_df=mock_stops_df)
+
+    result_df[CircuitColumns.ACTIVE] = result_df[CircuitColumns.ACTIVE].astype(bool)
+    pd.testing.assert_frame_equal(result_df, mock_plan_df_drivers_assigned)
 
 
 @pytest.mark.parametrize(
@@ -868,7 +882,7 @@ def test_initialize_plans(
             nullcontext(),
         ),
         (
-            "mock_driver_assignment",
+            "mock_driver_assignment_with_inactive",
             "mock_get_all_drivers_with_inactive",
             "mock_plan_initialization",
             pytest.raises(
@@ -903,6 +917,13 @@ def test_create_plans_calls(
         if initialization_fixture == "mock_plan_initialization"
         else request.getfixturevalue("mock_plan_df_plans_initialized_with_failure")
     )
+    if assignment_fixture == "mock_driver_assignment_with_inactive":
+        expected_plan_df.loc[
+            _FAILURE_IDX,
+            [IntermediateColumns.DRIVER_NAME, CircuitColumns.EMAIL, CircuitColumns.ID],
+        ] = expected_plan_df.iloc[_FAILURE_IDX + 1][
+            [IntermediateColumns.DRIVER_NAME, CircuitColumns.EMAIL, CircuitColumns.ID]
+        ]
 
     with error_context:
         _ = _create_plans(
@@ -968,7 +989,7 @@ def test_create_plans_calls(
             nullcontext(),
         ),
         (
-            "mock_driver_assignment",
+            "mock_driver_assignment_with_inactive",
             "mock_get_all_drivers_with_inactive",
             "mock_plan_initialization",
             pytest.raises(

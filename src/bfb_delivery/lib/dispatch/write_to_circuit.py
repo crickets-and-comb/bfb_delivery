@@ -765,10 +765,15 @@ def _assign_driver(  # noqa: C901
                 choice = int(choice.strip()) - 1
                 if choice < 0 or choice >= len(drivers_df):
                     raise errors.AssignmentOutOfRange
-            except errors.AssignmentOutOfRange:
-                print("Invalid input. Please enter a number associated with a driver.")
+                driver = drivers_df.iloc[choice]
+                if not driver[CircuitColumns.ACTIVE]:
+                    raise errors.InactiveDriverAssignment
             except ValueError:
                 print("Invalid input. Please enter a number.")
+            except errors.AssignmentOutOfRange:
+                print("Invalid input. Please enter a number associated with a driver.")
+            except errors.InactiveDriverAssignment:
+                print("Inactive driver selected. Select an active driver.")
             else:
                 plan_df.loc[
                     plan_df[IntermediateColumns.ROUTE_TITLE] == route_title,
