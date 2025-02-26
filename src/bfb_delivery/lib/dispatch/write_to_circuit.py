@@ -11,7 +11,7 @@ import pandera as pa
 from pandera.typing import DataFrame
 from typeguard import typechecked
 
-from bfb_delivery.lib import schema
+from bfb_delivery.lib import errors, schema
 from bfb_delivery.lib.constants import (
     CIRCUIT_DATE_FORMAT,
     CIRCUIT_DRIVERS_URL,
@@ -717,14 +717,14 @@ def _assign_drivers(
 
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
-def _assign_driver(
+# TODO: Decrease complexity. (Eemove noqa C901.)
+def _assign_driver(  # noqa: C901
     route_title: str,
     drivers_df: DataFrame[schema.DriversAssignDriverIn],
     plan_df: DataFrame[schema.PlansAssignDriverIn],
 ) -> pd.DataFrame:
     """Ask user to assign driver to a route."""
     # TODO: Warn/raise if driver not active.
-    # TODO: Display active status.
     best_guesses = pd.DataFrame()
     for name_part in route_title.split(" ")[1:]:
         if name_part not in ["&", "AND"] and len(name_part) > 1:
@@ -764,7 +764,9 @@ def _assign_driver(
             try:
                 choice = int(choice.strip()) - 1
                 if choice < 0 or choice >= len(drivers_df):
-                    raise ValueError
+                    raise errors.AssignmentOutOfRange
+            except errors.AssignmentOutOfRange:
+                print("Invalid input. Please enter a number associated with a driver.")
             except ValueError:
                 print("Invalid input. Please enter a number.")
             else:
