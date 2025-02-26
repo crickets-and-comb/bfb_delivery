@@ -856,10 +856,10 @@ class TestFormatCombinedRoutes:
             assert ws["A7"].value == f"Neighborhoods: {neighborhoods.upper()}"
             assert ws["E3"].value == BoxType.BASIC
             assert ws["F3"].value == agg_dict["box_counts"][BoxType.BASIC]
-            assert ws["E4"].value == BoxType.GF
-            assert ws["F4"].value == agg_dict["box_counts"][BoxType.GF]
-            assert ws["E5"].value == BoxType.LA
-            assert ws["F5"].value == agg_dict["box_counts"][BoxType.LA]
+            assert ws["E4"].value == BoxType.LA
+            assert ws["F4"].value == agg_dict["box_counts"][BoxType.LA]
+            assert ws["E5"].value == BoxType.GF
+            assert ws["F5"].value == agg_dict["box_counts"][BoxType.GF]
             assert ws["E6"].value == BoxType.VEGAN
             assert ws["F6"].value == agg_dict["box_counts"][BoxType.VEGAN]
             assert ws["E7"].value == "TOTAL BOX COUNT="
@@ -878,6 +878,14 @@ class TestFormatCombinedRoutes:
             for cell in ws["E"]:
                 if cell.row > 2 and cell.row < 7:
                     assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
+
+    @typechecked
+    def test_box_type_cell_order(self, basic_manifest_workbook: Workbook) -> None:
+        """Test that the box type cells are in the correct order."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            box_types = [cell[0].value for cell in ws["E3:E6"]]
+            assert box_types == [BoxType.BASIC, BoxType.LA, BoxType.GF, BoxType.VEGAN]
 
     @typechecked
     def test_notes_column_width(self, basic_manifest_workbook: Workbook) -> None:
@@ -1211,10 +1219,10 @@ class TestCreateManifests:
             assert ws["A7"].value == f"Neighborhoods: {neighborhoods.upper()}"
             assert ws["E3"].value == BoxType.BASIC
             assert ws["F3"].value == agg_dict["box_counts"][BoxType.BASIC]
-            assert ws["E4"].value == BoxType.GF
-            assert ws["F4"].value == agg_dict["box_counts"][BoxType.GF]
-            assert ws["E5"].value == BoxType.LA
-            assert ws["F5"].value == agg_dict["box_counts"][BoxType.LA]
+            assert ws["E4"].value == BoxType.LA
+            assert ws["F4"].value == agg_dict["box_counts"][BoxType.LA]
+            assert ws["E5"].value == BoxType.GF
+            assert ws["F5"].value == agg_dict["box_counts"][BoxType.GF]
             assert ws["E6"].value == BoxType.VEGAN
             assert ws["F6"].value == agg_dict["box_counts"][BoxType.VEGAN]
             assert ws["E7"].value == "TOTAL BOX COUNT="
@@ -1233,6 +1241,14 @@ class TestCreateManifests:
             for cell in ws["E"]:
                 if cell.row > 2 and cell.row < 7:
                     assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
+
+    @typechecked
+    def test_box_type_cell_order(self, basic_manifest_workbook: Workbook) -> None:
+        """Test that the box type cells are in the correct order."""
+        for sheet_name in basic_manifest_workbook.sheetnames:
+            ws = basic_manifest_workbook[sheet_name]
+            box_types = [cell[0].value for cell in ws["E3:E6"]]
+            assert box_types == [BoxType.BASIC, BoxType.LA, BoxType.GF, BoxType.VEGAN]
 
     @pytest.mark.parametrize(
         "cell",

@@ -524,20 +524,6 @@ def _get_right_block(thin_border: Border, agg_dict: dict) -> list[list[dict]]:
         ],
         [
             {
-                "value": "GF",
-                "fill": PatternFill(
-                    start_color=CellColors.GF, end_color=CellColors.GF, fill_type="solid"
-                ),
-                "border": thin_border,
-            },
-            {
-                "value": agg_dict["box_counts"].get("GF", 0),
-                "fill": None,
-                "border": thin_border,
-            },
-        ],
-        [
-            {
                 "value": "LA",
                 "fill": PatternFill(
                     start_color=CellColors.LA, end_color=CellColors.LA, fill_type="solid"
@@ -546,6 +532,20 @@ def _get_right_block(thin_border: Border, agg_dict: dict) -> list[list[dict]]:
             },
             {
                 "value": agg_dict["box_counts"].get("LA", 0),
+                "fill": None,
+                "border": thin_border,
+            },
+        ],
+        [
+            {
+                "value": "GF",
+                "fill": PatternFill(
+                    start_color=CellColors.GF, end_color=CellColors.GF, fill_type="solid"
+                ),
+                "border": thin_border,
+            },
+            {
+                "value": agg_dict["box_counts"].get("GF", 0),
                 "fill": None,
                 "border": thin_border,
             },
