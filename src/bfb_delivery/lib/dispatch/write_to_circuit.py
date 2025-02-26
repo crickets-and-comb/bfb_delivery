@@ -691,7 +691,10 @@ def _assign_drivers(
 ) -> DataFrame[schema.PlansAssignDriversOut]:
     """Ask users to assign drivers to each route."""
     for idx, row in drivers_df.iterrows():
-        print(f"{idx + 1}. {row[CircuitColumns.NAME]} {row[CircuitColumns.EMAIL]}")
+        print(
+            f"{idx + 1}. {"Active" if row[CircuitColumns.ACTIVE] else "Inactive"}: "
+            f"{row[CircuitColumns.NAME]} {row[CircuitColumns.EMAIL]}"
+        )
 
     print("\nUsing the driver numbers above, assign drivers to each route:")
     for route_title in plan_df[IntermediateColumns.ROUTE_TITLE]:
@@ -737,7 +740,10 @@ def _assign_driver(
 
     print(f"\nRoute {route_title}:\nBest guesses:")
     for idx, driver in best_guesses.iterrows():
-        print(f"{idx + 1}. {driver[CircuitColumns.NAME]} {driver[CircuitColumns.EMAIL]}")
+        print(
+            f"{idx + 1}. {"Active" if driver[CircuitColumns.ACTIVE] else "Inactive"}: "
+            f"{driver[CircuitColumns.NAME]} {driver[CircuitColumns.EMAIL]}"
+        )
     print("\n")
 
     assigned = False
