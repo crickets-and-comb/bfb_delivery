@@ -692,7 +692,7 @@ def _assign_drivers(
     """Ask users to assign drivers to each route."""
     for idx, row in drivers_df.iterrows():
         print(
-            f"{idx + 1}. {"Active" if row[CircuitColumns.ACTIVE] else "Inactive"}: "
+            f"{idx + 1}. {'Active' if row[CircuitColumns.ACTIVE] else 'Inactive'}: "
             f"{row[CircuitColumns.NAME]} {row[CircuitColumns.EMAIL]}"
         )
 
@@ -741,7 +741,7 @@ def _assign_driver(  # noqa: C901
     print(f"\nRoute {route_title}:\nBest guesses:")
     for idx, driver in best_guesses.iterrows():
         print(
-            f"{idx + 1}. {"Active" if driver[CircuitColumns.ACTIVE] else "Inactive"}: "
+            f"{idx + 1}. {'Active' if driver[CircuitColumns.ACTIVE] else 'Inactive'}: "
             f"{driver[CircuitColumns.NAME]} {driver[CircuitColumns.EMAIL]}"
         )
     print("\n")
