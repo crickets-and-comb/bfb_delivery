@@ -268,6 +268,20 @@ def mock_driver_assignment_with_retry(
 
 @pytest.fixture
 @typechecked
+def mock_driver_assignment_with_inactive(
+    driver_selections: list[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Mock user inputs for driver selection."""
+    new_driver_selections = (
+        driver_selections[0 : _FAILURE_IDX + 1]  # noqa: E203
+        + [str(int(driver_selections[_FAILURE_IDX]) + 1)]
+        + driver_selections[_FAILURE_IDX + 1 :]  # noqa: E203
+    )
+    patch_user_input(inputs=iter(new_driver_selections + ["y"]), monkeypatch=monkeypatch)
+
+
+@pytest.fixture
+@typechecked
 def mock_plan_df_plans_initialized(
     mock_plan_df_drivers_assigned: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -787,18 +801,12 @@ def test_assign_drivers(
 
 
 @pytest.mark.parametrize(
-    "assignment_fixture, get_drivers_fixture, error_context",
+    "assignment_fixture, get_drivers_fixture",
     [
-        ("mock_driver_assignment", "mock_get_all_drivers", nullcontext()),
-        ("mock_driver_assignment_with_derps", "mock_get_all_drivers", nullcontext()),
-        ("mock_driver_assignment_with_retry", "mock_get_all_drivers", nullcontext()),
-        (
-            "mock_driver_assignment",
-            "mock_get_all_drivers_with_inactive",
-            pytest.raises(
-                ValueError, match="Inactive drivers. Please activate the following drivers"
-            ),
-        ),
+        ("mock_driver_assignment", "mock_get_all_drivers"),
+        ("mock_driver_assignment_with_derps", "mock_get_all_drivers"),
+        ("mock_driver_assignment_with_retry", "mock_get_all_drivers"),
+        ("mock_driver_assignment_with_inactive", "mock_get_all_drivers_with_inactive"),
     ],
 )
 @typechecked
@@ -807,18 +815,24 @@ def test_assign_drivers_to_plans(
     mock_plan_df_drivers_assigned: pd.DataFrame,
     assignment_fixture: str,
     get_drivers_fixture: str,
-    error_context: AbstractContextManager,
     request: pytest.FixtureRequest,
 ) -> None:
     """Test that _assign_drivers_to_plans assigns drivers to routes correctly."""
     _ = request.getfixturevalue(get_drivers_fixture)
     _ = request.getfixturevalue(assignment_fixture)
 
-    with error_context:
-        result_df = _assign_drivers_to_plans(stops_df=mock_stops_df)
+    if assignment_fixture == "mock_driver_assignment_with_inactive":
+        mock_plan_df_drivers_assigned.loc[
+            _FAILURE_IDX,
+            [IntermediateColumns.DRIVER_NAME, CircuitColumns.EMAIL, CircuitColumns.ID],
+        ] = mock_plan_df_drivers_assigned.iloc[_FAILURE_IDX + 1][
+            [IntermediateColumns.DRIVER_NAME, CircuitColumns.EMAIL, CircuitColumns.ID]
+        ]
 
-        result_df[CircuitColumns.ACTIVE] = result_df[CircuitColumns.ACTIVE].astype(bool)
-        pd.testing.assert_frame_equal(result_df, mock_plan_df_drivers_assigned)
+    result_df = _assign_drivers_to_plans(stops_df=mock_stops_df)
+
+    result_df[CircuitColumns.ACTIVE] = result_df[CircuitColumns.ACTIVE].astype(bool)
+    pd.testing.assert_frame_equal(result_df, mock_plan_df_drivers_assigned)
 
 
 @pytest.mark.parametrize(
@@ -847,39 +861,28 @@ def test_initialize_plans(
 
 
 @pytest.mark.parametrize(
-    "assignment_fixture, get_drivers_fixture, initialization_fixture, error_context",
+    "assignment_fixture, get_drivers_fixture, initialization_fixture",
     [
-        (
-            "mock_driver_assignment",
-            "mock_get_all_drivers",
-            "mock_plan_initialization",
-            nullcontext(),
-        ),
+        ("mock_driver_assignment", "mock_get_all_drivers", "mock_plan_initialization"),
         (
             "mock_driver_assignment_with_derps",
             "mock_get_all_drivers",
             "mock_plan_initialization",
-            nullcontext(),
         ),
         (
             "mock_driver_assignment_with_retry",
             "mock_get_all_drivers",
             "mock_plan_initialization",
-            nullcontext(),
         ),
         (
-            "mock_driver_assignment",
+            "mock_driver_assignment_with_inactive",
             "mock_get_all_drivers_with_inactive",
             "mock_plan_initialization",
-            pytest.raises(
-                ValueError, match="Inactive drivers. Please activate the following drivers"
-            ),
         ),
         (
             "mock_driver_assignment",
             "mock_get_all_drivers",
             "mock_plan_initialization_failure",
-            nullcontext(),
         ),
     ],
 )
@@ -889,7 +892,6 @@ def test_create_plans_calls(
     get_drivers_fixture: str,
     assignment_fixture: str,
     initialization_fixture: str,
-    error_context: AbstractContextManager,
     request: pytest.FixtureRequest,
     tmp_path: Path,
     requests_mock: Mocker,  # noqa: F811
@@ -903,83 +905,76 @@ def test_create_plans_calls(
         if initialization_fixture == "mock_plan_initialization"
         else request.getfixturevalue("mock_plan_df_plans_initialized_with_failure")
     )
-
-    with error_context:
-        _ = _create_plans(
-            stops_df=mock_stops_df,
-            start_date=_START_DATE,
-            plan_df_path=tmp_path / "plan_df.csv",
-            verbose=False,
-        )
-
-        driver_requests = [
-            req
-            for req in requests_mock.request_history
-            if req.url.startswith(CIRCUIT_DRIVERS_URL)
-        ]
-        assert len(driver_requests) == 2
-
-        plan_posts = [
-            req for req in requests_mock.request_history if req.url == f"{CIRCUIT_URL}/plans"
-        ]
-        assert len(plan_posts) == len(expected_plan_df)
-
-        payloads = [req.json() for req in plan_posts]
-        expected_payloads = [
-            {
-                CircuitColumns.TITLE: row[IntermediateColumns.ROUTE_TITLE],
-                # TODO: Just make this once.
-                CircuitColumns.STARTS: {
-                    CircuitColumns.DAY: int(_START_DATE.split("-")[2]),
-                    CircuitColumns.MONTH: int(_START_DATE.split("-")[1]),
-                    CircuitColumns.YEAR: int(_START_DATE.split("-")[0]),
-                },
-                CircuitColumns.DRIVERS: [row[CircuitColumns.ID]],
-            }
-            for _, row in expected_plan_df.iterrows()
+    if assignment_fixture == "mock_driver_assignment_with_inactive":
+        expected_plan_df.loc[
+            _FAILURE_IDX,
+            [IntermediateColumns.DRIVER_NAME, CircuitColumns.EMAIL, CircuitColumns.ID],
+        ] = expected_plan_df.iloc[_FAILURE_IDX + 1][
+            [IntermediateColumns.DRIVER_NAME, CircuitColumns.EMAIL, CircuitColumns.ID]
         ]
 
-        missing_payloads = [
-            payload for payload in expected_payloads if payload not in payloads
-        ]
-        extra_payloads = [payload for payload in payloads if payload not in expected_payloads]
-        assert len(missing_payloads) == 0 and len(extra_payloads) == 0
+    _ = _create_plans(
+        stops_df=mock_stops_df,
+        start_date=_START_DATE,
+        plan_df_path=tmp_path / "plan_df.csv",
+        verbose=False,
+    )
+
+    driver_requests = [
+        req
+        for req in requests_mock.request_history
+        if req.url.startswith(CIRCUIT_DRIVERS_URL)
+    ]
+    assert len(driver_requests) == 2
+
+    plan_posts = [
+        req for req in requests_mock.request_history if req.url == f"{CIRCUIT_URL}/plans"
+    ]
+    assert len(plan_posts) == len(expected_plan_df)
+
+    payloads = [req.json() for req in plan_posts]
+    expected_payloads = [
+        {
+            CircuitColumns.TITLE: row[IntermediateColumns.ROUTE_TITLE],
+            # TODO: Just make this once.
+            CircuitColumns.STARTS: {
+                CircuitColumns.DAY: int(_START_DATE.split("-")[2]),
+                CircuitColumns.MONTH: int(_START_DATE.split("-")[1]),
+                CircuitColumns.YEAR: int(_START_DATE.split("-")[0]),
+            },
+            CircuitColumns.DRIVERS: [row[CircuitColumns.ID]],
+        }
+        for _, row in expected_plan_df.iterrows()
+    ]
+
+    missing_payloads = [payload for payload in expected_payloads if payload not in payloads]
+    extra_payloads = [payload for payload in payloads if payload not in expected_payloads]
+    assert len(missing_payloads) == 0 and len(extra_payloads) == 0
 
 
 @pytest.mark.parametrize(
-    "assignment_fixture, get_drivers_fixture, initialization_fixture, error_context",
+    "assignment_fixture, get_drivers_fixture, initialization_fixture",
     [
-        (
-            "mock_driver_assignment",
-            "mock_get_all_drivers",
-            "mock_plan_initialization",
-            nullcontext(),
-        ),
+        ("mock_driver_assignment", "mock_get_all_drivers", "mock_plan_initialization"),
         (
             "mock_driver_assignment_with_derps",
             "mock_get_all_drivers",
             "mock_plan_initialization",
-            nullcontext(),
         ),
         (
             "mock_driver_assignment_with_retry",
             "mock_get_all_drivers",
             "mock_plan_initialization",
-            nullcontext(),
         ),
         (
-            "mock_driver_assignment",
+            "mock_driver_assignment_with_inactive",
             "mock_get_all_drivers_with_inactive",
             "mock_plan_initialization",
-            pytest.raises(
-                ValueError, match="Inactive drivers. Please activate the following drivers"
-            ),
         ),
         (
             "mock_driver_assignment",
             "mock_get_all_drivers",
             "mock_plan_initialization_failure",
-            nullcontext(),
         ),
     ],
 )
@@ -989,7 +984,6 @@ def test_create_plans_returns(
     get_drivers_fixture: str,
     assignment_fixture: str,
     initialization_fixture: str,
-    error_context: AbstractContextManager,
     request: pytest.FixtureRequest,
     tmp_path: Path,
 ) -> None:
@@ -1005,16 +999,22 @@ def test_create_plans_returns(
     expected_plan_df[CircuitColumns.ACTIVE] = expected_plan_df[CircuitColumns.ACTIVE].astype(
         object
     )
+    if assignment_fixture == "mock_driver_assignment_with_inactive":
+        expected_plan_df.loc[
+            _FAILURE_IDX,
+            [IntermediateColumns.DRIVER_NAME, CircuitColumns.EMAIL, CircuitColumns.ID],
+        ] = expected_plan_df.iloc[_FAILURE_IDX + 1][
+            [IntermediateColumns.DRIVER_NAME, CircuitColumns.EMAIL, CircuitColumns.ID]
+        ]
 
-    with error_context:
-        plan_df = _create_plans(
-            stops_df=mock_stops_df,
-            start_date=_START_DATE,
-            plan_df_path=tmp_path / "plan_df.csv",
-            verbose=False,
-        )
+    plan_df = _create_plans(
+        stops_df=mock_stops_df,
+        start_date=_START_DATE,
+        plan_df_path=tmp_path / "plan_df.csv",
+        verbose=False,
+    )
 
-        pd.testing.assert_frame_equal(plan_df, expected_plan_df)
+    pd.testing.assert_frame_equal(plan_df, expected_plan_df)
 
 
 @typechecked

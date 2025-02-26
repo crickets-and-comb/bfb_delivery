@@ -65,8 +65,8 @@ From the single optimized route of several hundred stops, you'll next allocate t
 
     When assignng more that one route to a driver, use the following convention instead of the driver's name: "Driver Name #1", "Driver Name #2", etc. This will tell the tool to split the routes instead of making one long route for the driver.
 
-Activate your env
------------------
+Build and distribute the routes
+-------------------------------
 
 Phewf! You have your chunked routes. Now you need to upload the routes to Circuit, optimize them, distribute them to the driver apps (if you wish), and build the final manifests to print for the drivers. You can do this with :code:`build_routes_from_chunked`.
 
