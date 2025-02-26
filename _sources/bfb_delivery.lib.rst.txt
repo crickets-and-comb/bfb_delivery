@@ -22,6 +22,14 @@ bfb\_delivery.lib.constants module
    :undoc-members:
    :show-inheritance:
 
+bfb\_delivery.lib.errors module
+-------------------------------
+
+.. automodule:: bfb_delivery.lib.errors
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bfb\_delivery.lib.utils module
 ------------------------------
 

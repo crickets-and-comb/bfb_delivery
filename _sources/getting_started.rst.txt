@@ -23,6 +23,13 @@ Go to https://www.anaconda.com to download and install ``conda`` on your machine
 
 But, the full Anaconda installation comes with a terminal, Anaconda Command Prompt, and you'll need a terminal to work in your env. You can use the Anaconda Command Prompt that gets installed with Anaconda, or you can use Git Bash or another conda-friendly terminal.
 
+Install Git with Unix tools
+###########################
+
+This isn't strictly necessary, but it makes working in the terminal a lot easier. Go to https://git-scm.com/downloads and download and install Git. When you install Git, you'll have the option to install Unix tools. Make sure you check that box. This will install basic tools that the tutorials in this documentation assume you have, like ``ls`` and ``chmod``. There are other ways to install these tools, but Git is easy and reliable.
+
+When installing Git, you'll probably want to stick with the default settings depending on your use case. An exception may be when you choose your editor. If you're not developing (i.e., using Git to edit the source code), you'll never use this, but if you are, you'll want to choose an editor you like. The default is Vim, which is a powerful editor but has a steep learning curve because of low interface discoverability. If you're not sure, choose Nano or something you are familiar with. I recommend Nano. It's a terminal-based editor that's pretty user-friendly as it has a menu of shortcuts at the bottom of the page.
+
 Build the env and install the package
 #####################################
 

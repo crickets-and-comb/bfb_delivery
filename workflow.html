@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet" href="build_routes_from_chunked.html" /><link rel="prev" title="Getting Started" href="getting_started.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>The Delivery-Planning Workflow - bfb_delivery 0.6.6 documentation</title>
+        <title>The Delivery-Planning Workflow - bfb_delivery 0.6.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.6.6 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.6.7 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.6.6 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.6.7 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -265,7 +265,7 @@
           <section id="the-delivery-planning-workflow">
 <h1>The Delivery-Planning Workflow<a class="headerlink" href="#the-delivery-planning-workflow" title="Link to this heading">¶</a></h1>
 <p>Once you’re set up (see <a class="reference internal" href="getting_started.html"><span class="doc">Getting Started</span></a>), and you have a master list of chunked routes you want to split up and optimize in Circuit, and you’ve activated the selected drivers in Circuit, you can begin using <code class="code docutils literal notranslate"><span class="pre">bfb_delivery</span></code>. Here’s the workflow.</p>
-<figure class="align-default" id="id2">
+<figure class="align-default" id="id1">
 <pre  class="mermaid">
         graph TD;
     activate_all_hhs_driver[&quot;Activate 'All HHs' driver in Circuit.&quot;];
@@ -279,7 +279,7 @@
     build_routes_from_chunked --&gt; review_output[Review the console output to confirm success.];
     build_routes_from_chunked --&gt; print[Review and print the manifests for your drivers.];
     </pre><figcaption>
-<p><span class="caption-text">Delivery Planning Workflow</span><a class="headerlink" href="#id2" title="Link to this image">¶</a></p>
+<p><span class="caption-text">Delivery Planning Workflow</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>Here’s the workflow in more detail.</p>
@@ -315,8 +315,8 @@ conda<span class="w"> </span>activate<span class="w"> </span>my_bfb_delivery_env
 <p>When assignng more that one route to a driver, use the following convention instead of the driver’s name: “Driver Name #1”, “Driver Name #2”, etc. This will tell the tool to split the routes instead of making one long route for the driver.</p>
 </div>
 </section>
-<section id="id1">
-<h2>Activate your env<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<section id="build-and-distribute-the-routes">
+<h2>Build and distribute the routes<a class="headerlink" href="#build-and-distribute-the-routes" title="Link to this heading">¶</a></h2>
 <p>Phewf! You have your chunked routes. Now you need to upload the routes to Circuit, optimize them, distribute them to the driver apps (if you wish), and build the final manifests to print for the drivers. You can do this with <code class="code docutils literal notranslate"><span class="pre">build_routes_from_chunked</span></code>.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--input_path<span class="w"> </span><span class="s2">&quot;path/to/master_chunked.xlsx&quot;</span>
 </pre></div>
@@ -403,7 +403,7 @@ conda<span class="w"> </span>activate<span class="w"> </span>my_bfb_delivery_env
 <li><a class="reference internal" href="#activate-your-env">Activate your env</a></li>
 <li><a class="reference internal" href="#route-all-stops-with-circuit">Route all stops with Circuit</a></li>
 <li><a class="reference internal" href="#chunk-the-stops-by-driver">Chunk the stops by driver</a></li>
-<li><a class="reference internal" href="#id1">Activate your env</a></li>
+<li><a class="reference internal" href="#build-and-distribute-the-routes">Build and distribute the routes</a></li>
 <li><a class="reference internal" href="#review-the-console-output-to-confirm-success">Review the console output to confirm success</a></li>
 <li><a class="reference internal" href="#review-and-print-manifests">Review and print manifests</a></li>
 <li><a class="reference internal" href="#see-also">See Also</a></li>
@@ -418,7 +418,7 @@ conda<span class="w"> </span>activate<span class="w"> </span>my_bfb_delivery_env
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=e059a73d"></script>
+</div><script src="_static/documentation_options.js?v=44212324"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="bfb_delivery.lib.dispatch package" href="bfb_delivery.lib.dispatch.html" /><link rel="prev" title="bfb_delivery.cli package" href="bfb_delivery.cli.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>bfb_delivery.lib package - bfb_delivery 0.6.6 documentation</title>
+        <title>bfb_delivery.lib package - bfb_delivery 0.6.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.6.6 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.6.7 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.6.6 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.6.7 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -1312,6 +1312,31 @@
 </dd></dl>
 
 </section>
+<section id="module-bfb_delivery.lib.errors">
+<span id="bfb-delivery-lib-errors-module"></span><h2>bfb_delivery.lib.errors module<a class="headerlink" href="#module-bfb_delivery.lib.errors" title="Link to this heading">¶</a></h2>
+<p>Module for custom exceptions.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="bfb_delivery.lib.errors.AssignmentOutOfRange">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.errors.</span></span><span class="sig-name descname"><span class="pre">AssignmentOutOfRange</span></span><a class="headerlink" href="#bfb_delivery.lib.errors.AssignmentOutOfRange" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.errors.BFBError" title="bfb_delivery.lib.errors.BFBError"><code class="xref py py-class docutils literal notranslate"><span class="pre">BFBError</span></code></a></p>
+<p>Raised when a user selects a driver index out of range.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="bfb_delivery.lib.errors.BFBError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.errors.</span></span><span class="sig-name descname"><span class="pre">BFBError</span></span><a class="headerlink" href="#bfb_delivery.lib.errors.BFBError" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Base class for exceptions in this module.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="bfb_delivery.lib.errors.InactiveDriverAssignment">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.errors.</span></span><span class="sig-name descname"><span class="pre">InactiveDriverAssignment</span></span><a class="headerlink" href="#bfb_delivery.lib.errors.InactiveDriverAssignment" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.errors.BFBError" title="bfb_delivery.lib.errors.BFBError"><code class="xref py py-class docutils literal notranslate"><span class="pre">BFBError</span></code></a></p>
+<p>Raised when a user selects an inactive driver.</p>
+</dd></dl>
+
+</section>
 <section id="module-bfb_delivery.lib.utils">
 <span id="bfb-delivery-lib-utils-module"></span><h2>bfb_delivery.lib.utils module<a class="headerlink" href="#module-bfb_delivery.lib.utils" title="Link to this heading">¶</a></h2>
 <p>Utility functions for the bfb_delivery module.</p>
@@ -1527,6 +1552,12 @@
 </li>
 </ul>
 </li>
+<li><a class="reference internal" href="#module-bfb_delivery.lib.errors">bfb_delivery.lib.errors module</a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.errors.AssignmentOutOfRange"><code class="docutils literal notranslate"><span class="pre">AssignmentOutOfRange</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.errors.BFBError"><code class="docutils literal notranslate"><span class="pre">BFBError</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.errors.InactiveDriverAssignment"><code class="docutils literal notranslate"><span class="pre">InactiveDriverAssignment</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#module-bfb_delivery.lib.utils">bfb_delivery.lib.utils module</a><ul>
 <li><a class="reference internal" href="#bfb_delivery.lib.utils.get_friday"><code class="docutils literal notranslate"><span class="pre">get_friday()</span></code></a></li>
 </ul>
@@ -1543,7 +1574,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=e059a73d"></script>
+</div><script src="_static/documentation_options.js?v=44212324"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>
