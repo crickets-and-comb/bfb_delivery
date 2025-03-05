@@ -1,4 +1,4 @@
 [submodule "shared"]
 	path = shared
-	url = git@github.com:crickets-and-comb/shared.git
+	url = https://github.com/crickets-and-comb/shared.git
 	branch = main
