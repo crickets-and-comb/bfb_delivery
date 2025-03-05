@@ -4,6 +4,7 @@ from enum import StrEnum
 from typing import Final
 
 import pandas as pd
+
 from comb_utils import DocString, ErrorDocString
 
 ADDRESS_COLUMN_WIDTH: Final[float] = 40
