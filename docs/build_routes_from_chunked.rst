@@ -47,24 +47,27 @@ The function will return the filepath to the final manifest. If you're using the
 Examining output
 ~~~~~~~~~~~~~~~~
 
-Below is an example with three routes (usually about 40-50 routes). The tool will prompt you to assign drivers to each route. You use the driver numbers printed to the console to assign drivers to each route. The tool will then run for up to a minute per route and finish successfully by printing the filepath to the final manifest.
+Below is an example with three routes (usually about 40-50 routes). The tool will prompt you to assign drivers to each route, e.g. "Enter the number of the driver for '02.14 Eric'(ctl+c to start over):". You use the driver numbers printed to the console to assign drivers to each route, 48 in this example (see input below). The tool will then run for up to a minute per route and finish successfully by printing the filepath to the final manifest.
+
+.. note::
+
+    Notice how the driver status is printed with the driver. The tool will not allow you to assign an inactive driver to a route, re-prompting you if you do enter an inactive driver. If you need to assign an inactive driver, you will need to activate them in Circuit first.
 
 .. code-block::
-   :linenos:
 
     (bfb_delivery_py3.12) MacBook-Pro:bfb_delivery me$ build_routes_from_chunked --input_path .test_data/scratch/test_master_chunked_sample.xlsx --output_dir .test_data/scratch/
     2025-02-12 17:49:38,585 - INFO - Writing split chunked workbooks to /Users/me/repos/bfb_delivery/.test_data/scratch/split_chunked
     2025-02-12 17:49:38,620 - INFO - Getting all drivers from Circuit ...
     2025-02-12 17:49:39,568 - INFO - Finished getting drivers.
-    1. Hank Hill hank@propane.com
+    1. Active: Hank Hill hank@propane.com
     ... (more drivers) ...
-    84. Nosferatu pinebox@bfb.com
+    84. Active: Nosferatu pinebox@bfb.com
 
     Using the driver numbers above, assign drivers to each route:
 
     Route 02.14 Eric:
     Best guesses:
-    48. Eric Cartman emoney@southpark.com
+    48. Active: Eric Cartman emoney@southpark.com
 
 
     Enter the number of the driver for '02.14 Eric'(ctl+c to start over):48
@@ -73,8 +76,8 @@ Below is an example with three routes (usually about 40-50 routes). The tool wil
 
     Route 02.14 Hank:
     Best guesses:
-    1. Hank Hill hank@propane.com
-    23. Hankie the Christmas Poo hankie@jinglebells.com
+    1. Active: Hank Hill hank@propane.com
+    23. Inactive: Hankie Who hankie@realtalk.com
 
 
     Enter the number of the driver for '02.14 Hank'(ctl+c to start over):1
@@ -83,7 +86,7 @@ Below is an example with three routes (usually about 40-50 routes). The tool wil
 
     Route 02.14 Nos:
     Best guesses:
-    84. Nosferatu pinebox@bfb.com
+    84. Active: Nosferatu pinebox@bfb.com
 
 
     Enter the number of the driver for '02.14 Nos'(ctl+c to start over):84
