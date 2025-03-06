@@ -3,14 +3,13 @@
 import os
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Any
 from unittest.mock import patch
 
 import pytest
 from typeguard import typechecked
 
 
-def pytest_collection_modifyitems(config: Any, items: list[Any]) -> None:
+def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
     """Mark test types."""
     unit_tests_dir = os.path.join(config.rootdir, Path("tests/unit"))
     integration_tests_dir = os.path.join(config.rootdir, Path("tests/integration"))
@@ -24,12 +23,6 @@ def pytest_collection_modifyitems(config: Any, items: list[Any]) -> None:
             item.add_marker("integration")
         elif test_path.startswith(e2e_tests_dir):
             item.add_marker("e2e")
-
-
-def pytest_sessionfinish(session: Any, exitstatus: pytest.ExitCode) -> None:
-    """Set as success if no tests are collected."""
-    if exitstatus == pytest.ExitCode.NO_TESTS_COLLECTED:
-        session.exitstatus = pytest.ExitCode.OK
 
 
 @pytest.fixture

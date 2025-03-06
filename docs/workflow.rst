@@ -30,10 +30,12 @@ First, open your terminal (e.g., Anaconda Command Prompt), navigate to the corre
 
 .. code:: bash
 
-    cd path/to/bfb_delivery/dir
-    conda activate my_bfb_delivery_env_name
+    cd bfb_delivery
+    conda activate bfb_delivery
 
-See :doc:`getting_started` for more information.
+.. note::
+
+    Calling the directory "bfb_delivery" and the environment "bfb_delivery" is just a convention. You can name them each whatever you like when you set them up. See :doc:`getting_started` for more information. The necessary package installed in the environment is always called "bfb_delivery" though.
 
 Now you're ready to use the tools in the ``bfb_delivery`` command-line interface (CLI).
 
@@ -47,6 +49,14 @@ You can build the single route manually, or you can use :code:`build_routes_from
 .. code:: bash
 
     build_routes_from_chunked --input_path "path/to/all_hhs.xlsx"
+
+.. attention::
+
+    The tool is not integrated with Sharepoint as of yet. You must download the file to your local machine to use the tool.
+
+.. note::
+
+    "path/to/all_hhs.xlsx" is a dummy path. Replace it with the path to your spreadsheet. It might be something like "C:/Users/you/Downloads/all_hhs.xlsx". It's up to you to know where you put your file.
 
 The tool will prompt you to confirm the driver assignment. See :doc:`build_routes_from_chunked` for an example, as well as e.g. for how to set the output directory. You may also use `--help` to see all the optional arguments in the CLI:
 
@@ -73,6 +83,14 @@ Phewf! You have your chunked routes. Now you need to upload the routes to Circui
 .. code:: bash
 
     build_routes_from_chunked --input_path "path/to/master_chunked.xlsx"
+
+.. attention::
+
+    The tool is not integrated with Sharepoint as of yet. You must download the file to your local machine to use the tool.
+
+.. note::
+
+    "path/to/master_chunked.xlsx" is a dummy path. Replace it with the path to your spreadsheet. It might be something like "C:/Users/you/Downloads/master_chunked.xlsx". It's up to you to know where you put your file.
 
 The tool will prompt you to confirm the driver assignments. See :doc:`build_routes_from_chunked` for an example, as well as e.g. for how to set the output directory. You may also use `--help` to see all the optional arguments in the CLI:
 

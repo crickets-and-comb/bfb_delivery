@@ -5,3 +5,6 @@ QC_DIRS := ${REPO_ROOT}src/ ${REPO_ROOT}tests/ ${REPO_ROOT}docs/ ${REPO_ROOT}scr
 
 export
 include shared/Makefile
+
+full-test: # Run all the tests.
+	$(MAKE) unit
