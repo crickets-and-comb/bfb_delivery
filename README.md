@@ -48,9 +48,14 @@ Plus, a benefit of having these subtools wrapped within the larger tool is that 
 ## Structure
 
 ```bash
-    src/bfb_delivery/api            Public and internal API.
-    src/bfb_delivery/cli            Command-line-interface.
-    src/bfb_delivery/lib            Implementation.
+    .github/workflows               GitHub Actions CI/CD workflows.
+    docs                            RST docs and doc build staging.
+    Makefile                        Dev tools and params. (includes shared/Makefile)
+    setup.cfg                       Metadata and dependencies.
+    shared                          Shared dev tools Git submodule.
+    src/reference_package/api       Public and internal API.
+    src/reference_package/cli       Command-line-interface.
+    src/reference_package/lib       Implementation.
     tests/e2e                       End-to-end tests.
     test/integration                Integration tests.
     tests/unit                      Unit tests.
