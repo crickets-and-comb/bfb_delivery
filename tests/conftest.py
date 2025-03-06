@@ -3,14 +3,13 @@
 import os
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Any
 from unittest.mock import patch
 
 import pytest
 from typeguard import typechecked
 
 
-def pytest_collection_modifyitems(config: Any, items: list) -> None:
+def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
     """Mark test types."""
     unit_tests_dir = os.path.join(config.rootdir, Path("tests/unit"))
     integration_tests_dir = os.path.join(config.rootdir, Path("tests/integration"))
