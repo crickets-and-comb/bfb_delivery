@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Intro to Command Line and Bash" href="intro_to_bash.html" /><link rel="prev" title="The Delivery-Planning Workflow" href="workflow.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet - bfb_delivery 0.6.7 documentation</title>
+        <title>Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet - bfb_delivery 0.6.9 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.6.7 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.6.9 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.6.7 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.6.9 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -297,81 +297,85 @@
 </div>
 <section id="examining-output">
 <h3>Examining output<a class="headerlink" href="#examining-output" title="Link to this heading">¶</a></h3>
-<p>Below is an example with three routes (usually about 40-50 routes). The tool will prompt you to assign drivers to each route. You use the driver numbers printed to the console to assign drivers to each route. The tool will then run for up to a minute per route and finish successfully by printing the filepath to the final manifest.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span> (bfb_delivery_py3.12) MacBook-Pro:bfb_delivery me$ build_routes_from_chunked --input_path .test_data/scratch/test_master_chunked_sample.xlsx --output_dir .test_data/scratch/
-<span class="linenos"> 2</span> 2025-02-12 17:49:38,585 - INFO - Writing split chunked workbooks to /Users/me/repos/bfb_delivery/.test_data/scratch/split_chunked
-<span class="linenos"> 3</span> 2025-02-12 17:49:38,620 - INFO - Getting all drivers from Circuit ...
-<span class="linenos"> 4</span> 2025-02-12 17:49:39,568 - INFO - Finished getting drivers.
-<span class="linenos"> 5</span> 1. Hank Hill hank@propane.com
-<span class="linenos"> 6</span> ... (more drivers) ...
-<span class="linenos"> 7</span> 84. Nosferatu pinebox@bfb.com
-<span class="linenos"> 8</span>
-<span class="linenos"> 9</span> Using the driver numbers above, assign drivers to each route:
-<span class="linenos">10</span>
-<span class="linenos">11</span> Route 02.14 Eric:
-<span class="linenos">12</span> Best guesses:
-<span class="linenos">13</span> 48. Eric Cartman emoney@southpark.com
-<span class="linenos">14</span>
-<span class="linenos">15</span>
-<span class="linenos">16</span> Enter the number of the driver for &#39;02.14 Eric&#39;(ctl+c to start over):48
-<span class="linenos">17</span>
-<span class="linenos">18</span> Assigned 02.14 Eric to Eric Cartman.
-<span class="linenos">19</span>
-<span class="linenos">20</span> Route 02.14 Hank:
-<span class="linenos">21</span> Best guesses:
-<span class="linenos">22</span> 1. Hank Hill hank@propane.com
-<span class="linenos">23</span> 23. Hankie the Christmas Poo hankie@jinglebells.com
-<span class="linenos">24</span>
-<span class="linenos">25</span>
-<span class="linenos">26</span> Enter the number of the driver for &#39;02.14 Hank&#39;(ctl+c to start over):1
-<span class="linenos">27</span>
-<span class="linenos">28</span> Assigned 02.14 Hank to Hank Hill.
-<span class="linenos">29</span>
-<span class="linenos">30</span> Route 02.14 Nos:
-<span class="linenos">31</span> Best guesses:
-<span class="linenos">32</span> 84. Nosferatu pinebox@bfb.com
-<span class="linenos">33</span>
-<span class="linenos">34</span>
-<span class="linenos">35</span> Enter the number of the driver for &#39;02.14 Nos&#39;(ctl+c to start over):84
-<span class="linenos">36</span>
-<span class="linenos">37</span> Assigned 02.14 Nos to Nosferatu.
-<span class="linenos">38</span> 02.14 Eric: Eric Cartman, emoney@southpark.com
-<span class="linenos">39</span> 02.14 Hank: Hank Hill, hank@propane.com
-<span class="linenos">40</span> 02.14 Nos: Nosferatu pinebox@bfb.com
-<span class="linenos">41</span> Confirm the drivers above? (y/n): y
-<span class="linenos">42</span> 2025-02-12 17:50:16,179 - INFO - Initializing plans ...
-<span class="linenos">43</span> 2025-02-12 17:50:18,067 - INFO - Finished initializing plans. Initialized 3 plans.
-<span class="linenos">44</span> 2025-02-12 17:50:18,126 - INFO - Uploading stops. Allow 6+ seconds per plan ...
-<span class="linenos">45</span> 2025-02-12 17:50:44,995 - INFO - Finished uploading stops. Uploaded 50 stops for 3 plans.
-<span class="linenos">46</span> 2025-02-12 17:50:45,023 - INFO - Initializing route optimizations. Allow 20+ seconds per plan ...
-<span class="linenos">47</span> 2025-02-12 17:51:49,759 - INFO - Finished initializing route optimizations for 3 plans.
-<span class="linenos">48</span> 2025-02-12 17:51:49,782 - INFO - Confirming optimizations have finished ...
-<span class="linenos">49</span> 2025-02-12 17:51:50,980 - INFO - Finished optimizing routes. Optimized 3 routes.
-<span class="linenos">50</span> 2025-02-12 17:51:51,019 - INFO - Distributing routes ...
-<span class="linenos">51</span> 2025-02-12 17:51:53,200 - INFO - Finished distributing routes for 3 plans.
-<span class="linenos">52</span> 2025-02-12 17:51:53,222 - INFO -
-<span class="linenos">53</span>     route_title  initialized  writable  stops_uploaded optimized  distributed
-<span class="linenos">54</span> 0  02.14 Eric             True      True            True      True         True
-<span class="linenos">55</span> 1  02.14 Hank             True      True            True      True         True
-<span class="linenos">56</span> 2  02.14 Nos              True      True            True      True         True
-<span class="linenos">57</span>
-<span class="linenos">58</span> Plans attempted: 3
-<span class="linenos">59</span> Plans initialized: 3
-<span class="linenos">60</span> Plans with stops: 3
-<span class="linenos">61</span> Plans optimized: 3
-<span class="linenos">62</span> Plans distributed: 3
-<span class="linenos">63</span> 2025-02-12 17:51:53,231 - INFO - Getting route plans from Circuit ...
-<span class="linenos">64</span> 2025-02-12 17:51:53,692 - INFO - Finished getting route plans.
-<span class="linenos">65</span> 2025-02-12 17:51:53,711 - INFO - Getting stops from Circuit ...
-<span class="linenos">66</span> 2025-02-12 17:51:57,597 - INFO - Finished getting stops.
-<span class="linenos">67</span> 2025-02-12 17:51:57,629 - WARNING - Missing neighborhood for 50 stops. Imputing best guesses from Circuit-supplied address.
-<span class="linenos">68</span> 2025-02-12 17:51:57,655 - WARNING - Output directory exists /Users/me/repos/bfb_delivery/.test_data/scratch/routes_2025-02-14. Overwriting.
-<span class="linenos">69</span> 2025-02-12 17:51:57,655 - INFO - Writing route CSVs to /Users/me/repos/bfb_delivery/.test_data/scratch/routes_2025-02-14
-<span class="linenos">70</span> 2025-02-12 17:51:57,676 - INFO - Writing combined routes to /Users/me/repos/bfb_delivery/.test_data/scratch/combined_routes_20250212.xlsx
-<span class="linenos">71</span> 2025-02-12 17:51:57,711 - INFO - Writing formatted routes to /Users/me/repos/bfb_delivery/.test_data/scratch/final_manifests_20250212.xlsx
-<span class="linenos">72</span> 2025-02-12 17:51:57,715 - INFO - Formatted workbook saved to:
-<span class="linenos">73</span> /Users/me/repos/bfb_delivery/.test_data/scratch/final_manifests_20250212.xlsx
-<span class="linenos">74</span> (bfb_delivery_py3.12) MacBook-Pro:bfb_delivery me$
+<p>Below is an example with three routes (usually about 40-50 routes). The tool will prompt you to assign drivers to each route, e.g. “Enter the number of the driver for ‘02.14 Eric’(ctl+c to start over):”. You use the driver numbers printed to the console to assign drivers to each route, 48 in this example (see input below). The tool will then run for up to a minute per route and finish successfully by printing the filepath to the final manifest.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Notice how the driver status is printed with the driver. The tool will not allow you to assign an inactive driver to a route, re-prompting you if you do enter an inactive driver. If you need to assign an inactive driver, you will need to activate them in Circuit first.</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>(bfb_delivery_py3.12) MacBook-Pro:bfb_delivery me$ build_routes_from_chunked --input_path .test_data/scratch/test_master_chunked_sample.xlsx --output_dir .test_data/scratch/
+2025-02-12 17:49:38,585 - INFO - Writing split chunked workbooks to /Users/me/repos/bfb_delivery/.test_data/scratch/split_chunked
+2025-02-12 17:49:38,620 - INFO - Getting all drivers from Circuit ...
+2025-02-12 17:49:39,568 - INFO - Finished getting drivers.
+1. Active: Hank Hill hank@propane.com
+... (more drivers) ...
+84. Active: Nosferatu pinebox@bfb.com
+
+Using the driver numbers above, assign drivers to each route:
+
+Route 02.14 Eric:
+Best guesses:
+48. Active: Eric Cartman emoney@southpark.com
+
+
+Enter the number of the driver for &#39;02.14 Eric&#39;(ctl+c to start over):48
+
+Assigned 02.14 Eric to Eric Cartman.
+
+Route 02.14 Hank:
+Best guesses:
+1. Active: Hank Hill hank@propane.com
+23. Inactive: Hankie Who hankie@realtalk.com
+
+
+Enter the number of the driver for &#39;02.14 Hank&#39;(ctl+c to start over):1
+
+Assigned 02.14 Hank to Hank Hill.
+
+Route 02.14 Nos:
+Best guesses:
+84. Active: Nosferatu pinebox@bfb.com
+
+
+Enter the number of the driver for &#39;02.14 Nos&#39;(ctl+c to start over):84
+
+Assigned 02.14 Nos to Nosferatu.
+02.14 Eric: Eric Cartman, emoney@southpark.com
+02.14 Hank: Hank Hill, hank@propane.com
+02.14 Nos: Nosferatu pinebox@bfb.com
+Confirm the drivers above? (y/n): y
+2025-02-12 17:50:16,179 - INFO - Initializing plans ...
+2025-02-12 17:50:18,067 - INFO - Finished initializing plans. Initialized 3 plans.
+2025-02-12 17:50:18,126 - INFO - Uploading stops. Allow 6+ seconds per plan ...
+2025-02-12 17:50:44,995 - INFO - Finished uploading stops. Uploaded 50 stops for 3 plans.
+2025-02-12 17:50:45,023 - INFO - Initializing route optimizations. Allow 20+ seconds per plan ...
+2025-02-12 17:51:49,759 - INFO - Finished initializing route optimizations for 3 plans.
+2025-02-12 17:51:49,782 - INFO - Confirming optimizations have finished ...
+2025-02-12 17:51:50,980 - INFO - Finished optimizing routes. Optimized 3 routes.
+2025-02-12 17:51:51,019 - INFO - Distributing routes ...
+2025-02-12 17:51:53,200 - INFO - Finished distributing routes for 3 plans.
+2025-02-12 17:51:53,222 - INFO -
+    route_title  initialized  writable  stops_uploaded optimized  distributed
+0  02.14 Eric             True      True            True      True         True
+1  02.14 Hank             True      True            True      True         True
+2  02.14 Nos              True      True            True      True         True
+
+Plans attempted: 3
+Plans initialized: 3
+Plans with stops: 3
+Plans optimized: 3
+Plans distributed: 3
+2025-02-12 17:51:53,231 - INFO - Getting route plans from Circuit ...
+2025-02-12 17:51:53,692 - INFO - Finished getting route plans.
+2025-02-12 17:51:53,711 - INFO - Getting stops from Circuit ...
+2025-02-12 17:51:57,597 - INFO - Finished getting stops.
+2025-02-12 17:51:57,629 - WARNING - Missing neighborhood for 50 stops. Imputing best guesses from Circuit-supplied address.
+2025-02-12 17:51:57,655 - WARNING - Output directory exists /Users/me/repos/bfb_delivery/.test_data/scratch/routes_2025-02-14. Overwriting.
+2025-02-12 17:51:57,655 - INFO - Writing route CSVs to /Users/me/repos/bfb_delivery/.test_data/scratch/routes_2025-02-14
+2025-02-12 17:51:57,676 - INFO - Writing combined routes to /Users/me/repos/bfb_delivery/.test_data/scratch/combined_routes_20250212.xlsx
+2025-02-12 17:51:57,711 - INFO - Writing formatted routes to /Users/me/repos/bfb_delivery/.test_data/scratch/final_manifests_20250212.xlsx
+2025-02-12 17:51:57,715 - INFO - Formatted workbook saved to:
+/Users/me/repos/bfb_delivery/.test_data/scratch/final_manifests_20250212.xlsx
+(bfb_delivery_py3.12) MacBook-Pro:bfb_delivery me$
 </pre></div>
 </div>
 <div class="admonition attention">
@@ -598,7 +602,7 @@ Cedarwood Apartments special instructions *,Please call the recipient when you a
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=44212324"></script>
+</div><script src="_static/documentation_options.js?v=084304ff"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

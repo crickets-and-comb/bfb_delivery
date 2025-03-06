@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet" href="build_routes_from_chunked.html" /><link rel="prev" title="Getting Started" href="getting_started.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>The Delivery-Planning Workflow - bfb_delivery 0.6.7 documentation</title>
+        <title>The Delivery-Planning Workflow - bfb_delivery 0.6.9 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 0.6.7 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 0.6.9 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">bfb_delivery 0.6.7 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 0.6.9 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -287,11 +287,14 @@
 <h2>Activate your env<a class="headerlink" href="#activate-your-env" title="Link to this heading">¶</a></h2>
 <p>Before you can use the <code class="docutils literal notranslate"><span class="pre">bfb_delivery</span></code> package and tools, namely <code class="code docutils literal notranslate"><span class="pre">build_routes_from_chunked</span></code>, you need to activate the <code class="code docutils literal notranslate"><span class="pre">bfb_delivery</span></code> conda environment. (You may have named your env something else.)</p>
 <p>First, open your terminal (e.g., Anaconda Command Prompt), navigate to the correct directory (the one with your <code class="docutils literal notranslate"><span class="pre">config.ini</span></code> and <code class="docutils literal notranslate"><span class="pre">.env</span></code> files you set up in <a class="reference internal" href="getting_started.html"><span class="doc">Getting Started</span></a>), and activate your env:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>path/to/bfb_delivery/dir
-conda<span class="w"> </span>activate<span class="w"> </span>my_bfb_delivery_env_name
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>bfb_delivery
+conda<span class="w"> </span>activate<span class="w"> </span>bfb_delivery
 </pre></div>
 </div>
-<p>See <a class="reference internal" href="getting_started.html"><span class="doc">Getting Started</span></a> for more information.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Calling the directory “bfb_delivery” and the environment “bfb_delivery” is just a convention. You can name them each whatever you like when you set them up. See <a class="reference internal" href="getting_started.html"><span class="doc">Getting Started</span></a> for more information. The necessary package installed in the environment is always called “bfb_delivery” though.</p>
+</div>
 <p>Now you’re ready to use the tools in the <code class="docutils literal notranslate"><span class="pre">bfb_delivery</span></code> command-line interface (CLI).</p>
 </section>
 <section id="route-all-stops-with-circuit">
@@ -300,6 +303,14 @@ conda<span class="w"> </span>activate<span class="w"> </span>my_bfb_delivery_env
 <p>You can build the single route manually, or you can use <code class="code docutils literal notranslate"><span class="pre">build_routes_from_chunked</span></code> to upload the stops to Circuit and optimize the route for you. Just put “All HHs” in the driver column for all stops in the routes spreadsheet, activate the All HHs driver (or whatever driver you want to assign it to), then run the tool:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--input_path<span class="w"> </span><span class="s2">&quot;path/to/all_hhs.xlsx&quot;</span>
 </pre></div>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>The tool is not integrated with Sharepoint as of yet. You must download the file to your local machine to use the tool.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>“path/to/all_hhs.xlsx” is a dummy path. Replace it with the path to your spreadsheet. It might be something like “C:/Users/you/Downloads/all_hhs.xlsx”. It’s up to you to know where you put your file.</p>
 </div>
 <p>The tool will prompt you to confirm the driver assignment. See <a class="reference internal" href="build_routes_from_chunked.html"><span class="doc">Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet</span></a> for an example, as well as e.g. for how to set the output directory. You may also use <cite>–help</cite> to see all the optional arguments in the CLI:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--help
@@ -320,6 +331,14 @@ conda<span class="w"> </span>activate<span class="w"> </span>my_bfb_delivery_env
 <p>Phewf! You have your chunked routes. Now you need to upload the routes to Circuit, optimize them, distribute them to the driver apps (if you wish), and build the final manifests to print for the drivers. You can do this with <code class="code docutils literal notranslate"><span class="pre">build_routes_from_chunked</span></code>.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--input_path<span class="w"> </span><span class="s2">&quot;path/to/master_chunked.xlsx&quot;</span>
 </pre></div>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>The tool is not integrated with Sharepoint as of yet. You must download the file to your local machine to use the tool.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>“path/to/master_chunked.xlsx” is a dummy path. Replace it with the path to your spreadsheet. It might be something like “C:/Users/you/Downloads/master_chunked.xlsx”. It’s up to you to know where you put your file.</p>
 </div>
 <p>The tool will prompt you to confirm the driver assignments. See <a class="reference internal" href="build_routes_from_chunked.html"><span class="doc">Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet</span></a> for an example, as well as e.g. for how to set the output directory. You may also use <cite>–help</cite> to see all the optional arguments in the CLI:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--help
@@ -418,7 +437,7 @@ conda<span class="w"> </span>activate<span class="w"> </span>my_bfb_delivery_env
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=44212324"></script>
+</div><script src="_static/documentation_options.js?v=084304ff"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>
