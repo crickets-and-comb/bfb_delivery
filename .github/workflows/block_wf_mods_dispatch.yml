@@ -1,0 +1,10 @@
+name: Block Workflow Modifications
+
+on:
+  pull_request_target:
+    paths:
+      - '.github/workflows/**'
+
+jobs:
+  close-wf-mods-pr:
+    uses: crickets-and-comb/shared/.github/workflows/block_wf_mods.yml@main
