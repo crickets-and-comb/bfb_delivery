@@ -4,7 +4,10 @@ on:
   schedule:
     - cron: "0 1 * * 0" # Weekly on Sunday at 1:00 a.m.
 
-  pull_request:
+  workflow_run:
+    workflows: ["Dispatch Restrict External PRs"]
+    types:
+      - completed
 
   push:
     branches:
