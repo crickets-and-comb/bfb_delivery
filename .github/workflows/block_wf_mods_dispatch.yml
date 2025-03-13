@@ -10,3 +10,5 @@ jobs:
     uses: crickets-and-comb/shared/.github/workflows/block_wf_mods.yml@main
     with:
       ALLOWED_USERS: "KalebCoberly"
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
