@@ -1,4 +1,4 @@
-name: Block Workflow Modifications
+name: Block Workflow Modifications Dispatch
 
 on:
   pull_request_target:
