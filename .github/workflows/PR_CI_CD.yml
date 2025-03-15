@@ -1,0 +1,21 @@
+name: PR-CI-CD
+
+on:
+  pull_request_target:
+
+jobs:
+  close-external-prs:
+    uses: crickets-and-comb/shared/.github/workflows/block_outside_PRs.yml@main
+    with:
+      ALLOWED_ORG: 'crickets-and-comb'
+    secrets:
+      ORG_READ_TOKEN: ${{ secrets.ORG_READ_TOKEN }}
+
+  ci-cd:
+    needs: close-external-prs
+    uses: crickets-and-comb/bfb_delivery/.github/workflows/CI_CD.yml@main
+    with:
+      TEST_OR_PROD: 'dev'
+    secrets:
+      CHECKOUT_SHARED: ${{ secrets.CHECKOUT_SHARED }}
+      SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
