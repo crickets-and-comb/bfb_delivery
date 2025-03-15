@@ -19,6 +19,18 @@ on:
         type: string
         default: 'dev'
 
+  workflow_call:
+    inputs:
+      TEST_OR_PROD:
+        description: 'Publish to test or prod? Default ("dev") skips publishing except on push to main, which publishes to test.'
+        type: string
+        default: 'dev'
+    secrets:
+      CHECKOUT_SHARED:
+        required: true
+      SAFETY_API_KEY:
+        required: true
+
 defaults:
   run:
     shell: bash -el {0}
