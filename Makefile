@@ -6,5 +6,5 @@ QC_DIRS := ${REPO_ROOT}src/ ${REPO_ROOT}tests/ ${REPO_ROOT}docs/ ${REPO_ROOT}scr
 export
 include shared/Makefile
 
-full-test: # Run all the tests.
+full-test: # Run all the tests. (NOTE: this means running run-act requires switching the path to the shared CI workflow to a relative path in CI_CD.yml.)
 	$(MAKE) unit
