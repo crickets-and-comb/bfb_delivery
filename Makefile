@@ -6,5 +6,9 @@ QC_DIRS := ${REPO_ROOT}src/ ${REPO_ROOT}tests/ ${REPO_ROOT}docs/ ${REPO_ROOT}scr
 export
 include shared/Makefile
 
-full-test: # Run all the tests. (NOTE: this means running run-act requires switching the path to the shared CI workflow to a relative path in CI_CD.yml.)
+full-test: # Run all the tests.
 	$(MAKE) unit
+
+# Overriding to use local shared workflow when running tests, because full-test is overridden and act does not honor that unless the path is relative.
+set-CI-CD-file: # Set the CI-CD file to use the local shared CI file.
+	perl -pi -e 's|crickets-and-comb/shared/.github/workflows/CI_win\.yml\@main|./shared/.github/workflows/CI.yml|g' .github/workflows/CI_CD_act.yml
