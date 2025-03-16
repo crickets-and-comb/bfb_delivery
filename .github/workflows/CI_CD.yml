@@ -26,6 +26,8 @@ on:
         type: string
         default: 'dev'
     secrets:
+      ACTIONS_DEPLOY_KEY:
+        required: false
       CHECKOUT_SHARED:
         required: true
       SAFETY_API_KEY:
@@ -196,4 +198,5 @@ jobs:
       id-token: write
       contents: write
     secrets:
+      ACTIONS_DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
       CHECKOUT_SHARED: ${{ secrets.CHECKOUT_SHARED }}
