@@ -2,14 +2,12 @@
 
 ## Summary
 
-This set of command-line tools cuts some cruft around creating delivery route manifests. See the docs: https://crickets-and-comb.github.io/bfb_delivery/.
+This set of command-line tools cuts some cruft around creating delivery route manifests for the Bellingham Food Bank. It saves an estimated five paid staff hours per week, along with removing much of the room for error. See the docs for user guides: https://crickets-and-comb.github.io/bfb_delivery/.
 
-The plan is to continue to build this package out to take on more of the tasks food-bank staff do manually to plan the delivery routes.
-
-They use Circuit (https://getcircuit.com) to create optimized routes from lists of addresses and products, but there are some tedious tasks to prepare the data for Circuit and then to format the optimized routes into manifests for printing:
+The food bank uses Circuit (https://getcircuit.com) to create optimized routes from lists of addresses and products, but there were some tedious tasks to prepare the data for Circuit and then to format the optimized routes into manifests for printing. Staff don't need to do that anymore now that they use the tool deployed with this package. Previously, they would:
 
 0. Put all the stops in a single spreadsheet.
-1. Upload stop to Circuit to produce a single huge route as a starting point.
+1. Upload stops to Circuit to produce a single huge route as a starting point.
 2. Download the optimized route.
 3. Manually "chunk" the route by driver (assign stops to drivers according to how many boxes a driver can carry, what is a sensible set of stops, per-driver constraints, etc.).
 4. Split those routes into separate worksheets.
@@ -19,31 +17,31 @@ They use Circuit (https://getcircuit.com) to create optimized routes from lists 
 8. Combine the output CSVs into a single Excel workbook with a worksheet for each route.
 9. Finally format the sheets into printable manifests with a combination of Excel macro and manual steps.
 
-Staff spend several hours each week on the manual pieces of this, the chunking (step 3) alone taking about four hours. Now staff need only do the chunking, and step 0 of collecting all the stops, because the `bfb_delivery` package will do the rest.
+Staff would spend several hours each week on the manual pieces of this, the chunking (step 3) alone taking about four hours. Now staff need only do the chunking, and step 0 of collecting all the stops, because the `bfb_delivery` package will do the rest.
 
 ## Dev plan
 
-We have no intention or desire to replace Circuit. In addition to optimizing routes, Circuit pushes routes to an app drivers can use, etc. But, there are some processes outside of that to further automate/support:
+We have no intention or desire to replace Circuit. In addition to optimizing routes, Circuit pushes routes to an app drivers can use, etc. But, there are some processes outside of that that could be further automated or supported with tools:
 
 - Chunking by driver (step 3 above): This may be the most challenging piece. I'm only a little confident I can solve this well enough to justify using my solution. So, I have saved it for after I've cleared the low-hanging fruit. My first inclination is to try using a sort of recursive k-nearest neighbors to group stops into potential routes, but that may change once I research existing routing algorithms.
 
-- To that end, implementing a mapping tool to check routes will be helpful in both dev and production.
+- To that end, implementing a mapping tool to check routes will be helpful both in development and production.
 
-- There are additional constraints to consider per driver. It may not be possible to encode all of them, but knocking out some of them may help cut down time, and doing this before chunking will better define the problem and add some validations to assist staff.
+- There are additional constraints to consider per driver. It may not be possible to encode all of them, but knocking out some of them may help cut down time, and working on this before taking on the chunking problem will better define the problem and add some validations to assist staff.
 
-- DB: There's no plan to develop, host, and support a DB. We're using Excel, CSVs, etc. to keep close to users' knowledge and skill bases, and existing workflow and resources. A DB would be especially useful for encoding driver restrictions etc., but a simple spreadsheet should suffice. If we did start using a DB, however, we'd need to create CRUD interfaces to it.
+- DB: There's no plan to develop, host, and support a DB. We're using Excel, CSVs, etc. to keep close to users' knowledge and skill bases, and to keep close to the old manual workflow and resources. A DB would be especially useful for encoding driver restrictions etc., but a simple spreadsheet or JSON doc should suffice. If we did start using a DB, however, we'd need to create CRUD interfaces to it.
 
-- GUI: There's no real plan to develop a GUI, but it might be a good portfolio project to try out.
+- GUI: This would be a desktop installation so users can click and select input files, enter other params, assign routes to drivers, and click to open the final output file. A couple of UX/UI developers may be taking that on at time of writing.
 
-The plan of attack has been to start with the low-hanging fruit of ETL before moving onto the bigger problem of chunking. Fully integrating with the Circuit API is the last step before taking on the chunking, and that is complete. We've putting it into production and will wait and see what arises (bugs, feature requests, etc.) before moving on.
+The plan of attack has been to start with the low-hanging fruit of ETL before moving onto the bigger problem of chunking. Fully integrating with the Circuit API is the last step before taking on the chunking, and that is complete. We've put it into production and are seeing what arises (bugs, feature requests, etc.) before moving on. (Also, my attention needs to shift to finding paying work before I launch into anything serious again for this project.)
 
 ### Frankenstein's "Agile" caveat
 
 The main tool wraps nested tools. This is a natural developmental result of incrementally and tentatively taking over this workflow as a volunteer as I gained trust and access to the org's data, information, and resources. Also, the project was largely unsolicited (but fully approved), so I was hesitant to ask too much of the staff to define and clarify requirements etc.
 
-It hasn't been used yet by staff in production (though certainly tested live), so I haven't yet discovered any of the improvements or mistaken assumptions that real users will likely find. As such, there are some optmizations that could happen to reduce the unnecessary output etc., but I am hesitant to do that until we find what works best for the users.
+A benefit of having these subtools wrapped within the larger tool is that it produces intermediate outputs and maintains backwards compatability that can be rolled back to the old methods for a given step should it fail for some reason, without the need to do the whole process over again.
 
-Plus, a benefit of having these subtools wrapped within the larger tool is that it produces intermediate outputs and maintains backwards compatability that can be rolled back to the old methods for a given step should it fail for some reason, without the need to do the whole process over again.
+There are certainly improvements that can be made, so please take a look at the issues in the GitHub repo (once I have created them and once others have potentially added to them).
 
 ## Structure
 
