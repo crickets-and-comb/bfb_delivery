@@ -2,7 +2,7 @@
 Intro to Command Line and Bash
 ==============================
 
-If you are going to use the ``bfb_delivery`` command-line interface (CLI), you will need to know how to use the command line and Bash in a couple of very simple ways. This document gives you an introduction to using the command line and Bash, specifically the builtin tools and commands you will use to navigate your file system.
+If you are going to use the ``bfb_delivery`` command-line interface (CLI), you will need to know how to use the command line and Bash in a couple of very simple ways. This document gives you an introduction to using the command line and Bash, specifically the builtin tools and commands you will use to navigate your file system. It also gives you extra tutorials that you don't necessarily need to use the CLI, but that you may find useful.
 
 To use the ``bfb_delivery`` CLI, you will at least need to know how to understand the basic command prompt and how to navigate your file system. This is covered in the first two sections, :ref:`terminal` and :ref:`navigation`, but there are additional sections on manipulating files and directories, reading files, writing to files, and using wildcards.
 
