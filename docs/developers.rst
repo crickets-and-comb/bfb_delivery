@@ -30,7 +30,7 @@ At a high level, the data structure is:
         B -->|1:m| D[Routes]
         D -->|1:m| C[Stops]
 
-So, in Circuit, a plan can have multiple drivers, and routes only get created when a plan with stops and drivers is created and optimized. Optimization allocates stops to the drivers in the plan, with one route per driver.
+So, in Circuit, a plan can have multiple drivers, and routes only get created when a plan with stops and drivers is created and optimized. Optimization allocates stops to the drivers in the plan, with one route per driver in the plan. A driver may have multiple routes, and plan may have multiple routes.
 
 But, for the Bellingham Food Bank, there is only ever one route per plan. They only assign a single driver to each plan. A driver may still have multiple routes. If a driver has multiple routes, they number the plan titles (e.g., "1.17 Tim #1", "1.17 Tim #2"). Plan titles function essentially as route IDs, and plan titles are also a quasi-ID for drivers. The ``plan:driver`` relationship goes from ``m:m`` in Circuit to ``m:1`` for the food bank.
 
