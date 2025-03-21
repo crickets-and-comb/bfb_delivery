@@ -2,7 +2,7 @@
 Intro to Command Line and Bash
 ==============================
 
-If you are going to use the ``bfb_delivery`` command-line interface (CLI), you will need to know how to use the command line and Bash in a couple of very simple ways. This document gives you an introduction to using the command line and Bash, specifically the builtin tools and commands you will use to navigate your file system.
+If you are going to use the ``bfb_delivery`` command-line interface (CLI), you will need to know how to use the command line and Bash in a couple of very simple ways. This document gives you an introduction to using the command line and Bash, specifically the builtin tools and commands you will use to navigate your file system. It also gives you extra tutorials that you don't necessarily need to use the CLI, but that you may find useful.
 
 To use the ``bfb_delivery`` CLI, you will at least need to know how to understand the basic command prompt and how to navigate your file system. This is covered in the first two sections, :ref:`terminal` and :ref:`navigation`, but there are additional sections on manipulating files and directories, reading files, writing to files, and using wildcards.
 
@@ -17,15 +17,17 @@ The "command prompt" or "terminal"
 
 There are a number of applications you can download to interact with the command line. On Windows, you can use Command Prompt or PowerShell. On macOS, you can use Terminal. On Linux, you can use the terminal that comes with your distribution. You can also download other terminal applications like Git Bash or Anaconda Command Prompt.
 
-For our purposes, I recommend using Anaconda Command Prompt, since it comes with conda and Unix-style commands and is Windows compatible. You can download Anaconda at https://www.anaconda.com.
+For our purposes, I recommend installing Anaconda Command Prompt and Git Bash, since it comes Anaconda with conda (for working with Python packages like ``bfb_delivery``, not necessary for this tutorial) and since Git Bash comes with Unix-style commands, and since they are both Windows compatible. You can download Anaconda at https://www.anaconda.com. You can download Git at https://git-scm.com.
 
-When you open the terminal, you will see a prompt that looks something like this:
+When you open the terminal (Git Bash or Anaconda Prompt), you will see a prompt that looks something like this:
 
 .. code:: bash
 
     (base) MacBook-Pro:bfb_delivery me$ 
 
 The first part of the prompt in parens is the conda environment you have activated. It may also be absent if you have no env activated. The second part of the prompt is the name of the computer, followed by a colon and the current directory you are in. Then you see your username followed by a dollar sign. The dollar sign indicates that the terminal is ready to accept commands. So, in this example we have the base env activated on a MacBook-Pro, we are in the ``bfb_delivery`` directory, and our username is "me".
+
+This format may very depending on your setup. For instance, you may not see a machine name, or the full path to your present working directory may appear instead of just the directory name.
 
 .. _navigation:
 
