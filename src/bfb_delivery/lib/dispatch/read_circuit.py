@@ -82,8 +82,6 @@ def get_route_files(
     plans_df = _make_plans_df(
         plans_list=plans_list, plan_ids=plan_ids, all_hhs=all_hhs, verbose=verbose
     )
-    # TODO: Add external ID for delivery day so we can filter stops by it in request?
-    # After taking over upload.
     plan_stops_list = _get_raw_stops(
         plan_ids=plans_df[CircuitColumns.ID].tolist(), verbose=verbose
     )
