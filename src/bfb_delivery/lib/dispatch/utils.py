@@ -31,6 +31,7 @@ def get_circuit_key() -> str:
 
 # TODO: Pass params instead of forming URL first. ("params", not "json")
 # (Would need to then grab params URL for next page, or just add nextpage to params?)
+# https://github.com/crickets-and-comb/bfb_delivery/issues/61
 @typechecked
 def get_responses(url: str) -> list[dict[str, Any]]:
     """Get all responses from a paginated API endpoint."""
