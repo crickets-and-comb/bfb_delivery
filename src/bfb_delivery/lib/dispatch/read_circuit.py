@@ -135,7 +135,6 @@ def _make_plans_df(
     # What we'd do if not using from_format config:
     # plans_df = pd.DataFrame(plans_list)
 
-    # TODO: Set validation.
     plan_count = len(plans_list)
     plan_mask = [True] * plan_count
     if not plan_ids:
