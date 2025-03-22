@@ -135,16 +135,7 @@ def _make_plans_df(
     # What we'd do if not using from_format config:
     # plans_df = pd.DataFrame(plans_list)
 
-    # TODO: We could drop All HHs in a few ways that are more robust.
-    # 1. Won't work: Filter by driver ID, but we'd need to exclude the staff that use their
-    # driver IDs to test things out, and what if they decided to drive one day?
-    # (Make new driver ID if that ever happens.)
-    # 2. Pass an external ID to filter on.
-    # 3. Create a dummy driver ID for the "All HHs" route.
-    # 4. Pass title filter once we're confident in the title because we uploaded it
-    # programmatically.
-    # Worst to best in order.
-    # TODO: Set validation once we've settled on filter method.
+    # TODO: Set validation.
     plan_count = len(plans_list)
     plan_mask = [True] * plan_count
     if not plan_ids:
