@@ -137,6 +137,7 @@ CIRCUIT_DOWNLOAD_COLUMNS: Final[list[str]] = COMBINED_ROUTES_COLUMNS + [Columns.
 
 
 # TODO: Combine with DocString?
+# https://github.com/crickets-and-comb/bfb_delivery/issues/57
 class Defaults:
     """Default values. E.g., for syncing public API with CLI."""
 
