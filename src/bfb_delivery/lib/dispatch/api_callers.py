@@ -1,7 +1,5 @@
 """Classes for making API calls."""
 
-# TODO: Move this up to lib.
-
 import logging
 from abc import abstractmethod
 from collections.abc import Callable
