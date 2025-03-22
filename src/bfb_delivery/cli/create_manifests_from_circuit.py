@@ -47,6 +47,7 @@ logger = logging.getLogger(__name__)
     help=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.args["output_filename"],
 )
 # TODO: Change circuit_output_dir default to subdir in output_dir.
+# https://github.com/crickets-and-comb/bfb_delivery/issues/56
 @click.option(
     "--circuit_output_dir",
     type=str,
