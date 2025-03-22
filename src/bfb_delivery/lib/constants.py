@@ -30,7 +30,7 @@ class BoxType(StrEnum):
     VEGAN = "VEGAN"
 
 
-class CellColors:  # TODO: Use accessible palette.
+class CellColors:
     """Colors for spreadsheet formatting."""
 
     BASIC: Final[str] = "00FFCC00"  # Orange
