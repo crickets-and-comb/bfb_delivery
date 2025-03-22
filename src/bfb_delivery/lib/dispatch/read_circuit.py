@@ -425,8 +425,6 @@ def _set_routes_df_values(routes_df: pd.DataFrame, verbose: bool) -> pd.DataFram
         routes_df[IntermediateColumns.ROUTE_TITLE], warn=False
     )
 
-    # TODO: Verify we want to warn/raise/impute.
-    # Give plan ID and instruct to download the routes from Circuit.
     _warn_and_impute(routes_df=routes_df)
 
     routes_df[Columns.ADDRESS] = (
@@ -455,11 +453,12 @@ def _warn_and_impute(routes_df: pd.DataFrame) -> None:
     missing_order_count = routes_df[Columns.ORDER_COUNT].isna()
     if missing_order_count.any():
         logger.warning(
-            f"Missing order count for {missing_order_count.sum()} stops. " "Imputing 1 order."
+            f"Missing order count for {missing_order_count.sum()} stops. Imputing 1 order."
         )
     routes_df[Columns.ORDER_COUNT] = routes_df[Columns.ORDER_COUNT].fillna(1)
 
-    # TODO: Verify we want to do this. Ask, if we want to just overwrite the neighborhood.
+    # TODO: Before we impute from Circuit, we should impute from user input spreadsheet.
+    # https://github.com/crickets-and-comb/bfb_delivery/issues/60
     missing_neighborhood = routes_df[Columns.NEIGHBORHOOD].isna()
     if missing_neighborhood.any():
         logger.warning(
