@@ -439,8 +439,8 @@ See :doc:`split_chunked_route` for more information.
                 'Empty string sets filename to "split_workbook_{date}_{i of n_books}.xlsx".'
             ),
             "n_books": "Number of workbooks to split into.",
-            # TODO: Standardize some of these definitions as well. Wait until we clean up the
-            # outputs and trim the CLIs.
+            # TODO: Standardize some of these definitions as well.
+            # https://github.com/crickets-and-comb/bfb_delivery/issues/58
             "book_one_drivers_file": (
                 "Path to the book-one driver's file. If empty, uses a constant list. "
                 "See :py:data:`bfb_delivery.lib.constants.BookOneDrivers`."
