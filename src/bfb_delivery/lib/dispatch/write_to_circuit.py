@@ -98,6 +98,7 @@ def build_routes_from_chunked(  # noqa: D103
 
     # TODO: Validate that input data matches ouput data.
     # (Ignore skipped routes, and account for imputation, caps, etc.)
+    # https://github.com/crickets-and-comb/bfb_delivery/issues/62
 
     return final_manifest_path
 
@@ -266,7 +267,6 @@ def _create_plans(
     plan_df = _assign_drivers_to_plans(stops_df=stops_df)
     try:
         plan_df = _initialize_plans(plan_df=plan_df, start_date=start_date, verbose=verbose)
-    # TODO: Validate schema before returning, write before raising within _initialize_plans.
     except Exception as e:
         plan_df.to_csv(plan_df_path, index=False)
         raise e
@@ -416,6 +416,7 @@ def _optimize_routes(
 
 
 # TODO: Make a CLI for this since it will be optional.
+# https://github.com/crickets-and-comb/bfb_delivery/issues/63
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
 def _distribute_routes(
@@ -567,6 +568,7 @@ def _initialize_plans(
     plan_df[IntermediateColumns.PLAN_ID] = None
     plan_df[CircuitColumns.WRITABLE] = None
     # TODO: Do we need this column?
+    # https://github.com/crickets-and-comb/bfb_delivery/issues/64
     plan_df[CircuitColumns.OPTIMIZATION] = None
 
     logger.info("Initializing plans ...")
@@ -575,6 +577,7 @@ def _initialize_plans(
         plan_data = {
             CircuitColumns.TITLE: row[IntermediateColumns.ROUTE_TITLE],
             # TODO: Just make this once.
+            # https://github.com/crickets-and-comb/bfb_delivery/issues/65
             CircuitColumns.STARTS: {
                 CircuitColumns.DAY: int(start_date.split("-")[2]),
                 CircuitColumns.MONTH: int(start_date.split("-")[1]),
@@ -615,6 +618,7 @@ def _initialize_plans(
     plan_df.loc[
         (plan_df[IntermediateColumns.ROUTE_TITLE].isin(errors.keys()))
         # TODO: Make not_writable a failure within class?
+        # https://github.com/crickets-and-comb/bfb_delivery/issues/66
         | ~(plan_df[CircuitColumns.WRITABLE] == True),  # noqa: E712
         IntermediateColumns.INITIALIZED,
     ] = False
@@ -623,6 +627,8 @@ def _initialize_plans(
         logger.warning(f"Errors initializing plans:\n{errors}")
 
     not_writable = plan_df[~(plan_df[CircuitColumns.WRITABLE] == True)]  # noqa: E712
+    # TODO: Add noqa E712 to shared, and remove throughout codebase.
+    # https://github.com/crickets-and-comb/shared/issues/41
     if not not_writable.empty:
         logger.warning(f"Plan is not writable for the following routes:\n{not_writable}")
 
@@ -661,12 +667,14 @@ def _build_plan_stops(
             stop_arrays.append(
                 all_stops[i : i + 100]  # noqa: E203
             )  # TODO: Add noqa E203 to shared, and remove throughout codebase.
+            # https://github.com/crickets-and-comb/shared/issues/41
         plan_stops[plan_id] = stop_arrays
 
     return plan_stops
 
 
 # TODO: Why isn't this throwing when driver ID is invalid?
+# https://github.com/crickets-and-comb/bfb_delivery/issues/67
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
 def _get_all_drivers() -> schema.DriversGetAllDriversOut:
@@ -709,6 +717,7 @@ def _assign_drivers(
         )
     confirm = input("Confirm the drivers above? (y/n): ")
     # TODO: Check for y, n, and prompt again if neither.
+    # https://github.com/crickets-and-comb/bfb_delivery/issues/68
     if confirm.lower() != "y":
         plan_df = _assign_drivers(drivers_df=drivers_df, plan_df=plan_df)
 
@@ -717,14 +726,14 @@ def _assign_drivers(
 
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
-# TODO: Decrease complexity. (Eemove noqa C901.)
+# TODO: Decrease complexity. (Remove noqa C901.)
+# https://github.com/crickets-and-comb/bfb_delivery/issues/69
 def _assign_driver(  # noqa: C901
     route_title: str,
     drivers_df: DataFrame[schema.DriversAssignDriverIn],
     plan_df: DataFrame[schema.PlansAssignDriverIn],
 ) -> pd.DataFrame:
     """Ask user to assign driver to a route."""
-    # TODO: Warn/raise if driver not active.
     best_guesses = pd.DataFrame()
     for name_part in route_title.split(" ")[1:]:
         if name_part not in ["&", "AND"] and len(name_part) > 1:
@@ -749,9 +758,10 @@ def _assign_driver(  # noqa: C901
     assigned = False
     while not assigned:
         try:
-            # TODO: Wrap this for test mock.
             # TODO: Add B907 to shared ignore list, and remove r"" throughout.
+            # https://github.com/crickets-and-comb/shared/issues/41
             # TODO: Add option to correct the previous.
+            # https://github.com/crickets-and-comb/bfb_delivery/issues/70
             choice = input(
                 f"Enter the number of the driver for '{route_title}'"  # noqa: B907
                 "(ctl+c to start over):"
@@ -878,6 +888,7 @@ def _confirm_optimizations(
     # TODO: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise
     # an error in a future version of pandas. Value 'nan' has dtype incompatible with bool,
     # please explicitly cast to a compatible dtype first.
+    # https://github.com/crickets-and-comb/bfb_delivery/issues/71
     with warnings.catch_warnings():
         warnings.simplefilter(action="ignore", category=FutureWarning)
         plan_df.loc[

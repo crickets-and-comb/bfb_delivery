@@ -4,6 +4,7 @@ Use this to test on real data. in your .test_data dir.
 """
 
 # TODO: Make a real e2e test in the test suite.
+# https://github.com/crickets-and-comb/bfb_delivery/issues/103
 import shutil
 from pathlib import Path
 from typing import Final

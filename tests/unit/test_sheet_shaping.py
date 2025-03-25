@@ -1,6 +1,7 @@
 """Unit tests for sheet_shaping.py."""
 
 # TODO: Make fixtures class-scoped again, at least for the basic calls, here and elsewhere.
+# https://github.com/crickets-and-comb/bfb_delivery/issues/93
 import glob
 import re
 import subprocess
@@ -1040,7 +1041,9 @@ class TestCreateManifests:
             yield xls
 
     @pytest.mark.parametrize("output_dir_type", [Path, str])
-    # TODO: Empty string here doesn't really test anything. Mock os.getcwd?
+    # TODO: Empty string here doesn't really test anything.
+    # Mock os.getcwd? Don't add "" to tmp_path?
+    # https://github.com/crickets-and-comb/bfb_delivery/issues/94
     @pytest.mark.parametrize("output_dir", ["", "dummy_output"])
     @typechecked
     def test_set_output_dir(

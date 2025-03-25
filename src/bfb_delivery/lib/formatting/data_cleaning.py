@@ -31,8 +31,11 @@ def format_column_names(columns: list[str]) -> list[str]:
     columns = [column.strip() for column in columns]
     columns = [column.title() for column in columns]
     # TODO: Other column cleaning? (e.g., remove special characters, set casing)
+    # https://github.com/crickets-and-comb/bfb_delivery/issues/72
     # TODO: Validate? Use general constant list? (Or, just use Pandera?)
+    # https://github.com/crickets-and-comb/bfb_delivery/issues/73
     # TODO: Make column names StrEnum? Or just make sure they are in the constants list?
+    # https://github.com/crickets-and-comb/bfb_delivery/issues/74
     return columns
 
 
@@ -59,11 +62,13 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
 
     # TODO: Pre-Validate:
     # ints actually integers and not something that gets cast to an int
+    # https://github.com/crickets-and-comb/bfb_delivery/issues/75
 
     # TODO: FutureWarning: Setting an item of incompatible dtype is deprecated and will
     # raise an error in a future version of pandas. Value '' has dtype incompatible with
     # float64, please explicitly cast to a compatible dtype first.
     # Cast all to string to start? Then convert "nan" to ""?
+    # https://github.com/crickets-and-comb/bfb_delivery/issues/76
     with warnings.catch_warnings():
         warnings.simplefilter(action="ignore", category=FutureWarning)
         df.fillna("", inplace=True)
@@ -93,6 +98,7 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
     # TODO: Some common (post-formatting) validations for all columns:
     # Are the prescribed types.
     # Have no nulls (where appropriate).
+    # https://github.com/crickets-and-comb/bfb_delivery/issues/77
 
     return
 
@@ -126,9 +132,8 @@ def _format_and_validate_product_type(df: pd.DataFrame) -> None:
 def _format_and_validate_product_or_box_type(df: pd.DataFrame, column: str) -> None:
     """Format the box type column."""
     _format_and_validate_names_to_upper(df=df, column=column)
-    # TODO: What about multiple box types for one stop?
-    # Split and format each value separately, then rejoin?
     # TODO: Validate: make enum.StrEnum?
+    # https://github.com/crickets-and-comb/bfb_delivery/issues/78
     return
 
 
@@ -179,7 +184,6 @@ def _format_and_validate_name(df: pd.DataFrame) -> None:
 def _format_and_validate_neighborhood(df: pd.DataFrame) -> None:
     """Format the neighborhood column."""
     _format_and_validate_names_to_upper(df=df, column=Columns.NEIGHBORHOOD)
-    # TODO: Validate: make enum.StrEnum?
     return
 
 
@@ -227,6 +231,7 @@ def _format_and_validate_phone(df: pd.DataFrame) -> None:
         )
 
     # TODO: Use phonenumbers.format_by_pattern to achieve (555) 555-5555 if desired.
+    # https://github.com/crickets-and-comb/bfb_delivery/issues/79
     formatting_df["formatted_numbers"] = [
         (
             str(

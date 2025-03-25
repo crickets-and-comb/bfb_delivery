@@ -82,8 +82,6 @@ def get_route_files(
     plans_df = _make_plans_df(
         plans_list=plans_list, plan_ids=plan_ids, all_hhs=all_hhs, verbose=verbose
     )
-    # TODO: Add external ID for delivery day so we can filter stops by it in request?
-    # After taking over upload.
     plan_stops_list = _get_raw_stops(
         plan_ids=plans_df[CircuitColumns.ID].tolist(), verbose=verbose
     )
@@ -137,16 +135,6 @@ def _make_plans_df(
     # What we'd do if not using from_format config:
     # plans_df = pd.DataFrame(plans_list)
 
-    # TODO: We could drop All HHs in a few ways that are more robust.
-    # 1. Won't work: Filter by driver ID, but we'd need to exclude the staff that use their
-    # driver IDs to test things out, and what if they decided to drive one day?
-    # (Make new driver ID if that ever happens.)
-    # 2. Pass an external ID to filter on.
-    # 3. Create a dummy driver ID for the "All HHs" route.
-    # 4. Pass title filter once we're confident in the title because we uploaded it
-    # programmatically.
-    # Worst to best in order.
-    # TODO: Set validation once we've settled on filter method.
     plan_count = len(plans_list)
     plan_mask = [True] * plan_count
     if not plan_ids:
@@ -437,8 +425,6 @@ def _set_routes_df_values(routes_df: pd.DataFrame, verbose: bool) -> pd.DataFram
         routes_df[IntermediateColumns.ROUTE_TITLE], warn=False
     )
 
-    # TODO: Verify we want to warn/raise/impute.
-    # Give plan ID and instruct to download the routes from Circuit.
     _warn_and_impute(routes_df=routes_df)
 
     routes_df[Columns.ADDRESS] = (
@@ -467,11 +453,12 @@ def _warn_and_impute(routes_df: pd.DataFrame) -> None:
     missing_order_count = routes_df[Columns.ORDER_COUNT].isna()
     if missing_order_count.any():
         logger.warning(
-            f"Missing order count for {missing_order_count.sum()} stops. " "Imputing 1 order."
+            f"Missing order count for {missing_order_count.sum()} stops. Imputing 1 order."
         )
     routes_df[Columns.ORDER_COUNT] = routes_df[Columns.ORDER_COUNT].fillna(1)
 
-    # TODO: Verify we want to do this. Ask, if we want to just overwrite the neighborhood.
+    # TODO: Before we impute from Circuit, we should impute from user input spreadsheet.
+    # https://github.com/crickets-and-comb/bfb_delivery/issues/60
     missing_neighborhood = routes_df[Columns.NEIGHBORHOOD].isna()
     if missing_neighborhood.any():
         logger.warning(

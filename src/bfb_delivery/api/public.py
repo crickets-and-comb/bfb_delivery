@@ -61,7 +61,6 @@ def create_manifests_from_circuit(  # noqa: D103
     end_date: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["end_date"],
     plan_ids: list[str] = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["plan_ids"],
     output_dir: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["output_dir"],
-    # TODO: Standardize to Path for all i/o except CLI input.
     output_filename: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["output_filename"],
     circuit_output_dir: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["circuit_output_dir"],
     all_hhs: bool = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["all_hhs"],

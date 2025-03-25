@@ -50,7 +50,9 @@ pd.options.mode.copy_on_write = True
 
 
 # TODO: Use Pandera.
+# https://github.com/crickets-and-comb/bfb_delivery/issues/80
 # TODO: Switch to or allow CSVs instead of Excel files.
+# https://github.com/crickets-and-comb/bfb_delivery/issues/81
 @typechecked
 def split_chunked_route(  # noqa: D103
     input_path: Path | str,
@@ -63,6 +65,7 @@ def split_chunked_route(  # noqa: D103
     if n_books <= 0:
         raise ValueError("n_books must be greater than 0.")
     # TODO: Make this accept input_path only as Path? Or only as str to simplify?
+    # https://github.com/crickets-and-comb/bfb_delivery/issues/55
     input_path = Path(input_path)
     date = date if date else get_friday(fmt=MANIFEST_DATE_FORMAT)
 
@@ -72,6 +75,7 @@ def split_chunked_route(  # noqa: D103
     format_and_validate_data(df=chunked_sheet, columns=SPLIT_ROUTE_COLUMNS + [Columns.DRIVER])
     chunked_sheet.sort_values(by=[Columns.DRIVER, Columns.STOP_NO], inplace=True)
     # TODO: Validate columns? (Use Pandera?)
+    # https://github.com/crickets-and-comb/bfb_delivery/issues/80
 
     drivers = list(chunked_sheet[Columns.DRIVER].unique())
     driver_count = len(drivers)
@@ -204,21 +208,12 @@ def format_combined_routes(  # noqa: D103
             route_df = pd.read_excel(xls, sheet_name)
 
             # TODO: Use Pandera?
+            # https://github.com/crickets-and-comb/bfb_delivery/issues/80
             route_df.columns = format_column_names(columns=route_df.columns.to_list())
             format_and_validate_data(df=route_df, columns=COMBINED_ROUTES_COLUMNS)
-
-            # TODO: Order by apartment number, and redo stop numbers?
-            # May need to postpone this.
-            # Or, for now, just do it if the apartments are already in contiguous stops.
-            # Or if discontinuous, just regroup and bump the following stops.
-            # Also, may not make the most sense in order of apt number. Ask team.
             route_df.sort_values(by=[Columns.STOP_NO], inplace=True)
 
             agg_dict = _aggregate_route_data(df=route_df, extra_notes_df=extra_notes_df)
-            # TODO: !! What happens when there are more than one order for a stop? Two rows?
-            # (Since order count column is dropped in manifest)
-            # Oh wait, they're all 1s, so is that just a way for them to count them with sum?
-            # If that's so, ignore it or validate always a 1?
 
             _make_manifest_sheet(
                 wb=wb,
@@ -228,7 +223,8 @@ def format_combined_routes(  # noqa: D103
                 sheet_idx=sheet_idx,
             )
 
-    # Can check cell values, though. (Maye read dataframe from start row?)
+    # TODO: Can check cell values, though. (Maybe read dataframe from start row?)
+    # https://github.com/crickets-and-comb/bfb_delivery/issues/62
     logger.info(f"Writing formatted routes to {output_path.resolve()}")
     wb.save(output_path)
 
@@ -387,6 +383,7 @@ def _make_manifest_sheet(
 
     # TODO: Set print_area (Use calculate_dimensions)
     # TODO: set_printer_settings(paper_size, orientation)
+    # https://github.com/crickets-and-comb/bfb_delivery/issues/82
 
 
 @typechecked
@@ -448,6 +445,7 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, sheet_name: str) -> int:
     driver_name = " ".join(str(sheet_name).split(" ")[1:])
 
     # TODO: Yeah, let's use an enum for box types since the manifest is a contract.
+    # https://github.com/crickets-and-comb/bfb_delivery/issues/78
     thin_border = Border(
         left=Side(style="thin"),
         right=Side(style="thin"),

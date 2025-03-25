@@ -31,13 +31,16 @@ class TestFormatColumnNames:
     def test_format_column_names(self) -> None:
         """Test formatting column names."""
         # TODO: Int column names? Is that possible?
+        # https://github.com/crickets-and-comb/bfb_delivery/issues/89
         columns = ["  Name  ", Columns.ADDRESS, "  Phone  "]
         expected = [Columns.NAME, Columns.ADDRESS, Columns.PHONE]
-        # TODO: Rewrite to adjust df in place.
+        # TODO: Rewrite to adjust df.
+        # https://github.com/crickets-and-comb/bfb_delivery/issues/90
         assert format_column_names(columns=columns) == expected
 
 
 # TODO: Test nulls, empty strings, and whitespace.
+# https://github.com/crickets-and-comb/bfb_delivery/issues/91
 class TestFormatAndValidateData:
     """Test the format_and_validate_data function."""
 
@@ -187,6 +190,7 @@ class TestFormatAndValidateData:
                     "789 Oak St",
                     "13605559012",  # Without +.
                     # TODO: File issue with email_validator.
+                    # https://github.com/crickets-and-comb/bfb_delivery/issues/92
                     # Examples claim spaces are removed from domains.
                     "we@mE.cOm",  # Test domain case formatting.
                     "",
