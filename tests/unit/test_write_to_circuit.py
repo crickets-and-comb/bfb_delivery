@@ -5,13 +5,20 @@
 # `upload_split_chunked`.
 
 # TODO: Use schema in typehints where applicable.
+# https://github.com/crickets-and-comb/bfb_delivery/issues/95
 # TODO: Test:
 # _create_stops_df
+# https://github.com/crickets-and-comb/bfb_delivery/issues/96
 # _build_plan_stops
+# https://github.com/crickets-and-comb/bfb_delivery/issues/97
 # _parse_addresses
+# https://github.com/crickets-and-comb/bfb_delivery/issues/98
 # _build_stop_array
+# https://github.com/crickets-and-comb/bfb_delivery/issues/99
 # _confirm_optimizations
+# https://github.com/crickets-and-comb/bfb_delivery/issues/100
 # _print_report
+# https://github.com/crickets-and-comb/bfb_delivery/issues/101
 
 import builtins
 from collections.abc import Iterator
@@ -292,6 +299,7 @@ def mock_plan_df_plans_initialized(
     ].apply(lambda title: f"plans/{title.replace(' ', '').replace('#', '')}")
     plan_df[CircuitColumns.WRITABLE] = True
     # TODO: Do we need this column?
+    # https://github.com/crickets-and-comb/bfb_delivery/issues/64
     plan_df[CircuitColumns.OPTIMIZATION] = None
     plan_df[IntermediateColumns.INITIALIZED] = True
 
@@ -937,6 +945,7 @@ def test_create_plans_calls(
         {
             CircuitColumns.TITLE: row[IntermediateColumns.ROUTE_TITLE],
             # TODO: Just make this once.
+            # https://github.com/crickets-and-comb/bfb_delivery/issues/65
             CircuitColumns.STARTS: {
                 CircuitColumns.DAY: int(_START_DATE.split("-")[2]),
                 CircuitColumns.MONTH: int(_START_DATE.split("-")[1]),
@@ -1043,7 +1052,8 @@ def test_create_plans_writes_if_initialization_raises(
     assert plan_df_path.exists()
 
 
-# TODO: Expanded test data so we have more stops per route.
+# TODO: Expand test data so we have more stops per route.
+# https://github.com/crickets-and-comb/bfb_delivery/issues/102
 @pytest.mark.parametrize(
     "initialization_fixture, upload_fixture",
     [
@@ -1220,7 +1230,6 @@ def test_distribute_routes_calls(
 
     _ = _distribute_routes(plan_df=plan_df_optimized, verbose=False)
 
-    # TODO: Add E712 to ignore and remove throughout.
     for plan_id in plan_df_optimized[
         plan_df_optimized[IntermediateColumns.OPTIMIZED] == True  # noqa: E712
     ][IntermediateColumns.PLAN_ID]:

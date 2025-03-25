@@ -20,7 +20,6 @@ _NULLABLE_FIELD = partial(_COERCE_FIELD, nullable=True)
 _UNIQUE_FIELD = partial(_COERCE_FIELD, unique=True)
 
 ADDRESS_FIELD = partial(_COERCE_FIELD, alias=Columns.ADDRESS)
-# TODO: Maybe just warn about missing box types? Waiting on user preference.
 BOX_TYPE_FIELD = partial(
     _COERCE_FIELD, in_list_case_insensitive={"category_list": BoxType}, alias=Columns.BOX_TYPE
 )
@@ -46,6 +45,7 @@ STOP_NO_FIELD = partial(_COERCE_FIELD, ge=1, alias=Columns.STOP_NO)
 TITLE_FIELD = partial(_COERCE_FIELD, at_least_two_words=True)
 
 # TODO: Unsmurf.
+# https://github.com/crickets-and-comb/bfb_delivery/issues/83
 
 
 class CircuitPlansOut(pa.DataFrameModel):
@@ -125,6 +125,7 @@ class CircuitRoutesTransformInFromDict(pa.DataFrameModel):
         }
         # TODO: Convert back to field checks now that we know they must be uniquely defined
         # either way.
+        # https://github.com/crickets-and-comb/bfb_delivery/issues/84
         address1_in_address = True
         address2_in_address = True
 
@@ -177,6 +178,7 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
         #     "col_a": IntermediateColumns.ROUTE_TITLE,
         #     "col_b": IntermediateColumns.DRIVER_SHEET_NAME,
         # }
+        # https://github.com/crickets-and-comb/bfb_delivery/issues/85
 
         many_to_one = {
             "many_col": CircuitColumns.ID,
@@ -367,7 +369,8 @@ class PlansInitializePlansOut(PlansInitializePlansIn):
     class Config:
         """The configuration for the schema."""
 
-        # TODO: Make sure this accomodates null plan IDs.
+        # TODO: Make sure this accommodates null plan IDs.
+        # https://github.com/crickets-and-comb/bfb_delivery/issues/86
         one_to_one = {
             "col_a": IntermediateColumns.ROUTE_TITLE,
             "col_b": IntermediateColumns.PLAN_ID,
@@ -386,6 +389,7 @@ class PlansBuildStopsIn(PlansCreatePlansOut):
     """The schema for the plans data before building stops."""
 
     # TODO: Refactor to relax the requirements, here and elsewhere.
+    # https://github.com/crickets-and-comb/bfb_delivery/issues/87
 
 
 class PlansUploadStopsOut(PlansUploadStopsIn):
@@ -395,6 +399,7 @@ class PlansUploadStopsOut(PlansUploadStopsIn):
 
 
 # TODO: Build a from/to dict validator for _build_stop_array?
+# https://github.com/crickets-and-comb/bfb_delivery/issues/88
 
 
 class PlansOptimizeRoutesIn(PlansUploadStopsOut):
