@@ -1,10 +1,12 @@
 # Bellingham Food Bank delivery planning toolkit
 
-## Summary
-
 This set of command-line tools cuts some cruft around creating delivery route manifests for the Bellingham Food Bank. It saves an estimated five paid staff hours per week, along with removing much of the room for error. See the docs for user guides: https://crickets-and-comb.github.io/bfb_delivery/.
 
-The food bank uses Circuit (https://getcircuit.com) to create optimized routes from lists of addresses and products, but there were some tedious tasks to prepare the data for Circuit and then to format the optimized routes into manifests for printing. Staff don't need to do that anymore now that they use the tool deployed with this package. Previously, they would:
+This is a [Crickets and Comb](https://cricketsandcomb.org) solution.
+
+## What it solves
+
+The food bank uses Circuit (https://getcircuit.com) to create optimized routes from lists of addresses and products, but there were some tedious tasks to prepare the data for Circuit and then to format the optimized routes into manifests for printing. It took several hours each week. Staff don't need to do that anymore now that they use the tool deployed with this package. Previously, they would:
 
 0. Put all the stops in a single spreadsheet.
 1. Upload stops to Circuit to produce a single huge route as a starting point.

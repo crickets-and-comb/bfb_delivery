@@ -9,6 +9,8 @@ Use this package to cut some cruft around creating delivery route manifests for 
 Now that staff have adopted this tool, they estimate it saves about five paid staff hours per week, and reduces the room for error in the process.
 
 
+This is a `Crickets and Comb <https://cricketsandcomb.org>`_ solution.
+
 Contents
 --------
 
