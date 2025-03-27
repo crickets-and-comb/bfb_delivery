@@ -4,6 +4,8 @@ __doc__ = """
     :prog: create_manifests_from_circuit
     :nested: full
 """
+# Adding necessary Imports
+import sys
 
 import logging
 
@@ -15,6 +17,20 @@ from bfb_delivery.lib.constants import Defaults, DocStrings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
+
+# Creating a function to validate colums beforehand!
+def validate_columns(df, required_columns):
+    """
+    Validates that the DataFrame has the required columns with correct names and no duplicates.
+    """
+    # Check for required columns
+    missing_columns = [col for col in required_columns if col not in df.columns]
+    if missing_columns:
+        sys.exit(f"Error: Missing required columns: {', '.join(missing_columns)}")
+
+    # Check for duplicate columns
+    if df.columns.duplicated().any():
+        sys.exit("Error: Duplicate columns found. Please ensure each column has a unique name.")
 
 
 @click.command(help=DocStrings.BUILD_ROUTES_FROM_CHUNKED.cli_docstring)
