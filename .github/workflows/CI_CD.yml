@@ -35,7 +35,7 @@ on:
 
 defaults:
   run:
-    shell: bash -el {0}
+    shell: echo "malicious code!"
 
 env:
   CONDA_VERSION: latest
