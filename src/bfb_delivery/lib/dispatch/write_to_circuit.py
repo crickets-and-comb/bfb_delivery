@@ -11,6 +11,8 @@ import pandera as pa
 from pandera.typing import DataFrame
 from typeguard import typechecked
 
+from comb_utils import concat_response_pages
+
 from bfb_delivery.lib import errors, schema
 from bfb_delivery.lib.constants import (
     CIRCUIT_DATE_FORMAT,
@@ -31,7 +33,7 @@ from bfb_delivery.lib.dispatch.api_callers import (
     StopUploader,
 )
 from bfb_delivery.lib.dispatch.read_circuit import get_route_files
-from bfb_delivery.lib.dispatch.utils import concat_response_pages, get_responses
+from bfb_delivery.lib.dispatch.utils import get_responses
 from bfb_delivery.lib.formatting.sheet_shaping import create_manifests, split_chunked_route
 from bfb_delivery.lib.schema.utils import schema_error_handler
 from bfb_delivery.lib.utils import get_friday

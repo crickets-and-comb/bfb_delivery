@@ -55,15 +55,3 @@ def get_responses(url: str) -> list[dict[str, Any]]:
             next_page_cookie = f"{salsa_prefix}pageToken={next_page_salsa}"
 
     return responses
-
-
-@typechecked
-def concat_response_pages(
-    page_list: list[dict[str, Any]], data_key: str
-) -> list[dict[str, Any]]:
-    """Extract and concatenate the data lists from response pages."""
-    data_list = []
-    for page in page_list:
-        data_list += page[data_key]
-
-    return data_list
