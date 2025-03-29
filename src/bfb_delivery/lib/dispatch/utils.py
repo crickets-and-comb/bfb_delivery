@@ -6,7 +6,6 @@ from os import getcwd as os_getcwd  # For test patching.
 from pathlib import Path
 from typing import Any
 
-import requests
 from dotenv import load_dotenv
 from typeguard import typechecked
 
@@ -56,20 +55,6 @@ def get_responses(url: str) -> list[dict[str, Any]]:
             next_page_cookie = f"{salsa_prefix}pageToken={next_page_salsa}"
 
     return responses
-
-
-@typechecked
-def get_response_dict(response: requests.Response) -> dict[str, Any]:
-    """Safely handle a response that may not be JSON."""
-    try:
-        response_dict: dict = response.json()
-    except Exception as e:
-        response_dict = {
-            "reason": response.reason,
-            "additional_notes": "No-JSON response.",
-            "No-JSON response exception:": str(e),
-        }
-    return response_dict
 
 
 @typechecked
