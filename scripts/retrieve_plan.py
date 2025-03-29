@@ -7,8 +7,10 @@ import click
 import requests
 from requests.auth import HTTPBasicAuth
 
+from comb_utils.lib.api_callers import get_response_dict
+
 from bfb_delivery.lib.constants import RateLimits
-from bfb_delivery.lib.dispatch.utils import get_circuit_key, get_response_dict
+from bfb_delivery.lib.dispatch.utils import get_circuit_key
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
