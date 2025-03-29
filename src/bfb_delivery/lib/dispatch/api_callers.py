@@ -123,6 +123,7 @@ class BaseCaller:
         """
         raise NotImplementedError
 
+    # TODO: bfb_delivery issue 59, comb_utils issue 24: Return "" for no-key API calls?
     @abstractmethod
     @typechecked
     def _get_API_key(self) -> str:
@@ -282,23 +283,7 @@ class BaseCaller:
         cls._timeout = cls._timeout * self._wait_increase_scalar
 
 
-class BaseKeyRetriever:
-    """A base class for getting the API key.
-
-    Presets the API key to be used for authentication.
-    """
-
-    @typechecked
-    def _get_API_key(self) -> str:
-        """Get the API key.
-
-        Returns:
-            The API key.
-        """
-        return get_circuit_key()
-
-
-class BaseGetCaller(BaseKeyRetriever, BaseCaller):
+class BaseGetCaller(BaseCaller):
     """A base class for making GET API calls.
 
     Presets the timeout, initial wait time, and requests method.
@@ -314,7 +299,7 @@ class BaseGetCaller(BaseKeyRetriever, BaseCaller):
         self._request_call = requests.get
 
 
-class BasePostCaller(BaseKeyRetriever, BaseCaller):
+class BasePostCaller(BaseCaller):
     """A base class for making POST API calls.
 
     Presets the timeout, initial wait time, and requests method.
@@ -340,6 +325,34 @@ class BaseDeleteCaller(BasePostCaller):
     def _set_request_call(self) -> None:
         """Set the requests call method to `requests.delete`."""
         self._request_call = requests.delete
+
+
+class BaseKeyRetriever:
+    """A base class for getting the API key.
+
+    Presets the API key to be used for authentication.
+    """
+
+    @typechecked
+    def _get_API_key(self) -> str:
+        """Get the API key.
+
+        Returns:
+            The API key.
+        """
+        return get_circuit_key()
+
+
+class BaseBFBGetCaller(BaseKeyRetriever, BaseGetCaller):
+    """A base class for making GET API calls with BFB Circuit key."""
+
+
+class BaseBFBPostCaller(BaseKeyRetriever, BasePostCaller):
+    """A base class for making POST API calls with BFB Circuit key."""
+
+
+class BaseBFBDeleteCaller(BaseKeyRetriever, BaseDeleteCaller):
+    """A base class for making DELETE API calls with BFB Circuit key."""
 
 
 class BaseOptimizationCaller(BaseKeyRetriever, BaseCaller):
@@ -404,10 +417,10 @@ class BaseOptimizationCaller(BaseKeyRetriever, BaseCaller):
         self.finished = self.response_json[CircuitColumns.DONE]
 
 
-class PagedResponseGetter(BaseGetCaller):
+class BasePagedResponseGetter(BaseGetCaller):
     """Class for getting paged responses."""
 
-    # The nextPageToken returned, but called salsa to avoid bandit.
+    #: The nextPageToken returned, but called salsa to avoid bandit.
     next_page_salsa: str | None
 
     #: The URL for the page.
@@ -415,7 +428,7 @@ class PagedResponseGetter(BaseGetCaller):
 
     @typechecked
     def __init__(self, page_url: str) -> None:
-        """Initialize the PagedResponseGetter object.
+        """Initialize the BasePagedResponseGetter object.
 
         Args:
             page_url: The URL for the page. (Optionally contains nextPageToken.)
@@ -438,7 +451,11 @@ class PagedResponseGetter(BaseGetCaller):
         self.next_page_salsa = self.response_json.get("nextPageToken", None)
 
 
-class PlanInitializer(BasePostCaller):
+class PagedResponseGetterBFB(BaseKeyRetriever, BasePagedResponseGetter):
+    """Class for getting paged responses."""
+
+
+class PlanInitializer(BaseBFBPostCaller):
     """Class for initializing plans."""
 
     #: The ID of the plan.
@@ -477,7 +494,7 @@ class PlanInitializer(BasePostCaller):
         self.writable = self.response_json[CircuitColumns.WRITABLE]
 
 
-class StopUploader(BasePostCaller):
+class StopUploader(BaseBFBPostCaller):
     """Class for batch uploading stops."""
 
     stop_ids: list[str]
@@ -539,7 +556,7 @@ class StopUploader(BasePostCaller):
             )
 
 
-class OptimizationLauncher(BaseOptimizationCaller, BasePostCaller):
+class OptimizationLauncher(BaseOptimizationCaller, BaseBFBPostCaller):
     """A class for launching route optimization.
 
     Args:
@@ -553,7 +570,7 @@ class OptimizationLauncher(BaseOptimizationCaller, BasePostCaller):
         self._url = f"{CIRCUIT_URL}/{self._plan_id}:optimize"
 
 
-class OptimizationChecker(BaseOptimizationCaller, BaseGetCaller):
+class OptimizationChecker(BaseOptimizationCaller, BaseBFBGetCaller):
     """A class for checking the status of an optimization."""
 
     _timeout: float = RateLimits.READ_TIMEOUT_SECONDS
@@ -578,7 +595,7 @@ class OptimizationChecker(BaseOptimizationCaller, BaseGetCaller):
         self._url = f"{CIRCUIT_URL}/{self.operation_id}"
 
 
-class PlanDistributor(BasePostCaller):
+class PlanDistributor(BaseBFBPostCaller):
     """Class for distributing plans."""
 
     distributed: bool
@@ -621,7 +638,7 @@ class PlanDistributor(BasePostCaller):
             )
 
 
-class PlanDeleter(BaseDeleteCaller):
+class PlanDeleter(BaseBFBDeleteCaller):
     """Class for deleting plans."""
 
     #: Whether the plan was deleted.

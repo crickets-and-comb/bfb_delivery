@@ -11,13 +11,13 @@ from typeguard import typechecked
 
 from bfb_delivery.lib.constants import CIRCUIT_URL, CircuitColumns, RateLimits
 from bfb_delivery.lib.dispatch.api_callers import (
+    BaseBFBDeleteCaller,
+    BaseBFBGetCaller,
+    BaseBFBPostCaller,
     BaseCaller,
-    BaseDeleteCaller,
-    BaseGetCaller,
-    BasePostCaller,
     OptimizationChecker,
     OptimizationLauncher,
-    PagedResponseGetter,
+    PagedResponseGetterBFB,
     PlanDeleter,
     PlanDistributor,
     PlanInitializer,
@@ -33,9 +33,9 @@ _MOCK_STOP_ARRAY: Final[list[dict[str, dict[str, str] | list[str] | int | str]]]
 ]
 
 _CALLER_DICT: Final[dict[str, type[BaseCaller]]] = {
-    "get": BaseGetCaller,
-    "post": BasePostCaller,
-    "delete": BaseDeleteCaller,
+    "get": BaseBFBGetCaller,
+    "post": BaseBFBPostCaller,
+    "delete": BaseBFBDeleteCaller,
     "opt_launcher": OptimizationLauncher,
     "opt_checker": OptimizationChecker,
     "stop_uploader": StopUploader,
@@ -635,12 +635,12 @@ def test_optimization_callers(
 )
 @typechecked
 def test_paged_getter(response_sequence: list[dict[str, Any]]) -> None:
-    """Test PagedResponseGetter."""
+    """Test PagedResponseGetterBFB."""
     with patch("requests.get") as mock_request:
         mock_request.side_effect = [Mock(**resp) for resp in response_sequence]
 
         page_url = "https://example.com/api/test"
-        caller = PagedResponseGetter(page_url=page_url)
+        caller = PagedResponseGetterBFB(page_url=page_url)
         caller.call_api()
         assert mock_request.call_args_list[0][1]["url"] == page_url
         assert caller.next_page_salsa == response_sequence[-1]["json.return_value"].get(
