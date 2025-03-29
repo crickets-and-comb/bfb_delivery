@@ -7,8 +7,7 @@ import click
 import requests
 from requests.auth import HTTPBasicAuth
 
-# TODO: Move this up in inits. issue 59
-from comb_utils.lib.api_callers import get_response_dict
+from comb_utils import get_response_dict
 
 from bfb_delivery.lib.constants import RateLimits
 from bfb_delivery.lib.dispatch.utils import get_circuit_key
