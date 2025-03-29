@@ -9,7 +9,7 @@ from typing import Any
 from dotenv import load_dotenv
 from typeguard import typechecked
 
-from bfb_delivery.lib.dispatch import api_callers
+from comb_utils import BasePagedResponseGetter
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -31,19 +31,29 @@ def get_circuit_key() -> str:
 # TODO: Pass params instead of forming URL first. ("params", not "json")
 # (Would need to then grab params URL for next page, or just add nextpage to params?)
 # https://github.com/crickets-and-comb/bfb_delivery/issues/61
-# TODO: bfb_delivery issue 59, comb_utils issue 24: Pass in paged response class?
+# TODO: bfb_delivery issue 59, comb_utils issue 24: move above issue to comb_utils.
+# TODO: bfb_delivery issue 59, comb_utils issue 24:
+# Switch to default getter if key retriever can be empty.
 @typechecked
-def get_responses(url: str) -> list[dict[str, Any]]:
-    """Get all responses from a paginated API endpoint."""
+def get_responses(
+    url: str, paged_response_class: type[BasePagedResponseGetter]
+) -> list[dict[str, Any]]:
+    """Get all responses from a paginated API endpoint.
+
+    Args:
+        url: The base URL of the API endpoint.
+        paged_response_class: The class used to get the paginated response.
+
+    Returns:
+        A list of dictionaries containing the responses from all pages.
+    """
     # Calling the token salsa to trick bandit into ignoring what looks like a hardcoded token.
     next_page_salsa = ""
     next_page_cookie = ""
     responses = []
 
     while next_page_salsa is not None:
-        paged_response_getter = api_callers.PagedResponseGetterBFB(
-            page_url=url + str(next_page_cookie)
-        )
+        paged_response_getter = paged_response_class(page_url=url + str(next_page_cookie))
         paged_response_getter.call_api()
 
         stops = paged_response_getter._response.json()

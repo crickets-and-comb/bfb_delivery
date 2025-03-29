@@ -27,6 +27,7 @@ from bfb_delivery.lib.constants import (
 from bfb_delivery.lib.dispatch.api_callers import (
     OptimizationChecker,
     OptimizationLauncher,
+    PagedResponseGetterBFB,
     PlanDeleter,
     PlanDistributor,
     PlanInitializer,
@@ -682,7 +683,9 @@ def _build_plan_stops(
 def _get_all_drivers() -> schema.DriversGetAllDriversOut:
     """Get all drivers."""
     logger.info("Getting all drivers from Circuit ...")
-    driver_pages = get_responses(url=CIRCUIT_DRIVERS_URL)
+    driver_pages = get_responses(
+        url=CIRCUIT_DRIVERS_URL, paged_response_class=PagedResponseGetterBFB
+    )
     logger.info("Finished getting drivers.")
     drivers_list = concat_response_pages(
         page_list=driver_pages, data_key=CircuitColumns.DRIVERS
