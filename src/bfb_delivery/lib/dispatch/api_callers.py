@@ -1,6 +1,7 @@
 """Classes for making API calls."""
 
 import logging
+
 import requests
 from typeguard import typechecked
 
