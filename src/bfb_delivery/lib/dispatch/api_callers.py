@@ -42,6 +42,11 @@ class BaseCaller:
                 def _set_url(self):
                     self._url = "https://example.com/public/v0.2b/"
 
+                @typechecked
+                def _get_API_key(self) -> str:
+                    # Wrap your own API key retrieval function here.
+                    return my_custom_key_retrieval_function()
+
                 def _handle_200(self):
                     super()._handle_200()
                     self.target_response_value = self.response_json["target_key"]
@@ -118,6 +123,16 @@ class BaseCaller:
         """
         raise NotImplementedError
 
+    @abstractmethod
+    @typechecked
+    def _get_API_key(self) -> str:
+        """Get the API key.
+
+        Raises:
+            NotImplementedError: If not implemented in child class.
+        """
+        raise NotImplementedError
+
     @typechecked
     def call_api(self) -> None:
         """The main method for making the API call.
@@ -148,7 +163,7 @@ class BaseCaller:
         """Make the API call."""
         self._response = self._request_call(
             url=self._url,
-            auth=HTTPBasicAuth(get_circuit_key(), ""),
+            auth=HTTPBasicAuth(self._get_API_key(), ""),
             timeout=self._timeout,
             **self._call_kwargs,
         )
@@ -267,7 +282,23 @@ class BaseCaller:
         cls._timeout = cls._timeout * self._wait_increase_scalar
 
 
-class BaseGetCaller(BaseCaller):
+class BaseKeyRetriever:
+    """A base class for getting the API key.
+
+    Presets the API key to be used for authentication.
+    """
+
+    @typechecked
+    def _get_API_key(self) -> str:
+        """Get the API key.
+
+        Returns:
+            The API key.
+        """
+        return get_circuit_key()
+
+
+class BaseGetCaller(BaseKeyRetriever, BaseCaller):
     """A base class for making GET API calls.
 
     Presets the timeout, initial wait time, and requests method.
@@ -283,7 +314,7 @@ class BaseGetCaller(BaseCaller):
         self._request_call = requests.get
 
 
-class BasePostCaller(BaseCaller):
+class BasePostCaller(BaseKeyRetriever, BaseCaller):
     """A base class for making POST API calls.
 
     Presets the timeout, initial wait time, and requests method.
@@ -311,7 +342,7 @@ class BaseDeleteCaller(BasePostCaller):
         self._request_call = requests.delete
 
 
-class BaseOptimizationCaller(BaseCaller):
+class BaseOptimizationCaller(BaseKeyRetriever, BaseCaller):
     """A base class for checking the status of an optimization."""
 
     #: The ID of the operation.
