@@ -8,8 +8,10 @@ import pytest
 import requests
 from typeguard import typechecked
 
+from comb_utils import get_responses
+
 from bfb_delivery.lib.dispatch.api_callers import PagedResponseGetterBFB
-from bfb_delivery.lib.dispatch.utils import get_circuit_key, get_responses
+from bfb_delivery.lib.dispatch.utils import get_circuit_key
 
 BASE_URL: Final[str] = "http://example.com/api/v2/stops"
 

@@ -11,7 +11,7 @@ import pandera as pa
 from pandera.typing import DataFrame
 from typeguard import typechecked
 
-from comb_utils import concat_response_pages
+from comb_utils import concat_response_pages, get_responses
 
 from bfb_delivery.lib.constants import (
     ALL_HHS_DRIVER,
@@ -22,7 +22,6 @@ from bfb_delivery.lib.constants import (
     IntermediateColumns,
 )
 from bfb_delivery.lib.dispatch.api_callers import PagedResponseGetterBFB
-from bfb_delivery.lib.dispatch.utils import get_responses
 from bfb_delivery.lib.schema import (
     CircuitPlansFromDict,
     CircuitPlansOut,
