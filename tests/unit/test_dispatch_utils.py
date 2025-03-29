@@ -121,9 +121,7 @@ def test_get_responses_returns(
     error_context: AbstractContextManager,
 ) -> None:
     """Test get_responses function."""
-    with patch("requests.get") as mock_get, patch(
-        "bfb_delivery.lib.dispatch.api_callers.sleep"
-    ):
+    with patch("requests.get") as mock_get:
         mock_get.side_effect = [Mock(**resp) for resp in responses]
 
         with error_context:
@@ -193,9 +191,7 @@ def test_get_responses_returns(
 def test_get_responses_urls(responses: list[dict[str, Any]], params: str) -> None:
     """Test get_responses function."""
     base_url = f"{BASE_URL}{params}"
-    with patch("requests.get") as mock_get, patch(
-        "bfb_delivery.lib.dispatch.api_callers.sleep"
-    ):
+    with patch("requests.get") as mock_get:
         mock_get.side_effect = [Mock(**resp) for resp in responses]
 
         _ = get_responses(url=base_url)
