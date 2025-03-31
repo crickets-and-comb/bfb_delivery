@@ -8,7 +8,10 @@ import pytest
 import requests
 from typeguard import typechecked
 
-from bfb_delivery.lib.dispatch.utils import get_circuit_key, get_responses
+from comb_utils import get_responses
+
+from bfb_delivery.lib.dispatch.api_callers import PagedResponseGetterBFB
+from bfb_delivery.lib.dispatch.utils import get_circuit_key
 
 BASE_URL: Final[str] = "http://example.com/api/v2/stops"
 
@@ -121,13 +124,11 @@ def test_get_responses_returns(
     error_context: AbstractContextManager,
 ) -> None:
     """Test get_responses function."""
-    with patch("requests.get") as mock_get, patch(
-        "bfb_delivery.lib.dispatch.api_callers.sleep"
-    ):
+    with patch("requests.get") as mock_get:
         mock_get.side_effect = [Mock(**resp) for resp in responses]
 
         with error_context:
-            result = get_responses(BASE_URL)
+            result = get_responses(url=BASE_URL, paged_response_class=PagedResponseGetterBFB)
             assert result == expected_result
 
         assert mock_get.call_count == len(responses)
@@ -193,12 +194,10 @@ def test_get_responses_returns(
 def test_get_responses_urls(responses: list[dict[str, Any]], params: str) -> None:
     """Test get_responses function."""
     base_url = f"{BASE_URL}{params}"
-    with patch("requests.get") as mock_get, patch(
-        "bfb_delivery.lib.dispatch.api_callers.sleep"
-    ):
+    with patch("requests.get") as mock_get:
         mock_get.side_effect = [Mock(**resp) for resp in responses]
 
-        _ = get_responses(url=base_url)
+        _ = get_responses(url=base_url, paged_response_class=PagedResponseGetterBFB)
 
         expected_urls = [base_url]
         last_next_page_token = None

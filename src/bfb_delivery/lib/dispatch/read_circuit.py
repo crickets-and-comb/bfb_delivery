@@ -11,6 +11,8 @@ import pandera as pa
 from pandera.typing import DataFrame
 from typeguard import typechecked
 
+from comb_utils import concat_response_pages, get_responses
+
 from bfb_delivery.lib.constants import (
     ALL_HHS_DRIVER,
     CIRCUIT_DOWNLOAD_COLUMNS,
@@ -19,7 +21,7 @@ from bfb_delivery.lib.constants import (
     Columns,
     IntermediateColumns,
 )
-from bfb_delivery.lib.dispatch.utils import concat_response_pages, get_responses
+from bfb_delivery.lib.dispatch.api_callers import PagedResponseGetterBFB
 from bfb_delivery.lib.schema import (
     CircuitPlansFromDict,
     CircuitPlansOut,
@@ -322,12 +324,12 @@ def _write_route_df(route_df: DataFrame[CircuitRoutesWriteOut], fp: Path) -> Non
 
 @typechecked
 def _get_plan_responses(url: str) -> list[dict[str, Any]]:
-    return get_responses(url=url)
+    return get_responses(url=url, paged_response_class=PagedResponseGetterBFB)
 
 
 @typechecked
 def _get_stops_responses(url: str) -> list[dict[str, Any]]:
-    return get_responses(url=url)
+    return get_responses(url=url, paged_response_class=PagedResponseGetterBFB)
 
 
 @typechecked
