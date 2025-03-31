@@ -1,11 +1,9 @@
 """Test for the dispatch utils module."""
 
-from contextlib import AbstractContextManager, nullcontext
 from typing import Any, Final
 from unittest.mock import Mock, patch
 
 import pytest
-import requests
 from typeguard import typechecked
 
 from comb_utils import get_responses
@@ -14,124 +12,6 @@ from bfb_delivery.lib.dispatch.api_callers import PagedResponseGetterBFB
 from bfb_delivery.lib.dispatch.utils import get_circuit_key
 
 BASE_URL: Final[str] = "http://example.com/api/v2/stops"
-
-
-@pytest.mark.parametrize(
-    "responses, expected_result, error_context",
-    [
-        (
-            [
-                {
-                    "json.return_value": {"data": [1, 2, 3], "nextPageToken": None},
-                    "status_code": 200,
-                }
-            ],
-            [{"data": [1, 2, 3], "nextPageToken": None}],
-            nullcontext(),
-        ),
-        (
-            [
-                {
-                    "json.return_value": {"data": [1], "nextPageToken": "abc"},
-                    "status_code": 200,
-                },
-                {
-                    "json.return_value": {"data": [2], "nextPageToken": None},
-                    "status_code": 200,
-                },
-            ],
-            [{"data": [1], "nextPageToken": "abc"}, {"data": [2], "nextPageToken": None}],
-            nullcontext(),
-        ),
-        (
-            [
-                {"json.return_value": {}, "status_code": 429},
-                {"json.return_value": {}, "status_code": 429},
-                {
-                    "json.return_value": {"data": [3], "nextPageToken": "asfg"},
-                    "status_code": 200,
-                },
-                {"json.return_value": {}, "status_code": 429},
-                {
-                    "json.return_value": {"data": [54], "nextPageToken": None},
-                    "status_code": 200,
-                },
-            ],
-            [{"data": [3], "nextPageToken": "asfg"}, {"data": [54], "nextPageToken": None}],
-            nullcontext(),
-        ),
-        (
-            [
-                {
-                    "json.return_value": {},
-                    "status_code": 400,
-                    "raise_for_status.side_effect": requests.exceptions.HTTPError(),
-                }
-            ],
-            None,
-            pytest.raises(requests.exceptions.HTTPError),
-        ),
-        (
-            [
-                {
-                    "json.return_value": {},
-                    "status_code": 401,
-                    "raise_for_status.side_effect": requests.exceptions.HTTPError(),
-                }
-            ],
-            None,
-            pytest.raises(requests.exceptions.HTTPError),
-        ),
-        (
-            [
-                {
-                    "json.return_value": {},
-                    "status_code": 403,
-                    "raise_for_status.side_effect": requests.exceptions.HTTPError(),
-                }
-            ],
-            None,
-            pytest.raises(requests.exceptions.HTTPError),
-        ),
-        (
-            [
-                {
-                    "json.return_value": {},
-                    "status_code": 404,
-                    "raise_for_status.side_effect": requests.exceptions.HTTPError(),
-                }
-            ],
-            None,
-            pytest.raises(requests.exceptions.HTTPError),
-        ),
-        (
-            [
-                {
-                    "json.return_value": {},
-                    "status_code": 500,
-                    "raise_for_status.side_effect": requests.exceptions.HTTPError(),
-                }
-            ],
-            None,
-            pytest.raises(requests.exceptions.HTTPError),
-        ),
-    ],
-)
-@typechecked
-def test_get_responses_returns(
-    responses: list[dict[str, Any]],
-    expected_result: list[dict[str, Any]] | None,
-    error_context: AbstractContextManager,
-) -> None:
-    """Test get_responses function."""
-    with patch("requests.get") as mock_get:
-        mock_get.side_effect = [Mock(**resp) for resp in responses]
-
-        with error_context:
-            result = get_responses(url=BASE_URL, paged_response_class=PagedResponseGetterBFB)
-            assert result == expected_result
-
-        assert mock_get.call_count == len(responses)
 
 
 @pytest.mark.parametrize(
