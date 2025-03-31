@@ -85,7 +85,7 @@ _OPT_JSON_ERROR_CODE[CircuitColumns.RESULT] = {CircuitColumns.CODE: "MOCK_ERROR_
 @pytest.mark.parametrize("request_type", ["get", "post", "delete"])
 @typechecked
 def test_key_call(request_type: str) -> None:
-    """Test `call_api` handling of different HTTP responses, including retries."""
+    """Test `call_api` calls `get_circuit_key`."""
 
     class MockCaller(_CALLER_DICT[request_type]):
         """Minimal concrete subclass of BaseCaller for testing."""
@@ -98,15 +98,13 @@ def test_key_call(request_type: str) -> None:
         {"json.return_value": {"data": [1, 2, 3]}, "status_code": 200}
     ]
 
-    with patch(f"requests.{request_type}") as mock_request:
+    with patch(f"requests.{request_type}") as mock_request, patch(
+        "bfb_delivery.lib.dispatch.api_callers.get_circuit_key"
+    ) as spy_handle_get_circuit_key:
         mock_request.side_effect = [Mock(**resp) for resp in response_sequence]
         mock_caller = MockCaller()
-
-        with patch.object(
-            mock_caller, "_get_API_key", wraps=mock_caller._get_API_key
-        ) as spy_handle_get_API_key:
-            mock_caller.call_api()
-            spy_handle_get_API_key.assert_called_once()
+        mock_caller.call_api()
+        spy_handle_get_circuit_key.assert_called_once()
 
 
 @pytest.mark.parametrize("request_type", ["get", "post", "delete"])
