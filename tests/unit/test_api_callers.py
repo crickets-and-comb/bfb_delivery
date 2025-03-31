@@ -17,7 +17,6 @@ from bfb_delivery.lib.dispatch.api_callers import (
     BaseCaller,
     OptimizationChecker,
     OptimizationLauncher,
-    PagedResponseGetterBFB,
     PlanDeleter,
     PlanDistributor,
     PlanInitializer,
@@ -505,29 +504,6 @@ def test_optimization_callers(
             )
             assert caller.operation_id == _MOCK_OPERATION_ID
             assert caller.finished == expected_done_status
-
-
-@pytest.mark.parametrize(
-    "response_sequence",
-    [
-        ([{"status_code": 200, "json.return_value": {"nextPageToken": "abc123"}}]),
-        ([{"status_code": 200, "json.return_value": {"nextPageToken": None}}]),
-        ([{"status_code": 200, "json.return_value": {}}]),
-    ],
-)
-@typechecked
-def test_paged_getter(response_sequence: list[dict[str, Any]]) -> None:
-    """Test PagedResponseGetterBFB."""
-    with patch("requests.get") as mock_request:
-        mock_request.side_effect = [Mock(**resp) for resp in response_sequence]
-
-        page_url = "https://example.com/api/test"
-        caller = PagedResponseGetterBFB(page_url=page_url)
-        caller.call_api()
-        assert mock_request.call_args_list[0][1]["url"] == page_url
-        assert caller.next_page_salsa == response_sequence[-1]["json.return_value"].get(
-            "nextPageToken", None
-        )
 
 
 @pytest.mark.parametrize(
