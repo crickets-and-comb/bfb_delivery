@@ -6,6 +6,6 @@ from bfb_delivery.lib.dispatch.utils import get_circuit_key
 
 
 @typechecked
-def test_get_circuit_key(FAKE_KEY: str) -> None:
+def test_get_circuit_key(mock_key: str) -> None:
     """Test get_circuit_key function."""
-    assert get_circuit_key() == FAKE_KEY
+    assert get_circuit_key() == mock_key

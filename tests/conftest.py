@@ -26,17 +26,17 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
 
 
 @pytest.fixture
-def FAKE_KEY() -> str:
+def mock_key() -> str:
     """Fake Circuit API key."""
     return "dispatch_utils_key"
 
 
 @pytest.fixture(autouse=True)
 @typechecked
-def mock_get_circuit_key_dispatch_utils(FAKE_KEY: str, tmp_path: Path) -> Iterator:
+def mock_get_circuit_key_dispatch_utils(mock_key: str, tmp_path: Path) -> Iterator:
     """Mock get_circuit_key."""
     env_path = tmp_path / ".env"
-    env_path.write_text(f"CIRCUIT_API_KEY={FAKE_KEY}")
+    env_path.write_text(f"CIRCUIT_API_KEY={mock_key}")
     with patch(
         "bfb_delivery.lib.dispatch.utils.os_getcwd", return_value=tmp_path
     ) as mock_getcwd:
