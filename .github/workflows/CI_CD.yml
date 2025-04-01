@@ -74,7 +74,7 @@ jobs:
     name: QC and Tests
     needs: set-inputs
     # NOTE: Switch to relative path when running with `act`.
-    uses: crickets-and-comb/shared/.github/workflows/CI_win.yml@main
+    uses: crickets-and-comb/shared/.github/workflows/CI_win.yml@debug/KalebCoberly/move-debug-to-workflow
     secrets:
       CHECKOUT_SHARED: ${{ secrets.CHECKOUT_SHARED }}
       SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
