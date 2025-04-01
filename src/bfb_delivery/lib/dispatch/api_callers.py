@@ -22,8 +22,6 @@ logger = logging.getLogger(__name__)
 # TODO: bfb_delivery issue 59, comb_utils issue 24:
 # Why are we using _set_url instead of the url property?
 # Why are we using _set_request_call instead of the _request_call property?
-
-
 class BaseKeyRetriever:
     """A base class for getting the API key.
 
