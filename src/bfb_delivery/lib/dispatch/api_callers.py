@@ -40,6 +40,7 @@ class BaseKeyRetriever:
         return get_circuit_key()
 
 
+
 class BaseBFBGetCaller(BaseKeyRetriever, BaseGetCaller):
     """A base class for making GET API calls with BFB Circuit key."""
 
