@@ -51,6 +51,7 @@ There are certainly improvements that can be made, so please take a look at the 
     .github/workflows               GitHub Actions CI/CD workflows.
     docs                            RST docs and doc build staging.
     Makefile                        Dev tools and params. (includes shared/Makefile)
+    scripts                         Scripts for running tests etc. with real data if you have it.
     setup.cfg                       Metadata and dependencies.
     shared                          Shared dev tools Git submodule.
     src/reference_package/api       Public and internal API.
