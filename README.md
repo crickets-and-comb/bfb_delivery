@@ -43,7 +43,7 @@ The main tool wraps nested tools. This is a natural developmental result of incr
 
 A benefit of having these subtools wrapped within the larger tool is that it produces intermediate outputs and maintains backwards compatability that can be rolled back to the old methods for a given step should it fail for some reason, without the need to do the whole process over again.
 
-There are certainly improvements that can be made, so please take a look at the issues in the GitHub repo (once I have created them and once others have potentially added to them).
+There are certainly improvements that can be made, so please take a look at the issues in the GitHub repo.
 
 ## Structure
 
