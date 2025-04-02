@@ -12,6 +12,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
+
 @typechecked
 def get_circuit_key() -> str:
     """Get the Circuit API key."""
