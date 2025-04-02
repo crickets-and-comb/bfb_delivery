@@ -25,7 +25,7 @@ def get_circuit_key() -> str:
     env_path = Path(cwd) / ".env"
     print(f">> checking if .env exists: {env_path.exists()}")
     print(f">> .env contents:\n{env_path.read_text()}")
-    load_dotenv(env_path)
+    load_dotenv(dotenv_path=env_path, override=True)
 
     key = os.getenv("CIRCUIT_API_KEY")
     print(f">> found CIRCUIT_API_KEY: {key}")
