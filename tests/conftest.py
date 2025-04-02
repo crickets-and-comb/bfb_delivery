@@ -33,7 +33,9 @@ def mock_dispatch_utils_circuit_key() -> str:
 
 @pytest.fixture(autouse=True)
 @typechecked
-def mock_get_circuit_key_dispatch_utils(mock_dispatch_utils_circuit_key: str, tmp_path: Path) -> Iterator:
+def mock_get_circuit_key_dispatch_utils(
+    mock_dispatch_utils_circuit_key: str, tmp_path: Path
+) -> Iterator:
     """Mock get_circuit_key."""
     env_path = tmp_path / ".env"
     env_path.write_text(f"CIRCUIT_API_KEY={mock_dispatch_utils_circuit_key}")
