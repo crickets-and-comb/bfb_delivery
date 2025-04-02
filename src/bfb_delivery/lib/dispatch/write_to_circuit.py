@@ -536,9 +536,9 @@ def _assign_drivers_to_plans(
     """
     plan_df = pd.DataFrame(
         {
-            IntermediateColumns.ROUTE_TITLE: stops_df[
-                IntermediateColumns.SHEET_NAME
-            ].unique(),
+            IntermediateColumns.ROUTE_TITLE: (
+                stops_df[IntermediateColumns.SHEET_NAME].unique()
+            ),
             IntermediateColumns.DRIVER_NAME: None,
             CircuitColumns.EMAIL: None,
             CircuitColumns.ID: None,

@@ -761,7 +761,9 @@ class TestCreateManifestsFromCircuit:
             (bad_df[IntermediateColumns.DRIVER_SHEET_NAME] == first_group)
             & (bad_df[Columns.STOP_NO] == max_first_group),
             Columns.STOP_NO,
-        ] = (max_first_group + 1)
+        ] = (
+            max_first_group + 1
+        )
 
         with pytest.raises(ValidationError, match="contiguous_group"):
             _write_routes_dfs(routes_df=bad_df, output_dir=tmp_path)
