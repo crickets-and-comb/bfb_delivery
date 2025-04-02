@@ -37,12 +37,15 @@ def mock_get_circuit_key_dispatch_utils(
     mock_dispatch_utils_circuit_key: str, tmp_path: Path
 ) -> Iterator:
     """Mock get_circuit_key."""
+    print(">> mock_get_circuit_key_dispatch_utils IS RUNNING")
     env_path = tmp_path / ".env"
     env_path.write_text(f"CIRCUIT_API_KEY={mock_dispatch_utils_circuit_key}")
+    print(f">> writing .env to {env_path}")
     with patch(
         "bfb_delivery.lib.dispatch.utils.os_getcwd", return_value=tmp_path
     ) as mock_getcwd:
         mock_getcwd.return_value = tmp_path
+        print(">> patching os_getcwd to return", tmp_path)
         yield
 
 

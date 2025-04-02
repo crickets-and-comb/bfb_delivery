@@ -19,8 +19,11 @@ logger = logging.getLogger(__name__)
 @typechecked
 def get_circuit_key() -> str:
     """Get the Circuit API key."""
-    load_dotenv(Path(os_getcwd()) / ".env")
+    cwd = os_getcwd()
+    print(f">> get_circuit_key is looking in: {cwd}")
+    load_dotenv(Path(cwd) / ".env")
     key = os.getenv("CIRCUIT_API_KEY")
+    print(f">> found CIRCUIT_API_KEY: {key}")
     if not key:
         raise ValueError(
             "Circuit API key not found. Set the CIRCUIT_API_KEY environment variable."
