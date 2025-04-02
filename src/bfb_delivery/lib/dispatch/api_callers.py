@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-# TODO: bfb_delivery issue 59, comb_utils issue 24:
+# TODO: https://github.com/crickets-and-comb/bfb_delivery/issues/138:
 # Why are we using _set_url instead of the url property?
 # Why are we using _set_request_call instead of the _request_call property?
 
