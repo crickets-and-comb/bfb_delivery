@@ -253,6 +253,6 @@ def test_get_responses_urls(responses: list[dict[str, Any]], params: str) -> Non
 
 
 @typechecked
-def test_get_circuit_key(FAKE_KEY: str) -> None:
+def test_get_circuit_key(mock_dispatch_utils_circuit_key: str) -> None:
     """Test get_circuit_key function."""
-    assert get_circuit_key() == FAKE_KEY
+    assert get_circuit_key() == mock_dispatch_utils_circuit_key
