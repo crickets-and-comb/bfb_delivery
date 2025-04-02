@@ -176,9 +176,9 @@ def mock_plan_df_initial(mock_stops_df: pd.DataFrame) -> pd.DataFrame:
     """Return a mock plan DataFrame initialized with just the route titles."""
     return pd.DataFrame(
         {
-            IntermediateColumns.ROUTE_TITLE: mock_stops_df[
-                IntermediateColumns.SHEET_NAME
-            ].unique(),
+            IntermediateColumns.ROUTE_TITLE: (
+                mock_stops_df[IntermediateColumns.SHEET_NAME].unique()
+            ),
             IntermediateColumns.DRIVER_NAME: None,
             CircuitColumns.EMAIL: None,
             CircuitColumns.ID: None,

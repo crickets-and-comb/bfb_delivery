@@ -69,7 +69,9 @@ for all_hhs in ["_all_hhs", ""]:
                         {
                             "id": stop["id"],
                             "address": {
-                                "address": f"stop-{i}-{j} address, Dummy Imputed Neighborhood",  # noqa: E501
+                                "address": (
+                                    f"stop-{i}-{j} address, Dummy Imputed Neighborhood"
+                                ),  # noqa: E501
                                 "addressLineOne": f"stop-{i}-{j} addressLineOne",
                                 "addressLineTwo": f"stop-{i}-{j} addressLineTwo",
                                 "placeId": stop["address"]["placeId"],
@@ -80,9 +82,11 @@ for all_hhs in ["_all_hhs", ""]:
                             "orderInfo": {"products": stop["orderInfo"]["products"]},
                             "recipient": {
                                 "name": f"stop-{i}-{j} recipient",
-                                "phone": phonenumbers.example_number(
-                                    region_code="US"
-                                ).national_number,
+                                "phone": (
+                                    phonenumbers.example_number(
+                                        region_code="US"
+                                    ).national_number
+                                ),
                             },
                             "plan": stop["plan"],
                             "route": {
