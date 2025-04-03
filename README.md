@@ -43,7 +43,7 @@ The main tool wraps nested tools. This is a natural developmental result of incr
 
 A benefit of having these subtools wrapped within the larger tool is that it produces intermediate outputs and maintains backwards compatability that can be rolled back to the old methods for a given step should it fail for some reason, without the need to do the whole process over again.
 
-There are certainly improvements that can be made, so please take a look at the issues in the GitHub repo (once I have created them and once others have potentially added to them).
+There are certainly improvements that can be made, so please take a look at the issues in the GitHub repo.
 
 ## Structure
 
@@ -51,6 +51,7 @@ There are certainly improvements that can be made, so please take a look at the 
     .github/workflows               GitHub Actions CI/CD workflows.
     docs                            RST docs and doc build staging.
     Makefile                        Dev tools and params. (includes shared/Makefile)
+    scripts                         Scripts for running tests etc. with real data if you have it.
     setup.cfg                       Metadata and dependencies.
     shared                          Shared dev tools Git submodule.
     src/reference_package/api       Public and internal API.

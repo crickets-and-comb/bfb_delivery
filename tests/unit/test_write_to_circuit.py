@@ -176,9 +176,9 @@ def mock_plan_df_initial(mock_stops_df: pd.DataFrame) -> pd.DataFrame:
     """Return a mock plan DataFrame initialized with just the route titles."""
     return pd.DataFrame(
         {
-            IntermediateColumns.ROUTE_TITLE: mock_stops_df[
-                IntermediateColumns.SHEET_NAME
-            ].unique(),
+            IntermediateColumns.ROUTE_TITLE: (
+                mock_stops_df[IntermediateColumns.SHEET_NAME].unique()
+            ),
             IntermediateColumns.DRIVER_NAME: None,
             CircuitColumns.EMAIL: None,
             CircuitColumns.ID: None,
@@ -1613,7 +1613,7 @@ def test_delete_plans(
 def test_delete_plan_call(fail: bool, error_context: AbstractContextManager) -> None:
     """Test that delete_plan deletes a plan correctly."""
     plan_id = "plans/plan1"
-    with patch("bfb_delivery.lib.dispatch.api_callers.requests.delete") as mock_delete:
+    with patch("comb_utils.lib.api_callers.requests.delete") as mock_delete:
         mock_delete.return_value.status_code = 204 if not fail else 400
 
         with error_context:
@@ -1633,7 +1633,7 @@ def test_delete_plan_call(fail: bool, error_context: AbstractContextManager) -> 
 def test_delete_plan_return(fail: bool, error_context: AbstractContextManager) -> None:
     """Test that delete_plan deletes a plan correctly."""
     plan_id = "plans/plan1"
-    with patch("bfb_delivery.lib.dispatch.api_callers.requests.delete") as mock_delete:
+    with patch("comb_utils.lib.api_callers.requests.delete") as mock_delete:
         mock_delete.return_value.status_code = 204 if not fail else 400
 
         with error_context:

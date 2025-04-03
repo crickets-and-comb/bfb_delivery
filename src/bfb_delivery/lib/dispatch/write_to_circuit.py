@@ -11,6 +11,8 @@ import pandera as pa
 from pandera.typing import DataFrame
 from typeguard import typechecked
 
+from comb_utils import concat_response_pages, get_responses
+
 from bfb_delivery.lib import errors, schema
 from bfb_delivery.lib.constants import (
     CIRCUIT_DATE_FORMAT,
@@ -25,13 +27,13 @@ from bfb_delivery.lib.constants import (
 from bfb_delivery.lib.dispatch.api_callers import (
     OptimizationChecker,
     OptimizationLauncher,
+    PagedResponseGetterBFB,
     PlanDeleter,
     PlanDistributor,
     PlanInitializer,
     StopUploader,
 )
 from bfb_delivery.lib.dispatch.read_circuit import get_route_files
-from bfb_delivery.lib.dispatch.utils import concat_response_pages, get_responses
 from bfb_delivery.lib.formatting.sheet_shaping import create_manifests, split_chunked_route
 from bfb_delivery.lib.schema.utils import schema_error_handler
 from bfb_delivery.lib.utils import get_friday
@@ -534,9 +536,9 @@ def _assign_drivers_to_plans(
     """
     plan_df = pd.DataFrame(
         {
-            IntermediateColumns.ROUTE_TITLE: stops_df[
-                IntermediateColumns.SHEET_NAME
-            ].unique(),
+            IntermediateColumns.ROUTE_TITLE: (
+                stops_df[IntermediateColumns.SHEET_NAME].unique()
+            ),
             IntermediateColumns.DRIVER_NAME: None,
             CircuitColumns.EMAIL: None,
             CircuitColumns.ID: None,
@@ -680,7 +682,9 @@ def _build_plan_stops(
 def _get_all_drivers() -> schema.DriversGetAllDriversOut:
     """Get all drivers."""
     logger.info("Getting all drivers from Circuit ...")
-    driver_pages = get_responses(url=CIRCUIT_DRIVERS_URL)
+    driver_pages = get_responses(
+        url=CIRCUIT_DRIVERS_URL, paged_response_class=PagedResponseGetterBFB
+    )
     logger.info("Finished getting drivers.")
     drivers_list = concat_response_pages(
         page_list=driver_pages, data_key=CircuitColumns.DRIVERS

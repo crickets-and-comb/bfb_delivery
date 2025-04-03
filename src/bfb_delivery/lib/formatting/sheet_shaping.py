@@ -351,9 +351,9 @@ def _aggregate_route_data(df: pd.DataFrame, extra_notes_df: pd.DataFrame) -> dic
     agg_dict = {
         "box_counts": df.groupby(Columns.BOX_TYPE)[Columns.ORDER_COUNT].sum().to_dict(),
         "total_box_count": df[Columns.ORDER_COUNT].sum(),
-        "protein_box_count": df[df[Columns.BOX_TYPE].isin(PROTEIN_BOX_TYPES)][
-            Columns.ORDER_COUNT
-        ].sum(),
+        "protein_box_count": (
+            df[df[Columns.BOX_TYPE].isin(PROTEIN_BOX_TYPES)][Columns.ORDER_COUNT].sum()
+        ),
         "neighborhoods": df[Columns.NEIGHBORHOOD].unique().tolist(),
         "extra_notes": extra_notes_list,
     }

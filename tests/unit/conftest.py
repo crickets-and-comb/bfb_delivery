@@ -23,7 +23,7 @@ def cli_runner() -> CliRunner:
 @typechecked
 def mock_sleep() -> Iterator[None]:
     """Mock `time.sleep` to avoid waiting in tests."""
-    with patch("bfb_delivery.lib.dispatch.api_callers.sleep"):
+    with patch("comb_utils.lib.api_callers.sleep"):
         yield
 
 

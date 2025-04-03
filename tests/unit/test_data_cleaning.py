@@ -480,13 +480,17 @@ class TestFormatAndValidateData:
             (
                 pd.DataFrame(
                     {
-                        Columns.PHONE: INVALID_NUMBERS
-                        + [
-                            "+1"
-                            + str(
-                                phonenumbers.example_number(region_code="US").national_number
-                            )
-                        ]
+                        Columns.PHONE: (
+                            INVALID_NUMBERS
+                            + [
+                                "+1"
+                                + str(
+                                    phonenumbers.example_number(
+                                        region_code="US"
+                                    ).national_number
+                                )
+                            ]
+                        )
                     }
                 ),
                 "Invalid phone numbers found:",
