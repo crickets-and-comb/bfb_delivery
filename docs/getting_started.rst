@@ -21,7 +21,7 @@ A venv is basically a controlled space to install and run stuff. The best way to
 
 Go to https://www.anaconda.com to download and install ``conda`` on your machine. You'll have the option to install Anaconda or Miniconda. Miniconda is a smaller version of Anaconda that doesn't come with all the bells and whistles that Anaconda does. You can install all the packages you need with Miniconda.
 
-But, the full Anaconda installation comes with a terminal, Anaconda Command Prompt, and you'll need a terminal to work in your env. You can use the Anaconda Command Prompt that gets installed with Anaconda, or you can use Git Bash or another conda-friendly terminal.
+But, the full Anaconda installation comes with a terminal, Anaconda Prompt, and you'll need a terminal to work in your env. You can use the Anaconda Prompt that gets installed with Anaconda, or you can use Git Bash or another conda-friendly terminal.
 
 Install Git with Unix tools
 ###########################
