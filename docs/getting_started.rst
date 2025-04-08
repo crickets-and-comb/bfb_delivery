@@ -23,17 +23,21 @@ Go to https://www.anaconda.com to download and install ``conda`` on your machine
 
 But, the full Anaconda installation comes with a terminal, Anaconda Prompt, and you'll need a terminal to work in your env. You can use the Anaconda Prompt that gets installed with Anaconda, or you can use Git Bash or another conda-friendly terminal.
 
+So, if you’re following step-by-step, install the full Anaconda version.
+
 Install Git with Unix tools
 ###########################
 
-This isn't strictly necessary, but it makes working in the terminal a lot easier. Go to https://git-scm.com/downloads and download and install Git. When you install Git, you'll have the option to install Unix tools. Make sure you check that box. This will install basic tools that the tutorials in this documentation assume you have, like ``ls`` and ``chmod``. There are other ways to install these tools, but Git is easy and reliable.
+Installing Git with Unix tools isn't strictly necessary, but it makes working in the terminal a lot easier. Go to https://git-scm.com/downloads and download and install Git. When you install Git with the installation wizard, one of the wizard steps will offer the option to install Unix tools. Make sure you check that box. This will install basic tools that the tutorials in this documentation assume you have, like ``ls`` and ``chmod``. There are other ways to install these tools, but Git is easy and reliable.
 
-When installing Git, you'll probably want to stick with the default settings depending on your use case. An exception may be when you choose your editor. If you're not developing (i.e., using Git to edit the source code), you'll never use this, but if you are, you'll want to choose an editor you like. The default is Vim, which is a powerful editor but has a steep learning curve because of low interface discoverability. If you're not sure, choose Nano or something you are familiar with. I recommend Nano. It's a terminal-based editor that's pretty user-friendly as it has a menu of shortcuts at the bottom of the page.
+When installing Git, you'll probably want to stick with the default settings depending on your use case. An exception, in addition to installing Unix tools, may be when you choose your editor. If you're not developing (i.e., using Git to edit the source code), you'll never use this, but if you are, you'll want to choose an editor you like. The default is Vim, which is a powerful editor but has a steep learning curve because of low interface discoverability. If you're not sure, choose Nano or something you are familiar with. I recommend Nano. It's a terminal-based editor that's pretty user-friendly as it has a menu of shortcuts at the bottom of the page.
 
 Build the env and install the package
 #####################################
 
-Once you have a terminal and ``conda`` installed, open your terminal and create an env with the following command:
+Once you have a terminal and ``conda`` installed, open your terminal. If you installed Anaconda, your terminal will be an app called Anaconda Prompt.
+
+Now, create an env with the following command:
 
 .. code:: bash
 
@@ -47,6 +51,10 @@ Activate the env with the following command:
 
     conda activate bfb_delivery
 
+.. note::
+
+    It's important to have the env activated when you install. You want to install the package in the env, not out in the global environment of your machine.
+
 Now install the package in the env:
 
 .. code:: bash
@@ -55,22 +63,38 @@ Now install the package in the env:
 
 .. note::
 
-    It's important to have the env activated when you install. You want to install the package in the env, not out in the global environment of your machine.
+    This example happens to name the env the same name as the package you're installing, ``bfb_delivery``. But, this is arbitrary and just for convenience. The package will always be called ``bfb_delivery``, but you can name the env anything. It's worth knowing that the env and the package installed in the env are two distinct things. The env contains the package along with other necessary packages.
 
-Using the package once installed
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+First-time setup: File setup
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Once the package installed, all you need to do is activate the env and you're good to go. Open your terminal and activate the env with the following command:
+As mentioned above, this tool relies on a couple of files to run. These files need to be in the same directory as where you're running the tool. The files are:
+
+1. ``config.ini``: This file contains phone numbers that will be used in the final manifests.
+2. ``.env``: This file contains your Circuit API key.
+
+You should only need to update these files if the support numbers change or your key expires, preventing the tool from interfacing with Circuit.
+
+You'll probably want to put these files in a special folder where you will always run the tool. You can create a folder for this purpose. For example, you could create a folder called ``bfb_delivery`` in your home directory:
 
 .. code:: bash
 
-    conda activate my_bfb_delivery_env_name
+    mkdir bfb_delivery
 
+Then, you can navigate to that folder in your terminal with the following command:
+
+.. code:: bash
+
+    cd bfb_delivery
+
+.. note::
+
+    As with the distinction between the package and the env, naming the folder ``bfb_delivery`` is an arbitrary decision for convenience. You can name the folder anything you want. The important thing is that you know where it is and that you put the files in there. The package, the env, and the folder are three distinct things, though they happen to be named the same thing in this example.
 
 Config file setup
-~~~~~~~~~~~~~~~~~
+#################
 
-This tool requires a local config file with phone numbers. We store them locally so we don't put phone numbers in the public codebase. The config file should be named ``config.ini`` and should be in the same directory as where you're running the tool. The file should look like this:
+You need to create a local config file with phone numbers (which will end up on the top of the final manifests). We store them locally so we don't put phone numbers in the public codebase. The config file should be named ``config.ini`` and should be in the same directory as where you're running the tool, ``bfb_delivery`` if you're following along. The file should look like this:
 
 .. code:: ini
 
@@ -78,8 +102,28 @@ This tool requires a local config file with phone numbers. We store them locally
     driver_support = 555-555-5555
     recipient_support = 555-555-5555 x5
 
+Before creating the file, navigate to the folder you created in the above step. (You should already be in the folder if you followed along step by step.)
+
+If you've been following along step by step, you can use Nano. This will create the file if it doesn't already exist and open it for editing:
+
+.. code:: bash
+
+    nano config.ini
+
+You can add the lines above to the file. To save and exit, press ``CTRL + X``, then ``Y`` to confirm you want to save, and then ``Enter`` to confirm the filename.
+
+.. note::
+
+    Nano does not allow the use of a mouse. You'll use the keyboard only. Use the arrows to move the cursor around. See the menu at the bottom for hotkey commands (to save end exit, e.g.).
+
+To check that the file was created correctly, run the following command:
+
+.. code:: bash
+
+    cat config.ini
+
 .env file setup
-~~~~~~~~~~~~~~~
+###############
 
 You need a Circuit API key to run the tools that interact with Circuit, and it needs to be in a ``.env`` file adjacent to the ``config.ini`` file above.
 
@@ -90,6 +134,8 @@ Make sure you don't already have a ``.env`` file:
 .. code:: bash
 
     ls -a
+
+This will list all the files in the current directory, including hidden files (files that start with a dot).
 
 If you don't see a ``.env`` file, create one:
 
@@ -109,7 +155,7 @@ Open the ``.env`` file in a text editor and add the following line:
 
     CIRCUIT_API_KEY=your_api_key_here
 
-Or, instead of opening the file in a text editor, you use the following command to add the key:
+Or, instead of opening the file in a text editor, you can use the following command to add the key:
 
 .. code:: bash
 
@@ -120,6 +166,25 @@ To check that the key was added correctly, run the following command:
 .. code:: bash
 
     cat .env
+
+Using the package once installed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Once the package installed and the local files are set up, to use the tool, you'll need to activate the env and navigate to the directory you setup.
+
+If you're following along, you already have the env activated. But, the next time you need to use the tool, you'll need to make sure the env is activated. To activate your env, open your terminal (if not already open) and tell conda to activate the env with the following command:
+
+.. code:: bash
+
+    conda activate bfb_delivery
+
+Then, navigate to the directory where you set up the files. If you followed along, you can do this with the following command:
+
+.. code:: bash
+
+    cd /example/path/to/bfb_delivery
+
+Phewf, you're ready to use the tool!
 
 Usage examples
 --------------
