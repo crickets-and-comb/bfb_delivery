@@ -1,7 +1,7 @@
 # noqa: D100
 __doc__ = """
-.. click:: bfb_delivery.cli.combine_route_tables:main
-   :prog: combine_route_tables
+.. click:: bfb_delivery.cli.create_manifests:main
+   :prog: create_manifests
    :nested: full
 """
 
