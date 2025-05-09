@@ -1,7 +1,7 @@
 # noqa: D100
 __doc__ = """
 .. click:: bfb_delivery.cli.build_routes_from_chunked:main
-    :prog: create_manifests_from_circuit
+    :prog: build_routes_from_chunked
     :nested: full
 """
 
