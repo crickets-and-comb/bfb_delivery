@@ -1,6 +1,6 @@
 # Bellingham Food Bank delivery planning toolkit
 
-This set of command-line tools cuts some cruft around creating delivery route manifests for the Bellingham Food Bank. It saves an estimated five paid staff hours per week, along with removing much of the room for error. See the docs for user guides: https://crickets-and-comb.github.io/bfb_delivery/.
+This set of command-line tools cuts some cruft around creating delivery route manifests for the Bellingham Food Bank. It saves an estimated five paid staff hours per week, along with removing much of the room for error. See the docs for user guides: https://cricketsandcomb.org/bfb_delivery/.
 
 This is a [Crickets and Comb](https://cricketsandcomb.org) solution.
 
