@@ -29,6 +29,7 @@ from bfb_delivery.cli import (
 from bfb_delivery.lib.constants import (
     ALL_HHS_DRIVER,
     BOX_TYPE_COLOR_MAP,
+    DEPOT_PLACE_ID,
     FILE_DATE_FORMAT,
     FORMATTED_ROUTES_COLUMNS,
     NOTES_COLUMN_WIDTH,
@@ -819,8 +820,59 @@ class TestCreateManifestsFromCircuit:
         """Raises if item not in address column dict."""
         bad_plan_stops_list = copy.deepcopy(plan_stops_list)
         bad_plan_stops_list[0][field].pop(item)
+
         with pytest.raises(ValidationError, match=check_name):
             _transform_routes_df(plan_stops_list=bad_plan_stops_list, plans_df=plans_df)
+
+    @typechecked
+    def test_transform_routes_df_adds_neighborhood(
+        self,
+        plan_stops_list: list[dict[str, Any]],
+        plans_df: pd.DataFrame,
+    ) -> None:
+        """Adds externalId as neighborhood."""
+        updated_plan_stops_list = copy.deepcopy(plan_stops_list)
+        missing_neighborhood_id = updated_plan_stops_list[0]["id"]
+        imputed_neighborhood = (
+            updated_plan_stops_list[0][CircuitColumns.ADDRESS][CircuitColumns.ADDRESS]
+            .split(",")[1]
+            .strip()
+        )
+
+        sort_cols = [Columns.NAME, Columns.NEIGHBORHOOD]
+
+        expected_neighborhoods = []
+        for stop in updated_plan_stops_list:
+            expected_neighborhoods.append(
+                (
+                    stop[CircuitColumns.RECIPIENT][CircuitColumns.NAME],
+                    stop[CircuitColumns.RECIPIENT][CircuitColumns.EXTERNAL_ID],
+                    stop["id"],
+                    stop[CircuitColumns.ADDRESS][CircuitColumns.PLACE_ID],
+                )
+            )
+        expected_neighborhoods = pd.DataFrame(
+            expected_neighborhoods, columns=sort_cols + ["id", CircuitColumns.PLACE_ID]
+        )
+        expected_neighborhoods = (
+            expected_neighborhoods[
+                expected_neighborhoods[CircuitColumns.PLACE_ID] != DEPOT_PLACE_ID
+            ]
+            .sort_values(by=sort_cols)
+            .reset_index(drop=True)
+        )
+        expected_neighborhoods.loc[
+            expected_neighborhoods["id"] == missing_neighborhood_id, Columns.NEIGHBORHOOD
+        ] = imputed_neighborhood
+
+        routes_df = _transform_routes_df(
+            plan_stops_list=updated_plan_stops_list, plans_df=plans_df, verbose=True
+        )
+        returned_neighborhoods = (
+            routes_df[sort_cols].sort_values(by=sort_cols).reset_index(drop=True)
+        )
+
+        assert returned_neighborhoods.equals(expected_neighborhoods[sort_cols])
 
     @pytest.mark.parametrize(
         "field, bad_value, expected_error",
