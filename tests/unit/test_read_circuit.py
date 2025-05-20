@@ -949,6 +949,6 @@ def test_set_routes_df_values_sets_neighborhoods() -> None:
         "YORK",
     ]
 
-    returned_df = _set_routes_df_values(routes_df=routes_df, verbose=False)
+    returned_df = _set_routes_df_values(routes_df=routes_df)
 
     assert returned_df[Columns.NEIGHBORHOOD].tolist() == expected_neighborhoods

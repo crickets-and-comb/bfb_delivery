@@ -277,7 +277,7 @@ def _transform_routes_df(
         inplace=True,
     )
 
-    routes_df = _set_routes_df_values(routes_df=routes_df, verbose=verbose)
+    routes_df = _set_routes_df_values(routes_df=routes_df)
 
     routes_df.sort_values(
         by=[IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO], inplace=True
@@ -387,9 +387,8 @@ def _pare_routes_df(routes_df: pd.DataFrame, verbose: bool) -> pd.DataFrame:
     return routes_df
 
 
-# TODO: Remove unused verbose flag.
 @typechecked
-def _set_routes_df_values(routes_df: pd.DataFrame, verbose: bool) -> pd.DataFrame:
+def _set_routes_df_values(routes_df: pd.DataFrame) -> pd.DataFrame:
     routes_df[IntermediateColumns.ROUTE_TITLE] = routes_df[CircuitColumns.ROUTE].apply(
         lambda route_dict: route_dict.get(CircuitColumns.TITLE)
     )
