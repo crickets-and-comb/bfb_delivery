@@ -1639,3 +1639,36 @@ def test_delete_plan_return(fail: bool, error_context: AbstractContextManager) -
         with error_context:
             deletion = delete_plan(plan_id=plan_id)
             assert deletion == (not fail)
+
+
+@pytest.mark.parametrize(
+    "neighborhood",
+    [
+        None,
+        "Neighborhood 1",
+    ],
+)
+@typechecked
+def test_build_stop_array_adds_externalId(neighborhood: None | str) -> None:
+    """_build_stop_array assigns "Neighborhood" field to `recipient_dict` `externalId`."""
+    stop_df = pd.DataFrame(
+        {
+            CircuitColumns.ADDRESS_NAME: ["ADDRESS_NAME"],
+            CircuitColumns.ADDRESS_LINE_1: ["ADDRESS_LINE_1"],
+            CircuitColumns.ADDRESS_LINE_2: ["ADDRESS_LINE_2"],
+            CircuitColumns.STATE: ["STATE"],
+            CircuitColumns.ZIP: ["ZIP"],
+            CircuitColumns.COUNTRY: ["COUNTRY"],
+            Columns.PRODUCT_TYPE: ["PRODUCT_TYPE"],
+            Columns.ORDER_COUNT: [1],
+            Columns.EMAIL: ["EMAIL"],
+            Columns.NEIGHBORHOOD: [neighborhood],
+        }
+    )
+
+    stop_array = _build_stop_array(route_stops=stop_df, driver_id="driver_id")
+
+    assert (
+        stop_array[0][CircuitColumns.RECIPIENT].get(CircuitColumns.EXTERNAL_ID)
+        == neighborhood
+    )
