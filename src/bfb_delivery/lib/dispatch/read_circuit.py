@@ -387,6 +387,7 @@ def _pare_routes_df(routes_df: pd.DataFrame, verbose: bool) -> pd.DataFrame:
     return routes_df
 
 
+# TODO: Remove unused verbose flag.
 @typechecked
 def _set_routes_df_values(routes_df: pd.DataFrame, verbose: bool) -> pd.DataFrame:
     routes_df[IntermediateColumns.ROUTE_TITLE] = routes_df[CircuitColumns.ROUTE].apply(
@@ -459,8 +460,6 @@ def _warn_and_impute(routes_df: pd.DataFrame) -> None:
         )
     routes_df[Columns.ORDER_COUNT] = routes_df[Columns.ORDER_COUNT].fillna(1)
 
-    # TODO: Before we impute from Circuit, we should impute from user input spreadsheet.
-    # https://github.com/crickets-and-comb/bfb_delivery/issues/60
     missing_neighborhood = routes_df[Columns.NEIGHBORHOOD].isna()
     if missing_neighborhood.any():
         logger.warning(
