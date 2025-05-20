@@ -76,7 +76,7 @@ for all_hhs in ["_all_hhs", ""]:
                                 "addressLineTwo": f"stop-{i}-{j} addressLineTwo",
                                 "placeId": stop["address"]["placeId"],
                             },
-                            "notes": stop["notes"],
+                            "notes": "",
                             "packageCount": stop["packageCount"],
                             "stopPosition": stop["stopPosition"],
                             "orderInfo": {"products": stop["orderInfo"]["products"]},

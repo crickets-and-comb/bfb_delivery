@@ -29,6 +29,7 @@ from bfb_delivery.cli import (
 from bfb_delivery.lib.constants import (
     ALL_HHS_DRIVER,
     BOX_TYPE_COLOR_MAP,
+    DEPOT_PLACE_ID,
     FILE_DATE_FORMAT,
     FORMATTED_ROUTES_COLUMNS,
     NOTES_COLUMN_WIDTH,
@@ -42,6 +43,7 @@ from bfb_delivery.lib.dispatch.read_circuit import (
     _get_raw_plans,
     _get_raw_stops,
     _make_plans_df,
+    _set_routes_df_values,
     _transform_routes_df,
     _write_routes_dfs,
 )
@@ -818,8 +820,59 @@ class TestCreateManifestsFromCircuit:
         """Raises if item not in address column dict."""
         bad_plan_stops_list = copy.deepcopy(plan_stops_list)
         bad_plan_stops_list[0][field].pop(item)
+
         with pytest.raises(ValidationError, match=check_name):
             _transform_routes_df(plan_stops_list=bad_plan_stops_list, plans_df=plans_df)
+
+    @typechecked
+    def test_transform_routes_df_adds_neighborhood(
+        self,
+        plan_stops_list: list[dict[str, Any]],
+        plans_df: pd.DataFrame,
+    ) -> None:
+        """Adds externalId as neighborhood."""
+        updated_plan_stops_list = copy.deepcopy(plan_stops_list)
+        missing_neighborhood_id = updated_plan_stops_list[0]["id"]
+        imputed_neighborhood = (
+            updated_plan_stops_list[0][CircuitColumns.ADDRESS][CircuitColumns.ADDRESS]
+            .split(",")[1]
+            .strip()
+        )
+
+        sort_cols = [Columns.NAME, Columns.NEIGHBORHOOD]
+
+        expected_neighborhoods = []
+        for stop in updated_plan_stops_list:
+            expected_neighborhoods.append(
+                (
+                    stop[CircuitColumns.RECIPIENT][CircuitColumns.NAME],
+                    stop[CircuitColumns.RECIPIENT][CircuitColumns.EXTERNAL_ID],
+                    stop["id"],
+                    stop[CircuitColumns.ADDRESS][CircuitColumns.PLACE_ID],
+                )
+            )
+        expected_neighborhoods = pd.DataFrame(
+            expected_neighborhoods, columns=sort_cols + ["id", CircuitColumns.PLACE_ID]
+        )
+        expected_neighborhoods = (
+            expected_neighborhoods[
+                expected_neighborhoods[CircuitColumns.PLACE_ID] != DEPOT_PLACE_ID
+            ]
+            .sort_values(by=sort_cols)
+            .reset_index(drop=True)
+        )
+        expected_neighborhoods.loc[
+            expected_neighborhoods["id"] == missing_neighborhood_id, Columns.NEIGHBORHOOD
+        ] = imputed_neighborhood
+
+        routes_df = _transform_routes_df(
+            plan_stops_list=updated_plan_stops_list, plans_df=plans_df, verbose=True
+        )
+        returned_neighborhoods = (
+            routes_df[sort_cols].sort_values(by=sort_cols).reset_index(drop=True)
+        )
+
+        assert returned_neighborhoods.equals(expected_neighborhoods[sort_cols])
 
     @pytest.mark.parametrize(
         "field, bad_value, expected_error",
@@ -903,3 +956,51 @@ class TestCreateManifestsFromCircuit:
         bad_df.loc[0, CircuitColumns.ID] = id
         with pytest.raises(SchemaError, match=error_match):
             _ = CircuitRoutesTransformInFromDict.validate(bad_df)
+
+
+@typechecked
+def test_set_routes_df_values_sets_neighborhoods() -> None:
+    """_set_routes_df_values set neighborhoods from `recipient` `externalId`."""
+    routes_df = pd.DataFrame(
+        [
+            {
+                CircuitColumns.RECIPIENT: {
+                    CircuitColumns.EXTERNAL_ID: "neighborhood1",
+                    CircuitColumns.NAME: "Recipient 1",
+                },
+                Columns.ORDER_COUNT: 1,
+                Columns.ADDRESS: {
+                    CircuitColumns.ADDRESS: "Has neighborhood, shouldn't be used, Anytown",
+                    CircuitColumns.ADDRESS_LINE_1: "123 Main St",
+                    CircuitColumns.ADDRESS_LINE_2: "Anytown",
+                },
+                CircuitColumns.ROUTE: {CircuitColumns.TITLE: "01.01 Driver A"},
+                CircuitColumns.ORDER_INFO: {},
+                IntermediateColumns.DRIVER_SHEET_NAME: "Driver A",
+                IntermediateColumns.ROUTE_TITLE: "01.01 Driver A",
+            },
+            {
+                CircuitColumns.RECIPIENT: {
+                    CircuitColumns.EXTERNAL_ID: None,
+                    CircuitColumns.NAME: "Recipient 2",
+                },
+                Columns.ADDRESS: {
+                    CircuitColumns.ADDRESS: "123 Main St, YORK, Anytown",
+                    CircuitColumns.ADDRESS_LINE_1: "123 Main St",
+                    CircuitColumns.ADDRESS_LINE_2: "Anytown",
+                },
+                Columns.ORDER_COUNT: 1,
+                CircuitColumns.ROUTE: {CircuitColumns.TITLE: "01.01 Driver A"},
+                CircuitColumns.ORDER_INFO: {},
+                IntermediateColumns.DRIVER_SHEET_NAME: "01.01 Driver A",
+            },
+        ]
+    )
+    expected_neighborhoods = [
+        "neighborhood1",
+        "YORK",
+    ]
+
+    returned_df = _set_routes_df_values(routes_df=routes_df)
+
+    assert returned_df[Columns.NEIGHBORHOOD].tolist() == expected_neighborhoods
