@@ -46,6 +46,7 @@ from bfb_delivery.lib.constants import (
 from bfb_delivery.lib.dispatch.write_to_circuit import (
     _assign_drivers,
     _assign_drivers_to_plans,
+    _build_plan_stops,
     _build_stop_array,
     _create_plans,
     _create_stops_df,
@@ -292,7 +293,7 @@ def mock_driver_assignment_with_inactive(
 def mock_plan_df_plans_initialized(
     mock_plan_df_drivers_assigned: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Return a mock plan DataFrame with drivers assigned."""
+    """Return a mock plan DataFrame with drivers initialized."""
     plan_df = mock_plan_df_drivers_assigned.copy()
     plan_df[IntermediateColumns.PLAN_ID] = mock_plan_df_drivers_assigned[
         IntermediateColumns.ROUTE_TITLE
@@ -311,7 +312,7 @@ def mock_plan_df_plans_initialized(
 def mock_plan_df_plans_initialized_with_failure(
     mock_plan_df_plans_initialized: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Return a mock plan DataFrame with drivers assigned."""
+    """Return a mock plan DataFrame with failed initialization."""
     plan_df = mock_plan_df_plans_initialized.copy()
     plan_df.loc[_FAILURE_IDX, CircuitColumns.WRITABLE] = False
     plan_df.loc[_FAILURE_IDX, IntermediateColumns.INITIALIZED] = False
@@ -1672,3 +1673,39 @@ def test_build_stop_array_adds_externalId(neighborhood: None | str) -> None:
         stop_array[0][CircuitColumns.RECIPIENT].get(CircuitColumns.EXTERNAL_ID)
         == neighborhood
     )
+
+
+@typechecked
+def test_build_plan_stops_adds_externalId(
+    mock_stops_df: pd.DataFrame, mock_plan_df_plans_initialized: pd.DataFrame
+) -> None:
+    """_build_plan_stops assigns "Neighborhood" field to `recipient_dict` `externalId`."""
+    sort_cols = [Columns.NAME, Columns.NEIGHBORHOOD]
+    expected_neighborhoods = (
+        mock_stops_df[sort_cols].sort_values(by=sort_cols).reset_index(drop=True)
+    )
+
+    plan_stops = _build_plan_stops(
+        stops_df=mock_stops_df, plan_df=mock_plan_df_plans_initialized
+    )
+
+    neighborhoods = []
+    for stop_array in plan_stops.values():
+        neighborhoods.append(
+            pd.DataFrame(pd.DataFrame(stop_array[0])[CircuitColumns.RECIPIENT].to_list())[
+                [CircuitColumns.NAME, CircuitColumns.EXTERNAL_ID]
+            ]
+        )
+    returned_neighborhoods = (
+        pd.concat(neighborhoods)
+        .rename(
+            columns={
+                CircuitColumns.NAME: Columns.NAME,
+                CircuitColumns.EXTERNAL_ID: Columns.NEIGHBORHOOD,
+            }
+        )
+        .sort_values(by=sort_cols)
+        .reset_index(drop=True)
+    )
+
+    assert returned_neighborhoods.equals(expected_neighborhoods)
