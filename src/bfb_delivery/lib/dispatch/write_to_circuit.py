@@ -749,7 +749,12 @@ def _assign_driver(  # noqa: C901
                     ],
                 ]
             )
-    best_guesses = best_guesses.drop_duplicates().sort_values(by=CircuitColumns.NAME)
+    # Using ID with name/email as added validation of our assumptions about uniqueness.
+    # Should break more loudly if so than if we only used ID or name/email compound key.
+    id_cols = [CircuitColumns.ID, CircuitColumns.NAME, CircuitColumns.EMAIL]
+    best_guesses = best_guesses.drop_duplicates(subset=id_cols).sort_values(
+        by=CircuitColumns.NAME
+    )
 
     print(f"\nRoute {route_title}:\nBest guesses:")
     for idx, driver in best_guesses.iterrows():

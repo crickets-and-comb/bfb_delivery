@@ -121,7 +121,7 @@ CLI tools (see docs for more information):
 - format_combined_routes
 
 
-## Dev
+## Developers
 
 ### Setting up shared tools
 
@@ -182,6 +182,10 @@ Then, run it from the repo directory:
 That will run `.github/workflows/CI_CD.yml`. Also, since `act` doesn't work with Mac and Windows architecture, it skips/fails them, but it is a good test of the Linux build.
 
 NOTE: To be more accurate, we've overridden `run-act` to create a local `CI_CD_act.yml` (which we ignore with Git) as a copy of `CI_CD.yml` and replace one of the workflow call URLs with a relative path. We use a relative path because otherwise `act` will not honor the overridden `full-test` make target and will run the shared version. That will fail because the shared `full-test` target includes running integration and e2e tests, which this repo does not include.
+
+### See also
+
+See also [https://cricketsandcomb.org/bfb_delivery/developers.html](https://cricketsandcomb.org/bfb_delivery/developers.html).
 
 ## Acknowledgments
 
