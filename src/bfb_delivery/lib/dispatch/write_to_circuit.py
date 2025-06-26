@@ -749,14 +749,6 @@ def _assign_driver(  # noqa: C901
                     ],
                 ]
             )
-    # TODO: List as value in "depots" col and dict as value in "routeOverrides" col unhashable
-    # and suddenly breaking pandas.DataFrame.drop_duplicates in next line.
-    # Find out why we're getting "depots" and "routeOverrides" columns in `drivers_df`.
-    # Were the columns there in previous runs?
-    # Were they different value types?
-    # Guessing something changed in Circuit API response, but can't be sure since we don't
-    # save the drivers_df to an intermediate file like the plans_df etc.
-
     # Using ID with name/email as added validation of our assumptions about uniqueness.
     # Should break more loudly if so than if we only used ID or name/email compound key.
     id_cols = [CircuitColumns.ID, CircuitColumns.NAME, CircuitColumns.EMAIL]
