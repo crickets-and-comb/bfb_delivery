@@ -47,7 +47,7 @@ There are certainly improvements that can be made, so please take a look at the 
 
 ## Structure
 
-```bash
+```
     .github/workflows               GitHub Actions CI/CD workflows.
     docs                            RST docs and doc build staging.
     Makefile                        Dev tools and params. (includes shared/Makefile)
@@ -105,11 +105,15 @@ Unless you're developing, avoid importing directly from library:
 
 Try the CLI with this package installed:
 
+```bash
     $ build_routes_from_chunked --input_path "some/path_to/raw_chunked_sheet.xlsx"
+```
 
 See other options in the help menu:
 
+```bash
     $ build_routes_from_chunked --help
+```
 
 CLI tools (see docs for more information):
 
@@ -127,8 +131,10 @@ CLI tools (see docs for more information):
 
 There are some shared dev tools in a Git submodule called `shared`. See https://github.com/crickets-and-comb/shared. When you first clone this repo, you need to initialize the submodule:
 
+```bash
     $ git submodule init
     $ git submodule update
+```
 
 See https://git-scm.com/book/en/v2/Git-Tools-Submodules
 
@@ -138,14 +144,18 @@ You'll want this package's site-package files to be the source files in this rep
 
 First build and activate the env before installing this package:
 
+```bash
     $ make build-env
     $ conda activate bfb_delivery_py3.12
+```
 
 (Note, you will need Python activated, e.g. via conda base env, for `build-env` to work, since it uses Python to grab `PACKAGE_NAME` in the Makefile. You could alternatively just hardcode the name.)
 
 Then, install this package and its dev dependencies:
 
+```bash
     $ make install
+```
 
 This installs all the dependencies in your conda env site-packages, but the files for this package's installation are now your source files in this repo.
 
@@ -153,7 +163,9 @@ This installs all the dependencies in your conda env site-packages, but the file
 
 You can list all the make tools you might want to use:
 
+```bash
     $ make list-targets
+```
 
 Go check them out in `Makefile`.
 
@@ -161,11 +173,15 @@ Go check them out in `Makefile`.
 
 Before pushing commits, you'll usually want to rebuild the env and run all the QC and testing:
 
+```bash
     $ make clean full
+```
 
 When making smaller commits, you might just want to run some of the smaller commands:
 
+```bash
     $ make clean format full-qc full-test
+```
 
 #### CI test run
 
@@ -173,11 +189,15 @@ Before opening a PR or pushing to it, you'll want to run locally the same CI pip
 
 Once that's installed and running, you can use `act`. You'll need to install that as well. I develop on a Mac, so I used `homebrew` to install it (which you'll also need to install: https://brew.sh/):
 
+```bash
     $ brew install act
+```
 
 Then, run it from the repo directory:
 
+```bash
     $ make run-act
+```
 
 That will run `.github/workflows/CI_CD.yml`. Also, since `act` doesn't work with Mac and Windows architecture, it skips/fails them, but it is a good test of the Linux build.
 
