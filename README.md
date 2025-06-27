@@ -162,7 +162,7 @@ There are some useful scripts for live-testing in 'scripts/':
 | script | functionality | bash |
 | ------ | ------------- | ------------- |
 | `delete_plan.py` | Deletes/cancels every route listed in a `plan.csv` after you finish a live run. | `python scripts/delete_plan.py --plan_df_fp path/to/plan.csv` |
-| `retrieve_plan.py` | Pulls the latest state of a plan from Circuit and returns a JSON. | `python scripts/retrieve_plan.py --plan_id plans/123456` |
+| `retrieve_plan.py` | Pulls the latest state of a plan from Circuit and returns a JSON. | `python scripts/retrieve_plan.py --plan-id plans/123456` |
 | `mock_run_e2e.py` | Allows you to mock the workflow end to end by generating mock CSVs in place of Circuit's API responses. | `python scripts/mock_run_e2e.py` |
 
 #### QC and testing
