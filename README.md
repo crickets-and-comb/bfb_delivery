@@ -170,6 +170,7 @@ You can list all the make tools you might want to use:
 Go check them out in `Makefile`.
 
 ### Live-test helper scripts
+
 There are some useful scripts for live-testing in 'scripts/':
 | script | functionality | bash |
 | ------ | ------------- | ------------- |
