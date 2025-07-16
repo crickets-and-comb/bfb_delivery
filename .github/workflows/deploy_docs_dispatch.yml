@@ -17,11 +17,35 @@ env:
   DOC_BUILD_DIR: docs/_build/
 
 jobs:
+  validate-inputs:
+    name: Validate Inputs
+    runs-on: ubuntu-latest
+    outputs:
+      PYTHON_BUILD_VERSION: ${{ steps.validate-python-version.outputs.PYTHON_BUILD_VERSION }}
+
+    steps:
+      - name: Validate and set PYTHON_BUILD_VERSION
+        id: validate-python-version
+        env:
+          PYTHON_BUILD_VERSION: ${{ inputs.PYTHON_BUILD_VERSION }}
+        run: |
+          if [[ -z "$PYTHON_BUILD_VERSION" ]]; then
+            echo "PYTHON_BUILD_VERSION is required."
+            exit 1
+          fi
+          if [[ ! "$PYTHON_BUILD_VERSION" =~ ^[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid PYTHON_BUILD_VERSION: $PYTHON_BUILD_VERSION"
+            exit 1
+          fi
+          echo "Using PYTHON_BUILD_VERSION: $PYTHON_BUILD_VERSION"
+          echo "PYTHON_BUILD_VERSION=$PYTHON_BUILD_VERSION" >> $GITHUB_OUTPUT
+
   deploy-doc:
+    needs: validate-inputs
     name: Build and Deploy Documentation
     uses: crickets-and-comb/shared/.github/workflows/deploy_docs.yml@main
     with:
-      PYTHON_BUILD_VERSION: ${{ inputs.PYTHON_BUILD_VERSION }}
+      PYTHON_BUILD_VERSION: ${{ needs.validate-inputs.outputs.PYTHON_BUILD_VERSION }}
     permissions:
       id-token: write
       contents: write
