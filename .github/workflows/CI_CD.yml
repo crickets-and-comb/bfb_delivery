@@ -43,8 +43,8 @@ env:
   PYTHON_BUILD_VERSION_DEFAULT: "3.12"
 
 jobs:
-  set-inputs:
-    name: Set Inputs
+  validate-and-set-inputs:
+    name: Validate and Set Inputs
     runs-on: ubuntu-latest
     outputs:
       PYTHON_BUILD_VERSION: ${{ steps.set-python-version.outputs.PYTHON_BUILD_VERSION }}
@@ -53,26 +53,30 @@ jobs:
     steps:
       - name: Set Python Version
         id: set-python-version
+        env:
+          PYTHON_BUILD_VERSION: ${{ inputs.PYTHON_BUILD_VERSION }}
         run: |
-          if [ -z "${{ inputs.PYTHON_BUILD_VERSION }}" ]; then
+          if [ -z "$PYTHON_BUILD_VERSION" ]; then
             echo "PYTHON_BUILD_VERSION=${{ env.PYTHON_BUILD_VERSION_DEFAULT }}" >> $GITHUB_OUTPUT
           else
-            echo "PYTHON_BUILD_VERSION=${{ inputs.PYTHON_BUILD_VERSION }}" >> $GITHUB_OUTPUT
+            echo "PYTHON_BUILD_VERSION=$PYTHON_BUILD_VERSION" >> $GITHUB_OUTPUT
           fi
 
       - name: Set Test or Prod
         id: set-test
+        env:
+          TEST_OR_PROD: ${{ inputs.TEST_OR_PROD }}
         run: |
           # IF this is a push to main, publish to test.
           if [ "${{ github.event_name }}" == "push" ] && [ "${{ github.ref_name }}" == "main" ]; then
             echo "TEST_OR_PROD=test" >> $GITHUB_OUTPUT
           else
-            echo "TEST_OR_PROD=${{ inputs.TEST_OR_PROD }}" >> $GITHUB_OUTPUT
+            echo "TEST_OR_PROD=$TEST_OR_PROD" >> $GITHUB_OUTPUT
           fi
 
   CI:
     name: QC and Tests
-    needs: set-inputs
+    needs: validate-and-set-inputs
     # NOTE: Switch to relative path when running with `act`.
     uses: crickets-and-comb/shared/.github/workflows/CI_win.yml@main
     secrets:
@@ -81,21 +85,21 @@ jobs:
 
   build-dist:
     name: Build Dist
-    needs: [CI, set-inputs]
+    needs: [CI, validate-and-set-inputs]
     uses: crickets-and-comb/shared/.github/workflows/build_dist.yml@main
     with:
       DIST_DIR: "dist"
-      PYTHON_BUILD_VERSION: ${{ needs.set-inputs.outputs.PYTHON_BUILD_VERSION }}
+      PYTHON_BUILD_VERSION: ${{ needs.validate-and-set-inputs.outputs.PYTHON_BUILD_VERSION }}
       PYTHON_PACKAGE_DIST_NAME: python-package-distributions
       # Allows a test build locally without uploading.
-      UPLOAD_DIST: ${{ needs.set-inputs.outputs.TEST_OR_PROD == 'test' || needs.set-inputs.outputs.TEST_OR_PROD == 'prod' }}
+      UPLOAD_DIST: ${{ needs.validate-and-set-inputs.outputs.TEST_OR_PROD == 'test' || needs.validate-and-set-inputs.outputs.TEST_OR_PROD == 'prod' }}
     secrets:
       CHECKOUT_SHARED: ${{ secrets.CHECKOUT_SHARED }}
 
   publish-to-testpypi:
     name: Publish to TestPyPI
-    needs: [build-dist, set-inputs]
-    if: ${{ needs.set-inputs.outputs.TEST_OR_PROD == 'test' }}
+    needs: [build-dist, validate-and-set-inputs]
+    if: ${{ needs.validate-and-set-inputs.outputs.TEST_OR_PROD == 'test' }}
     runs-on: ubuntu-latest
     environment:
       name: testpypi
@@ -119,8 +123,8 @@ jobs:
 
   publish-to-pypi:
     name: Publish to PyPi
-    needs: [build-dist, set-inputs]
-    if: ${{ needs.set-inputs.outputs.TEST_OR_PROD == 'prod' }}
+    needs: [build-dist, validate-and-set-inputs]
+    if: ${{ needs.validate-and-set-inputs.outputs.TEST_OR_PROD == 'prod' }}
     runs-on: ubuntu-latest
     environment:
       name: pypi
@@ -142,15 +146,15 @@ jobs:
           verify-metadata: false
 
   github-release:
-    name: Sign Sistribution with Sigstore and Upload to GitHub Release
-    needs: [publish-to-pypi, set-inputs]
+    name: Sign Distribution with Sigstore and Upload to GitHub Release
+    needs: [publish-to-pypi, validate-and-set-inputs]
     uses: crickets-and-comb/shared/.github/workflows/release_to_github.yml@main
     permissions:
       contents: write
       id-token: write
     with:
       DIST_DIR: "dist"
-      PYTHON_BUILD_VERSION: ${{ needs.set-inputs.outputs.PYTHON_BUILD_VERSION }}
+      PYTHON_BUILD_VERSION: ${{ needs.validate-and-set-inputs.outputs.PYTHON_BUILD_VERSION }}
       PYTHON_PACKAGE_DIST_NAME: python-package-distributions
     secrets:
       CHECKOUT_SHARED: ${{ secrets.CHECKOUT_SHARED }}
@@ -191,10 +195,10 @@ jobs:
 
   deploy-docs:
     name: Deploy Docs
-    needs: [publish-to-pypi, set-inputs]
+    needs: [publish-to-pypi, validate-and-set-inputs]
     uses: crickets-and-comb/shared/.github/workflows/deploy_docs.yml@main
     with:
-      PYTHON_BUILD_VERSION: ${{ needs.set-inputs.outputs.PYTHON_BUILD_VERSION }}
+      PYTHON_BUILD_VERSION: ${{ needs.validate-and-set-inputs.outputs.PYTHON_BUILD_VERSION }}
     permissions:
       id-token: write
       contents: write
