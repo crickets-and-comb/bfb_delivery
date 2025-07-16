@@ -146,7 +146,7 @@ jobs:
           verify-metadata: false
 
   github-release:
-    name: Sign Sistribution with Sigstore and Upload to GitHub Release
+    name: Sign Distribution with Sigstore and Upload to GitHub Release
     needs: [publish-to-pypi, validate-and-set-inputs]
     uses: crickets-and-comb/shared/.github/workflows/release_to_github.yml@main
     permissions:
