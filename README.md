@@ -171,7 +171,11 @@ Go check them out in `Makefile`.
 
 #### QC and testing
 
-Before pushing commits, you'll usually want to rebuild the env and run all the QC and testing:
+Before pushing commits, you'll usually want to rebuild the env and run all the QC and testing. This will require you to first register at platform.safetycli.com, then add your api-key to your .env:
+```bash
+    SAFETY_API_KEY=your_key
+```  
+Then, run the tests from the repo directory:
 
 ```bash
     $ make clean full
@@ -193,7 +197,15 @@ Once that's installed and running, you can use `act`. You'll need to install tha
     $ brew install act
 ```
 
-Then, run it from the repo directory:
+Now create a personal access token on GitHub and add it to your .env file:
+
+```bash
+CHECKOUT_SHARED=your_access_token
+```
+
+Finally, you'll need to add your SAFETY_API_KEY as a secret to your forked repository settings on Github.
+
+Then, run the CI test run from the repo directory:
 
 ```bash
     $ make run-act
