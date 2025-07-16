@@ -53,8 +53,7 @@ jobs:
   test-published-package:
     name: Test Published Package on (Test)PyPi
     needs: validate-and-set-inputs
-    # TODO: Switch back to main.
-    uses: crickets-and-comb/shared/.github/workflows/test_install.yml@bugfix/KalebCoberly/set-version-from-setup-after-checkout
+    uses: crickets-and-comb/shared/.github/workflows/test_install.yml@main
     with:
       RELEASE_VERSION: ${{ needs.validate-and-set-inputs.outputs.RELEASE_VERSION }}
       TEST_OR_PROD: ${{ needs.validate-and-set-inputs.outputs.TEST_OR_PROD }}
