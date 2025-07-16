@@ -171,7 +171,7 @@ Go check them out in `Makefile`.
 
 #### QC and testing
 
-Before pushing commits, you'll usually want to rebuild the env and run all the QC and testing. This will require you to first register at platform.safetycli.com, then add your api-key to your .env:
+Before pushing commits, you'll usually want to rebuild the env and run all the QC and testing. This will require you to first register at https://platform.safetycli.com, then add your api-key to your .env:
 ```bash
     SAFETY_API_KEY=your_key
 ```  
@@ -197,7 +197,7 @@ Once that's installed and running, you can use `act`. You'll need to install tha
     $ brew install act
 ```
 
-Now create a personal access token on GitHub and add it to your .env file:
+Now create a personal access token on GitHub and add it to your .env file as:
 
 ```bash
 CHECKOUT_SHARED=your_access_token
