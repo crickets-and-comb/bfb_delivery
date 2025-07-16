@@ -23,28 +23,44 @@ env:
   CONDA_VERSION: latest
 
 jobs:
-  set-inputs:
+  validate-and-set-inputs:
     name: Set Inputs
     runs-on: ubuntu-latest
     outputs:
+      RELEASE_VERSION: ${{ steps.validate-release-version.outputs.RELEASE_VERSION }}
       TEST_OR_PROD: ${{ steps.set-test.outputs.TEST_OR_PROD }}
 
     steps:
+      - name: Validate and set RELEASE_VERSION
+        id: validate-release-version
+        env:
+          RELEASE_VERSION: ${{ inputs.RELEASE_VERSION }}
+        run: |
+          if [[ -z "$RELEASE_VERSION" ]]; then
+            echo "RELEASE_VERSION is not set, using version from setup.cfg."
+            echo "RELEASE_VERSION=$(python -c 'import configparser; cfg = configparser.ConfigParser(); cfg.read(\"setup.cfg\"); print(cfg[\"metadata\"][\"version\"])')" >> $GITHUB_OUTPUT
+          else
+            echo "Using RELEASE_VERSION: $RELEASE_VERSION"
+            echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_OUTPUT
+          fi
+
       - name: Set Test or Prod
         id: set-test
+        env:
+          TEST_OR_PROD: ${{ inputs.TEST_OR_PROD }}
         run: |
           if [ "${{ github.event_name }}" == "schedule" ]; then
             echo "TEST_OR_PROD=prod" >> $GITHUB_OUTPUT
           else
-            echo "TEST_OR_PROD=${{ inputs.TEST_OR_PROD }}" >> $GITHUB_OUTPUT
+            echo "TEST_OR_PROD=$TEST_OR_PROD" >> $GITHUB_OUTPUT
           fi
 
   test-published-package:
     name: Test Published Package on (Test)PyPi
-    needs: set-inputs
+    needs: validate-and-set-inputs
     uses: crickets-and-comb/shared/.github/workflows/test_install.yml@main
     with:
-      RELEASE_VERSION: ${{ inputs.RELEASE_VERSION }}
-      TEST_OR_PROD: ${{ needs.set-inputs.outputs.TEST_OR_PROD }}
+      RELEASE_VERSION: ${{ needs.validate-and-set-inputs.outputs. RELEASE_VERSION }}
+      TEST_OR_PROD: ${{ needs.validate-and-set-inputs.outputs.TEST_OR_PROD }}
     secrets:
       CHECKOUT_SHARED: ${{ secrets.CHECKOUT_SHARED }}
