@@ -161,7 +161,7 @@ This installs all the dependencies in your conda env site-packages, but the file
 
 ### Dev setup
 
-Sign up for Safety CLI at https://platform.safetycli.com and get an API-key. Additionally you'll have to create personal access token on GitHub. 
+Sign up for Safety CLI at https://platform.safetycli.com and get an API-key. Additionally you'll have to create a personal access token on GitHub. 
 Add both the API-key and your personal access token to your .env:
 
 ```bash
@@ -169,7 +169,7 @@ SAFETY_API_KEY=<your_key>
 CHECKOUT_SHARED=<your_access_token>
 ```
 
-Finally, add your safety-API-key as a secret on GitHub. This can be done under Security/Secrets and variables/actions in the settings of your forked Github repository.
+Finally, also add your safety-API-key as a secret on GitHub. This can be done under Security/Secrets and variables/actions in the settings of your forked Github repository.
 
 ```bash
 SAFETY_API_KEY=<your_key>
