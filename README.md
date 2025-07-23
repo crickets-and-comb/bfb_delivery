@@ -159,6 +159,22 @@ Then, install this package and its dev dependencies:
 
 This installs all the dependencies in your conda env site-packages, but the files for this package's installation are now your source files in this repo.
 
+### Dev setup
+
+Sign up for Safety CLI at https://platform.safetycli.com and get an API-key. Additionally you'll have to create personal access token on GitHub. 
+Add both the API-key and your personal access token to your .env:
+
+```bash
+SAFETY_API_KEY=<your_key>
+CHECKOUT_SHARED=<your_access_token>
+```
+
+Finally, add your safety-API-key as a secret on GitHub. This can be done under Security/Secrets and variables/actions in the settings of your forked Github repository.
+
+```bash
+SAFETY_API_KEY=<your_key>
+```
+
 ### Dev workflow
 
 You can list all the make tools you might want to use:
@@ -171,11 +187,7 @@ Go check them out in `Makefile`.
 
 #### QC and testing
 
-Before pushing commits, you'll usually want to rebuild the env and run all the QC and testing. This will require you to first register at https://platform.safetycli.com, then add your API-key to your .env:
-```bash
-    SAFETY_API_KEY=your_key
-```  
-Then, run the tests from the repo directory:
+Before pushing commits, you'll usually want to rebuild the env and run all the QC and testing.
 
 ```bash
     $ make clean full
@@ -197,15 +209,7 @@ Once that's installed and running, you can use `act`. You'll need to install tha
     $ brew install act
 ```
 
-Now create a personal access token on GitHub and add it to your .env file as:
-
-```bash
-CHECKOUT_SHARED=your_access_token
-```
-
-Finally, you'll need to add your SAFETY_API_KEY as a secret to your forked repository settings on Github.
-
-Then, run the CI test run from the repo directory:
+Then, run it from the repo directory:
 
 ```bash
     $ make run-act
