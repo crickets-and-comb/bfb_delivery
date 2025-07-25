@@ -28,10 +28,24 @@ jobs:
         - language: python
           build-mode: none
     steps:
+    - name: Set ref
+      id: set-ref
+      run: |
+        if [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
+          echo "Using PR merge ref to avoid running workflows on forked repo."
+          echo "ref=refs/pull/${{ github.event.pull_request.number }}/merge" >> $GITHUB_OUTPUT
+        elif [[ -n "${{ github.ref || '' }}" ]]; then
+          echo "Using github.ref"
+          echo "ref=${{ github.ref }}" >> $GITHUB_OUTPUT
+        else
+          echo "Using fallback default ref"
+          echo "ref=refs/heads/main" >> $GITHUB_OUTPUT
+        fi
+        
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-        ref: ${{ github.event_name == 'pull_request_target' && format('refs/pull/{0}/merge', github.event.pull_request.number) || github.ref }}
+        ref: ${{ steps.set-ref.outputs.ref }}
         fetch-depth: 0
 
     - name: Initialize CodeQL
