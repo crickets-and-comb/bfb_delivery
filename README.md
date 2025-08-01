@@ -185,6 +185,15 @@ You can list all the make tools you might want to use:
 
 Go check them out in `Makefile`.
 
+### Live-test helper scripts
+
+There are some useful scripts for live-testing in 'scripts/':
+| script | functionality | bash |
+| ------ | ------------- | ------------- |
+| `delete_plan.py` | Deletes/cancels every route listed in a `plan.csv` **or** a single plan by ID. Note that 'plan.csv' is typically written to the plans/ subdirectory of the output folder. | `python scripts/delete_plan.py --plan_df_fp path/to/plan.csv`<br>`python scripts/delete_plan.py --plan_id plans/{id}` |
+| `retrieve_plan.py` | Pulls the latest state of a plan from Circuit and returns a JSON. | `python scripts/retrieve_plan.py --plan-id plans/123456` |
+| `mock_run_e2e.py` | Allows you to mock the workflow end to end by generating mock CSVs in place of Circuit's API responses. | `python scripts/mock_run_e2e.py` |
+
 #### QC and testing
 
 Before pushing commits, you'll usually want to rebuild the env and run all the QC and testing.
