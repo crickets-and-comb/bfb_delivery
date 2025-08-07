@@ -159,6 +159,23 @@ Then, install this package and its dev dependencies:
 
 This installs all the dependencies in your conda env site-packages, but the files for this package's installation are now your source files in this repo.
 
+### Dev setup
+
+Sign up for Safety CLI at https://platform.safetycli.com and get an API-key. Additionally you'll have to create a personal access token on GitHub. 
+
+Add both the API-key and your personal access token to your .env:
+
+```bash
+SAFETY_API_KEY=<your_key>
+CHECKOUT_SHARED=<your_access_token>
+```
+
+Finally, if running from a forked repo, add your safety-API-key as a secret on GitHub. You can do this under security/secrets and variables/actions in your repo settings.
+
+```bash
+SAFETY_API_KEY=<your_key>
+```
+
 ### Dev workflow
 
 You can list all the make tools you might want to use:
