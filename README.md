@@ -181,7 +181,7 @@ SAFETY_API_KEY=<your_key>
 You can list all the make tools you might want to use:
 
 ```bash
-    $ make list-targets
+    $ make list-makes
 ```
 
 Go check them out in `Makefile`.
