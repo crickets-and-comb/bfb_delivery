@@ -270,7 +270,7 @@ def _format_and_validate_names_to_upper(df: pd.DataFrame, column: str) -> None:
 def _format_and_validate_names_title(df: pd.DataFrame, column: str) -> None:
     """Format a column with names."""
     _format_and_validate_names_base(df=df, column=column)
-    df[column] = df[column].apply(lambda name: name.title())
+    df[column] = df[column].apply(_preserve_acronyms)
     return
 
 
@@ -356,3 +356,9 @@ def _validate_greater_than_zero(df: pd.DataFrame, column: str) -> None:
         )
 
     return
+
+
+@typechecked
+def _preserve_acronyms(name: str) -> str:
+    acronyms = {"YMCA"}
+    return name.upper() if name.upper() in acronyms else name.title()
