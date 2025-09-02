@@ -362,8 +362,5 @@ def _validate_greater_than_zero(df: pd.DataFrame, column: str) -> None:
 def _preserve_acronyms(name: str) -> str:
     acronyms = {"YMCA"}
     words = name.split()
-    result = [
-        word.upper() if word.upper() in acronyms else word.title()
-        for word in words
-    ]
+    result = [word.upper() if word.upper() in acronyms else word.title() for word in words]
     return " ".join(result)
