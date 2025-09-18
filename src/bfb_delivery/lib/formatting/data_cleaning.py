@@ -176,7 +176,7 @@ def _format_and_validate_email(df: pd.DataFrame) -> None:
 @typechecked
 def _format_and_validate_name(df: pd.DataFrame) -> None:
     """Format the name column."""
-    _format_and_validate_names_base(df=df, column=Columns.NAME)
+    _format_and_validate_names_base(df=df, column=Columns.NAME, preserve_acronyms=True)
     return
 
 
@@ -210,7 +210,7 @@ def _format_and_validate_phone(df: pd.DataFrame) -> None:
 
     formatting_df = df.copy()
     formatting_df["formatted_numbers"] = formatting_df[Columns.PHONE].apply(
-        lambda number: "+" + number if (len(number) > 0 and number[0] != "+") else number
+        lambda number: ("+" + number if (len(number) > 0 and number[0] != "+") else number)
     )
     formatting_df["formatted_numbers"] = [
         phonenumbers.parse(number) if len(number) > 0 else number
@@ -269,15 +269,20 @@ def _format_and_validate_names_to_upper(df: pd.DataFrame, column: str) -> None:
 @typechecked
 def _format_and_validate_names_title(df: pd.DataFrame, column: str) -> None:
     """Format a column with names."""
-    _format_and_validate_names_base(df=df, column=column)
+    _format_and_validate_names_base(df=df, column=column, preserve_acronyms=False)
+    df[column] = df[column].apply(lambda name: name.title())
     df[column] = df[column].apply(_preserve_acronyms)
     return
 
 
 @typechecked
-def _format_and_validate_names_base(df: pd.DataFrame, column: str) -> None:
+def _format_and_validate_names_base(
+    df: pd.DataFrame, column: str, preserve_acronyms: bool = False
+) -> None:
     """Format a column with names."""
     _format_string(df=df, column=column)
+    if preserve_acronyms:
+        df[column] = df[column].apply(_preserve_acronyms)
     _validate_col_not_empty(df=df, column=column)
     return
 
@@ -362,5 +367,5 @@ def _validate_greater_than_zero(df: pd.DataFrame, column: str) -> None:
 def _preserve_acronyms(name: str) -> str:
     """Format a name string, preserving acronyms in uppercase."""
     words = name.split()
-    result = [word.upper() if word.upper() in ACRONYMS else word.title() for word in words]
+    result = [word.upper() if word.upper() in ACRONYMS else word for word in words]
     return " ".join(result)
