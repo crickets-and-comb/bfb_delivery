@@ -176,7 +176,7 @@ def _format_and_validate_email(df: pd.DataFrame) -> None:
 @typechecked
 def _format_and_validate_name(df: pd.DataFrame) -> None:
     """Format the name column."""
-    _format_and_validate_names_base(df=df, column=Columns.NAME, preserve_acronyms=True)
+    _format_and_validate_names_base(df=df, column=Columns.NAME)
     return
 
 
@@ -269,20 +269,17 @@ def _format_and_validate_names_to_upper(df: pd.DataFrame, column: str) -> None:
 @typechecked
 def _format_and_validate_names_title(df: pd.DataFrame, column: str) -> None:
     """Format a column with names."""
-    _format_and_validate_names_base(df=df, column=column, preserve_acronyms=False)
+    _format_and_validate_names_base(df=df, column=column)
     df[column] = df[column].apply(lambda name: name.title())
     df[column] = df[column].apply(_preserve_acronyms)
     return
 
 
 @typechecked
-def _format_and_validate_names_base(
-    df: pd.DataFrame, column: str, preserve_acronyms: bool = False
-) -> None:
+def _format_and_validate_names_base(df: pd.DataFrame, column: str) -> None:
     """Format a column with names."""
     _format_string(df=df, column=column)
-    if preserve_acronyms:
-        df[column] = df[column].apply(_preserve_acronyms)
+    df[column] = df[column].apply(_preserve_acronyms)
     _validate_col_not_empty(df=df, column=column)
     return
 
