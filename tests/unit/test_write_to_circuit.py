@@ -1654,7 +1654,6 @@ def test_build_stop_array_adds_externalId(neighborhood: None | str) -> None:
     """_build_stop_array assigns "Neighborhood" field to `recipient_dict` `externalId`."""
     stop_df = pd.DataFrame(
         {
-            CircuitColumns.ADDRESS_NAME: ["ADDRESS_NAME"],
             CircuitColumns.ADDRESS_LINE_1: ["ADDRESS_LINE_1"],
             CircuitColumns.ADDRESS_LINE_2: ["ADDRESS_LINE_2"],
             CircuitColumns.STATE: ["STATE"],
