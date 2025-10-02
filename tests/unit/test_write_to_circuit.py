@@ -1074,7 +1074,6 @@ def test_upload_stops_calls(
     """Test that _upload_stops uploads stops correctly."""
     plan_df_initialized = request.getfixturevalue(initialization_fixture)
     mock_stop_upload = request.getfixturevalue(upload_fixture)
-
     _ = _upload_stops(stops_df=mock_stops_df, plan_df=plan_df_initialized, verbose=False)
 
     for plan_id, expected_stop_array in mock_stop_upload.items():
@@ -1122,6 +1121,30 @@ def test_upload_stops_return(
     )
 
     pd.testing.assert_frame_equal(stops_uploaded, expected_stops_uploaded)
+
+
+@typechecked
+def test_upload_stops_no_addressName(
+    mock_stops_df: pd.DataFrame,
+    mock_plan_df_plans_initialized: pd.DataFrame,
+    mock_stop_upload: dict[str, list],
+    requests_mock: Mocker,  # noqa: F811
+) -> None:
+    """Test that _upload_stops does not include addressName."""
+    _ = _upload_stops(
+        stops_df=mock_stops_df, plan_df=mock_plan_df_plans_initialized, verbose=False
+    )
+
+    for plan_id, _ in mock_stop_upload.items():
+        expected_url = f"{CIRCUIT_URL}/{plan_id}/stops:import"
+        matching_requests = [
+            req for req in requests_mock.request_history if req.url == expected_url
+        ]
+        assert len(matching_requests) == 1
+
+        actual_payload = matching_requests[0].json()
+        for stop in actual_payload:
+            assert "addressName" not in stop[CircuitColumns.ADDRESS].keys()
 
 
 @pytest.mark.parametrize(
