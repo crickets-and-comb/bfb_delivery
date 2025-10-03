@@ -30,6 +30,10 @@ on:
         required: false
       CHECKOUT_SHARED:
         required: true
+      OSSINDEX_USERNAME:
+        required: true
+      OSSINDEX_PASSWORD:
+        required: true
       SAFETY_API_KEY:
         required: true
 
