@@ -820,7 +820,6 @@ def _assign_driver(  # noqa: C901
 @typechecked
 def _parse_addresses(stops_df: pd.DataFrame) -> pd.DataFrame:
     """Parse addresses for each route."""
-    stops_df[CircuitColumns.ADDRESS_NAME] = stops_df[Columns.ADDRESS]
     stops_df[CircuitColumns.ADDRESS_LINE_1] = ""
     stops_df[CircuitColumns.ADDRESS_LINE_2] = ""
     stops_df[CircuitColumns.STATE] = "WA"
@@ -917,7 +916,6 @@ def _build_stop_array(route_stops: pd.DataFrame, driver_id: str) -> list[dict[st
     for _, stop_row in route_stops.iterrows():
         stop = {
             CircuitColumns.ADDRESS: {
-                CircuitColumns.ADDRESS_NAME: stop_row[CircuitColumns.ADDRESS_NAME],
                 CircuitColumns.ADDRESS_LINE_1: stop_row[CircuitColumns.ADDRESS_LINE_1],
                 CircuitColumns.ADDRESS_LINE_2: stop_row[CircuitColumns.ADDRESS_LINE_2],
                 CircuitColumns.STATE: stop_row[CircuitColumns.STATE],
