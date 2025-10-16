@@ -1147,6 +1147,37 @@ def test_upload_stops_no_addressName(
             assert "addressName" not in stop[CircuitColumns.ADDRESS].keys()
 
 
+@typechecked
+def test_upload_stops_minimal_address_line_2(
+    mock_stops_df: pd.DataFrame,
+    mock_plan_df_plans_initialized: pd.DataFrame,
+    mock_stop_upload: dict[str, list],
+    requests_mock: Mocker,  # noqa: F811
+) -> None:
+    """Test that _upload_stops only includes apt no. in addressLine2, or not at all."""
+    _ = _upload_stops(
+        stops_df=mock_stops_df, plan_df=mock_plan_df_plans_initialized, verbose=False
+    )
+
+    for plan_id, _ in mock_stop_upload.items():
+        expected_url = f"{CIRCUIT_URL}/{plan_id}/stops:import"
+        matching_requests = [
+            req for req in requests_mock.request_history if req.url == expected_url
+        ]
+        assert len(matching_requests) == 1
+
+        actual_payload = matching_requests[0].json()
+        for stop in actual_payload:
+            addressLine2 = stop[CircuitColumns.ADDRESS].get(CircuitColumns.ADDRESS_LINE_2, "")
+            if addressLine2:
+                assert (
+                    stop[CircuitColumns.ADDRESS][CircuitColumns.CITY] not in addressLine2
+                    and stop[CircuitColumns.ADDRESS][CircuitColumns.STATE] not in addressLine2
+                    and stop[CircuitColumns.ADDRESS][CircuitColumns.ZIP] not in addressLine2
+                )
+                assert "#" in addressLine2
+
+
 @pytest.mark.parametrize(
     "plan_df_launched_fixture, optimization_fixture, confirmation_fixture",
     [
@@ -1679,6 +1710,7 @@ def test_build_stop_array_adds_externalId(neighborhood: None | str) -> None:
         {
             CircuitColumns.ADDRESS_LINE_1: ["ADDRESS_LINE_1"],
             CircuitColumns.ADDRESS_LINE_2: ["ADDRESS_LINE_2"],
+            CircuitColumns.CITY: ["CITY"],
             CircuitColumns.STATE: ["STATE"],
             CircuitColumns.ZIP: ["ZIP"],
             CircuitColumns.COUNTRY: ["COUNTRY"],

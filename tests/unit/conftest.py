@@ -48,7 +48,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
         data=[
             (
                 "Recipient One",
-                "123 Main St",
+                "123 Main St, Bellingham, WA, 98225",
                 "555-555-1234",
                 "Recipient1@email.com",
                 "Notes for Recipient One.",
@@ -61,7 +61,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
             ),
             (
                 "Recipient Two",
-                "456 Elm St",
+                "456 Elm St, Bellingham, WA, 98226",
                 "555-555-5678",
                 "Recipient2@email.com",
                 "Notes for Recipient Two.",
@@ -74,7 +74,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
             ),
             (
                 "Recipient Three",
-                "789 Oak St",
+                "789 Oak St, Ferndale, WA, 98248",
                 "555-555-9101",
                 "Recipient3@email.com",
                 "Notes for Recipient Three.",
@@ -87,7 +87,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
             ),
             (
                 "Recipient Four",
-                "1011 Pine St",
+                "1011 Pine St, Bellingham, WA, 98225",
                 "555-555-1121",
                 "Recipient4@email.com",
                 "Notes for Recipient Four.",
@@ -100,7 +100,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
             ),
             (
                 "Recipient Five",
-                "1314 Cedar St",
+                "1314 Cedar St, Bellingham, WA, 98229",
                 "555-555-3141",
                 "Recipient5@email.com",
                 "Notes for Recipient Five.",
@@ -113,7 +113,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
             ),
             (
                 "Recipient Six",
-                "1516 Fir St",
+                "1516 Fir St, Bellingham, WA, 98225",
                 "555-555-5161",
                 "Recipient6@email.com",
                 "Notes for Recipient Six.",
@@ -126,7 +126,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
             ),
             (
                 "Recipient Seven",
-                "1718 Spruce St",
+                "1718 Spruce St, Bellingham, WA, 98225",
                 "555-555-7181",
                 "Recipient7@email.com",
                 "Notes for Recipient Seven.",
@@ -139,7 +139,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
             ),
             (
                 "Recipient Eight",
-                "1920 Maple St",
+                "1920 Maple St, Bellingham, WA, 98225",
                 "555-555-9202",
                 "Recipient8@email.com",
                 "Notes for Recipient Eight.",
@@ -152,7 +152,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
             ),
             (
                 "Recipient Nine",
-                "2122 Cedar St",
+                "2122 Cedar St, #300, Bellingham, WA, 98225",
                 "555-555-2223",
                 "Recipient9@email.com",
                 "Notes for Recipient Nine.",
@@ -165,7 +165,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
             ),
             (
                 "Recipient Ten",
-                "2122 Cedar St",
+                "2122 Cedar St, #400, Bellingham, WA, 98225",
                 "555-555-2223",
                 "Recipient10@email.com",
                 "Notes for Recipient Ten.",
@@ -178,7 +178,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
             ),
             (
                 "Recipient Eleven",
-                "2346 Ash St",
+                "2346 Ash St, Bldg #12, Unit #110, Bellingham, WA, 98225",
                 "555-555-2345",
                 "Recipient11@email.com",
                 "Notes for Recipient Eleven.",
@@ -191,7 +191,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
             ),
             (
                 "Recipient Twelve",
-                "2122 Cedar St",
+                "2122 Cedar St, #600, Bellingham, WA, 98225",
                 "555-555-2223",
                 "Recipient12@email.com",
                 "Notes for Recipient Twelve.",

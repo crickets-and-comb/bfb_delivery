@@ -822,6 +822,7 @@ def _parse_addresses(stops_df: pd.DataFrame) -> pd.DataFrame:
     """Parse addresses for each route."""
     stops_df[CircuitColumns.ADDRESS_LINE_1] = ""
     stops_df[CircuitColumns.ADDRESS_LINE_2] = ""
+    stops_df[CircuitColumns.CITY] = ""
     stops_df[CircuitColumns.STATE] = "WA"
     stops_df[CircuitColumns.ZIP] = ""
     stops_df[CircuitColumns.COUNTRY] = "US"
@@ -831,9 +832,10 @@ def _parse_addresses(stops_df: pd.DataFrame) -> pd.DataFrame:
         split_address = address.split(",")
         stops_df.at[idx, CircuitColumns.ADDRESS_LINE_1] = split_address[0].strip()
         stops_df.at[idx, CircuitColumns.ADDRESS_LINE_2] = ", ".join(
-            [part.strip() for part in split_address[1:]]
+            [part.strip() for part in split_address[1:-3]]
         )
-        stops_df.at[idx, CircuitColumns.ZIP] = split_address[-1]
+        stops_df.at[idx, CircuitColumns.CITY] = split_address[-3].strip()
+        stops_df.at[idx, CircuitColumns.ZIP] = split_address[-1].strip()
 
     return stops_df
 
@@ -917,7 +919,7 @@ def _build_stop_array(route_stops: pd.DataFrame, driver_id: str) -> list[dict[st
         stop = {
             CircuitColumns.ADDRESS: {
                 CircuitColumns.ADDRESS_LINE_1: stop_row[CircuitColumns.ADDRESS_LINE_1],
-                CircuitColumns.ADDRESS_LINE_2: stop_row[CircuitColumns.ADDRESS_LINE_2],
+                CircuitColumns.CITY: stop_row[CircuitColumns.CITY],
                 CircuitColumns.STATE: stop_row[CircuitColumns.STATE],
                 CircuitColumns.ZIP: stop_row[CircuitColumns.ZIP],
                 CircuitColumns.COUNTRY: stop_row[CircuitColumns.COUNTRY],
@@ -928,6 +930,12 @@ def _build_stop_array(route_stops: pd.DataFrame, driver_id: str) -> list[dict[st
             CircuitColumns.ALLOWED_DRIVERS: [driver_id],
             CircuitColumns.PACKAGE_COUNT: stop_row[Columns.ORDER_COUNT],
         }
+        if stop_row.get(CircuitColumns.ADDRESS_LINE_2) and not pd.isna(
+            stop_row[CircuitColumns.ADDRESS_LINE_2]
+        ):
+            stop[CircuitColumns.ADDRESS][CircuitColumns.ADDRESS_LINE_2] = stop_row[
+                CircuitColumns.ADDRESS_LINE_2
+            ]
 
         if stop_row.get(Columns.NOTES) and not pd.isna(stop_row[Columns.NOTES]):
             stop[CircuitColumns.NOTES] = stop_row[Columns.NOTES]
