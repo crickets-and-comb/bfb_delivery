@@ -1013,67 +1013,6 @@ class TestFormatCombinedRoutes:
         )
 
 
-    @pytest.mark.parametrize("extra_notes_file", ["", "dummy_extra_notes.csv"])
-    @typechecked
-    def test_extra_notes_cell_merged_and_wrapped(
-        self,
-        extra_notes_file: str,
-        mock_combined_routes: Path,
-        mock_extra_notes_df: pd.DataFrame,
-        tmp_path: Path,
-    ) -> None:
-        """Test that extra notes cells are merged across all columns and have wrap_text enabled."""
-        mock_extra_notes_context, extra_notes_file = _get_extra_notes(
-            extra_notes_file=extra_notes_file,
-            extra_notes_dir=str(mock_combined_routes.parent),
-            extra_notes_df=mock_extra_notes_df,
-        )
-
-        new_mock_combined_routes_path = (
-            mock_combined_routes.parent / "new_mock_combined_routes.xlsx"
-        )
-        mock_combined_routes_file = pd.ExcelFile(mock_combined_routes)
-
-        first_sheet_name = str(mock_combined_routes_file.sheet_names[0])
-        first_df = mock_combined_routes_file.parse(sheet_name=first_sheet_name)
-        second_sheet_name = str(mock_combined_routes_file.sheet_names[1])
-        second_df = mock_combined_routes_file.parse(sheet_name=second_sheet_name)
-        first_df, second_df = _set_extra_notes(
-            first_df=first_df, second_df=second_df, extra_notes_df=mock_extra_notes_df
-        )
-
-        with pd.ExcelWriter(new_mock_combined_routes_path) as writer:
-            first_df.to_excel(writer, sheet_name=first_sheet_name, index=False)
-            second_df.to_excel(writer, sheet_name=second_sheet_name, index=False)
-            for sheet_name in mock_combined_routes_file.sheet_names[2:]:
-                df = mock_combined_routes_file.parse(sheet_name=sheet_name)
-                df.to_excel(writer, sheet_name=str(sheet_name), index=False)
-
-        with mock_extra_notes_context:
-            manifests_path = format_combined_routes(
-                output_dir=tmp_path,
-                input_path=new_mock_combined_routes_path,
-                extra_notes_file=extra_notes_file,
-            )
-
-        # Verify cells are merged and wrapped
-        manifests_workbook = load_workbook(manifests_path)
-        first_ws = manifests_workbook[first_sheet_name]
-        start_first_notes = 11 + len(first_df)
-
-        # Check that first extra note cell is merged across columns A-F
-        assert f"A{start_first_notes}:F{start_first_notes}" in first_ws.merged_cells
-
-        # Check that wrap_text is enabled
-        assert first_ws[f"A{start_first_notes}"].alignment.wrap_text is True
-
-        # Check vertical alignment is top
-        assert first_ws[f"A{start_first_notes}"].alignment.vertical == "top"
-        
-        # Check horizontal alignment is left
-        assert first_ws[f"A{start_first_notes}"].alignment.horizontal == "left"
-
-
 class TestCreateManifests:
     """create_manifests formats the route tables CSVs."""
 
@@ -1656,7 +1595,6 @@ def _assert_extra_notes(
     start_first_notes = 11 + len(first_df)
     start_second_notes = 11 + len(second_df)
 
-    # Extra notes footnotes are in column A (leftmost column) at bottom
     assert first_ws[f"A{start_first_notes}"].value.startswith(
         "* " + extra_notes_df["tag"].iloc[0].replace("*", "").strip() + ": "
     )
@@ -1669,6 +1607,11 @@ def _assert_extra_notes(
         "* " + extra_notes_df["tag"].iloc[2].replace("*", "").strip() + ": "
     )
     assert extra_notes_df["note"].iloc[2] in second_ws[f"A{start_second_notes}"].value
+
+    assert f"A{start_first_notes}:F{start_first_notes}" in first_ws.merged_cells
+    assert first_ws[f"A{start_first_notes}"].alignment.wrap_text is True
+    assert first_ws[f"A{start_first_notes}"].alignment.vertical == "top"
+    assert first_ws[f"A{start_first_notes}"].alignment.horizontal == "left"
 
     return
 
