@@ -1656,7 +1656,7 @@ def _assert_extra_notes(
     start_first_notes = 11 + len(first_df)
     start_second_notes = 11 + len(second_df)
 
-    # Extra notes are now in column A (leftmost column)
+    # Extra notes footnotes are in column A (leftmost column) at bottom
     assert first_ws[f"A{start_first_notes}"].value.startswith(
         "* " + extra_notes_df["tag"].iloc[0].replace("*", "").strip() + ": "
     )
