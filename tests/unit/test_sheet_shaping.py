@@ -1060,13 +1060,13 @@ class TestFormatCombinedRoutes:
         manifests_workbook = load_workbook(manifests_path)
         first_ws = manifests_workbook[first_sheet_name]
         start_first_notes = 11 + len(first_df)
-        
+
         # Check that first extra note cell is merged across columns A-F
         assert f"A{start_first_notes}:F{start_first_notes}" in first_ws.merged_cells
-        
+
         # Check that wrap_text is enabled
         assert first_ws[f"A{start_first_notes}"].alignment.wrap_text is True
-        
+
         # Check vertical alignment is top
         assert first_ws[f"A{start_first_notes}"].alignment.vertical == "top"
         
