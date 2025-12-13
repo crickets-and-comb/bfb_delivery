@@ -1612,6 +1612,7 @@ def _assert_extra_notes(
     assert first_ws[f"A{start_first_notes}"].alignment.wrap_text is True
     assert first_ws[f"A{start_first_notes}"].alignment.vertical == "top"
     assert first_ws[f"A{start_first_notes}"].alignment.horizontal == "left"
+    assert first_ws.row_dimensions[start_first_notes].height >= 15
 
     return
 

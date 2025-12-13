@@ -705,9 +705,24 @@ def _append_extra_notes(ws: Worksheet, extra_notes: list[str]) -> None:
     Places notes in column A and merges across all columns (A-F) with text wrapping.
     """
     start_row = ws.max_row + 2
+    start_col = 1
+    end_col = 6
     for i, note in enumerate(extra_notes, start=start_row):
-        cell = ws.cell(row=i, column=1, value=note)
+        cell = ws.cell(row=i, column=start_col, value=note)
         cell.alignment = Alignment(wrap_text=True, horizontal="left", vertical="top")
-        ws.merge_cells(start_row=i, start_column=1, end_row=i, end_column=6)
+        ws.merge_cells(start_row=i, start_column=start_col, end_row=i, end_column=end_col)
+
+        if cell.value:
+            merged_width = sum(
+                ws.column_dimensions[col[0].column_letter].width
+                for col in ws.iter_cols(min_col=start_col, max_col=end_col)
+            )
+            char_width = 1.2
+            lines = 0
+            for line in str(cell.value).split():
+                line_length = len(line) * char_width
+                lines += line_length / merged_width
+
+            ws.row_dimensions[i].height = max(15, math.ceil(lines) * 15)
 
     return
