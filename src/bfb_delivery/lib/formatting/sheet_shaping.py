@@ -700,10 +700,17 @@ def _merge_and_wrap_neighborhoods(ws: Worksheet, neighborhoods_row_number: int) 
 
 @typechecked
 def _append_extra_notes(ws: Worksheet, extra_notes: list[str]) -> None:
-    """Append extra notes to the worksheet."""
+    """Append extra notes to the worksheet in the leftmost column.
+    
+    Places notes in column A and merges across all columns (A-F) with text wrapping.
+    """
     start_row = ws.max_row + 2
     for i, note in enumerate(extra_notes, start=start_row):
-        cell = ws.cell(row=i, column=5, value=note)
-        cell.alignment = Alignment(wrap_text=True, horizontal="left")
+        # Place note in leftmost column (column 1 = column A)
+        cell = ws.cell(row=i, column=1, value=note)
+        cell.alignment = Alignment(wrap_text=True, horizontal="left", vertical="top")
+        
+        # Merge the cell across all columns (A-F, which is columns 1-6)
+        ws.merge_cells(start_row=i, start_column=1, end_row=i, end_column=6)
 
     return
