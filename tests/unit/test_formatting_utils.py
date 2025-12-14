@@ -4,18 +4,22 @@ import logging
 import re
 from contextlib import AbstractContextManager, nullcontext
 from pathlib import Path
-from typing import Final
+from typing import Final, cast
 from unittest.mock import patch
 
 import pandas as pd
 import pytest
+from openpyxl import Workbook
+from openpyxl.styles import Font
+from openpyxl.worksheet.worksheet import Worksheet
 from typeguard import typechecked
 
+from bfb_delivery.lib.constants import LINE_HEIGHT
 from bfb_delivery.lib.formatting.utils import (
-    calculate_row_height_for_merged_cell,
     get_extra_notes,
     get_phone_number,
     map_columns,
+    set_row_height_of_wrapped_cell,
 )
 
 
@@ -173,44 +177,52 @@ def test_get_extra_notes(
 
 
 @pytest.mark.parametrize(
-    "cell_value, start_col, end_col, expected_height, bold",
+    "cell_value, expected_height, bold",
     [
-        ("Short text", 1, 3, 15, False),
-        ("This is a much longer text that should wrap to multiple lines", 1, 3, 30, False),
+        ("Short text", LINE_HEIGHT, False),
+        (
+            "This is a much longer text that should wrap to multiple lines",
+            LINE_HEIGHT,
+            False,
+        ),
         (
             "This is an extremely long text that contains a lot of information and will "
-            "definitely need to wrap across multiple lines when displayed in a merged cell",
-            1,
-            6,
-            30,
+            "definitely need to wrap across multiple lines when displayed in a cell",
+            LINE_HEIGHT * 2,
             False,
+        ),
+        ("Short bold", LINE_HEIGHT, True),
+        (
+            "This is a much longer bold text that should wrap to multiple lines",
+            LINE_HEIGHT,
+            True,
+        ),
+        (
+            "This is an extremely long bold text that contains a lot of information and will "
+            "definitely need to wrap across multiple lines when displayed in a bold cell",
+            LINE_HEIGHT * 2,
+            True,
         ),
     ],
 )
 @typechecked
-def test_calculate_row_height_for_merged_cell(
-    cell_value: str, start_col: int, end_col: int, expected_height: float, bold: bool
+def test_set_row_height_of_wrapped_cell(
+    cell_value: str, expected_height: float, bold: bool
 ) -> None:
-    """Test row height calculation for merged cells."""
-    from typing import cast
-
-    from openpyxl import Workbook
-    from openpyxl.styles import Font
-    from openpyxl.worksheet.worksheet import Worksheet
-
+    """Test row height calculation for cells with wrapped text."""
     wb = Workbook()
     ws = cast(Worksheet, wb.active)
 
-    for col in range(start_col, end_col + 1):
+    for col in range(1, 7):
         ws.column_dimensions[ws.cell(row=1, column=col).column_letter].width = 20
 
-    cell = ws.cell(row=1, column=start_col, value=cell_value)
+    cell = ws.cell(row=1, column=1, value=cell_value)
     if bold:
         cell.font = Font(bold=True)
-    ws.merge_cells(start_row=1, start_column=start_col, end_row=1, end_column=end_col)
+    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=6)
 
-    calculate_row_height_for_merged_cell(cell=cell)
+    set_row_height_of_wrapped_cell(cell=cell)
 
     height = ws.row_dimensions[1].height
     assert height == expected_height
-    assert height % 15 == 0
+    assert height % LINE_HEIGHT == 0

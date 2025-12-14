@@ -34,11 +34,11 @@ from bfb_delivery.lib.formatting.data_cleaning import (
     format_column_names,
 )
 from bfb_delivery.lib.formatting.utils import (
-    calculate_row_height_for_merged_cell,
     get_book_one_drivers,
     get_extra_notes,
     get_phone_number,
     map_columns,
+    set_row_height_of_wrapped_cell,
 )
 from bfb_delivery.lib.utils import get_friday
 
@@ -681,7 +681,7 @@ def _merge_and_wrap_neighborhoods(ws: Worksheet, neighborhoods_row_number: int) 
     cell = ws.cell(row=neighborhoods_row_number, column=start_col)
     cell.alignment = Alignment(wrap_text=True, horizontal="left", vertical="top")
 
-    calculate_row_height_for_merged_cell(cell=cell)
+    set_row_height_of_wrapped_cell(cell=cell)
 
     return
 
@@ -700,6 +700,6 @@ def _append_extra_notes(ws: Worksheet, extra_notes: list[str]) -> None:
         cell.alignment = Alignment(wrap_text=True, horizontal="left", vertical="top")
         ws.merge_cells(start_row=i, start_column=start_col, end_row=i, end_column=end_col)
 
-        calculate_row_height_for_merged_cell(cell=cell)
+        set_row_height_of_wrapped_cell(cell=cell)
 
     return

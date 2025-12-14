@@ -11,6 +11,8 @@ ADDRESS_COLUMN_WIDTH: Final[float] = 40
 
 ALL_HHS_DRIVER: Final[str] = "All HHs"
 
+LINE_HEIGHT: Final[float] = 15.0
+
 
 class BookOneDrivers(StrEnum):
     """Drivers for the first book.
