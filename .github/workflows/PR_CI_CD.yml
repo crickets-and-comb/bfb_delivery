@@ -8,7 +8,7 @@ jobs:
     uses: crickets-and-comb/shared/.github/workflows/block_outside_PRs.yml@main
     with:
       ALLOWED_ORG: 'crickets-and-comb'
-      ALLOWED_USERS: 'SjjThaler'
+      ALLOWED_USERS: 'SjjThaler, copilot'
     secrets:
       ORG_READ_TOKEN: ${{ secrets.ORG_READ_TOKEN }}
 
