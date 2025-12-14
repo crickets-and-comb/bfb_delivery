@@ -681,16 +681,7 @@ def _merge_and_wrap_neighborhoods(ws: Worksheet, neighborhoods_row_number: int) 
     cell = ws.cell(row=neighborhoods_row_number, column=start_col)
     cell.alignment = Alignment(wrap_text=True, horizontal="left", vertical="top")
 
-    if cell.value:
-        ws.row_dimensions[neighborhoods_row_number].height = (
-            calculate_row_height_for_merged_cell(
-                ws=ws,
-                start_col=start_col,
-                end_col=end_col,
-                cell_value=cell.value,
-                char_width=1.2,
-            )
-        )
+    calculate_row_height_for_merged_cell(cell=cell)
 
     return
 
@@ -709,12 +700,6 @@ def _append_extra_notes(ws: Worksheet, extra_notes: list[str]) -> None:
         cell.alignment = Alignment(wrap_text=True, horizontal="left", vertical="top")
         ws.merge_cells(start_row=i, start_column=start_col, end_row=i, end_column=end_col)
 
-        if cell.value:
-            ws.row_dimensions[i].height = calculate_row_height_for_merged_cell(
-                ws=ws,
-                start_col=start_col,
-                end_col=end_col,
-                cell_value=cell.value,
-            )
+        calculate_row_height_for_merged_cell(cell=cell)
 
     return

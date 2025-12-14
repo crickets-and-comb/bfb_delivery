@@ -7,7 +7,8 @@ import os
 from pathlib import Path
 
 import pandas as pd
-from openpyxl.worksheet.worksheet import Worksheet
+from openpyxl.cell.cell import Cell
+from openpyxl.utils import get_column_letter
 from typeguard import typechecked
 
 from bfb_delivery.lib.constants import BookOneDrivers, Columns, ExtraNotes
@@ -119,35 +120,44 @@ def map_columns(df: pd.DataFrame, column_name_map: dict[str, str], invert_map: b
 
 
 @typechecked
-def calculate_row_height_for_merged_cell(
-    ws: Worksheet,
-    start_col: int,
-    end_col: int,
-    cell_value: str,
-    char_width: float = 1.0,
-) -> float:
-    """Calculate appropriate row height for a merged cell with wrapped text.
+def calculate_row_height_for_merged_cell(cell: Cell) -> None:
+    """Calculate and set appropriate row height for a merged cell with wrapped text.
+
+    Detects the merged cell range, inspects font properties to estimate character
+    width, and sets the row height accordingly.
 
     Args:
-        ws: The worksheet containing the cell.
-        start_col: The starting column of the merged cell range.
-        end_col: The ending column of the merged cell range.
-        cell_value: The text content of the cell.
-        char_width: Average character width in Excel units. Default 1.0 for regular
-            text. Use ~1.2 for bold uppercase text.
-
-    Returns:
-        The calculated row height in points.
+        cell: The cell object (must be part of a merged cell range).
 
     Note:
         This calculation is approximate. The actual row height needed depends on
         font, size, and formatting. Manual review may be needed for precise results.
+        Modifies the row height in place.
     """
-    merged_width = sum(
-        ws.column_dimensions[col[0].column_letter].width
-        for col in ws.iter_cols(min_col=start_col, max_col=end_col)
-    )
-    text_length = len(str(cell_value)) * char_width
-    lines = text_length / merged_width
+    if not cell.value:
+        return
 
-    return max(15, math.ceil(lines) * 15)
+    ws = cell.parent
+    row_num = cell.row
+
+    merged_range = None
+    for merged in ws.merged_cells.ranges:
+        if cell.coordinate in merged:
+            merged_range = merged
+            break
+
+    if not merged_range:
+        return
+
+    char_width = 1.2 if (cell.font and getattr(cell.font, "bold", False)) else 1.0
+
+    merged_width = sum(
+        ws.column_dimensions[get_column_letter(col)].width
+        for col in range(merged_range.min_col, merged_range.max_col + 1)
+    )
+
+    text_length = len(str(cell.value)) * char_width
+    lines = text_length / merged_width
+    height = max(15, math.ceil(lines) * 15)
+
+    ws.row_dimensions[row_num].height = height

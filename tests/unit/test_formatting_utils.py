@@ -173,27 +173,29 @@ def test_get_extra_notes(
 
 
 @pytest.mark.parametrize(
-    "cell_value, start_col, end_col, expected_height",
+    "cell_value, start_col, end_col, expected_height, bold",
     [
-        ("Short text", 1, 3, 15),
-        ("This is a much longer text that should wrap to multiple lines", 1, 3, 30),
+        ("Short text", 1, 3, 15, False),
+        ("This is a much longer text that should wrap to multiple lines", 1, 3, 30, False),
         (
             "This is an extremely long text that contains a lot of information and will "
             "definitely need to wrap across multiple lines when displayed in a merged cell",
             1,
             6,
             30,
+            False,
         ),
     ],
 )
 @typechecked
 def test_calculate_row_height_for_merged_cell(
-    cell_value: str, start_col: int, end_col: int, expected_height: float
+    cell_value: str, start_col: int, end_col: int, expected_height: float, bold: bool
 ) -> None:
     """Test row height calculation for merged cells."""
     from typing import cast
 
     from openpyxl import Workbook
+    from openpyxl.styles import Font
     from openpyxl.worksheet.worksheet import Worksheet
 
     wb = Workbook()
@@ -202,12 +204,13 @@ def test_calculate_row_height_for_merged_cell(
     for col in range(start_col, end_col + 1):
         ws.column_dimensions[ws.cell(row=1, column=col).column_letter].width = 20
 
-    height = calculate_row_height_for_merged_cell(
-        ws=ws,
-        start_col=start_col,
-        end_col=end_col,
-        cell_value=cell_value,
-    )
+    cell = ws.cell(row=1, column=start_col, value=cell_value)
+    if bold:
+        cell.font = Font(bold=True)
+    ws.merge_cells(start_row=1, start_column=start_col, end_row=1, end_column=end_col)
 
+    calculate_row_height_for_merged_cell(cell=cell)
+
+    height = ws.row_dimensions[1].height
     assert height == expected_height
     assert height % 15 == 0
