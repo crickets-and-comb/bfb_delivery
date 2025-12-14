@@ -46,13 +46,13 @@ In Python:
 
     from bfb_delivery import format_combined_routes
 
-    format_route_table(input_path="path/to/combined_workbook.xlsx")
+    format_combined_routes(input_path="path/to/combined_workbook.xlsx")
 
 With CLI:
 
 .. code:: bash
 
-    format_route_table --input_path path/to/combined_workbook.xlsx
+    format_combined_routes --input_path path/to/combined_workbook.xlsx
 
 
 The function will return the filepath to the formatted manifest workbook, which you can then open, review, and print. If you're using the CLI, the filepath will be printed to the console.
@@ -68,7 +68,7 @@ You can specify a few things about the formatted manifest workbook. Use `--help`
 
 .. code:: bash
 
-    format_route_table --help
+    format_combined_routes --help
 
 Output directory
 ~~~~~~~~~~~~~~~~
@@ -79,7 +79,7 @@ In Python:
 
 .. code:: python
 
-    format_route_table(
+    format_combined_routes(
         input_path="path/to/combined_workbook.xlsx",
         output_dir="path/to/output_dir/",
     )
@@ -88,7 +88,7 @@ With CLI:
 
 .. code:: bash
 
-    format_route_table --input_path path/to/combined_workbook.xlsx --output_dir path/to/output_dir
+    format_combined_routes --input_path path/to/combined_workbook.xlsx --output_dir path/to/output_dir
 
 Output filename
 ~~~~~~~~~~~~~~~
@@ -99,7 +99,7 @@ In Python:
 
 .. code:: python
 
-    format_route_table(
+    format_combined_routes(
         input_path="path/to/combined_workbook.xlsx",
         output_name="manifests.xlsx",
     )
@@ -108,7 +108,7 @@ With CLI:
 
 .. code:: bash
 
-    format_route_table --input_path path/to/combined_workbook.xlsx --output_name manifests.xlsx
+    format_combined_routes --input_path path/to/combined_workbook.xlsx --output_name manifests.xlsx
 
 
 Supplying extra notes
@@ -129,7 +129,7 @@ In Python:
 
 .. code:: python
 
-    format_route_table(
+    format_combined_routes(
         input_path="path/to/combined_workbook.xlsx",
         extra_notes_file="path/to/extra_notes.csv",
     )
@@ -138,7 +138,11 @@ With CLI:
 
 .. code:: bash
 
-    format_route_table --input_path path/to/combined_workbook.xlsx --extra_notes_file path/to/extra_notes.csv
+    format_combined_routes --input_path path/to/combined_workbook.xlsx --extra_notes_file path/to/extra_notes.csv
+
+.. note::
+
+    Extra notes are placed in merged cells with automatic row height calculation. The height calculation is approximate and may not be perfect for all text lengths and formatting. Manual review of the cell heights is recommended to ensure notes are fully visible.
 
 
 See Also

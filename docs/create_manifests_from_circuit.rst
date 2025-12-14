@@ -219,6 +219,10 @@ With CLI:
 
     create_manifests_from_circuit --extra_notes_file path/to/extra_notes.csv
 
+.. note::
+
+    Extra notes are placed in merged cells with automatic row height calculation. The height calculation is approximate and may not be perfect for all text lengths and formatting. Manual review of the cell heights is recommended to ensure notes are fully visible.
+
 Note on tools this tool wraps
 -----------------------------
 
