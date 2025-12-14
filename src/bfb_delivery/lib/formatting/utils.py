@@ -151,8 +151,6 @@ def set_row_height_of_wrapped_cell(cell: Cell) -> None:
         height: float = max(LINE_HEIGHT, math.ceil(lines) * LINE_HEIGHT)
 
         ws.row_dimensions[row_num].height = height
-    else:
-        height: float = LINE_HEIGHT
 
     return
 
