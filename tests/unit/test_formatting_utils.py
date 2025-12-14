@@ -176,38 +176,32 @@ def test_get_extra_notes(
         assert returned_extra_notes_df.equals(extra_notes_df)
 
 
+@pytest.mark.parametrize("bold", [False, True])
 @pytest.mark.parametrize(
-    "cell_value, expected_height, bold",
+    "cell_value, expected_height_not_bold, expected_height_bold",
     [
-        ("Short text", LINE_HEIGHT, False),
+        ("Short text", LINE_HEIGHT, LINE_HEIGHT),
         (
             "This is a much longer text that should wrap to multiple lines",
             LINE_HEIGHT,
-            False,
+            LINE_HEIGHT,
+        ),
+        (
+            "This is a test string that's exactly one hundred and one characters long to test bold text wrapping",
+            LINE_HEIGHT,
+            LINE_HEIGHT * 2,
         ),
         (
             "This is an extremely long text that contains a lot of information and will "
             "definitely need to wrap across multiple lines when displayed in a cell",
             LINE_HEIGHT * 2,
-            False,
-        ),
-        ("Short bold", LINE_HEIGHT, True),
-        (
-            "This is a much longer bold text that should wrap to multiple lines",
-            LINE_HEIGHT,
-            True,
-        ),
-        (
-            "This is an extremely long bold text that contains a lot of information and will "
-            "definitely need to wrap across multiple lines when displayed in a bold cell",
             LINE_HEIGHT * 2,
-            True,
         ),
     ],
 )
 @typechecked
 def test_set_row_height_of_wrapped_cell(
-    cell_value: str, expected_height: float, bold: bool
+    cell_value: str, expected_height_not_bold: float, expected_height_bold: float, bold: bool
 ) -> None:
     """Test row height calculation for cells with wrapped text."""
     wb = Workbook()
@@ -223,6 +217,7 @@ def test_set_row_height_of_wrapped_cell(
 
     set_row_height_of_wrapped_cell(cell=cell)
 
+    expected_height = expected_height_bold if bold else expected_height_not_bold
     height = ws.row_dimensions[1].height
     assert height == expected_height
     assert height % LINE_HEIGHT == 0

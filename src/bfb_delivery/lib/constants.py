@@ -11,8 +11,6 @@ ADDRESS_COLUMN_WIDTH: Final[float] = 40
 
 ALL_HHS_DRIVER: Final[str] = "All HHs"
 
-LINE_HEIGHT: Final[float] = 15.0
-
 
 class BookOneDrivers(StrEnum):
     """Drivers for the first book.
@@ -515,6 +513,8 @@ FORMATTED_ROUTES_COLUMNS: Final[list[str]] = [
     Columns.NOTES,
     Columns.BOX_TYPE,
 ]
+
+LINE_HEIGHT: Final[float] = 15.0
 
 
 class IntermediateColumns:

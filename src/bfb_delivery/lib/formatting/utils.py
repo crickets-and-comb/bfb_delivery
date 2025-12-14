@@ -136,38 +136,38 @@ def set_row_height_of_wrapped_cell(cell: Cell) -> None:
         font, size, and formatting. Manual review may be needed for precise results.
         Modifies the row height in place.
     """
-    height = LINE_HEIGHT
-
     if cell.value is not None:
-        ws = cell.parent
-        row_num = cell.row
+        ws: Worksheet = cell.parent
+        row_num: int = cell.row
 
-        char_width = (
+        char_width: float = (
             1.2 if (cell.font is not None and getattr(cell.font, "bold", False)) else 1.0
         )
 
-        cell_width = _get_cell_width(ws=ws, cell=cell)
+        cell_width: float = _get_cell_width(cell=cell)
 
-        text_length = len(str(cell.value)) * char_width
-        lines = text_length / cell_width
-        height = max(LINE_HEIGHT, math.ceil(lines) * LINE_HEIGHT)
+        text_length: float = len(str(cell.value)) * char_width
+        lines: float = text_length / cell_width
+        height: float = max(LINE_HEIGHT, math.ceil(lines) * LINE_HEIGHT)
 
         ws.row_dimensions[row_num].height = height
+    else:
+        height: float = LINE_HEIGHT
 
     return
 
 
 @typechecked
-def _get_cell_width(ws: Worksheet, cell: Cell) -> float:
+def _get_cell_width(cell: Cell) -> float:
     """Get the total width available for a cell, accounting for merges.
 
     Args:
-        ws: The worksheet containing the cell.
         cell: The cell to measure.
 
     Returns:
         The total width available (single column or sum of merged columns).
     """
+    ws: Worksheet = cell.parent
     merged_range = None
     for merged in ws.merged_cells.ranges:
         if cell.coordinate in merged:
