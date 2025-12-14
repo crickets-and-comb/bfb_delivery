@@ -120,7 +120,11 @@ def map_columns(df: pd.DataFrame, column_name_map: dict[str, str], invert_map: b
 
 @typechecked
 def calculate_row_height_for_merged_cell(
-    ws: Worksheet, start_col: int, end_col: int, cell_value: str
+    ws: Worksheet,
+    start_col: int,
+    end_col: int,
+    cell_value: str,
+    char_width: float = 1.0,
 ) -> float:
     """Calculate appropriate row height for a merged cell with wrapped text.
 
@@ -129,15 +133,20 @@ def calculate_row_height_for_merged_cell(
         start_col: The starting column of the merged cell range.
         end_col: The ending column of the merged cell range.
         cell_value: The text content of the cell.
+        char_width: Average character width in Excel units. Default 1.0 for regular
+            text. Use ~1.2 for bold uppercase text.
 
     Returns:
         The calculated row height in points.
+
+    Note:
+        This calculation is approximate. The actual row height needed depends on
+        font, size, and formatting. Manual review may be needed for precise results.
     """
     merged_width = sum(
         ws.column_dimensions[col[0].column_letter].width
         for col in ws.iter_cols(min_col=start_col, max_col=end_col)
     )
-    char_width = 1.2
     text_length = len(str(cell_value)) * char_width
     lines = text_length / merged_width
 

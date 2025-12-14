@@ -688,6 +688,7 @@ def _merge_and_wrap_neighborhoods(ws: Worksheet, neighborhoods_row_number: int) 
                 start_col=start_col,
                 end_col=end_col,
                 cell_value=cell.value,
+                char_width=1.2,
             )
         )
 
