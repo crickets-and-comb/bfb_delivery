@@ -166,11 +166,7 @@ def _get_cell_width(cell: Cell) -> float:
         The total width available (single column or sum of merged columns).
     """
     ws: Worksheet = cell.parent
-    merged_range = None
-    for merged in ws.merged_cells.ranges:
-        if cell.coordinate in merged:
-            merged_range = merged
-            break
+    merged_range = next((merged for merged in ws.merged_cells.ranges if cell.coordinate in merged), None)
 
     if merged_range is not None:
         total_width = sum(
