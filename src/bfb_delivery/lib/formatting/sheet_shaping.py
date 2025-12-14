@@ -35,6 +35,7 @@ from bfb_delivery.lib.formatting.data_cleaning import (
     format_column_names,
 )
 from bfb_delivery.lib.formatting.utils import (
+    calculate_row_height_for_merged_cell,
     get_book_one_drivers,
     get_extra_notes,
     get_phone_number,
@@ -681,19 +682,12 @@ def _merge_and_wrap_neighborhoods(ws: Worksheet, neighborhoods_row_number: int) 
     cell = ws.cell(row=neighborhoods_row_number, column=start_col)
     cell.alignment = Alignment(wrap_text=True, horizontal="left", vertical="top")
 
-    # Merged cells don't adjust height automatically, so we need to estimate it.
     if cell.value:
-        merged_width = sum(
-            ws.column_dimensions[col[0].column_letter].width
-            for col in ws.iter_cols(min_col=start_col, max_col=end_col)
+        ws.row_dimensions[neighborhoods_row_number].height = (
+            calculate_row_height_for_merged_cell(
+                ws, neighborhoods_row_number, start_col, end_col, cell.value
+            )
         )
-        char_width = 1.2
-        lines = 0
-        for line in str(cell.value).split():
-            line_length = len(line) * char_width
-            lines += line_length / merged_width
-
-        ws.row_dimensions[neighborhoods_row_number].height = max(15, math.ceil(lines) * 15)
 
     return
 
@@ -713,16 +707,8 @@ def _append_extra_notes(ws: Worksheet, extra_notes: list[str]) -> None:
         ws.merge_cells(start_row=i, start_column=start_col, end_row=i, end_column=end_col)
 
         if cell.value:
-            merged_width = sum(
-                ws.column_dimensions[col[0].column_letter].width
-                for col in ws.iter_cols(min_col=start_col, max_col=end_col)
+            ws.row_dimensions[i].height = calculate_row_height_for_merged_cell(
+                ws, i, start_col, end_col, cell.value
             )
-            char_width = 1.2
-            lines = 0
-            for line in str(cell.value).split():
-                line_length = len(line) * char_width
-                lines += line_length / merged_width
-
-            ws.row_dimensions[i].height = max(15, math.ceil(lines) * 15)
 
     return

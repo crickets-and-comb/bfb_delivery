@@ -2,10 +2,12 @@
 
 import configparser
 import logging
+import math
 import os
 from pathlib import Path
 
 import pandas as pd
+from openpyxl.worksheet.worksheet import Worksheet
 from typeguard import typechecked
 
 from bfb_delivery.lib.constants import BookOneDrivers, Columns, ExtraNotes
@@ -114,3 +116,32 @@ def map_columns(df: pd.DataFrame, column_name_map: dict[str, str], invert_map: b
         column_name_map = {v: k for k, v in column_name_map.items()}
 
     df.rename(columns=column_name_map, inplace=True)
+
+
+@typechecked
+def calculate_row_height_for_merged_cell(
+    ws: Worksheet, row_number: int, start_col: int, end_col: int, cell_value: str
+) -> float:
+    """Calculate appropriate row height for a merged cell with wrapped text.
+
+    Args:
+        ws: The worksheet containing the cell.
+        row_number: The row number of the cell.
+        start_col: The starting column of the merged cell range.
+        end_col: The ending column of the merged cell range.
+        cell_value: The text content of the cell.
+
+    Returns:
+        The calculated row height in points.
+    """
+    merged_width = sum(
+        ws.column_dimensions[col[0].column_letter].width
+        for col in ws.iter_cols(min_col=start_col, max_col=end_col)
+    )
+    char_width = 1.2
+    lines = 0
+    for line in str(cell_value).split():
+        line_length = len(line) * char_width
+        lines += line_length / merged_width
+
+    return max(15, math.ceil(lines) * 15)

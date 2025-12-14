@@ -11,7 +11,12 @@ import pandas as pd
 import pytest
 from typeguard import typechecked
 
-from bfb_delivery.lib.formatting.utils import get_extra_notes, get_phone_number, map_columns
+from bfb_delivery.lib.formatting.utils import (
+    calculate_row_height_for_merged_cell,
+    get_extra_notes,
+    get_phone_number,
+    map_columns,
+)
 
 
 @pytest.mark.parametrize(
@@ -165,3 +170,39 @@ def test_get_extra_notes(
     with error_context, mock_extra_notes_context:
         returned_extra_notes_df = get_extra_notes(file_path=file_path)
         assert returned_extra_notes_df.equals(extra_notes_df)
+
+
+@pytest.mark.parametrize(
+    "cell_value, start_col, end_col, expected_min_height",
+    [
+        ("Short text", 1, 3, 15),
+        ("This is a much longer text that should wrap to multiple lines", 1, 3, 15),
+        (
+            "This is an extremely long text that contains a lot of information and will "
+            "definitely need to wrap across multiple lines when displayed in a merged cell",
+            1,
+            6,
+            15,
+        ),
+    ],
+)
+@typechecked
+def test_calculate_row_height_for_merged_cell(
+    cell_value: str, start_col: int, end_col: int, expected_min_height: float
+) -> None:
+    """Test row height calculation for merged cells."""
+    from openpyxl import Workbook
+
+    wb = Workbook()
+    ws = wb.active
+    row_number = 1
+
+    for col in range(start_col, end_col + 1):
+        ws.column_dimensions[ws.cell(row=row_number, column=col).column_letter].width = 20
+
+    height = calculate_row_height_for_merged_cell(
+        ws, row_number, start_col, end_col, cell_value
+    )
+
+    assert height >= expected_min_height
+    assert height % 15 == 0 or height == 15
