@@ -187,7 +187,8 @@ def test_get_extra_notes(
             LINE_HEIGHT,
         ),
         (
-            "This is a test string that's exactly one hundred and one characters long to test bold text wrapping",
+            "This is a test string that's exactly one hundred and one characters long to "
+            "test bold text wrapping",
             LINE_HEIGHT,
             LINE_HEIGHT * 2,
         ),
