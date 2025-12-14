@@ -191,10 +191,13 @@ def test_calculate_row_height_for_merged_cell(
     cell_value: str, start_col: int, end_col: int, expected_height: float
 ) -> None:
     """Test row height calculation for merged cells."""
+    from typing import cast
+
     from openpyxl import Workbook
+    from openpyxl.worksheet.worksheet import Worksheet
 
     wb = Workbook()
-    ws = wb.active
+    ws = cast(Worksheet, wb.active)
 
     for col in range(start_col, end_col + 1):
         ws.column_dimensions[ws.cell(row=1, column=col).column_letter].width = 20
