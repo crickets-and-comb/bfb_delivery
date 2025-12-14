@@ -1595,18 +1595,24 @@ def _assert_extra_notes(
     start_first_notes = 11 + len(first_df)
     start_second_notes = 11 + len(second_df)
 
-    assert first_ws[f"E{start_first_notes}"].value.startswith(
+    assert first_ws[f"A{start_first_notes}"].value.startswith(
         "* " + extra_notes_df["tag"].iloc[0].replace("*", "").strip() + ": "
     )
-    assert extra_notes_df["note"].iloc[0] in first_ws[f"E{start_first_notes}"].value
-    assert first_ws[f"E{start_first_notes + 1}"].value.startswith(
+    assert extra_notes_df["note"].iloc[0] in first_ws[f"A{start_first_notes}"].value
+    assert first_ws[f"A{start_first_notes + 1}"].value.startswith(
         "* " + extra_notes_df["tag"].iloc[1].replace("*", "").strip() + ": "
     )
-    assert extra_notes_df["note"].iloc[1] in first_ws[f"E{start_first_notes + 1}"].value
-    assert second_ws[f"E{start_second_notes}"].value.startswith(
+    assert extra_notes_df["note"].iloc[1] in first_ws[f"A{start_first_notes + 1}"].value
+    assert second_ws[f"A{start_second_notes}"].value.startswith(
         "* " + extra_notes_df["tag"].iloc[2].replace("*", "").strip() + ": "
     )
-    assert extra_notes_df["note"].iloc[2] in second_ws[f"E{start_second_notes}"].value
+    assert extra_notes_df["note"].iloc[2] in second_ws[f"A{start_second_notes}"].value
+
+    assert f"A{start_first_notes}:F{start_first_notes}" in first_ws.merged_cells
+    assert first_ws[f"A{start_first_notes}"].alignment.wrap_text is True
+    assert first_ws[f"A{start_first_notes}"].alignment.vertical == "top"
+    assert first_ws[f"A{start_first_notes}"].alignment.horizontal == "left"
+    assert first_ws.row_dimensions[start_first_notes].height >= 15
 
     return
 

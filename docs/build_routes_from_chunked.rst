@@ -265,6 +265,10 @@ With CLI:
 
     build_routes_from_chunked --input_path "path/to/master_chunked_sheet.xlsx" --extra_notes_file path/to/extra_notes.csv
 
+.. note::
+
+    Extra notes are placed in merged cells with automatic row height calculation. The height calculation is approximate and may not be perfect for all text lengths and formatting. Manual review of the cell heights is recommended to ensure notes are fully visible.
+
 .. _tools_wrapped_note:
 
 Note on tools this tool wraps

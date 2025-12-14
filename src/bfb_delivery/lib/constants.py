@@ -529,6 +529,8 @@ class IntermediateColumns:
     STOPS_UPLOADED: Final[str] = "stops_uploaded"
 
 
+LINE_HEIGHT: Final[float] = 15.0
+
 MANIFEST_DATE_FORMAT: Final[str] = "%m.%d"
 
 MAX_ORDER_COUNT: Final[int] = 5

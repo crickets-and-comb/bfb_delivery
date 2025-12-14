@@ -4,14 +4,23 @@ import logging
 import re
 from contextlib import AbstractContextManager, nullcontext
 from pathlib import Path
-from typing import Final
+from typing import Final, cast
 from unittest.mock import patch
 
 import pandas as pd
 import pytest
+from openpyxl import Workbook
+from openpyxl.styles import Font
+from openpyxl.worksheet.worksheet import Worksheet
 from typeguard import typechecked
 
-from bfb_delivery.lib.formatting.utils import get_extra_notes, get_phone_number, map_columns
+from bfb_delivery.lib.constants import LINE_HEIGHT
+from bfb_delivery.lib.formatting.utils import (
+    get_extra_notes,
+    get_phone_number,
+    map_columns,
+    set_row_height_of_wrapped_cell,
+)
 
 
 @pytest.mark.parametrize(
@@ -165,3 +174,46 @@ def test_get_extra_notes(
     with error_context, mock_extra_notes_context:
         returned_extra_notes_df = get_extra_notes(file_path=file_path)
         assert returned_extra_notes_df.equals(extra_notes_df)
+
+
+@pytest.mark.parametrize("bold", [False, True])
+@pytest.mark.parametrize(
+    "cell_value, expected_height_not_bold, expected_height_bold",
+    [
+        ("Short text", LINE_HEIGHT, LINE_HEIGHT),
+        (
+            "This is a test string that's over one hundred characters long to "
+            "test bold text wrapping .............",
+            LINE_HEIGHT,
+            LINE_HEIGHT * 2,
+        ),
+        (
+            "This is an extremely long text that contains a lot of information and will "
+            "definitely need to wrap across multiple lines when displayed in a cell",
+            LINE_HEIGHT * 2,
+            LINE_HEIGHT * 2,
+        ),
+    ],
+)
+@typechecked
+def test_set_row_height_of_wrapped_cell(
+    cell_value: str, expected_height_not_bold: float, expected_height_bold: float, bold: bool
+) -> None:
+    """Test row height calculation for cells with wrapped text."""
+    wb = Workbook()
+    ws = cast(Worksheet, wb.active)
+
+    for col in range(1, 7):
+        ws.column_dimensions[ws.cell(row=1, column=col).column_letter].width = 20
+
+    cell = ws.cell(row=1, column=1, value=cell_value)
+    if bold:
+        cell.font = Font(bold=True)
+    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=6)
+
+    set_row_height_of_wrapped_cell(cell=cell)
+
+    expected_height = expected_height_bold if bold else expected_height_not_bold
+    height = ws.row_dimensions[1].height
+    assert height == expected_height
+    assert height % LINE_HEIGHT == 0
