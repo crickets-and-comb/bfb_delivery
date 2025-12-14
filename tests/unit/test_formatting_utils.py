@@ -173,36 +173,38 @@ def test_get_extra_notes(
 
 
 @pytest.mark.parametrize(
-    "cell_value, start_col, end_col, expected_min_height",
+    "cell_value, start_col, end_col, expected_height",
     [
         ("Short text", 1, 3, 15),
-        ("This is a much longer text that should wrap to multiple lines", 1, 3, 15),
+        ("This is a much longer text that should wrap to multiple lines", 1, 3, 30),
         (
             "This is an extremely long text that contains a lot of information and will "
             "definitely need to wrap across multiple lines when displayed in a merged cell",
             1,
             6,
-            15,
+            30,
         ),
     ],
 )
 @typechecked
 def test_calculate_row_height_for_merged_cell(
-    cell_value: str, start_col: int, end_col: int, expected_min_height: float
+    cell_value: str, start_col: int, end_col: int, expected_height: float
 ) -> None:
     """Test row height calculation for merged cells."""
     from openpyxl import Workbook
 
     wb = Workbook()
     ws = wb.active
-    row_number = 1
 
     for col in range(start_col, end_col + 1):
-        ws.column_dimensions[ws.cell(row=row_number, column=col).column_letter].width = 20
+        ws.column_dimensions[ws.cell(row=1, column=col).column_letter].width = 20
 
     height = calculate_row_height_for_merged_cell(
-        ws, row_number, start_col, end_col, cell_value
+        ws=ws,
+        start_col=start_col,
+        end_col=end_col,
+        cell_value=cell_value,
     )
 
-    assert height >= expected_min_height
-    assert height % 15 == 0 or height == 15
+    assert height == expected_height
+    assert height % 15 == 0

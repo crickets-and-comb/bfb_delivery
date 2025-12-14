@@ -120,13 +120,12 @@ def map_columns(df: pd.DataFrame, column_name_map: dict[str, str], invert_map: b
 
 @typechecked
 def calculate_row_height_for_merged_cell(
-    ws: Worksheet, row_number: int, start_col: int, end_col: int, cell_value: str
+    ws: Worksheet, start_col: int, end_col: int, cell_value: str
 ) -> float:
     """Calculate appropriate row height for a merged cell with wrapped text.
 
     Args:
         ws: The worksheet containing the cell.
-        row_number: The row number of the cell.
         start_col: The starting column of the merged cell range.
         end_col: The ending column of the merged cell range.
         cell_value: The text content of the cell.
@@ -139,9 +138,7 @@ def calculate_row_height_for_merged_cell(
         for col in ws.iter_cols(min_col=start_col, max_col=end_col)
     )
     char_width = 1.2
-    lines = 0
-    for line in str(cell_value).split():
-        line_length = len(line) * char_width
-        lines += line_length / merged_width
+    text_length = len(str(cell_value)) * char_width
+    lines = text_length / merged_width
 
     return max(15, math.ceil(lines) * 15)

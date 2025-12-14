@@ -1,7 +1,6 @@
 """Functions for shaping and formatting spreadsheets."""
 
 import logging
-import math
 import warnings
 from datetime import datetime
 from pathlib import Path
@@ -685,7 +684,10 @@ def _merge_and_wrap_neighborhoods(ws: Worksheet, neighborhoods_row_number: int) 
     if cell.value:
         ws.row_dimensions[neighborhoods_row_number].height = (
             calculate_row_height_for_merged_cell(
-                ws, neighborhoods_row_number, start_col, end_col, cell.value
+                ws=ws,
+                start_col=start_col,
+                end_col=end_col,
+                cell_value=cell.value,
             )
         )
 
@@ -708,7 +710,10 @@ def _append_extra_notes(ws: Worksheet, extra_notes: list[str]) -> None:
 
         if cell.value:
             ws.row_dimensions[i].height = calculate_row_height_for_merged_cell(
-                ws, i, start_col, end_col, cell.value
+                ws=ws,
+                start_col=start_col,
+                end_col=end_col,
+                cell_value=cell.value,
             )
 
     return
