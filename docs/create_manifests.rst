@@ -130,6 +130,10 @@ With CLI:
 
     create_manifests --input_dir path/to/combined_workbook.xlsx --extra_notes_file path/to/extra_notes.csv
 
+.. note::
+
+    Extra notes are placed in merged cells with automatic row height calculation. The height calculation is approximate and may not be perfect for all text lengths and formatting. Manual review of the cell heights is recommended to ensure notes are fully visible.
+
 
 See Also
 --------
