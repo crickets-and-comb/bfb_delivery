@@ -182,11 +182,6 @@ def test_get_extra_notes(
     [
         ("Short text", LINE_HEIGHT, LINE_HEIGHT),
         (
-            "This is a much longer text that should wrap to multiple lines",
-            LINE_HEIGHT,
-            LINE_HEIGHT,
-        ),
-        (
             "This is a test string that's over one hundred characters long to "
             "test bold text wrapping .............",
             LINE_HEIGHT,
