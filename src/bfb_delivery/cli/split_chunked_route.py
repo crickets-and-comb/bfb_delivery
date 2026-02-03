@@ -11,7 +11,7 @@ import click
 from typeguard import typechecked
 
 from bfb_delivery import split_chunked_route
-from bfb_delivery.lib.constants import Defaults, DocStrings
+from bfb_delivery.lib.constants import DocStrings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -28,35 +28,35 @@ logger = logging.getLogger(__name__)
     "--output_dir",
     type=str,
     required=False,
-    default=Defaults.SPLIT_CHUNKED_ROUTE["output_dir"],
+    default=DocStrings.SPLIT_CHUNKED_ROUTE.defaults["output_dir"],
     help=DocStrings.SPLIT_CHUNKED_ROUTE.args["output_dir"],
 )
 @click.option(
     "--output_filename",
     type=str,
     required=False,
-    default=Defaults.SPLIT_CHUNKED_ROUTE["output_filename"],
+    default=DocStrings.SPLIT_CHUNKED_ROUTE.defaults["output_filename"],
     help=DocStrings.SPLIT_CHUNKED_ROUTE.args["output_filename"],
 )
 @click.option(
     "--n_books",
     type=int,
     required=False,
-    default=Defaults.SPLIT_CHUNKED_ROUTE["n_books"],
+    default=DocStrings.SPLIT_CHUNKED_ROUTE.defaults["n_books"],
     help=DocStrings.SPLIT_CHUNKED_ROUTE.args["n_books"],
 )
 @click.option(
     "--book_one_drivers_file",
     type=str,
     required=False,
-    default=Defaults.SPLIT_CHUNKED_ROUTE["book_one_drivers_file"],
+    default=DocStrings.SPLIT_CHUNKED_ROUTE.defaults["book_one_drivers_file"],
     help=DocStrings.SPLIT_CHUNKED_ROUTE.args["book_one_drivers_file"],
 )
 @click.option(
     "--date",
     type=str,
     required=False,
-    default=Defaults.SPLIT_CHUNKED_ROUTE["date"],
+    default=DocStrings.SPLIT_CHUNKED_ROUTE.defaults["date"],
     help=DocStrings.SPLIT_CHUNKED_ROUTE.args["date"],
 )
 @typechecked
