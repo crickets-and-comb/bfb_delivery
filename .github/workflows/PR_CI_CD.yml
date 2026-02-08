@@ -19,6 +19,4 @@ jobs:
       TEST_OR_PROD: 'dev'
     secrets:
       CHECKOUT_SHARED: ${{ secrets.CHECKOUT_SHARED }}
-      OSSINDEX_USERNAME: ${{ secrets.OSSINDEX_USERNAME }}
-      OSSINDEX_PASSWORD: ${{ secrets.OSSINDEX_PASSWORD }}
       SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
