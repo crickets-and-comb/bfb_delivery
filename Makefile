@@ -3,10 +3,12 @@ PACKAGE_NAME := $(shell python -c "import configparser; cfg = configparser.Confi
 REPO_ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 QC_DIRS := ${REPO_ROOT}src/ ${REPO_ROOT}tests/ ${REPO_ROOT}docs/ ${REPO_ROOT}scripts/
 
-# Enable typecheckers for comparison
-# Starting with pyright and mypy - basedpyright is too strict for now
-RUN_PYRIGHT := 1
-RUN_MYPY := 1
+# Typechecker selection: using pytype (passes with 0 errors)
+# Other tools tested but disabled due to requiring substantial code refactoring:
+# - mypy: 91 errors (58 in src/)
+# - pyright: 194 errors (79 in src/)
+# - basedpyright: 230 errors + 942 warnings
+# See docs/TYPECHECK_COMPARISON.md for detailed comparison and recommendation.
 
 export
 include shared/Makefile
