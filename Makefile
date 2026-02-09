@@ -3,6 +3,11 @@ PACKAGE_NAME := $(shell python -c "import configparser; cfg = configparser.Confi
 REPO_ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 QC_DIRS := ${REPO_ROOT}src/ ${REPO_ROOT}tests/ ${REPO_ROOT}docs/ ${REPO_ROOT}scripts/
 
+# Enable typecheckers for comparison
+# Starting with pyright and mypy - basedpyright is too strict for now
+RUN_PYRIGHT := 1
+RUN_MYPY := 1
+
 export
 include shared/Makefile
 

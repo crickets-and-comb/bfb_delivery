@@ -1,0 +1,14 @@
+{
+  "include": [
+    "src",
+    "tests",
+    "docs",
+    "scripts"
+  ],
+  "reportMissingImports": "none",
+  "reportMissingTypeStubs": "none",
+  "reportUnknownParameterType": "none",
+  "reportUnknownArgumentType": "none",
+  "reportUnknownMemberType": "none",
+  "reportUnknownVariableType": "none"
+}
