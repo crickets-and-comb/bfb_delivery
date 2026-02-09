@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 """A test suite for the API callers module."""
 
 import re

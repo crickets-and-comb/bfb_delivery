@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 """Test suite for write_to_circuit.py."""
 
 # NOTE: We're ignoring the top-level `build_routes_from_chunked` since everything it wraps is

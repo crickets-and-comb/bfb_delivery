@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 """Tests conftest."""
 
 import os

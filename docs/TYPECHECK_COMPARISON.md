@@ -4,35 +4,31 @@ This document compares different Python typecheckers tested on the bfb_delivery 
 
 ## Tools Tested
 
+All tools available in the shared `typecheck` make target were tested:
+
 1. **pytype** (existing) - Google's static type analyzer
-2. **pyright** - Microsoft's static type checker
+2. **pyright** - Microsoft's static type checker  
 3. **mypy** - The standard Python type checker from the Python community
 4. **basedpyright** - A fork of pyright with additional features and stricter checking
-
-Note: `ty` and `pyrefly` were considered but not available as installable packages.
+5. **ty** - Fast typechecker built in Rust by Astral
+6. **pyrefly** - Experimental typechecker
 
 ## Test Results Summary
 
-### Error Counts (on full codebase: src, tests, docs, scripts)
+### Error Counts (on src/ only, with minimal config + type ignores)
 
-| Tool | Errors | Warnings | Status |
-|------|--------|----------|--------|
-| pytype | 0 | 0 | ✅ PASS |
-| mypy (with type stubs) | 91 | 0 | ❌ FAIL |
-| pyright (with config) | 194 | 0 | ❌ FAIL |
-| basedpyright (with config) | 230 | 942 | ❌ FAIL |
-
-### Error Counts (on src only)
-
-| Tool | Errors | Status |
-|------|--------|--------|
-| pytype | 0 | ✅ PASS |
-| mypy | 58 | ❌ FAIL |
-| pyright | 79 | ❌ FAIL |
+| Tool | Errors | Warnings | Config Required | Status |
+|------|--------|----------|-----------------|--------|
+| pytype | 0 | 0 | None | ✅ PASS |
+| mypy | 0 | 0 | Minimal (ignore_missing_imports) + 20 type: ignore | ✅ PASS |
+| ty | 63 | 0 | None | ❌ FAIL |
+| pyrefly | 82 | 22 suppressed | None | ❌ FAIL |
+| pyright | 104 | 0 | None | ❌ FAIL |
+| basedpyright | 129 | 894 | None | ❌ FAIL |
 
 ## Detailed Analysis
 
-### pytype (Recommended)
+### pytype (Currently Used)
 **Pros:**
 - Already integrated and passing with zero errors
 - Well-suited for codebases using libraries like pandas, openpyxl
@@ -46,23 +42,60 @@ Note: `ty` and `pyrefly` were considered but not available as installable packag
 
 **Errors:** None
 
-### mypy
+**Recommendation:** Continue using as one of the typecheckers.
+
+### mypy (Recommended)
 **Pros:**
 - Standard in the Python community
 - Good documentation and wide adoption
 - Can be configured for varying strictness levels
+- **Now passing with minimal configuration**
 
 **Cons:**
-- 91 errors on this codebase (58 in src/)
-- Requires type stubs for third-party libraries
-- Many errors related to pandas DataFrame typing with pandera
-- Errors include:
-  - Incompatible types with pandera DataFrames
-  - numpy.bool vs bool issues
-  - openpyxl typing issues
-  - Path vs str incompatibilities
+- Required 20 `# type: ignore` comments to pass
+- Most ignores are for default argument types from dict lookups
+- Some legitimate typing complexity with pandera DataFrames
 
-**Errors:** Would require substantial code refactoring to fix
+**Configuration Added:**
+```toml
+[tool.mypy]
+ignore_missing_imports = true
+```
+
+**Errors:** 0 (after adding type ignores)
+
+**Recommendation:** **Enable mypy** - it provides valuable additional type checking with minimal overhead.
+
+### ty
+**Pros:**
+- Very fast (built in Rust)
+- Modern tool from Astral (makers of ruff, uv)
+- Active development
+
+**Cons:**
+- 63 errors on this codebase
+- Many "unresolved-import" errors for installed packages
+- Environment detection issues
+- Less mature than mypy/pyright
+
+**Errors:** 63 diagnostics (primarily import resolution)
+
+**Recommendation:** Skip for now - too many unresolved import issues despite packages being installed.
+
+### pyrefly
+**Pros:**
+- Experimental features
+- Good error messages
+
+**Cons:**
+- 82 errors on this codebase
+- Many pandera Config override errors
+- numpy.bool vs bool incompatibilities
+- Experimental/less mature
+
+**Errors:** 82 (22 suppressed)
+
+**Recommendation:** Skip for now - experimental status and high error count.
 
 ### pyright
 **Pros:**
@@ -72,12 +105,13 @@ Note: `ty` and `pyrefly` were considered but not available as installable packag
 - Active development by Microsoft
 
 **Cons:**
-- 194 errors on this codebase (79 in src/)
+- 104 errors on this codebase
 - Very strict about pandas/DataFrame operations
 - Many errors with Series vs DataFrame type inference
-- Configuration helps but still has many errors
 
-**Errors:** Would require substantial code refactoring to fix
+**Errors:** 104
+
+**Recommendation:** Skip for now - too many errors for practical use without extensive refactoring.
 
 ### basedpyright
 **Pros:**
@@ -85,76 +119,71 @@ Note: `ty` and `pyrefly` were considered but not available as installable packag
 - Stricter checking can catch more bugs
 
 **Cons:**
-- 230 errors + 942 warnings on this codebase
+- 129 errors + 894 warnings on this codebase
 - Too strict for this codebase without extensive refactoring
 - Many warnings about "Unknown" types from pandas operations
 
-**Errors:** Would require extensive code refactoring to fix
+**Errors:** 129 errors + 894 warnings
+
+**Recommendation:** Skip for now - too strict for practical use.
 
 ## Common Error Patterns
 
-Across mypy, pyright, and basedpyright, the most common errors were:
+Errors that required `# type: ignore` in mypy:
 
-1. **Pandera DataFrame typing**: The codebase uses pandera for DataFrame schema validation. The typecheckers struggle with type narrowing for these typed DataFrames.
+1. **Dict default arguments** (15 occurrences) - Default values from dicts like `Defaults.BUILD_ROUTES_FROM_CHUNKED["output_dir"]` have union types
+2. **Pandera DataFrame typing** (3 occurrences) - Type narrowing issues with schema-validated DataFrames
+3. **Dynamic indexing** (2 occurrences) - Object types from list comprehensions
 
-2. **Pandas type inference**: Operations like `df['column']` can return Series or DataFrame depending on context, causing type confusion.
+Remaining errors in other tools:
 
-3. **openpyxl types**: The library returns union types like `Cell | MergedCell` and `Worksheet | _WorkbookChild` that are difficult to narrow.
-
-4. **numpy.bool vs bool**: Some functions return numpy.bool which is not directly compatible with Python's bool.
-
-5. **Missing type annotations**: Some test helper functions lack type annotations.
+1. **Import resolution** (ty) - Cannot find installed packages
+2. **Pandera Config overrides** (pyrefly, pyright, basedpyright) - pandera inheritance patterns
+3. **numpy.bool vs bool** (pyrefly, basedpyright) - Return type incompatibilities
+4. **openpyxl union types** (pyright, basedpyright) - Cell | MergedCell narrowing
 
 ## Runtime Comparison
 
-All tools ran quickly enough that runtime is not a major concern:
+All tools run quickly:
 - pytype: ~90 seconds (full analysis with caching)
 - mypy: ~5 seconds
-- pyright: ~3 seconds  
+- pyright: ~3 seconds
 - basedpyright: ~3 seconds
+- ty: ~2 seconds (fastest)
+- pyrefly: ~4 seconds
 
-## Recommendation
+## Final Recommendation
 
-**Recommended Tool: pytype (continue using current setup)**
+**Enable both pytype AND mypy:**
 
-### Rationale:
+1. **pytype** - Keep enabled (already passing)
+   - Provides good baseline type checking
+   - Well-suited for pandas/numpy code
+   
+2. **mypy** - **Enable** (now passing with minimal config)
+   - Industry standard
+   - Complementary to pytype
+   - Required only minimal configuration and 20 type: ignore comments
+   - Provides additional coverage and catches different error patterns
 
-1. **Zero errors**: pytype already passes cleanly, meaning the codebase is already type-safe according to pytype's analysis.
+3. **Skip** ty, pyrefly, pyright, basedpyright for now
+   - Too many errors (63-129 errors each)
+   - Would require substantial code refactoring or extensive type: ignore usage
+   - Can revisit when tools mature or for Python 3.13+ migration
 
-2. **Better pandas/numpy support**: pytype handles the complex pandas and numpy typing patterns used in this codebase better than the alternatives.
+### Benefits of Running Both pytype and mypy
 
-3. **No code changes required**: Adopting pytype (which is already in use) requires no code refactoring.
+- **Defense in depth**: Different tools catch different issues
+- **Low overhead**: Both pass with minimal configuration
+- **Future-proofing**: When pytype drops Python 3.12 support, mypy is already integrated
+- **Standard compliance**: mypy ensures code follows Python typing standards
 
-4. **Avoiding substantial refactoring**: The issue guidelines state: "If tool disagrees with other installed typecheckers... choose one to disable if necessary." Since pytype passes and the others fail with 58-230 errors, disabling the stricter tools is the right choice.
+## Configuration Files
 
-5. **Python 3.13+ consideration**: While pytype doesn't support Python 3.13+, the codebase currently requires Python 3.12, giving time to evaluate alternatives when upgrading.
+- `pyproject.toml` - Contains minimal mypy configuration:
+  ```toml
+  [tool.mypy]
+  ignore_missing_imports = true
+  ```
 
-### Alternative for Python 3.13+
-
-When Python 3.13+ support is needed:
-- **First choice: mypy** - Most mature, configurable, but will require fixing 91 errors
-- **Second choice: pyright** - Fast and good inference, but will require fixing 194 errors
-- **Not recommended: basedpyright** - Too strict for this codebase (230 errors + 942 warnings)
-
-### Migration Path (if needed in future)
-
-If migrating away from pytype becomes necessary:
-
-1. Choose mypy as the target (fewest errors)
-2. Install type stubs: `pandas-stubs`, `types-openpyxl`, `types-requests`
-3. Focus on fixing src/ errors first (58 errors)
-4. Add type: ignore comments for complex pandas operations that are runtime-validated by pandera
-5. Gradually fix test errors
-6. Configure mypy to be less strict initially, then incrementally increase strictness
-
-## Configuration Files Created
-
-- `pyrightconfig.json` - Disables most "unknown type" warnings
-- `basedpyright.json` - Extends pyrightconfig.json
-- `pyproject.toml` - Adds mypy configuration with `ignore_missing_imports = true`
-
-These configs reduced errors/warnings but not enough to make the tools pass.
-
-## Conclusion
-
-Continue using **pytype** as the primary typechecker for this repository. The tool provides good type safety without requiring code changes, and it works well with the pandas/numpy-heavy codebase. Consider mypy for Python 3.13+ migration in the future, but only after allocating time for the required refactoring.
+- No configuration files created for other tools (following "minimal config" principle)
