@@ -39,7 +39,9 @@ def split_chunked_route(  # noqa: D103
     output_dir: Path | str = DocStrings.SPLIT_CHUNKED_ROUTE.defaults["output_dir"],
     output_filename: str = DocStrings.SPLIT_CHUNKED_ROUTE.defaults["output_filename"],
     n_books: int = DocStrings.SPLIT_CHUNKED_ROUTE.defaults["n_books"],
-    book_one_drivers_file: str = DocStrings.SPLIT_CHUNKED_ROUTE.defaults["book_one_drivers_file"],
+    book_one_drivers_file: str = DocStrings.SPLIT_CHUNKED_ROUTE.defaults[
+        "book_one_drivers_file"
+    ],
     date: str = DocStrings.SPLIT_CHUNKED_ROUTE.defaults["date"],
 ) -> list[Path]:
     return internal.split_chunked_route(
@@ -61,11 +63,17 @@ def create_manifests_from_circuit(  # noqa: D103
     end_date: str = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["end_date"],
     plan_ids: list[str] = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["plan_ids"],
     output_dir: str = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["output_dir"],
-    output_filename: str = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["output_filename"],
-    circuit_output_dir: str = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["circuit_output_dir"],
+    output_filename: str = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults[
+        "output_filename"
+    ],
+    circuit_output_dir: str = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults[
+        "circuit_output_dir"
+    ],
     all_hhs: bool = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["all_hhs"],
     verbose: bool = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["verbose"],
-    extra_notes_file: str = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["extra_notes_file"],
+    extra_notes_file: str = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults[
+        "extra_notes_file"
+    ],
 ) -> tuple[Path, Path]:
     final_manifest_path, new_circuit_output_dir = internal.create_manifests_from_circuit(
         start_date=start_date,

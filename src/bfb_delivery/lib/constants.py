@@ -329,12 +329,12 @@ See :doc:`create_manifests_from_circuit` for more information.
             "start_date": "",
             "end_date": "",
             "plan_ids": [],
-            "output_dir": CREATE_MANIFESTS["output_dir"],
-            "output_filename": CREATE_MANIFESTS["output_filename"],
+            "output_dir": CREATE_MANIFESTS.defaults["output_dir"],
+            "output_filename": CREATE_MANIFESTS.defaults["output_filename"],
             "circuit_output_dir": "",
             "all_hhs": False,
             "verbose": False,
-            "extra_notes_file": CREATE_MANIFESTS["extra_notes_file"],
+            "extra_notes_file": CREATE_MANIFESTS.defaults["extra_notes_file"],
         },
     )
 
@@ -377,7 +377,7 @@ See :doc:`format_combined_routes` for more information.
         defaults={
             "output_dir": "",
             "output_filename": "",
-            "extra_notes_file": CREATE_MANIFESTS["extra_notes_file"],
+            "extra_notes_file": CREATE_MANIFESTS.defaults["extra_notes_file"],
         },
     )
 
