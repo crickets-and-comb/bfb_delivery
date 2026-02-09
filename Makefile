@@ -1,12 +1,11 @@
-PYTHON_VERSION := 3.12
+PYTHON_VERSION := $(shell python -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
 PACKAGE_NAME := $(shell python -c "import configparser; cfg = configparser.ConfigParser(); cfg.read('setup.cfg'); print(cfg['metadata']['name'])")
 REPO_ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 QC_DIRS := ${REPO_ROOT}src/ ${REPO_ROOT}tests/ ${REPO_ROOT}docs/ ${REPO_ROOT}scripts/
 
-# Enable passing typecheckers
-# Both pytype and mypy pass with minimal configuration
+# Enable mypy (passes with minimal configuration)
+# pytype is enabled by default on Python 3.12 (see shared Makefile)
 # See docs/TYPECHECK_COMPARISON.md for comparison of all 6 tools
-RUN_PYTYPE := 1
 RUN_MYPY := 1
 
 export
