@@ -4,8 +4,8 @@ import logging
 from time import sleep
 
 import click
-import requests
-from requests.auth import HTTPBasicAuth
+import requests  # type: ignore[import-untyped]
+from requests.auth import HTTPBasicAuth  # type: ignore[import-untyped]
 
 from comb_utils import get_response_dict
 

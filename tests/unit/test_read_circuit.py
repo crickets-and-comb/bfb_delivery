@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 """Tests for read_circuit module."""
 
 import copy

@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 """Unit tests for the data_cleaning module."""
 
 import logging

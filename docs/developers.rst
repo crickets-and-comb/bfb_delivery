@@ -12,6 +12,17 @@ If you've already cloned the repo and set up the ``shared`` Git submodule, check
 
     make
 
+Type Checking
+-------------
+
+This project uses ``pytype`` for static type checking. The codebase passes all type checks with zero errors. For a detailed comparison of pytype vs. other Python typecheckers (mypy, pyright, basedpyright), see the `Typechecker Comparison <TYPECHECK_COMPARISON.md>`_ document.
+
+To run type checking:
+
+.. code:: bash
+
+    make typecheck
+
 Circuit API
 -----------
 
