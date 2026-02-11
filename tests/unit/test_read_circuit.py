@@ -113,8 +113,8 @@ class TestCreateManifestsFromCircuit:
         for page_dict in mock_plan_responses:
             for plan_dict in page_dict["plans"]:
                 if ( # TODO: https://github.com/crickets-and-comb/shared/issues/147
-                    isinstance(plan_dict, dict)  # To satisisfy pytype.
-                    and isinstance(plan_dict["title"], str)  # To satisisfy pytype.
+                    isinstance(plan_dict, dict)  # To satisfy pytype.
+                    and isinstance(plan_dict["title"], str)  # To satisfy pytype.
                     and ALL_HHS_DRIVER not in plan_dict["title"]
                 ):
                     driver_sheet_names.append(plan_dict["title"])
