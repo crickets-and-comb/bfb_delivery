@@ -15,7 +15,7 @@ If you've already cloned the repo and set up the ``shared`` Git submodule, check
 Type Checking
 -------------
 
-This project uses [mypy](https://mypy-lang.org) for type checking.
+This project uses `mypy <https://mypy-lang.org>`_ for type checking.
 
 To run type checking:
 
