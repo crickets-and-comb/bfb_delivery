@@ -465,12 +465,16 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, sheet_name: str) -> int:
         zip(left_block, right_block, strict=True), start=start_row
     ):
         for col_idx, cell_definition in enumerate(left_row, start=1):
-            cell = ws.cell(row=i, column=col_idx, value=cell_definition["value"])
+            cell = ws.cell(
+                row=i, column=col_idx, value=cell_definition["value"]  # type: ignore[index]
+            )
             cell.font = bold_font
             cell.alignment = alignment_left
-            if cell_definition["value"] and cell_definition["value"].startswith(
+            if cell_definition["value"] and cell_definition[  # type: ignore[index]
+                "value"
+            ].startswith(
                 "Neighborhoods"
-            ):
+            ):  # type: ignore[index]
                 neighborhoods_row_number = i
 
         for col_idx, cell_definition in enumerate(right_row, start=5):
@@ -498,7 +502,7 @@ def _get_left_block(
         [{"value": None}],
     ]
 
-    return left_block
+    return left_block  # type: ignore[return-value]
 
 
 def _get_right_block(thin_border: Border, agg_dict: dict) -> list[list[dict]]:

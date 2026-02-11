@@ -64,10 +64,10 @@ def main(mock_raw_chunked_sheet_path: str) -> None:
     )
 
     output_paths = mock_route_tables(
-        split_chunked_sheet_paths=split_chunked_sheet_paths,
+        split_chunked_sheet_paths=split_chunked_sheet_paths,  # type: ignore[arg-type]
         output_dir=OUTPUT_DIRS["CIRCUIT_TABLES_DIR"],
     )
-    output_dir = Path(output_paths[0]).parent
+    output_dir = Path(output_paths[0]).parent  # type: ignore[assignment]
     click.echo(f"Mocked driver route tables saved to: {output_dir}")
 
     combined_path = combine_route_tables(
