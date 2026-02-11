@@ -112,7 +112,7 @@ class TestCreateManifestsFromCircuit:
         driver_sheet_names = []
         for page_dict in mock_plan_responses:
             for plan_dict in page_dict["plans"]:
-                if ( # TODO: https://github.com/crickets-and-comb/shared/issues/147
+                if (  # TODO: https://github.com/crickets-and-comb/shared/issues/147
                     isinstance(plan_dict, dict)  # To satisfy pytype.
                     and isinstance(plan_dict["title"], str)  # To satisfy pytype.
                     and ALL_HHS_DRIVER not in plan_dict["title"]
@@ -135,7 +135,7 @@ class TestCreateManifestsFromCircuit:
         driver_sheet_names = []
         for page_dict in mock_plan_responses:
             for plan_dict in page_dict["plans"]:
-                if ( # TODO: https://github.com/crickets-and-comb/shared/issues/147
+                if (  # TODO: https://github.com/crickets-and-comb/shared/issues/147
                     isinstance(plan_dict, dict)  # To satisfy pytype.
                     and isinstance(plan_dict["title"], str)  # To satisfy pytype.
                     and ALL_HHS_DRIVER in plan_dict["title"]
