@@ -15,7 +15,7 @@ If you've already cloned the repo and set up the ``shared`` Git submodule, check
 Type Checking
 -------------
 
-This project uses ``pytype`` for static type checking. The codebase passes all type checks with zero errors. For a detailed comparison of pytype vs. other Python typecheckers (mypy, pyright, basedpyright), see the `Typechecker Comparison <TYPECHECK_COMPARISON.md>`_ document.
+This project uses [mypy](https://mypy-lang.org) for type checking.
 
 To run type checking:
 
