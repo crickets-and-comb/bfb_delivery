@@ -30,10 +30,6 @@ on:
         required: false
       CHECKOUT_SHARED:
         required: true
-      OSSINDEX_USERNAME:
-        required: true
-      OSSINDEX_PASSWORD:
-        required: true
       SAFETY_API_KEY:
         required: true
 
@@ -85,8 +81,6 @@ jobs:
     uses: crickets-and-comb/shared/.github/workflows/CI_win.yml@main
     secrets:
       CHECKOUT_SHARED: ${{ secrets.CHECKOUT_SHARED }}
-      OSSINDEX_USERNAME: ${{ secrets.OSSINDEX_USERNAME }}
-      OSSINDEX_PASSWORD: ${{ secrets.OSSINDEX_PASSWORD }}
       SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
 
   build-dist:

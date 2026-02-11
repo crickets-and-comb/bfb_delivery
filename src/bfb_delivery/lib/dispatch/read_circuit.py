@@ -82,7 +82,10 @@ def get_route_files(
 
     plans_list = _get_raw_plans(start_date=start_date, end_date=end_date, verbose=verbose)
     plans_df = _make_plans_df(
-        plans_list=plans_list, plan_ids=plan_ids, all_hhs=all_hhs, verbose=verbose
+        plans_list=plans_list,  # type: ignore[arg-type]
+        plan_ids=plan_ids,
+        all_hhs=all_hhs,
+        verbose=verbose,
     )
     plan_stops_list = _get_raw_stops(
         plan_ids=plans_df[CircuitColumns.ID].tolist(), verbose=verbose

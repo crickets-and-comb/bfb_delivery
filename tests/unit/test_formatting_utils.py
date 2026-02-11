@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 """Unit tests for the utility functions."""
 
 import logging

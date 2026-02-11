@@ -8,7 +8,7 @@ jobs:
     uses: crickets-and-comb/shared/.github/workflows/block_outside_PRs.yml@main
     with:
       ALLOWED_ORG: 'crickets-and-comb'
-      ALLOWED_USERS: 'SjjThaler,Copilot'
+      ALLOWED_USERS: 'SjjThaler,Copilot,RezwanM'
     secrets:
       ORG_READ_TOKEN: ${{ secrets.ORG_READ_TOKEN }}
 
@@ -19,6 +19,4 @@ jobs:
       TEST_OR_PROD: 'dev'
     secrets:
       CHECKOUT_SHARED: ${{ secrets.CHECKOUT_SHARED }}
-      OSSINDEX_USERNAME: ${{ secrets.OSSINDEX_USERNAME }}
-      OSSINDEX_PASSWORD: ${{ secrets.OSSINDEX_PASSWORD }}
       SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}

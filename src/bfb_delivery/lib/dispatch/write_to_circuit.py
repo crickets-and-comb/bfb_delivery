@@ -670,9 +670,9 @@ def _build_plan_stops(
                 all_stops[i : i + 100]  # noqa: E203
             )  # TODO: Add noqa E203 to shared, and remove throughout codebase.
             # https://github.com/crickets-and-comb/shared/issues/41
-        plan_stops[plan_id] = stop_arrays
+        plan_stops[plan_id] = stop_arrays  # type: ignore[assignment]
 
-    return plan_stops
+    return plan_stops  # type: ignore[return-value]
 
 
 # TODO: Why isn't this throwing when driver ID is invalid?
@@ -781,8 +781,8 @@ def _assign_driver(  # noqa: C901
         else:
             choice = choice if choice else "-1"
             try:
-                choice = int(choice.strip()) - 1
-                if choice < 0 or choice >= len(drivers_df):
+                choice = int(choice.strip()) - 1  # type: ignore[assignment]
+                if choice < 0 or choice >= len(drivers_df):  # type: ignore[operator]
                     raise errors.AssignmentOutOfRange
                 driver = drivers_df.iloc[choice]
                 if not driver[CircuitColumns.ACTIVE]:
