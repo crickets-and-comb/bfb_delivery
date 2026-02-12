@@ -173,7 +173,6 @@ See :doc:`build_routes_from_chunked` for more information.
             "start_date": "",
             "no_distribute": False,
             "verbose": False,
-            "book_one_drivers_file": "",
             "extra_notes_file": "",
         },
     )
