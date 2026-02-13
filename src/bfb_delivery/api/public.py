@@ -9,16 +9,16 @@ from pathlib import Path
 from typeguard import typechecked
 
 from bfb_delivery.api import internal
-from bfb_delivery.lib.constants import Defaults, DocStrings
+from bfb_delivery.lib.constants import DocStrings
 
 
 def build_routes_from_chunked(  # noqa: D103
     input_path: str,
-    output_dir: str = Defaults.BUILD_ROUTES_FROM_CHUNKED["output_dir"],  # type: ignore[assignment]  # noqa: E501
-    start_date: str = Defaults.BUILD_ROUTES_FROM_CHUNKED["start_date"],  # type: ignore[assignment]  # noqa: E501
-    no_distribute: bool = Defaults.BUILD_ROUTES_FROM_CHUNKED["no_distribute"],  # type: ignore[assignment]  # noqa: E501
-    verbose: bool = Defaults.BUILD_ROUTES_FROM_CHUNKED["verbose"],  # type: ignore[assignment]  # noqa: E501
-    extra_notes_file: str = Defaults.BUILD_ROUTES_FROM_CHUNKED["extra_notes_file"],  # type: ignore[assignment]  # noqa: E501
+    output_dir: str = DocStrings.BUILD_ROUTES_FROM_CHUNKED.defaults["output_dir"],
+    start_date: str = DocStrings.BUILD_ROUTES_FROM_CHUNKED.defaults["start_date"],
+    no_distribute: bool = DocStrings.BUILD_ROUTES_FROM_CHUNKED.defaults["no_distribute"],
+    verbose: bool = DocStrings.BUILD_ROUTES_FROM_CHUNKED.defaults["verbose"],
+    extra_notes_file: str = DocStrings.BUILD_ROUTES_FROM_CHUNKED.defaults["extra_notes_file"],
 ) -> Path:
     return internal.build_routes_from_chunked(
         input_path=input_path,
@@ -36,11 +36,13 @@ build_routes_from_chunked.__doc__ = DocStrings.BUILD_ROUTES_FROM_CHUNKED.api_doc
 @typechecked
 def split_chunked_route(  # noqa: D103
     input_path: Path | str,
-    output_dir: Path | str = Defaults.SPLIT_CHUNKED_ROUTE["output_dir"],  # type: ignore[assignment]  # noqa: E501
-    output_filename: str = Defaults.SPLIT_CHUNKED_ROUTE["output_filename"],  # type: ignore[assignment]  # noqa: E501
-    n_books: int = Defaults.SPLIT_CHUNKED_ROUTE["n_books"],  # type: ignore[assignment]  # noqa: E501
-    book_one_drivers_file: str = Defaults.SPLIT_CHUNKED_ROUTE["book_one_drivers_file"],  # type: ignore[assignment]  # noqa: E501
-    date: str = Defaults.SPLIT_CHUNKED_ROUTE["date"],  # type: ignore[assignment]  # noqa: E501
+    output_dir: Path | str = DocStrings.SPLIT_CHUNKED_ROUTE.defaults["output_dir"],
+    output_filename: str = DocStrings.SPLIT_CHUNKED_ROUTE.defaults["output_filename"],
+    n_books: int = DocStrings.SPLIT_CHUNKED_ROUTE.defaults["n_books"],
+    book_one_drivers_file: str = DocStrings.SPLIT_CHUNKED_ROUTE.defaults[
+        "book_one_drivers_file"
+    ],
+    date: str = DocStrings.SPLIT_CHUNKED_ROUTE.defaults["date"],
 ) -> list[Path]:
     return internal.split_chunked_route(
         input_path=input_path,
@@ -57,31 +59,19 @@ split_chunked_route.__doc__ = DocStrings.SPLIT_CHUNKED_ROUTE.api_docstring
 
 @typechecked
 def create_manifests_from_circuit(  # noqa: D103
-    start_date: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT[  # type: ignore[assignment]
-        "start_date"
-    ],
-    end_date: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT[  # type: ignore[assignment]
-        "end_date"
-    ],
-    plan_ids: list[str] = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT[  # type: ignore[assignment]
-        "plan_ids"
-    ],
-    output_dir: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT[  # type: ignore[assignment]
-        "output_dir"
-    ],
-    output_filename: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT[  # type: ignore[assignment]  # noqa: E501
+    start_date: str = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["start_date"],
+    end_date: str = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["end_date"],
+    plan_ids: list[str] = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["plan_ids"],
+    output_dir: str = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["output_dir"],
+    output_filename: str = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults[
         "output_filename"
     ],
-    circuit_output_dir: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT[  # type: ignore[assignment]  # noqa: E501
+    circuit_output_dir: str = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults[
         "circuit_output_dir"
     ],
-    all_hhs: bool = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT[  # type: ignore[assignment]  # noqa: E501
-        "all_hhs"
-    ],
-    verbose: bool = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT[  # type: ignore[assignment]  # noqa: E501
-        "verbose"
-    ],
-    extra_notes_file: str = Defaults.CREATE_MANIFESTS_FROM_CIRCUIT[  # type: ignore[assignment]  # noqa: E501
+    all_hhs: bool = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["all_hhs"],
+    verbose: bool = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["verbose"],
+    extra_notes_file: str = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults[
         "extra_notes_file"
     ],
 ) -> tuple[Path, Path]:
@@ -106,9 +96,9 @@ create_manifests_from_circuit.__doc__ = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT
 @typechecked
 def create_manifests(  # noqa: D103
     input_dir: Path | str,
-    output_dir: Path | str = Defaults.CREATE_MANIFESTS["output_dir"],
-    output_filename: str = Defaults.CREATE_MANIFESTS["output_filename"],
-    extra_notes_file: str = Defaults.CREATE_MANIFESTS["extra_notes_file"],
+    output_dir: Path | str = DocStrings.CREATE_MANIFESTS.defaults["output_dir"],
+    output_filename: str = DocStrings.CREATE_MANIFESTS.defaults["output_filename"],
+    extra_notes_file: str = DocStrings.CREATE_MANIFESTS.defaults["extra_notes_file"],
 ) -> Path:
     formatted_manifest_path = internal.create_manifests(
         input_dir=input_dir,
@@ -126,8 +116,8 @@ create_manifests.__doc__ = DocStrings.CREATE_MANIFESTS.api_docstring
 @typechecked
 def combine_route_tables(  # noqa: D103
     input_dir: Path | str,
-    output_dir: Path | str = Defaults.COMBINE_ROUTE_TABLES["output_dir"],
-    output_filename: str = Defaults.COMBINE_ROUTE_TABLES["output_filename"],
+    output_dir: Path | str = DocStrings.COMBINE_ROUTE_TABLES.defaults["output_dir"],
+    output_filename: str = DocStrings.COMBINE_ROUTE_TABLES.defaults["output_filename"],
 ) -> Path:
     return internal.combine_route_tables(
         input_dir=input_dir, output_dir=output_dir, output_filename=output_filename
@@ -140,9 +130,9 @@ combine_route_tables.__doc__ = DocStrings.COMBINE_ROUTE_TABLES.api_docstring
 @typechecked
 def format_combined_routes(  # noqa: D103
     input_path: Path | str,
-    output_dir: Path | str = Defaults.FORMAT_COMBINED_ROUTES["output_dir"],
-    output_filename: str = Defaults.FORMAT_COMBINED_ROUTES["output_filename"],
-    extra_notes_file: str = Defaults.FORMAT_COMBINED_ROUTES["extra_notes_file"],
+    output_dir: Path | str = DocStrings.FORMAT_COMBINED_ROUTES.defaults["output_dir"],
+    output_filename: str = DocStrings.FORMAT_COMBINED_ROUTES.defaults["output_filename"],
+    extra_notes_file: str = DocStrings.FORMAT_COMBINED_ROUTES.defaults["extra_notes_file"],
 ) -> Path:
     return internal.format_combined_routes(
         input_path=input_path,

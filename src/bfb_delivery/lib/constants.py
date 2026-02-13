@@ -135,50 +135,6 @@ COMBINED_ROUTES_COLUMNS: Final[list[str]] = [
 CIRCUIT_DOWNLOAD_COLUMNS: Final[list[str]] = COMBINED_ROUTES_COLUMNS + [Columns.EMAIL]
 
 
-# TODO: Combine with DocString?
-# https://github.com/crickets-and-comb/bfb_delivery/issues/57
-class Defaults:
-    """Default values. E.g., for syncing public API with CLI."""
-
-    BUILD_ROUTES_FROM_CHUNKED: Final[dict[str, str | bool]] = {
-        "output_dir": "",
-        "start_date": "",
-        "no_distribute": False,
-        "verbose": False,
-        "book_one_drivers_file": "",
-        "extra_notes_file": "",
-    }
-    COMBINE_ROUTE_TABLES: Final[dict[str, str]] = {"output_dir": "", "output_filename": ""}
-    CREATE_MANIFESTS: Final[dict[str, str]] = {
-        "output_dir": "",
-        "output_filename": "",
-        "extra_notes_file": "",
-    }
-    CREATE_MANIFESTS_FROM_CIRCUIT: Final[dict[str, str | bool | list]] = {
-        "start_date": "",
-        "end_date": "",
-        "plan_ids": [],
-        "output_dir": CREATE_MANIFESTS["output_dir"],
-        "output_filename": CREATE_MANIFESTS["output_filename"],
-        "circuit_output_dir": "",
-        "all_hhs": False,
-        "verbose": False,
-        "extra_notes_file": CREATE_MANIFESTS["extra_notes_file"],
-    }
-    FORMAT_COMBINED_ROUTES: Final[dict[str, str]] = {
-        "output_dir": "",
-        "output_filename": "",
-        "extra_notes_file": CREATE_MANIFESTS["extra_notes_file"],
-    }
-    SPLIT_CHUNKED_ROUTE: Final[dict[str, str | int]] = {
-        "output_dir": "",
-        "output_filename": "",
-        "n_books": 4,
-        "book_one_drivers_file": "",
-        "date": "",
-    }
-
-
 class DocStrings:
     """Docstrings for the public API."""
 
@@ -212,6 +168,13 @@ See :doc:`build_routes_from_chunked` for more information.
         },
         returns=["The path to the final manifest spreadsheet."],
         raises=[],
+        defaults={
+            "output_dir": "",
+            "start_date": "",
+            "no_distribute": False,
+            "verbose": False,
+            "extra_notes_file": "",
+        },
     )
 
     COMBINE_ROUTE_TABLES: Final = DocString(
@@ -244,6 +207,7 @@ See :doc:`combine_route_tables` for more information.
             ErrorDocString(error_type="ValueError", docstring="If `input_paths` is empty.")
         ],
         returns=["The path to the output workbook."],
+        defaults={"output_dir": "", "output_filename": ""},
     )
 
     CREATE_MANIFESTS: Final = DocString(
@@ -287,6 +251,11 @@ See :doc:`create_manifests` for more information.
         },
         returns=["Path to the formatted manifest workbook."],
         raises=[],
+        defaults={
+            "output_dir": "",
+            "output_filename": "",
+            "extra_notes_file": "",
+        },
     )
 
     CREATE_MANIFESTS_FROM_CIRCUIT: Final = DocString(
@@ -355,6 +324,17 @@ See :doc:`create_manifests_from_circuit` for more information.
         },
         returns=["Path to the final manifest workbook."],
         raises=[],
+        defaults={
+            "start_date": "",
+            "end_date": "",
+            "plan_ids": [],
+            "output_dir": CREATE_MANIFESTS.defaults["output_dir"],
+            "output_filename": CREATE_MANIFESTS.defaults["output_filename"],
+            "circuit_output_dir": "",
+            "all_hhs": False,
+            "verbose": False,
+            "extra_notes_file": CREATE_MANIFESTS.defaults["extra_notes_file"],
+        },
     )
 
     FORMAT_COMBINED_ROUTES: Final = DocString(
@@ -393,6 +373,11 @@ See :doc:`format_combined_routes` for more information.
         },
         returns=["The path to the formatted table."],
         raises=[],
+        defaults={
+            "output_dir": "",
+            "output_filename": "",
+            "extra_notes_file": CREATE_MANIFESTS.defaults["extra_notes_file"],
+        },
     )
 
     SPLIT_CHUNKED_ROUTE: Final = DocString(
@@ -460,6 +445,13 @@ See :doc:`split_chunked_route` for more information.
                 ),
             ),
         ],
+        defaults={
+            "output_dir": "",
+            "output_filename": "",
+            "n_books": 4,
+            "book_one_drivers_file": "",
+            "date": "",
+        },
     )
 
 

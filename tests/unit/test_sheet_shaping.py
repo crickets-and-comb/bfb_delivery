@@ -36,7 +36,7 @@ from bfb_delivery.lib.constants import (
     BoxType,
     CellColors,
     Columns,
-    Defaults,
+    DocStrings,
 )
 from bfb_delivery.lib.formatting.data_cleaning import (
     _format_and_validate_box_type,
@@ -174,7 +174,7 @@ class TestSplitChunkedRoute:
             output_paths = split_chunked_route(
                 output_dir=tmp_path, input_path=mock_chunked_sheet_raw
             )
-            n_books = Defaults.SPLIT_CHUNKED_ROUTE["n_books"]
+            n_books = DocStrings.SPLIT_CHUNKED_ROUTE.defaults["n_books"]
         else:
             n_books = n_books_passed
             output_paths = split_chunked_route(

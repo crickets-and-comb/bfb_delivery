@@ -11,7 +11,7 @@ import click
 from typeguard import typechecked
 
 from bfb_delivery import create_manifests_from_circuit
-from bfb_delivery.lib.constants import Defaults, DocStrings
+from bfb_delivery.lib.constants import DocStrings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -22,28 +22,28 @@ logger = logging.getLogger(__name__)
     "--start_date",
     type=str,
     required=False,
-    default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["start_date"],
+    default=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["start_date"],
     help=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.args["start_date"],
 )
 @click.option(
     "--end_date",
     type=str,
     required=False,
-    default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["end_date"],
+    default=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["end_date"],
     help=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.args["end_date"],
 )
 @click.option(
     "--output_dir",
     type=str,
     required=False,
-    default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["output_dir"],
+    default=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["output_dir"],
     help=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.args["output_dir"],
 )
 @click.option(
     "--output_filename",
     type=str,
     required=False,
-    default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["output_filename"],
+    default=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["output_filename"],
     help=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.args["output_filename"],
 )
 # TODO: Change circuit_output_dir default to subdir in output_dir.
@@ -52,26 +52,26 @@ logger = logging.getLogger(__name__)
     "--circuit_output_dir",
     type=str,
     required=False,
-    default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["circuit_output_dir"],
+    default=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["circuit_output_dir"],
     help=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.args["circuit_output_dir"],
 )
 @click.option(
     "--all_hhs",
     is_flag=True,
-    default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["all_hhs"],
+    default=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["all_hhs"],
     help=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.args["all_hhs"],
 )
 @click.option(
     "--verbose",
     is_flag=True,
-    default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["verbose"],
+    default=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["verbose"],
     help="verbose: Flag to print verbose output.",
 )
 @click.option(
     "--extra_notes_file",
     type=str,
     required=False,
-    default=Defaults.CREATE_MANIFESTS_FROM_CIRCUIT["extra_notes_file"],
+    default=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["extra_notes_file"],
     help=DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.args["extra_notes_file"],
 )
 @typechecked
