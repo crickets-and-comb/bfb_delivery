@@ -1,4 +1,3 @@
-# mypy: ignore-errors
 """A test suite for the API callers module."""
 
 import re
@@ -33,9 +32,9 @@ _MOCK_STOP_ARRAY: Final[list[dict[str, dict[str, str] | list[str] | int | str]]]
 ]
 
 _CALLER_DICT: Final[dict[str, type[BaseCaller]]] = {
-    "get": BaseBFBGetCaller,
-    "post": BaseBFBPostCaller,
-    "delete": BaseBFBDeleteCaller,
+    "get": BaseBFBGetCaller,  # type: ignore[type-abstract]
+    "post": BaseBFBPostCaller,  # type: ignore[type-abstract]
+    "delete": BaseBFBDeleteCaller,  # type: ignore[type-abstract]
     "opt_launcher": OptimizationLauncher,
     "opt_checker": OptimizationChecker,
     "stop_uploader": StopUploader,
@@ -87,7 +86,7 @@ _OPT_JSON_ERROR_CODE[CircuitColumns.RESULT] = {CircuitColumns.CODE: "MOCK_ERROR_
 def test_key_call(request_type: str) -> None:
     """Test `call_api` calls `get_circuit_key`."""
 
-    class MockCaller(_CALLER_DICT[request_type]):
+    class MockCaller(_CALLER_DICT[request_type]):  # type: ignore[misc, valid-type]
         """Minimal concrete subclass of BaseCaller for testing."""
 
         def _set_url(self) -> None:
@@ -233,7 +232,7 @@ def test_base_caller_wait_time_adjusting(
 ) -> None:
     """Test request wait time adjustments on rate-limiting."""
 
-    class MockCaller(_CALLER_DICT[request_type]):
+    class MockCaller(_CALLER_DICT[request_type]):  # type: ignore[misc, valid-type]
         """Minimal concrete subclass of BaseCaller for testing."""
 
         def _set_url(self) -> None:
@@ -365,7 +364,7 @@ def test_base_caller_timeout_adjusting(
 ) -> None:
     """Test timeout adjustment on timeout retry."""
 
-    class MockCaller(_CALLER_DICT[request_type]):
+    class MockCaller(_CALLER_DICT[request_type]):  # type: ignore[misc, valid-type]
         """Minimal concrete subclass of BaseCaller for testing."""
 
         def _set_url(self) -> None:
