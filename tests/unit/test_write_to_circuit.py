@@ -1,4 +1,3 @@
-# mypy: ignore-errors
 """Test suite for write_to_circuit.py."""
 
 # NOTE: We're ignoring the top-level `build_routes_from_chunked` since everything it wraps is
@@ -335,7 +334,9 @@ def register_plan_initialization(
         }
 
     def post_callback(request: Request, context: Any) -> Any:
-        data = request.json()
+        breakpoint()
+        # mypy sees request.json as an attribute only.
+        data = request.json()  # type: ignore[misc]
         plan_title = data.get(CircuitColumns.TITLE)
         return responses[plan_title]
 
