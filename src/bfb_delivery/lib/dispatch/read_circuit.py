@@ -82,6 +82,7 @@ def get_route_files(
 
     plans_list = _get_raw_plans(start_date=start_date, end_date=end_date, verbose=verbose)
     plans_df = _make_plans_df(
+        # Pandera casts the list of dicts to a DataFrame.
         plans_list=plans_list,  # type: ignore[arg-type]
         plan_ids=plan_ids,
         all_hhs=all_hhs,
