@@ -278,17 +278,26 @@ class TestSplitChunkedRoute:
         tmp_path: Path,
     ) -> None:
         """Test that book-one drivers are in book one."""
-        if test_book_one_drivers:
-            TestBookOneDrivers = StrEnum(
-                "TestBookOneDrivers", {driver: driver for driver in test_book_one_drivers}
-            )
-        else:
 
-            class TestBookOneDrivers(StrEnum):
-                pass
+        def book_one_drivers_factory(test_book_one_drivers: list[str]) -> type[StrEnum]:
+            """Factory to create a BookOneDrivers enum with the test drivers."""
+            if test_book_one_drivers:
+                mock_book_one_drivers = StrEnum(
+                    "TestBookOneDrivers", {driver: driver for driver in test_book_one_drivers}
+                )
+                return mock_book_one_drivers
+            else:
+
+                class TestBookOneDrivers(StrEnum):
+                    pass
+
+                return TestBookOneDrivers
 
         mock_constant_context = (
-            patch("bfb_delivery.lib.formatting.utils.BookOneDrivers", new=TestBookOneDrivers)
+            patch(
+                "bfb_delivery.lib.formatting.utils.BookOneDrivers",
+                new=book_one_drivers_factory(test_book_one_drivers),
+            )
             if not book_one_drivers_file
             else nullcontext()
         )
