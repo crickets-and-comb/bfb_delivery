@@ -2,7 +2,7 @@
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import phonenumbers
 
@@ -84,9 +84,10 @@ for all_hhs in ["_all_hhs", ""]:
                             "recipient": {
                                 "name": f"stop-{i}-{j} recipient",
                                 "phone": (
-                                    phonenumbers.example_number(
-                                        region_code="US"
-                                    ).national_number  # type: ignore[union-attr]
+                                    cast(
+                                        phonenumbers.PhoneNumber,
+                                        phonenumbers.example_number(region_code="US"),
+                                    ).national_number
                                 ),
                             },
                             "plan": stop["plan"],
