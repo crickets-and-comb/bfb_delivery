@@ -1,4 +1,3 @@
-# mypy: ignore-errors
 """Unit tests for sheet_shaping.py."""
 
 # TODO: Make fixtures class-scoped again, at least for the basic calls, here and elsewhere.
@@ -1620,7 +1619,7 @@ def _assert_extra_notes(
 
 @typechecked
 def _get_driver_sheets(output_paths: list[Path]) -> list[pd.DataFrame]:
-    driver_sheets = []
+    driver_sheets: list[pd.DataFrame] = []
     for output_path in output_paths:
         workbook = pd.ExcelFile(output_path)
         driver_sheets = driver_sheets + [
