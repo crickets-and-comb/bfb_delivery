@@ -225,10 +225,10 @@ class TestSplitChunkedRoute:
             driver_sets.append(drivers)
         for i, driver_set in enumerate(driver_sets):
             driver_sets_sans_i = driver_sets[:i] + driver_sets[i + 1 :]  # noqa: E203
-            driver_sets_sans_i = [
+            driver_sets_sans_i_flat = [
                 driver for sublist in driver_sets_sans_i for driver in sublist
             ]
-            assert len(set(driver_set).intersection(set(driver_sets_sans_i))) == 0
+            assert len(set(driver_set).intersection(set(driver_sets_sans_i_flat))) == 0
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     @typechecked
