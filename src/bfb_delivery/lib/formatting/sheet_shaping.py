@@ -492,7 +492,7 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, sheet_name: str) -> int:
 def _get_left_block(
     date: str, driver_name: str, agg_dict: dict
 ) -> list[list[dict[str, None]] | list[dict[str, str]]]:
-    left_block = [
+    left_block: list[list[dict[str, None]] | list[dict[str, str]]] = [
         [{"value": None}],
         [{"value": f"Date: {date}"}],
         [{"value": None}],
@@ -502,7 +502,7 @@ def _get_left_block(
         [{"value": None}],
     ]
 
-    return left_block  # type: ignore[return-value]
+    return left_block
 
 
 def _get_right_block(thin_border: Border, agg_dict: dict) -> list[list[dict]]:
