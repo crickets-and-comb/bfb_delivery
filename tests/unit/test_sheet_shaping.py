@@ -1,4 +1,3 @@
-# mypy: ignore-errors
 """Unit tests for sheet_shaping.py."""
 
 # TODO: Make fixtures class-scoped again, at least for the basic calls, here and elsewhere.
@@ -226,10 +225,10 @@ class TestSplitChunkedRoute:
             driver_sets.append(drivers)
         for i, driver_set in enumerate(driver_sets):
             driver_sets_sans_i = driver_sets[:i] + driver_sets[i + 1 :]  # noqa: E203
-            driver_sets_sans_i = [
+            driver_sets_sans_i_flat = [
                 driver for sublist in driver_sets_sans_i for driver in sublist
             ]
-            assert len(set(driver_set).intersection(set(driver_sets_sans_i))) == 0
+            assert len(set(driver_set).intersection(set(driver_sets_sans_i_flat))) == 0
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     @typechecked
@@ -279,17 +278,29 @@ class TestSplitChunkedRoute:
         tmp_path: Path,
     ) -> None:
         """Test that book-one drivers are in book one."""
-        if test_book_one_drivers:
-            TestBookOneDrivers = StrEnum(
-                "TestBookOneDrivers", {driver: driver for driver in test_book_one_drivers}
-            )
-        else:
 
-            class TestBookOneDrivers(StrEnum):
-                pass
+        def book_one_drivers_factory(test_book_one_drivers: list[str]) -> type[StrEnum]:
+            """Factory to create a BookOneDrivers enum with the test drivers."""
+            if test_book_one_drivers:
+                driver_dict = {driver: driver for driver in test_book_one_drivers}
+                mock_book_one_drivers = StrEnum(  # type: ignore[misc]
+                    # Second argument of StrEnum() must be ... , or dict literal for mypy
+                    "TestBookOneDrivers",
+                    driver_dict,
+                )
+                return mock_book_one_drivers
+            else:
+
+                class TestBookOneDrivers(StrEnum):
+                    pass
+
+                return TestBookOneDrivers
 
         mock_constant_context = (
-            patch("bfb_delivery.lib.formatting.utils.BookOneDrivers", new=TestBookOneDrivers)
+            patch(
+                "bfb_delivery.lib.formatting.utils.BookOneDrivers",
+                new=book_one_drivers_factory(test_book_one_drivers),
+            )
             if not book_one_drivers_file
             else nullcontext()
         )
@@ -1548,8 +1559,9 @@ def test_get_driver_sets_group_numbered(
 def _get_extra_notes(
     extra_notes_file: str, extra_notes_dir: str, extra_notes_df: pd.DataFrame
 ) -> tuple[AbstractContextManager, str]:
-    mock_extra_notes_context = nullcontext()
+    mock_extra_notes_context: AbstractContextManager
     if extra_notes_file:
+        mock_extra_notes_context = nullcontext()
         extra_notes_file = f"{extra_notes_dir}/{extra_notes_file}"
         extra_notes_df.to_csv(extra_notes_file, index=False)
     else:
@@ -1620,7 +1632,7 @@ def _assert_extra_notes(
 
 @typechecked
 def _get_driver_sheets(output_paths: list[Path]) -> list[pd.DataFrame]:
-    driver_sheets = []
+    driver_sheets: list[pd.DataFrame] = []
     for output_path in output_paths:
         workbook = pd.ExcelFile(output_path)
         driver_sheets = driver_sheets + [

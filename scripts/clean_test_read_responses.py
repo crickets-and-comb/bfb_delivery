@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from typing import Any, cast
 
 import phonenumbers
 
@@ -17,7 +18,7 @@ with open(Path(".test_data/sample_responses/plan_responses_dirty.json"), "r") as
 
     cleaned_plans_list = []
     for i, plan_dict in enumerate(plan_dicts):
-        cleaned_plan_dict = {}  # type: ignore[var-annotated]
+        cleaned_plan_dict: dict[Any, Any] = {}
         plan_dict["nextPageToken"] = plan_dict["nextPageToken"]
 
         cleaned_plan_dict["plans"] = []
@@ -83,9 +84,10 @@ for all_hhs in ["_all_hhs", ""]:
                             "recipient": {
                                 "name": f"stop-{i}-{j} recipient",
                                 "phone": (
-                                    phonenumbers.example_number(
-                                        region_code="US"
-                                    ).national_number  # type: ignore[union-attr]
+                                    cast(
+                                        phonenumbers.PhoneNumber,
+                                        phonenumbers.example_number(region_code="US"),
+                                    ).national_number
                                 ),
                             },
                             "plan": stop["plan"],

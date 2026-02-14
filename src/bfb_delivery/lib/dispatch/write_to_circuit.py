@@ -4,7 +4,7 @@ import logging
 import warnings
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pandas as pd
 import pandera as pa
@@ -661,18 +661,25 @@ def _build_plan_stops(
             route_stops=route_stops, driver_id=plan_row[CircuitColumns.ID]
         )
 
+    # Excessive casting to satisfy mypy. This doesn't need to be fast.
     for plan_id, all_stops in plan_stops.items():
-        stop_arrays = []
-        # Split all_stops into chunks of 100 stops.
-        number_of_stops = len(all_stops)
+        all_stops_typed = cast(
+            list[dict[str, dict[str, str] | list[str] | int | str]], all_stops
+        )
+        stop_arrays: list[list[dict[str, dict[str, str] | list[str] | int | str]]] = []
+        # Split all_stops_typed into chunks of 100 stops.
+        number_of_stops = len(all_stops_typed)
         for i in range(0, number_of_stops, RateLimits.BATCH_STOP_IMPORT_MAX_STOPS):
             stop_arrays.append(
-                all_stops[i : i + 100]  # noqa: E203
+                all_stops_typed[i : i + 100]  # noqa: E203
             )  # TODO: Add noqa E203 to shared, and remove throughout codebase.
             # https://github.com/crickets-and-comb/shared/issues/41
         plan_stops[plan_id] = stop_arrays  # type: ignore[assignment]
 
-    return plan_stops  # type: ignore[return-value]
+    plan_stops_typed = cast(
+        dict[str, list[list[dict[str, dict[str, str] | list[str] | int | str]]]], plan_stops
+    )
+    return plan_stops_typed
 
 
 # TODO: Why isn't this throwing when driver ID is invalid?
@@ -781,10 +788,10 @@ def _assign_driver(  # noqa: C901
         else:
             choice = choice if choice else "-1"
             try:
-                choice = int(choice.strip()) - 1  # type: ignore[assignment]
-                if choice < 0 or choice >= len(drivers_df):  # type: ignore[operator]
+                choice_int = int(choice.strip()) - 1
+                if choice_int < 0 or choice_int >= len(drivers_df):
                     raise errors.AssignmentOutOfRange
-                driver = drivers_df.iloc[choice]
+                driver = drivers_df.iloc[choice_int]
                 if not driver[CircuitColumns.ACTIVE]:
                     raise errors.InactiveDriverAssignment
             except ValueError:
@@ -803,15 +810,15 @@ def _assign_driver(  # noqa: C901
                         CircuitColumns.ACTIVE,
                     ],
                 ] = [
-                    drivers_df.iloc[choice][CircuitColumns.ID],
-                    drivers_df.iloc[choice][CircuitColumns.NAME],
-                    drivers_df.iloc[choice][CircuitColumns.EMAIL],
-                    drivers_df.iloc[choice][CircuitColumns.ACTIVE],
+                    drivers_df.iloc[choice_int][CircuitColumns.ID],
+                    drivers_df.iloc[choice_int][CircuitColumns.NAME],
+                    drivers_df.iloc[choice_int][CircuitColumns.EMAIL],
+                    drivers_df.iloc[choice_int][CircuitColumns.ACTIVE],
                 ]
                 assigned = True
                 print(
                     f"\nAssigned {route_title} "
-                    f"to {drivers_df.iloc[choice][CircuitColumns.NAME]}."
+                    f"to {drivers_df.iloc[choice_int][CircuitColumns.NAME]}."
                 )
 
     return plan_df

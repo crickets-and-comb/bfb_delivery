@@ -1,4 +1,3 @@
-# mypy: ignore-errors
 """Tests for read_circuit module."""
 
 import copy
@@ -256,7 +255,11 @@ class TestCreateManifestsFromCircuit:
     @typechecked
     def plans_df(self, plans_list: list[dict[str, Any]]) -> pd.DataFrame:
         """_make_plans_df."""
-        return _make_plans_df(plans_list=plans_list, all_hhs=False)
+        # Pandera transforms the list of dicts into a DataFrame.
+        return _make_plans_df(
+            plans_list=plans_list,  # type: ignore[arg-type]
+            all_hhs=False,  # Long comment so formatter doesn't put it on one line.
+        )
 
     @pytest.fixture(scope="class")
     @typechecked
@@ -325,6 +328,8 @@ class TestCreateManifestsFromCircuit:
         with open(expected_circuit_output_dir / "dummy_file.txt", "w") as f:
             f.write("Dummy file. The function should remove this file.")
 
+        output_path: str | Path
+        new_circuit_output_dir: str | Path
         with patch(
             "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
             return_value=stops_response_data,

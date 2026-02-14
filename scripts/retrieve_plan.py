@@ -4,8 +4,11 @@ import logging
 from time import sleep
 
 import click
-import requests  # type: ignore[import-untyped]
-from requests.auth import HTTPBasicAuth  # type: ignore[import-untyped]
+
+# Requires `types-requests` for typechecking, but not for runtime functionality.
+# Installed with bfb_delivery[qc] or bfb_delivery[dev].
+import requests
+from requests.auth import HTTPBasicAuth
 
 from comb_utils import get_response_dict
 
