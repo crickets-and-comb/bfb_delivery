@@ -1547,8 +1547,9 @@ def test_get_driver_sets_group_numbered(
 def _get_extra_notes(
     extra_notes_file: str, extra_notes_dir: str, extra_notes_df: pd.DataFrame
 ) -> tuple[AbstractContextManager, str]:
-    mock_extra_notes_context = nullcontext()
+    mock_extra_notes_context: AbstractContextManager
     if extra_notes_file:
+        mock_extra_notes_context = nullcontext()
         extra_notes_file = f"{extra_notes_dir}/{extra_notes_file}"
         extra_notes_df.to_csv(extra_notes_file, index=False)
     else:
