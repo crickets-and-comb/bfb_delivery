@@ -1,4 +1,3 @@
-# mypy: ignore-errors
 """Unit tests for the utility functions."""
 
 import logging
@@ -158,10 +157,12 @@ def test_get_extra_notes(
     tmp_path: Path,
 ) -> None:
     """Test that the extra notes are read correctly."""
-    mock_extra_notes_context = nullcontext()
     file_path = str(tmp_path / file_name) if file_name else file_name
 
+    mock_extra_notes_context: AbstractContextManager
+
     if file_name:
+        mock_extra_notes_context = nullcontext()
         extra_notes_df.to_csv(file_path, index=False)
     else:
 
