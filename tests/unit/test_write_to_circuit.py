@@ -334,7 +334,6 @@ def register_plan_initialization(
         }
 
     def post_callback(request: Request, context: Any) -> Any:
-        breakpoint()
         # mypy sees request.json as an attribute only.
         data = request.json()  # type: ignore[misc]
         plan_title = data.get(CircuitColumns.TITLE)
