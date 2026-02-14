@@ -67,8 +67,8 @@ def main(mock_raw_chunked_sheet_path: str) -> None:
         split_chunked_sheet_paths=cast(list[Path | str], split_chunked_sheet_paths),
         output_dir=OUTPUT_DIRS["CIRCUIT_TABLES_DIR"],
     )
-    output_dir = Path(output_paths[0]).parent  # type: ignore[assignment]
-    click.echo(f"Mocked driver route tables saved to: {output_dir}")
+    output_path = Path(output_paths[0]).parent
+    click.echo(f"Mocked driver route tables saved to: {output_path}")
 
     combined_path = combine_route_tables(
         input_dir=OUTPUT_DIRS["CIRCUIT_TABLES_DIR"],
