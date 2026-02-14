@@ -282,8 +282,11 @@ class TestSplitChunkedRoute:
         def book_one_drivers_factory(test_book_one_drivers: list[str]) -> type[StrEnum]:
             """Factory to create a BookOneDrivers enum with the test drivers."""
             if test_book_one_drivers:
-                mock_book_one_drivers = StrEnum(
-                    "TestBookOneDrivers", {driver: driver for driver in test_book_one_drivers}
+                driver_dict = {driver: driver for driver in test_book_one_drivers}
+                mock_book_one_drivers = StrEnum(  # type: ignore[misc]
+                    # Second argument of StrEnum() must be ... , or dict literal for mypy
+                    "TestBookOneDrivers",
+                    driver_dict,
                 )
                 return mock_book_one_drivers
             else:
