@@ -156,7 +156,10 @@ def main(  # noqa: C901
             with open(Path(".test_data/sample_responses/plans_list.json")) as f:
                 plans_list = json.load(f)
         # Pandera casts the list of dicts to a DataFrame.
-        plans_df = _make_plans_df(plans_list=plans_list, all_hhs=all_hhs)  # type: ignore[arg-type]  # noqa: E501
+        plans_df = _make_plans_df(
+            plans_list=plans_list,  # type: ignore[arg-type]  # noqa: E501
+            all_hhs=all_hhs,  # Long comment so formatter doesn't put it on one line.
+        )
         # if all_hhs:
         #     plans_df.to_csv(".test_data/sample_responses/plans_df_all_hhs.csv", index=False)
         # else:
