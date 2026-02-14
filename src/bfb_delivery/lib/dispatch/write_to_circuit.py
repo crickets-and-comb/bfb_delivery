@@ -782,7 +782,7 @@ def _assign_driver(  # noqa: C901
             choice = choice if choice else "-1"
             try:
                 choice_int = int(choice.strip()) - 1
-                if choice_int < 0 or choice_int >= len(drivers_df):  # type: ignore[operator]
+                if choice_int < 0 or choice_int >= len(drivers_df):
                     raise errors.AssignmentOutOfRange
                 driver = drivers_df.iloc[choice_int]
                 if not driver[CircuitColumns.ACTIVE]:
