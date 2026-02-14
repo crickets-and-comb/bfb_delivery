@@ -4,7 +4,7 @@ import logging
 import warnings
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pandas as pd
 from openpyxl import Workbook
@@ -465,16 +465,12 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, sheet_name: str) -> int:
         zip(left_block, right_block, strict=True), start=start_row
     ):
         for col_idx, cell_definition in enumerate(left_row, start=1):
-            cell = ws.cell(
-                row=i, column=col_idx, value=cell_definition["value"]  # type: ignore[index]
-            )
+            # Casting for mypy. Sees cell_definition as an object, not indexable.
+            cell_def = cast(dict, cell_definition)
+            cell = ws.cell(row=i, column=col_idx, value=cell_def["value"])
             cell.font = bold_font
             cell.alignment = alignment_left
-            if cell_definition["value"] and cell_definition[  # type: ignore[index]
-                "value"
-            ].startswith(
-                "Neighborhoods"
-            ):  # type: ignore[index]
+            if cell_def["value"] and cell_def["value"].startswith("Neighborhoods"):
                 neighborhoods_row_number = i
 
         for col_idx, cell_definition in enumerate(right_row, start=5):
