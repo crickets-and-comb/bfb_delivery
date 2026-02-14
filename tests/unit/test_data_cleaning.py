@@ -1,11 +1,10 @@
-# mypy: ignore-errors
 """Unit tests for the data_cleaning module."""
 
 import logging
 import re
 from collections.abc import Callable
 from contextlib import AbstractContextManager, nullcontext
-from typing import Final
+from typing import Final, cast
 
 import pandas as pd
 import phonenumbers
@@ -20,7 +19,12 @@ from bfb_delivery.lib.formatting.data_cleaning import (
 )
 
 INVALID_NUMBERS: Final[list[str]] = [
-    "+1" + str(phonenumbers.invalid_example_number(region_code="US").national_number),
+    "+1"
+    + str(
+        cast(
+            phonenumbers.PhoneNumber, phonenumbers.invalid_example_number(region_code="US")
+        ).national_number
+    ),
     "+15555555555",
 ]
 
@@ -486,8 +490,9 @@ class TestFormatAndValidateData:
                             + [
                                 "+1"
                                 + str(
-                                    phonenumbers.example_number(
-                                        region_code="US"
+                                    cast(
+                                        phonenumbers.PhoneNumber,
+                                        phonenumbers.example_number(region_code="US"),
                                     ).national_number
                                 )
                             ]
