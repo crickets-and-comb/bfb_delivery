@@ -781,10 +781,10 @@ def _assign_driver(  # noqa: C901
         else:
             choice = choice if choice else "-1"
             try:
-                choice = int(choice.strip()) - 1  # type: ignore[assignment]
-                if choice < 0 or choice >= len(drivers_df):  # type: ignore[operator]
+                choice_int = int(choice.strip()) - 1
+                if choice_int < 0 or choice_int >= len(drivers_df):  # type: ignore[operator]
                     raise errors.AssignmentOutOfRange
-                driver = drivers_df.iloc[choice]
+                driver = drivers_df.iloc[choice_int]
                 if not driver[CircuitColumns.ACTIVE]:
                     raise errors.InactiveDriverAssignment
             except ValueError:
@@ -803,15 +803,15 @@ def _assign_driver(  # noqa: C901
                         CircuitColumns.ACTIVE,
                     ],
                 ] = [
-                    drivers_df.iloc[choice][CircuitColumns.ID],
-                    drivers_df.iloc[choice][CircuitColumns.NAME],
-                    drivers_df.iloc[choice][CircuitColumns.EMAIL],
-                    drivers_df.iloc[choice][CircuitColumns.ACTIVE],
+                    drivers_df.iloc[choice_int][CircuitColumns.ID],
+                    drivers_df.iloc[choice_int][CircuitColumns.NAME],
+                    drivers_df.iloc[choice_int][CircuitColumns.EMAIL],
+                    drivers_df.iloc[choice_int][CircuitColumns.ACTIVE],
                 ]
                 assigned = True
                 print(
                     f"\nAssigned {route_title} "
-                    f"to {drivers_df.iloc[choice][CircuitColumns.NAME]}."
+                    f"to {drivers_df.iloc[choice_int][CircuitColumns.NAME]}."
                 )
 
     return plan_df
