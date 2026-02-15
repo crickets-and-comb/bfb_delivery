@@ -10,7 +10,7 @@ import pandas as pd
 import phonenumbers
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import MAX_ORDER_COUNT, Columns
+from bfb_delivery.lib.constants import ACRONYMS, MAX_ORDER_COUNT, Columns
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -210,7 +210,7 @@ def _format_and_validate_phone(df: pd.DataFrame) -> None:
 
     formatting_df = df.copy()
     formatting_df["formatted_numbers"] = formatting_df[Columns.PHONE].apply(
-        lambda number: "+" + number if (len(number) > 0 and number[0] != "+") else number
+        lambda number: ("+" + number if (len(number) > 0 and number[0] != "+") else number)
     )
     formatting_df["formatted_numbers"] = [
         phonenumbers.parse(number) if len(number) > 0 else number
@@ -271,6 +271,7 @@ def _format_and_validate_names_title(df: pd.DataFrame, column: str) -> None:
     """Format a column with names."""
     _format_and_validate_names_base(df=df, column=column)
     df[column] = df[column].apply(lambda name: name.title())
+    df[column] = df[column].apply(_preserve_acronyms)
     return
 
 
@@ -278,6 +279,7 @@ def _format_and_validate_names_title(df: pd.DataFrame, column: str) -> None:
 def _format_and_validate_names_base(df: pd.DataFrame, column: str) -> None:
     """Format a column with names."""
     _format_string(df=df, column=column)
+    df[column] = df[column].apply(_preserve_acronyms)
     _validate_col_not_empty(df=df, column=column)
     return
 
@@ -356,3 +358,11 @@ def _validate_greater_than_zero(df: pd.DataFrame, column: str) -> None:
         )
 
     return
+
+
+@typechecked
+def _preserve_acronyms(name: str) -> str:
+    """Format a name string, preserving acronyms in uppercase."""
+    words = name.split()
+    result = [word.upper() if word.upper() in ACRONYMS else word for word in words]
+    return " ".join(result)
