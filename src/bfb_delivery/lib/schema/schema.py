@@ -3,7 +3,7 @@
 from functools import partial
 from typing import Any
 
-import pandera as pa
+import pandera.pandas as pa
 from pandera.typing import Series
 
 from bfb_delivery.lib.constants import (
