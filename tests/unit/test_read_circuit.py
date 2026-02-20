@@ -13,7 +13,7 @@ from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
-import pandera as pa
+import pandera.pandas as pa
 import pytest
 from click.testing import CliRunner
 from openpyxl import Workbook, load_workbook
