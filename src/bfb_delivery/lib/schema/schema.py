@@ -71,7 +71,8 @@ class CircuitPlansFromDict(CircuitPlansOut):
     bfb_delivery.lib.dispatch.read_circuit._make_plans_df input.
     """
 
-    routes: Series[list[str]] = _COERCE_FIELD(is_list_of_one_or_less=True)
+    # Series[list[str]] breaks pydantic/json-schema generation.
+    routes: Series[object] = _COERCE_FIELD(is_list_of_one_or_less=True)
 
     class Config:
         """The configuration for the schema."""
