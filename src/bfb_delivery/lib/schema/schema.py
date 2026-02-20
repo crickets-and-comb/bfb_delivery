@@ -95,18 +95,22 @@ class CircuitRoutesTransformInFromDict(pa.DataFrameModel):
     """
 
     plan: Series[str] = PLAN_ID_FIELD(alias=CircuitColumns.PLAN)
-    route: Series[dict[str, Any]] = ROUTE_FIELD(item_in_field_dict=CircuitColumns.ID)
+    # Series[dict[str, Any]] breaks pydantic/json-schema generation.
+    route: Series[object] = ROUTE_FIELD(item_in_field_dict=CircuitColumns.ID)
     id: Series[str] = STOP_ID_FIELD()
     # Position 0 is depot, which gets dropped later for the manifests.
     stopPosition: Series[int] = STOP_NO_FIELD(ge=0, alias=CircuitColumns.STOP_POSITION)
-    recipient: Series[dict[str, Any]] = _COERCE_FIELD(
+    # Series[dict[str, Any]] breaks pydantic/json-schema generation.
+    recipient: Series[object] = _COERCE_FIELD(
         item_in_field_dict=CircuitColumns.NAME, alias=CircuitColumns.RECIPIENT
     )
-    address: Series[dict[str, Any]] = ADDRESS_FIELD(
+    # Series[dict[str, Any]] breaks pydantic/json-schema generation.
+    address: Series[object] = ADDRESS_FIELD(
         item_in_field_dict=CircuitColumns.PLACE_ID, alias=CircuitColumns.ADDRESS
     )
     notes: Series[str] = NOTES_FIELD(alias=CircuitColumns.NOTES)
-    orderInfo: Series[dict[str, Any]] = ORDER_INFO_FIELD()
+    # Series[dict[str, Any]] breaks pydantic/json-schema generation.
+    orderInfo: Series[object] = ORDER_INFO_FIELD()
     packageCount: Series[float] = _NULLABLE_FIELD(eq=1, alias=CircuitColumns.PACKAGE_COUNT)
 
     class Config:
