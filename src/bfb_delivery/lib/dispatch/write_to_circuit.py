@@ -671,10 +671,7 @@ def _build_plan_stops(
         # Split all_stops_typed into chunks of 100 stops.
         number_of_stops = len(all_stops_typed)
         for i in range(0, number_of_stops, RateLimits.BATCH_STOP_IMPORT_MAX_STOPS):
-            stop_arrays.append(
-                all_stops_typed[i : i + MAX_STOPS_PER_BATCH]
-            )  # TODO: Add noqa E203 to shared, and remove throughout codebase.
-            # https://github.com/crickets-and-comb/shared/issues/41
+            stop_arrays.append(all_stops_typed[i : i + MAX_STOPS_PER_BATCH])
         plan_stops[plan_id] = stop_arrays  # type: ignore[assignment]
 
     plan_stops_typed = cast(

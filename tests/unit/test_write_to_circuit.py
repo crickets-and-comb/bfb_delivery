@@ -122,16 +122,14 @@ def register_driver_gets(
     requests_mock.get(
         url=CIRCUIT_DRIVERS_URL,
         json={
-            "drivers": drivers_array[0 : len(drivers_array) // 2],  # noqa: E203
+            "drivers": drivers_array[0 : len(drivers_array) // 2],
             "nextPageToken": next_page_token,
         },
     )
     requests_mock.get(
         url=CIRCUIT_DRIVERS_URL + f"?pageToken={next_page_token}",
         json={
-            "drivers": drivers_array[
-                len(drivers_array) // 2 : len(drivers_array)  # noqa: E203
-            ],
+            "drivers": drivers_array[len(drivers_array) // 2 : len(drivers_array)],
             "nextPageToken": None,
         },
     )
@@ -255,9 +253,9 @@ def mock_driver_assignment_with_derps(
 ) -> None:
     """Mock user inputs for driver selection."""
     inputs = iter(
-        driver_selections[0 : len(driver_selections) // 2]  # noqa: E203
+        driver_selections[0 : len(driver_selections) // 2]
         + ["derp", "9999"]
-        + driver_selections[len(driver_selections) // 2 :]  # noqa: E203
+        + driver_selections[len(driver_selections) // 2 :]
         + ["y"]
     )
 
@@ -281,9 +279,9 @@ def mock_driver_assignment_with_inactive(
 ) -> None:
     """Mock user inputs for driver selection."""
     new_driver_selections = (
-        driver_selections[0 : _FAILURE_IDX + 1]  # noqa: E203
+        driver_selections[0 : _FAILURE_IDX + 1]
         + [str(int(driver_selections[_FAILURE_IDX]) + 1)]
-        + driver_selections[_FAILURE_IDX + 1 :]  # noqa: E203
+        + driver_selections[_FAILURE_IDX + 1 :]
     )
     patch_user_input(inputs=iter(new_driver_selections + ["y"]), monkeypatch=monkeypatch)
 
