@@ -531,6 +531,9 @@ MANIFEST_DATE_FORMAT: Final[str] = "%m.%d"
 
 MAX_ORDER_COUNT: Final[int] = 5
 
+# TODO: Test that this does set max stop array length.
+MAX_STOPS_PER_BATCH: Final[int] = 100
+
 NOTES_COLUMN_WIDTH: Final[float] = 56.67
 
 
