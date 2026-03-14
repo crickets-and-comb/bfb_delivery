@@ -56,6 +56,7 @@ class CircuitColumns:
     ADDRESS_LINE_1: Final[str] = "addressLineOne"
     ADDRESS_LINE_2: Final[str] = "addressLineTwo"
     ALLOWED_DRIVERS: Final[str] = "allowedDrivers"
+    CUSTOM_PROPERTIES: Final[str] = "customProperties"
     CANCELED: Final[str] = "canceled"
     CITY: Final[str] = "city"
     CODE: Final[str] = "code"

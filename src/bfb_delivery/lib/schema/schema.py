@@ -38,6 +38,7 @@ ORDER_INFO_FIELD = partial(
 PHONE_FIELD = partial(_NULLABLE_FIELD, alias=Columns.PHONE)
 # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
 PLAN_ID_FIELD = partial(_COERCE_FIELD, str_startswith="plans/")
+PROTEIN_OPT_IN_FIELD = partial(_COERCE_FIELD, alias=Columns.PROTIEN_OPT_IN)
 ROUTE_FIELD = partial(_COERCE_FIELD, alias=CircuitColumns.ROUTE)
 # stop id e.g. "plans/0IWNayD8NEkvD5fQe2SQ/stops/40lmbcQrd32NOfZiiC1b":
 STOP_ID_FIELD = partial(
@@ -115,6 +116,13 @@ class CircuitRoutesTransformInFromDict(pa.DataFrameModel):
     # Series[dict[str, Any]] breaks pydantic/json-schema generation.
     orderInfo: Series[object] = ORDER_INFO_FIELD()
     packageCount: Series[float] = _NULLABLE_FIELD(eq=1, alias=CircuitColumns.PACKAGE_COUNT)
+    # Series[dict[str, Any]] breaks pydantic/json-schema generation.
+    # TODO: When adding neighborhood to customProperties, will need to run item_in_field_dict
+    # on multiple columns. We'll want to do that in recipient too.
+    # See https://github.com/crickets-and-comb/stormwater_monitoring_datasheet_extraction
+    customProperties: Series[object] = _COERCE_FIELD(
+        item_in_field_dict=Columns.PROTIEN_OPT_IN, alias=CircuitColumns.CUSTOM_PROPERTIES
+    )
 
     class Config:
         """The configuration for the schema."""
@@ -157,6 +165,7 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
     box_type: Series[pa.Category] = BOX_TYPE_FIELD()
     neighborhood: Series[str] = NEIGHBORHOOD_FIELD()
     email: Series[str] = EMAIL_FIELD()
+    protein_opt_in: Series[bool] = PROTEIN_OPT_IN_FIELD()
 
     # Ancillary columns.
     plan: Series[str] = PLAN_ID_FIELD(alias=CircuitColumns.PLAN)
@@ -218,6 +227,7 @@ class CircuitRoutesWriteIn(pa.DataFrameModel):
     box_type: Series[pa.Category] = BOX_TYPE_FIELD()
     neighborhood: Series[str] = NEIGHBORHOOD_FIELD()
     email: Series[str] | None = EMAIL_FIELD()
+    protein_opt_in: Series[bool] = PROTEIN_OPT_IN_FIELD()
 
     class Config:
         """The configuration for the schema."""
@@ -278,6 +288,7 @@ class CircuitRoutesWriteOut(pa.DataFrameModel):
     box_type: Series[pa.Category] = BOX_TYPE_FIELD()
     neighborhood: Series[str] = NEIGHBORHOOD_FIELD()
     email: Series[str] = EMAIL_FIELD()
+    protein_opt_in: Series[bool] = PROTEIN_OPT_IN_FIELD()
 
     class Config:
         """The configuration for the schema."""
@@ -297,6 +308,7 @@ class Stops(pa.DataFrameModel):
     product_type: Series[pa.Category] = BOX_TYPE_FIELD(alias=Columns.PRODUCT_TYPE)
     neighborhood: Series[str] = NEIGHBORHOOD_FIELD()
     sheet_name: Series[str] = TITLE_FIELD(alias=IntermediateColumns.SHEET_NAME)
+    protein_opt_in: Series[bool] = PROTEIN_OPT_IN_FIELD()
 
     class Config:
         """The configuration for the schema."""
