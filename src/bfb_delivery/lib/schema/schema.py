@@ -13,6 +13,8 @@ from bfb_delivery.lib.constants import (
     Columns,
     IntermediateColumns,
 )
+
+# This import registers the checks with pandera, even if unused.
 from bfb_delivery.lib.schema import checks  # noqa: F401
 
 _COERCE_FIELD = partial(pa.Field, coerce=True)
@@ -46,6 +48,7 @@ TITLE_FIELD = partial(_COERCE_FIELD, at_least_two_words=True)
 
 # TODO: Unsmurf.
 # https://github.com/crickets-and-comb/bfb_delivery/issues/83
+# https://github.com/crickets-and-comb/bfb_delivery/issues/205
 
 
 class CircuitPlansOut(pa.DataFrameModel):
