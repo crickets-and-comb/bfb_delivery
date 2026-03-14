@@ -131,6 +131,7 @@ COMBINED_ROUTES_COLUMNS: Final[list[str]] = [
     Columns.ORDER_COUNT,
     Columns.BOX_TYPE,
     Columns.NEIGHBORHOOD,
+    Columns.PROTIEN_OPT_IN,
 ]
 
 CIRCUIT_DOWNLOAD_COLUMNS: Final[list[str]] = COMBINED_ROUTES_COLUMNS + [Columns.EMAIL]
@@ -505,6 +506,7 @@ FORMATTED_ROUTES_COLUMNS: Final[list[str]] = [
     Columns.PHONE,
     Columns.NOTES,
     Columns.BOX_TYPE,
+    Columns.PROTIEN_OPT_IN,
 ]
 
 
