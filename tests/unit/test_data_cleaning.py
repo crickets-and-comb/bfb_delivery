@@ -37,7 +37,7 @@ class TestFormatColumnNames:
         """Test formatting column names."""
         # TODO: Int column names? Is that possible?
         # https://github.com/crickets-and-comb/bfb_delivery/issues/89
-        columns = ["  Name  ", Columns.ADDRESS, "  Phone  "]
+        columns = [f"  {Columns.NAME}  ", Columns.ADDRESS, f"  {Columns.PHONE}  "]
         expected = [Columns.NAME, Columns.ADDRESS, Columns.PHONE]
         # TODO: Rewrite to adjust df.
         # https://github.com/crickets-and-comb/bfb_delivery/issues/90
