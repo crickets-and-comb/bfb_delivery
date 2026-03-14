@@ -113,6 +113,7 @@ class Columns:
     ORDER_COUNT: Final[str] = "Order Count"
     PHONE: Final[str] = "Phone"
     PRODUCT_TYPE: Final[str] = "Product Type"
+    PROTIEN_OPT_IN: Final[str] = "Protein"
     STOP_NO: Final[str] = "Stop #"
 
 
@@ -556,4 +557,5 @@ SPLIT_ROUTE_COLUMNS: Final[list[str]] = [
     Columns.ORDER_COUNT,
     Columns.PRODUCT_TYPE,
     Columns.NEIGHBORHOOD,
+    Columns.PROTIEN_OPT_IN,
 ]
