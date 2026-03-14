@@ -86,6 +86,7 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
         Columns.PHONE: _format_and_validate_phone,
         Columns.PRODUCT_TYPE: _format_and_validate_product_type,
         Columns.STOP_NO: _format_and_validate_stop_no,
+        Columns.PROTIEN_OPT_IN: _format_and_validate_protein_opt_in,
     }
     for column in columns:
         formatter_fx: Callable
@@ -259,6 +260,14 @@ def _format_and_validate_stop_no(df: pd.DataFrame) -> None:
 
 
 @typechecked
+def _format_and_validate_protein_opt_in(df: pd.DataFrame) -> None:
+    """Format the protein opt-in column."""
+    _format_bool(df=df, column=Columns.PROTIEN_OPT_IN)
+    _validate_col_not_empty(df=df, column=Columns.PROTIEN_OPT_IN)
+    return
+
+
+@typechecked
 def _format_and_validate_names_to_upper(df: pd.DataFrame, column: str) -> None:
     """Format a column with names."""
     _format_and_validate_names_base(df=df, column=column)
@@ -285,8 +294,16 @@ def _format_and_validate_names_base(df: pd.DataFrame, column: str) -> None:
 @typechecked
 def _format_int(df: pd.DataFrame, column: str) -> None:
     """Basic formatting for an integer column."""
-    df[column] = df[column].astype(str).str.strip()
+    _format_string(df=df, column=column)
     df[column] = df[column].astype(float).astype(int)
+    return
+
+
+@typechecked
+def _format_bool(df: pd.DataFrame, column: str) -> None:
+    """Basic formatting for a boolean column."""
+    _format_string(df=df, column=column)
+    df[column] = df[column].astype(bool)
     return
 
 
