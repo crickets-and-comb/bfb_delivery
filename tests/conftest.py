@@ -27,7 +27,7 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
 @pytest.fixture
 def mock_dispatch_utils_circuit_key() -> str:
     """Fake Circuit API key."""
-    return "dispatch_utils_circuit_key"
+    return "Mock Dispatch Utils Circuit Key"
 
 
 @pytest.fixture(autouse=True)
