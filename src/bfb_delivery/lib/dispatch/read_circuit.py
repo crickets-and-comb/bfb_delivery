@@ -351,6 +351,7 @@ def _pare_routes_df(routes_df: pd.DataFrame, verbose: bool) -> pd.DataFrame:
             CircuitColumns.NOTES,
             CircuitColumns.ORDER_INFO,
             CircuitColumns.PACKAGE_COUNT,
+            CircuitColumns.CUSTOM_PROPERTIES,
         ]
     ]
 
@@ -429,6 +430,9 @@ def _set_routes_df_values(routes_df: pd.DataFrame) -> pd.DataFrame:
     )
     routes_df[IntermediateColumns.ROUTE_TITLE] = _clean_title(
         routes_df[IntermediateColumns.ROUTE_TITLE], warn=False
+    )
+    routes_df[Columns.PROTIEN_OPT_IN] = routes_df[CircuitColumns.CUSTOM_PROPERTIES].apply(
+        lambda custom_properties_dict: custom_properties_dict.get("proteinOptIn")
     )
 
     _warn_and_impute(routes_df=routes_df)
