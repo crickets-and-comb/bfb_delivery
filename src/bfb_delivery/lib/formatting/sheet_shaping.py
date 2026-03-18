@@ -413,6 +413,7 @@ def _add_header_row(ws: Worksheet) -> None:
             "fill": fill,
         },
         {"value": "", "font": font, "alignment": None, "fill": fill},
+        {"value": "", "font": font, "alignment": None, "fill": fill},
         {
             "value": "PLEASE SHRED MANIFEST AFTER COMPLETING ROUTE.",
             "font": font,
@@ -472,7 +473,7 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, sheet_name: str) -> int:
             if cell_def["value"] and cell_def["value"].startswith("Neighborhoods"):
                 neighborhoods_row_number = i
 
-        for col_idx, cell_definition in enumerate(right_row, start=5):
+        for col_idx, cell_definition in enumerate(right_row, start=6):
             cell = ws.cell(row=i, column=col_idx, value=cell_definition["value"])
             cell.font = bold_font
             cell.alignment = alignment_right
