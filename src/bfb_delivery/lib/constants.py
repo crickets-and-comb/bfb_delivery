@@ -114,7 +114,7 @@ class Columns:
     ORDER_COUNT: Final[str] = "Order Count"
     PHONE: Final[str] = "Phone"
     PRODUCT_TYPE: Final[str] = "Product Type"
-    PROTIEN_OPT_IN: Final[str] = "Protein"
+    PROTEIN_OPT_IN: Final[str] = "Protein"
     STOP_NO: Final[str] = "Stop #"
 
 
@@ -132,7 +132,7 @@ COMBINED_ROUTES_COLUMNS: Final[list[str]] = [
     Columns.ORDER_COUNT,
     Columns.BOX_TYPE,
     Columns.NEIGHBORHOOD,
-    Columns.PROTIEN_OPT_IN,
+    Columns.PROTEIN_OPT_IN,
 ]
 
 CIRCUIT_DOWNLOAD_COLUMNS: Final[list[str]] = COMBINED_ROUTES_COLUMNS + [Columns.EMAIL]
@@ -507,7 +507,7 @@ FORMATTED_ROUTES_COLUMNS: Final[list[str]] = [
     Columns.PHONE,
     Columns.NOTES,
     Columns.BOX_TYPE,
-    Columns.PROTIEN_OPT_IN,
+    Columns.PROTEIN_OPT_IN,
 ]
 
 
@@ -561,5 +561,5 @@ SPLIT_ROUTE_COLUMNS: Final[list[str]] = [
     Columns.ORDER_COUNT,
     Columns.PRODUCT_TYPE,
     Columns.NEIGHBORHOOD,
-    Columns.PROTIEN_OPT_IN,
+    Columns.PROTEIN_OPT_IN,
 ]

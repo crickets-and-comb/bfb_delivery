@@ -38,7 +38,7 @@ ORDER_INFO_FIELD = partial(
 PHONE_FIELD = partial(_NULLABLE_FIELD, alias=Columns.PHONE)
 # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
 PLAN_ID_FIELD = partial(_COERCE_FIELD, str_startswith="plans/")
-PROTEIN_OPT_IN_FIELD = partial(_COERCE_FIELD, alias=Columns.PROTIEN_OPT_IN)
+PROTEIN_OPT_IN_FIELD = partial(_COERCE_FIELD, alias=Columns.PROTEIN_OPT_IN)
 ROUTE_FIELD = partial(_COERCE_FIELD, alias=CircuitColumns.ROUTE)
 # stop id e.g. "plans/0IWNayD8NEkvD5fQe2SQ/stops/40lmbcQrd32NOfZiiC1b":
 STOP_ID_FIELD = partial(
@@ -121,7 +121,7 @@ class CircuitRoutesTransformInFromDict(pa.DataFrameModel):
     # on multiple columns. We'll want to do that in recipient too.
     # See https://github.com/crickets-and-comb/stormwater_monitoring_datasheet_extraction
     customProperties: Series[object] = _COERCE_FIELD(
-        item_in_field_dict=Columns.PROTIEN_OPT_IN, alias=CircuitColumns.CUSTOM_PROPERTIES
+        item_in_field_dict=Columns.PROTEIN_OPT_IN, alias=CircuitColumns.CUSTOM_PROPERTIES
     )
 
     class Config:

@@ -431,7 +431,7 @@ def _set_routes_df_values(routes_df: pd.DataFrame) -> pd.DataFrame:
     routes_df[IntermediateColumns.ROUTE_TITLE] = _clean_title(
         routes_df[IntermediateColumns.ROUTE_TITLE], warn=False
     )
-    routes_df[Columns.PROTIEN_OPT_IN] = routes_df[CircuitColumns.CUSTOM_PROPERTIES].apply(
+    routes_df[Columns.PROTEIN_OPT_IN] = routes_df[CircuitColumns.CUSTOM_PROPERTIES].apply(
         lambda custom_properties_dict: custom_properties_dict.get("proteinOptIn")
     )
 
