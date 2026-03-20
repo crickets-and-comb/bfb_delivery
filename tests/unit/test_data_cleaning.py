@@ -144,6 +144,20 @@ class TestFormatAndValidateData:
                 Columns.NEIGHBORHOOD,
                 ["YORK", "YORK", "YORK", "YORK", "YORK", "YORK", "YORK", "YORK", "YORK"],
             ),
+            (
+                Columns.PROTEIN_OPT_IN,
+                [
+                    True,
+                    True,
+                    True,
+                    True,
+                    True,
+                    True,
+                    True,
+                    True,
+                    True,
+                ],
+            ),
         ],
     )
     @typechecked
@@ -160,6 +174,7 @@ class TestFormatAndValidateData:
             Columns.ORDER_COUNT,
             Columns.BOX_TYPE,
             Columns.NEIGHBORHOOD,
+            Columns.PROTEIN_OPT_IN,
         ]
         df = pd.DataFrame(
             columns=columns,
@@ -175,6 +190,7 @@ class TestFormatAndValidateData:
                     1,
                     "Basic",
                     "York",
+                    True,
                 ),
                 (
                     " Driver",  # Test stripping whitespace.
@@ -187,6 +203,7 @@ class TestFormatAndValidateData:
                     "1 ",  # Test stripping whitespace.
                     " Basic ",  # Test stripping whitespace.
                     " York",  # Test stripping whitespace.
+                    True,
                 ),
                 (
                     "Boaty McBoatface",  # Test real name.
@@ -202,6 +219,7 @@ class TestFormatAndValidateData:
                     1.0,  # Test cast float.
                     "Basic",
                     "York",
+                    True,
                 ),
                 (
                     "Tim #2",  # Test special character and numbers.
@@ -214,6 +232,7 @@ class TestFormatAndValidateData:
                     "1.0",  # Test cast str float.
                     "Basic",
                     "York",
+                    True,
                 ),
                 (
                     "Driver",
@@ -226,6 +245,7 @@ class TestFormatAndValidateData:
                     MAX_ORDER_COUNT,  # Test max order count.
                     "Basic",
                     "York",
+                    True,
                 ),
                 (
                     "Driver",
@@ -238,6 +258,7 @@ class TestFormatAndValidateData:
                     1,
                     "Basic",
                     "York",
+                    True,
                 ),
                 (
                     "Driver",
@@ -250,6 +271,7 @@ class TestFormatAndValidateData:
                     1,
                     "Basic",
                     "York",
+                    True,
                 ),
                 (
                     "Driver",
@@ -262,6 +284,7 @@ class TestFormatAndValidateData:
                     1,
                     "Basic",
                     "York",
+                    True,
                 ),
                 (
                     "Driver",
@@ -274,6 +297,7 @@ class TestFormatAndValidateData:
                     1,
                     "Basic",
                     "York",
+                    True,
                 ),
             ],
         )
@@ -332,12 +356,12 @@ class TestFormatAndValidateData:
         [
             (
                 pd.DataFrame({Columns.ORDER_COUNT: [None]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(ValueError),  # Actually throws error when casting to string.
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.ORDER_COUNT: [""]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(ValueError),  # Actually throws error when casting to string.
                 format_and_validate_data,
             ),
             (
@@ -360,12 +384,12 @@ class TestFormatAndValidateData:
             ),
             (
                 pd.DataFrame({Columns.STOP_NO: [None]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(ValueError),  # Actually throws error when casting to string.
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.STOP_NO: [""]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(ValueError),  # Actually throws error when casting to string.
                 format_and_validate_data,
             ),
             (
@@ -415,52 +439,52 @@ class TestFormatAndValidateData:
             (pd.DataFrame({Columns.PHONE: [""]}), nullcontext(), format_and_validate_data),
             (
                 pd.DataFrame({Columns.ADDRESS: [None]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(ValueError),  # Actually throws error when casting to string.
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.ADDRESS: [""]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(ValueError),  # Actually throws error when casting to string.
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.BOX_TYPE: [None]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(ValueError),  # Actually throws error when casting to string.
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.BOX_TYPE: [""]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(ValueError),  # Actually throws error when casting to string.
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.DRIVER: [None]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(ValueError),  # Actually throws error when casting to string.
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.DRIVER: [""]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(ValueError),  # Actually throws error when casting to string.
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.NAME: [None]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(ValueError),  # Actually throws error when casting to string.
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.NAME: [""]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(ValueError),  # Actually throws error when casting to string.
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.NEIGHBORHOOD: [None]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(ValueError),  # Actually throws error when casting to string.
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.NEIGHBORHOOD: [""]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(ValueError),  # Actually throws error when casting to string.
                 format_and_validate_data,
             ),
         ],
