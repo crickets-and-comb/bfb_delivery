@@ -537,6 +537,13 @@ MAX_STOPS_PER_BATCH: Final[int] = 100
 NOTES_COLUMN_WIDTH: Final[float] = 56.67
 
 
+class ProteinOptInValues(StrEnum):
+    """Values for the "Protein Opt-In" column."""
+
+    YES = "Yes"
+    NO = "No"
+
+
 class RateLimits:
     """Rate limits for Circuit API."""
 

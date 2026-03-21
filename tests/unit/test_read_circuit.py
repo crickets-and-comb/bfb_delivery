@@ -669,7 +669,12 @@ class TestCreateManifestsFromCircuit:
             ),
             (
                 Columns.PROTEIN_OPT_IN,
-                "TRUE",
+                "yes",
+                pytest.raises(ValueError, match="contains null values"),
+            ),
+            (
+                Columns.PROTEIN_OPT_IN,
+                True,
                 pytest.raises(ValueError, match="contains null values"),
             ),
         ],

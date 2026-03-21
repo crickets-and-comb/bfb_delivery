@@ -36,6 +36,7 @@ from bfb_delivery.lib.constants import (
     CellColors,
     Columns,
     DocStrings,
+    ProteinOptInValues,
 )
 from bfb_delivery.lib.formatting.data_cleaning import (
     _format_and_validate_box_type,
@@ -653,7 +654,8 @@ class TestFormatCombinedRoutes:
                     NEIGHBORHOODS[i % len(NEIGHBORHOODS)] for i in range(len(stops))
                 ]
                 df[Columns.PROTEIN_OPT_IN] = [
-                    False if box == "Vegan" else True for box in df[Columns.BOX_TYPE]
+                    ProteinOptInValues.NO if box == "Vegan" else ProteinOptInValues.YES
+                    for box in df[Columns.BOX_TYPE]
                 ]
 
                 assert df.isna().sum().sum() == 0
@@ -1396,7 +1398,15 @@ class TestCreateManifests:
             pd.DataFrame(
                 {
                     Columns.BOX_TYPE: ["BASIC", "GF", "LA", "BASIC", "GF", "LA", "Vegan"],
-                    Columns.PROTEIN_OPT_IN: [True, True, True, True, True, True, False],
+                    Columns.PROTEIN_OPT_IN: [
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.NO,
+                    ],
                     Columns.ORDER_COUNT: [1, 1, 1, 2, 1, 1, 2],
                     Columns.NEIGHBORHOOD: [
                         "YORK",
@@ -1424,7 +1434,15 @@ class TestCreateManifests:
             pd.DataFrame(
                 {
                     Columns.BOX_TYPE: ["BASIC", "GF", "LA", "BASIC", "GF", "LA", "Vegan"],
-                    Columns.PROTEIN_OPT_IN: [True, True, True, True, False, False, True],
+                    Columns.PROTEIN_OPT_IN: [
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.NO,
+                        ProteinOptInValues.NO,
+                        ProteinOptInValues.YES,
+                    ],
                     Columns.ORDER_COUNT: [1, 1, 1, 2, 1, 1, 2],
                     Columns.NEIGHBORHOOD: [
                         "YORK",
@@ -1452,7 +1470,14 @@ class TestCreateManifests:
             pd.DataFrame(
                 {
                     Columns.BOX_TYPE: ["BASIC", "GF", "LA", "BASIC", "GF", "LA"],
-                    Columns.PROTEIN_OPT_IN: [True, True, True, True, True, True],
+                    Columns.PROTEIN_OPT_IN: [
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                    ],
                     Columns.ORDER_COUNT: [1, 1, 1, 2, 1, 1],
                     Columns.NEIGHBORHOOD: ["YORK", "YORK", "YORK", "PUGET", "YORK", "YORK"],
                     Columns.NOTES: ["Test tag * asfgasfg", "", "", "", "", ""],
@@ -1481,7 +1506,16 @@ class TestCreateManifests:
                         "Vegan",
                         "bad box type",
                     ],
-                    Columns.PROTEIN_OPT_IN: [True, True, True, True, True, True, False, True],
+                    Columns.PROTEIN_OPT_IN: [
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.NO,
+                        ProteinOptInValues.YES,
+                    ],
                     Columns.ORDER_COUNT: [1, 1, 1, 2, 1, 1, 2, 1],
                     Columns.NEIGHBORHOOD: [
                         "YORK",

@@ -10,7 +10,7 @@ import pandas as pd
 import phonenumbers
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import MAX_ORDER_COUNT, Columns
+from bfb_delivery.lib.constants import MAX_ORDER_COUNT, Columns, ProteinOptInValues
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -262,8 +262,16 @@ def _format_and_validate_stop_no(df: pd.DataFrame) -> None:
 @typechecked
 def _format_and_validate_protein_opt_in(df: pd.DataFrame) -> None:
     """Format the protein opt-in column."""
-    _format_bool(df=df, column=Columns.PROTEIN_OPT_IN)
-    _validate_col_not_empty(df=df, column=Columns.PROTEIN_OPT_IN)
+    _format_and_validate_names_title(df=df, column=Columns.PROTEIN_OPT_IN)
+    # TODO: Apply this to other categorical/enum columns.
+    col = pd.Series(df[Columns.PROTEIN_OPT_IN])
+    dtype = pd.CategoricalDtype(categories=[v for v in ProteinOptInValues], ordered=False)
+    df[Columns.PROTEIN_OPT_IN] = df[Columns.PROTEIN_OPT_IN].astype(dtype)
+    invalid_mask = df[Columns.PROTEIN_OPT_IN].isna()
+    if invalid_mask.any():
+        raise ValueError(
+            f"Invalid protein opt-in values found: {set(col[invalid_mask].to_list())}"
+        )
     return
 
 
@@ -296,14 +304,6 @@ def _format_int(df: pd.DataFrame, column: str) -> None:
     """Basic formatting for an integer column."""
     _format_string(df=df, column=column)
     df[column] = df[column].astype(float).astype(int)
-    return
-
-
-@typechecked
-def _format_bool(df: pd.DataFrame, column: str) -> None:
-    """Basic formatting for a boolean column."""
-    _format_string(df=df, column=column)
-    df[column] = df[column].astype(bool)
     return
 
 

@@ -11,7 +11,7 @@ import phonenumbers
 import pytest
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import MAX_ORDER_COUNT, Columns
+from bfb_delivery.lib.constants import MAX_ORDER_COUNT, Columns, ProteinOptInValues
 from bfb_delivery.lib.formatting.data_cleaning import (
     _validate_stop_no,
     format_and_validate_data,
@@ -147,15 +147,15 @@ class TestFormatAndValidateData:
             (
                 Columns.PROTEIN_OPT_IN,
                 [
-                    True,
-                    True,
-                    True,
-                    True,
-                    True,
-                    True,
-                    True,
-                    True,
-                    True,
+                    ProteinOptInValues.YES,
+                    ProteinOptInValues.YES,
+                    ProteinOptInValues.YES,
+                    ProteinOptInValues.YES,
+                    ProteinOptInValues.YES,
+                    ProteinOptInValues.YES,
+                    ProteinOptInValues.YES,
+                    ProteinOptInValues.YES,
+                    ProteinOptInValues.YES,
                 ],
             ),
         ],
@@ -190,7 +190,7 @@ class TestFormatAndValidateData:
                     1,
                     "Basic",
                     "York",
-                    True,
+                    ProteinOptInValues.YES,
                 ),
                 (
                     " Driver",  # Test stripping whitespace.
@@ -203,7 +203,7 @@ class TestFormatAndValidateData:
                     "1 ",  # Test stripping whitespace.
                     " Basic ",  # Test stripping whitespace.
                     " York",  # Test stripping whitespace.
-                    True,
+                    ProteinOptInValues.YES,
                 ),
                 (
                     "Boaty McBoatface",  # Test real name.
@@ -219,7 +219,7 @@ class TestFormatAndValidateData:
                     1.0,  # Test cast float.
                     "Basic",
                     "York",
-                    True,
+                    ProteinOptInValues.YES,
                 ),
                 (
                     "Tim #2",  # Test special character and numbers.
@@ -232,7 +232,7 @@ class TestFormatAndValidateData:
                     "1.0",  # Test cast str float.
                     "Basic",
                     "York",
-                    True,
+                    ProteinOptInValues.YES,
                 ),
                 (
                     "Driver",
@@ -245,7 +245,7 @@ class TestFormatAndValidateData:
                     MAX_ORDER_COUNT,  # Test max order count.
                     "Basic",
                     "York",
-                    True,
+                    ProteinOptInValues.YES,
                 ),
                 (
                     "Driver",
@@ -258,7 +258,7 @@ class TestFormatAndValidateData:
                     1,
                     "Basic",
                     "York",
-                    True,
+                    ProteinOptInValues.YES,
                 ),
                 (
                     "Driver",
@@ -271,7 +271,7 @@ class TestFormatAndValidateData:
                     1,
                     "Basic",
                     "York",
-                    True,
+                    ProteinOptInValues.YES,
                 ),
                 (
                     "Driver",
@@ -284,7 +284,7 @@ class TestFormatAndValidateData:
                     1,
                     "Basic",
                     "York",
-                    True,
+                    ProteinOptInValues.YES,
                 ),
                 (
                     "Driver",
@@ -297,7 +297,7 @@ class TestFormatAndValidateData:
                     1,
                     "Basic",
                     "York",
-                    True,
+                    ProteinOptInValues.YES,
                 ),
             ],
         )

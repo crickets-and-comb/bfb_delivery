@@ -4,8 +4,10 @@ import json
 from pathlib import Path
 from typing import Any
 
+from bfb_delivery.lib.constants import ProteinOptInValues
+
 FIXTURES_FP = Path(__file__).parent.parent / "tests" / "unit" / "fixtures"
-PROTEIN_BOX_TYPES = ["BASIC", "GF", "LA"]
+PROTEIN_BOX_TYPES = ["Basic", "GF", "LA"]
 
 
 def write_protein_field_to_stops_responses(fp: Path) -> None:
@@ -44,13 +46,13 @@ def add_protein_field(data):  # noqa: ANN001, ANN201
                     else:
                         box_type = "depot"
                 if box_type in PROTEIN_BOX_TYPES:
-                    protein_value = True
+                    protein_value = ProteinOptInValues.YES
                 elif box_type == "depot":
                     # NOTE: This is not a nullable field in our schema,
                     # but I want to find where the depot stops get added.
                     protein_value = None
                 else:
-                    protein_value = False
+                    protein_value = ProteinOptInValues.NO
 
                 new_data[i][j]["stops"][k]["customProperties"] = {"protein": protein_value}
 
