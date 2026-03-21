@@ -438,6 +438,11 @@ class TestFormatAndValidateData:
             (pd.DataFrame({Columns.EMAIL: [""]}), nullcontext(), format_and_validate_data),
             (pd.DataFrame({Columns.PHONE: [""]}), nullcontext(), format_and_validate_data),
             (
+                pd.DataFrame({Columns.PROTEIN_OPT_IN: ["Yes", "No", "no", "yes"]}),
+                nullcontext(),
+                format_and_validate_data,
+            ),
+            (
                 pd.DataFrame({Columns.ADDRESS: [None]}),
                 pytest.raises(ValueError),  # Actually throws error when casting to string.
                 format_and_validate_data,
@@ -485,6 +490,27 @@ class TestFormatAndValidateData:
             (
                 pd.DataFrame({Columns.NEIGHBORHOOD: [""]}),
                 pytest.raises(ValueError),  # Actually throws error when casting to string.
+                format_and_validate_data,
+            ),
+            (
+                pd.DataFrame({Columns.PROTEIN_OPT_IN: [""]}),
+                pytest.raises(
+                    ValueError, match=re.escape("Invalid value for proteinOptIn: ['']")
+                ),  # Actually throws error when casting to string.
+                format_and_validate_data,
+            ),
+            (
+                pd.DataFrame({Columns.PROTEIN_OPT_IN: [True]}),
+                pytest.raises(
+                    ValueError, match=re.escape("Invalid value for proteinOptIn: [True]")
+                ),  # Actually throws error when casting to string.
+                format_and_validate_data,
+            ),
+            (
+                pd.DataFrame({Columns.PROTEIN_OPT_IN: [1]}),
+                pytest.raises(
+                    ValueError, match=re.escape("Invalid value for proteinOptIn: [1]")
+                ),  # Actually throws error when casting to string.
                 format_and_validate_data,
             ),
         ],
