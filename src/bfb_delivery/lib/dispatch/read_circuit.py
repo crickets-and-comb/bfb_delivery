@@ -432,7 +432,9 @@ def _set_routes_df_values(routes_df: pd.DataFrame) -> pd.DataFrame:
         routes_df[IntermediateColumns.ROUTE_TITLE], warn=False
     )
     routes_df[Columns.PROTEIN_OPT_IN] = routes_df[CircuitColumns.CUSTOM_PROPERTIES].apply(
-        lambda custom_properties_dict: custom_properties_dict.get("proteinOptIn")
+        lambda custom_properties_dict: custom_properties_dict.get(
+            CircuitColumns.PROTEIN_OPT_IN
+        )
     )
 
     _warn_and_impute(routes_df=routes_df)
