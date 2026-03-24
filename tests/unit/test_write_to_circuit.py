@@ -42,6 +42,7 @@ from bfb_delivery.lib.constants import (
     CircuitColumns,
     Columns,
     IntermediateColumns,
+    ProteinOptInValues,
 )
 from bfb_delivery.lib.dispatch.write_to_circuit import (
     _assign_drivers,
@@ -1696,15 +1697,29 @@ def test_delete_plan_return(fail: bool, error_context: AbstractContextManager) -
 
 
 @pytest.mark.parametrize(
-    "neighborhood",
+    "value, col, keys",
     [
-        None,
-        "Neighborhood 1",
+        (None, Columns.NEIGHBORHOOD, [CircuitColumns.NAME, CircuitColumns.EXTERNAL_ID]),
+        (
+            "Neighborhood 1",
+            Columns.NEIGHBORHOOD,
+            [CircuitColumns.NAME, CircuitColumns.EXTERNAL_ID],
+        ),
+        (
+            ProteinOptInValues.YES,
+            Columns.PROTEIN_OPT_IN,
+            [CircuitColumns.CUSTOM_PROPERTIES, CircuitColumns.PROTEIN_OPT_IN],
+        ),
+        (
+            ProteinOptInValues.NO,
+            Columns.PROTEIN_OPT_IN,
+            [CircuitColumns.CUSTOM_PROPERTIES, CircuitColumns.PROTEIN_OPT_IN],
+        ),
     ],
 )
 @typechecked
-def test_build_stop_array_adds_externalId(neighborhood: None | str) -> None:
-    """_build_stop_array assigns "Neighborhood" field to `recipient_dict` `externalId`."""
+def test_build_stop_array_adds_subfield(value: None | str, col: str, keys: list[str]) -> None:
+    """_build_stop_array assigns the specified field to the specified dict."""
     stop_df = pd.DataFrame(
         {
             CircuitColumns.ADDRESS_LINE_1: ["ADDRESS_LINE_1"],
@@ -1716,25 +1731,39 @@ def test_build_stop_array_adds_externalId(neighborhood: None | str) -> None:
             Columns.PRODUCT_TYPE: ["PRODUCT_TYPE"],
             Columns.ORDER_COUNT: [1],
             Columns.EMAIL: ["EMAIL"],
-            Columns.NEIGHBORHOOD: [neighborhood],
+            col: [value],
         }
     )
+    if col != Columns.NEIGHBORHOOD:
+        stop_df[Columns.NEIGHBORHOOD] = ["NEIGHBORHOOD"]
 
     stop_array = _build_stop_array(route_stops=stop_df, driver_id="driver_id")
 
-    assert (
-        stop_array[0][CircuitColumns.RECIPIENT].get(CircuitColumns.EXTERNAL_ID)
-        == neighborhood
-    )
+    assert stop_array[0][keys[0]].get(keys[1]) == value
 
 
 @typechecked
-def test_build_plan_stops_adds_externalId(
-    mock_stops_df: pd.DataFrame, mock_plan_df_plans_initialized: pd.DataFrame
+@pytest.mark.parametrize(
+    "col, circuit_field, circuit_dict_name",
+    [
+        (Columns.NEIGHBORHOOD, CircuitColumns.EXTERNAL_ID, CircuitColumns.RECIPIENT),
+        (
+            Columns.PROTEIN_OPT_IN,
+            CircuitColumns.PROTEIN_OPT_IN,
+            CircuitColumns.CUSTOM_PROPERTIES,
+        ),
+    ],
+)
+def test_build_plan_stops_adds_subfield(
+    col: str,
+    circuit_field: str,
+    circuit_dict_name: str,
+    mock_stops_df: pd.DataFrame,
+    mock_plan_df_plans_initialized: pd.DataFrame,
 ) -> None:
-    """_build_plan_stops assigns "Neighborhood" field to `recipient_dict` `externalId`."""
-    sort_cols = [Columns.NAME, Columns.NEIGHBORHOOD]
-    expected_neighborhoods = (
+    """_build_plan_stops assigns specified field to specified dict."""
+    sort_cols = [Columns.NAME, col]
+    expected_plan_stops = (
         mock_stops_df[sort_cols].sort_values(by=sort_cols).reset_index(drop=True)
     )
 
@@ -1742,23 +1771,22 @@ def test_build_plan_stops_adds_externalId(
         stops_df=mock_stops_df, plan_df=mock_plan_df_plans_initialized
     )
 
-    neighborhoods = []
+    plan_stops_dfs = []
     for stop_array in plan_stops.values():
-        neighborhoods.append(
-            pd.DataFrame(pd.DataFrame(stop_array[0])[CircuitColumns.RECIPIENT].to_list())[
-                [CircuitColumns.NAME, CircuitColumns.EXTERNAL_ID]
-            ]
-        )
-    returned_neighborhoods = (
-        pd.concat(neighborhoods)
+        plan_stop_df = pd.DataFrame(pd.DataFrame(stop_array[0])[circuit_dict_name].to_list())[
+            [CircuitColumns.NAME, circuit_field]
+        ]
+        plan_stops_dfs.append(plan_stop_df)
+    returned_plan_stops = (
+        pd.concat(plan_stops_dfs)
         .rename(
             columns={
                 CircuitColumns.NAME: Columns.NAME,
-                CircuitColumns.EXTERNAL_ID: Columns.NEIGHBORHOOD,
+                circuit_field: col,
             }
         )
         .sort_values(by=sort_cols)
         .reset_index(drop=True)
     )
 
-    assert returned_neighborhoods.equals(expected_neighborhoods)
+    assert returned_plan_stops.equals(expected_plan_stops)
