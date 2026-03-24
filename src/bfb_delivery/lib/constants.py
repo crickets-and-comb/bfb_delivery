@@ -82,7 +82,7 @@ class CircuitColumns:
     PLAN: Final[str] = "plan"
     PLANS: Final[str] = "plans"
     PRODUCTS: Final[str] = "products"
-    PROTEIN_OPT_IN: Final[str] = "proteinOptIn"
+    PROTEIN_OPT_IN: Final[str] = "protein"
     RECIPIENT: Final[str] = "recipient"
     RESULT: Final[str] = "result"
     ROUTE: Final[str] = "route"
