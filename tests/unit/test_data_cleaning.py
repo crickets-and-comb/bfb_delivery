@@ -11,7 +11,11 @@ import phonenumbers
 import pytest
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import MAX_ORDER_COUNT, Columns, ProteinOptInValues
+from bfb_delivery.lib.constants import (
+    MAX_ORDER_COUNT,
+    Columns,
+    ProteinOptInValues,
+)
 from bfb_delivery.lib.formatting.data_cleaning import (
     _validate_stop_no,
     format_and_validate_data,
@@ -356,12 +360,12 @@ class TestFormatAndValidateData:
         [
             (
                 pd.DataFrame({Columns.ORDER_COUNT: [None]}),
-                pytest.raises(ValueError),  # Actually throws error when casting to string.
+                pytest.raises(ValueError, match="could not convert string to float: ''"),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.ORDER_COUNT: [""]}),
-                pytest.raises(ValueError),  # Actually throws error when casting to string.
+                pytest.raises(ValueError, match="could not convert string to float: ''"),
                 format_and_validate_data,
             ),
             (
@@ -384,12 +388,12 @@ class TestFormatAndValidateData:
             ),
             (
                 pd.DataFrame({Columns.STOP_NO: [None]}),
-                pytest.raises(ValueError),  # Actually throws error when casting to string.
+                pytest.raises(ValueError, match="could not convert string to float: ''"),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.STOP_NO: [""]}),
-                pytest.raises(ValueError),  # Actually throws error when casting to string.
+                pytest.raises(ValueError, match="could not convert string to float: ''"),
                 format_and_validate_data,
             ),
             (
@@ -444,73 +448,107 @@ class TestFormatAndValidateData:
             ),
             (
                 pd.DataFrame({Columns.ADDRESS: [None]}),
-                pytest.raises(ValueError),  # Actually throws error when casting to string.
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(f"Empty values found in {Columns.ADDRESS} column: "),
+                ),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.ADDRESS: [""]}),
-                pytest.raises(ValueError),  # Actually throws error when casting to string.
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(f"Empty values found in {Columns.ADDRESS} column: "),
+                ),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.BOX_TYPE: [None]}),
-                pytest.raises(ValueError),  # Actually throws error when casting to string.
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(f"Empty values found in {Columns.BOX_TYPE} column: "),
+                ),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.BOX_TYPE: [""]}),
-                pytest.raises(ValueError),  # Actually throws error when casting to string.
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(f"Empty values found in {Columns.BOX_TYPE} column: "),
+                ),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.DRIVER: [None]}),
-                pytest.raises(ValueError),  # Actually throws error when casting to string.
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(f"Empty values found in {Columns.DRIVER} column: "),
+                ),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.DRIVER: [""]}),
-                pytest.raises(ValueError),  # Actually throws error when casting to string.
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(f"Empty values found in {Columns.DRIVER} column: "),
+                ),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.NAME: [None]}),
-                pytest.raises(ValueError),  # Actually throws error when casting to string.
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(f"Empty values found in {Columns.NAME} column: "),
+                ),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.NAME: [""]}),
-                pytest.raises(ValueError),  # Actually throws error when casting to string.
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(f"Empty values found in {Columns.NAME} column: "),
+                ),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.NEIGHBORHOOD: [None]}),
-                pytest.raises(ValueError),  # Actually throws error when casting to string.
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(f"Empty values found in {Columns.NEIGHBORHOOD} column: "),
+                ),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.NEIGHBORHOOD: [""]}),
-                pytest.raises(ValueError),  # Actually throws error when casting to string.
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(f"Empty values found in {Columns.NEIGHBORHOOD} column: "),
+                ),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.PROTEIN_OPT_IN: [""]}),
                 pytest.raises(
-                    ValueError, match=re.escape("Invalid value for proteinOptIn: ['']")
-                ),  # Actually throws error when casting to string.
+                    ValueError,
+                    match=re.escape(
+                        f"Empty values found in {Columns.PROTEIN_OPT_IN} column: "
+                    ),
+                ),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.PROTEIN_OPT_IN: [True]}),
                 pytest.raises(
-                    ValueError, match=re.escape("Invalid value for proteinOptIn: [True]")
-                ),  # Actually throws error when casting to string.
+                    ValueError,
+                    match=re.escape("Invalid protein opt-in values found: {'True'}"),
+                ),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.PROTEIN_OPT_IN: [1]}),
                 pytest.raises(
-                    ValueError, match=re.escape("Invalid value for proteinOptIn: [1]")
-                ),  # Actually throws error when casting to string.
+                    ValueError, match=re.escape("Invalid protein opt-in values found: {'1'}")
+                ),
                 format_and_validate_data,
             ),
         ],
