@@ -126,7 +126,8 @@ class CircuitRoutesTransformInFromDict(pa.DataFrameModel):
     # on multiple columns. We'll want to do that in recipient too.
     # See https://github.com/crickets-and-comb/stormwater_monitoring_datasheet_extraction
     customProperties: Series[object] = _COERCE_FIELD(
-        item_in_field_dict=Columns.PROTEIN_OPT_IN, alias=CircuitColumns.CUSTOM_PROPERTIES
+        item_in_field_dict=CircuitColumns.PROTEIN_OPT_IN,
+        alias=CircuitColumns.CUSTOM_PROPERTIES,
     )
 
     class Config:
