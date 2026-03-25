@@ -540,7 +540,7 @@ class TestCreateManifestsFromCircuit:
             for cell in ws["F"]:
                 if cell.row > 9:
                     assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
-            for cell in ws["E"]:
+            for cell in ws["F"]:
                 if cell.row > 2 and cell.row < 7:
                     assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
 
