@@ -697,7 +697,7 @@ def _append_extra_notes(ws: Worksheet, extra_notes: list[str]) -> None:
     """
     start_row = ws.max_row + 2
     start_col = 1
-    end_col = 6
+    end_col = 7
     for i, note in enumerate(extra_notes, start=start_row):
         cell = ws.cell(row=i, column=start_col, value=note)
         cell.alignment = Alignment(wrap_text=True, horizontal="left", vertical="top")
