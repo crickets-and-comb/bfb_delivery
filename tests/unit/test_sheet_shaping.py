@@ -926,7 +926,7 @@ class TestFormatCombinedRoutes:
             "A3",
             "A5",
             "A7",
-            "E3",
+            "F3",
             "F4",
             "F5",
             "F6",
