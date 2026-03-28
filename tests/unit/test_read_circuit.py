@@ -38,6 +38,7 @@ from bfb_delivery.lib.constants import (
     CircuitColumns,
     Columns,
     IntermediateColumns,
+    ProteinOptInValues,
 )
 from bfb_delivery.lib.dispatch.read_circuit import (
     _get_raw_plans,
@@ -660,17 +661,41 @@ class TestCreateManifestsFromCircuit:
             (
                 Columns.PROTEIN_OPT_IN,
                 1,
-                pytest.raises(ValueError, match="contains null values"),
+                pytest.raises(
+                    TypeError,
+                    match=re.escape(
+                        (
+                            "Cannot setitem on a Categorical with a new category (1), "
+                            "set the categories first"
+                        )
+                    ),
+                ),
             ),
             (
                 Columns.PROTEIN_OPT_IN,
                 "yes",
-                pytest.raises(ValueError, match="contains null values"),
+                pytest.raises(
+                    TypeError,
+                    match=re.escape(
+                        (
+                            "Cannot setitem on a Categorical with a new category (yes), "
+                            "set the categories first"
+                        )
+                    ),
+                ),
             ),
             (
                 Columns.PROTEIN_OPT_IN,
                 True,
-                pytest.raises(ValueError, match="contains null values"),
+                pytest.raises(
+                    TypeError,
+                    match=re.escape(
+                        (
+                            "Cannot setitem on a Categorical with a new category (True), "
+                            "set the categories first"
+                        )
+                    ),
+                ),
             ),
         ],
     )
@@ -685,8 +710,8 @@ class TestCreateManifestsFromCircuit:
     ) -> None:
         """Raises for field violations."""
         bad_df = copy.deepcopy(transformed_routes_df)
-        bad_df.loc[0, field] = bad_value
         with expected_error:
+            bad_df.loc[0, field] = bad_value
             _write_routes_dfs(routes_df=bad_df, output_dir=tmp_path)
 
     @pytest.mark.parametrize(
@@ -1009,6 +1034,9 @@ def test_set_routes_df_values_sets_neighborhoods() -> None:
                 CircuitColumns.ORDER_INFO: {},
                 IntermediateColumns.DRIVER_SHEET_NAME: "Driver A",
                 IntermediateColumns.ROUTE_TITLE: "01.01 Driver A",
+                CircuitColumns.CUSTOM_PROPERTIES: {
+                    CircuitColumns.PROTEIN_OPT_IN: ProteinOptInValues.YES
+                },
             },
             {
                 CircuitColumns.RECIPIENT: {
@@ -1024,6 +1052,9 @@ def test_set_routes_df_values_sets_neighborhoods() -> None:
                 CircuitColumns.ROUTE: {CircuitColumns.TITLE: "01.01 Driver A"},
                 CircuitColumns.ORDER_INFO: {},
                 IntermediateColumns.DRIVER_SHEET_NAME: "01.01 Driver A",
+                CircuitColumns.CUSTOM_PROPERTIES: {
+                    CircuitColumns.PROTEIN_OPT_IN: ProteinOptInValues.YES
+                },
             },
         ]
     )
