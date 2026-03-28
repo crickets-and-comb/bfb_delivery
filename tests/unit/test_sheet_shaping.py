@@ -1437,7 +1437,7 @@ class TestCreateManifests:
                         ProteinOptInValues.NO,
                         ProteinOptInValues.YES,
                     ],
-                    Columns.ORDER_COUNT: [1, 1, 1, 2, 1, 1, 2],
+                    Columns.ORDER_COUNT: [1, 1, 1, 2, 1, 1, 1],
                     Columns.NEIGHBORHOOD: [
                         "YORK",
                         "YORK",
@@ -1452,8 +1452,8 @@ class TestCreateManifests:
             ),
             pd.DataFrame(columns=["tag", "note"]),
             {
-                "box_counts": {"BASIC": 3, "GF": 2, "LA": 2, "VEGAN": 2},
-                "total_box_count": 9,
+                "box_counts": {"BASIC": 3, "GF": 2, "LA": 2, "VEGAN": 1},
+                "total_box_count": 8,
                 "protein_box_count": 6,
                 "neighborhoods": ["YORK", "PUGET"],
                 "extra_notes": [],
