@@ -1736,6 +1736,8 @@ def test_build_stop_array_adds_subfield(value: None | str, col: str, keys: list[
     )
     if col != Columns.NEIGHBORHOOD:
         stop_df[Columns.NEIGHBORHOOD] = ["NEIGHBORHOOD"]
+    if col != Columns.PROTEIN_OPT_IN:
+        stop_df[Columns.PROTEIN_OPT_IN] = [ProteinOptInValues.YES]
 
     stop_array = _build_stop_array(route_stops=stop_df, driver_id="driver_id")
 
