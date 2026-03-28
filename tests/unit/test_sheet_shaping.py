@@ -908,8 +908,8 @@ class TestFormatCombinedRoutes:
         """Test that the notes column width is correct."""
         for sheet_name in basic_manifest_workbook.sheetnames:
             ws = basic_manifest_workbook[sheet_name]
-            assert ws["F9"].value == Columns.NOTES
-            assert ws.column_dimensions["F"].width == NOTES_COLUMN_WIDTH
+            assert ws["E9"].value == Columns.NOTES
+            assert ws.column_dimensions["E"].width == NOTES_COLUMN_WIDTH
 
     @pytest.mark.parametrize(
         "cell",
