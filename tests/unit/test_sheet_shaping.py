@@ -1256,11 +1256,8 @@ class TestCreateManifests:
         """Test that the box type cells conditionally formatted with fill color."""
         for sheet_name in basic_manifest_workbook.sheetnames:
             ws = basic_manifest_workbook[sheet_name]
-            for cell in ws["G"]:
-                if cell.row > 9:
-                    assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
             for cell in ws["F"]:
-                if cell.row > 2 and cell.row < 7:
+                if cell.row > 9 or (cell.row > 2 and cell.row < 7):
                     assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
 
     @typechecked
