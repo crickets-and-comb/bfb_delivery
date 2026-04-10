@@ -668,7 +668,7 @@ def _build_plan_stops(
             list[dict[str, dict[str, str] | list[str] | int | str]], all_stops
         )
         stop_arrays: list[list[dict[str, dict[str, str] | list[str] | int | str]]] = []
-        # Split all_stops_typed into chunks of 100 stops.
+        # Split all_stops_typed into batches using the same size for stepping and slicing.
         number_of_stops = len(all_stops_typed)
         for i in range(0, number_of_stops, RateLimits.BATCH_STOP_IMPORT_MAX_STOPS):
             stop_arrays.append(all_stops_typed[i : i + MAX_STOPS_PER_BATCH])
@@ -952,7 +952,7 @@ def _build_stop_array(route_stops: pd.DataFrame, driver_id: str) -> list[dict[st
             recipient_dict[CircuitColumns.PHONE] = stop_row[Columns.PHONE]
         if stop_row.get(Columns.NAME) and not pd.isna(stop_row[Columns.NAME]):
             recipient_dict[CircuitColumns.NAME] = stop_row[Columns.NAME]
-        # TODO: Stop assiging neighborhood to external ID. Use `customProperties` dict.
+        # TODO: Stop assigning neighborhood to external ID. Use `customProperties` dict.
         # https://github.com/crickets-and-comb/bfb_delivery/issues/167
         if stop_row.get(Columns.NEIGHBORHOOD) and not pd.isna(stop_row[Columns.NEIGHBORHOOD]):
             recipient_dict[CircuitColumns.EXTERNAL_ID] = stop_row[Columns.NEIGHBORHOOD]
