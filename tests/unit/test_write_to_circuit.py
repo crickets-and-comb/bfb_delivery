@@ -1699,11 +1699,11 @@ def test_delete_plan_return(fail: bool, error_context: AbstractContextManager) -
 @pytest.mark.parametrize(
     "value, col, keys",
     [
-        (None, Columns.NEIGHBORHOOD, [CircuitColumns.NAME, CircuitColumns.EXTERNAL_ID]),
+        (None, Columns.NEIGHBORHOOD, [CircuitColumns.RECIPIENT, CircuitColumns.EXTERNAL_ID]),
         (
             "Neighborhood 1",
             Columns.NEIGHBORHOOD,
-            [CircuitColumns.NAME, CircuitColumns.EXTERNAL_ID],
+            [CircuitColumns.RECIPIENT, CircuitColumns.EXTERNAL_ID],
         ),
         (
             ProteinOptInValues.YES,
