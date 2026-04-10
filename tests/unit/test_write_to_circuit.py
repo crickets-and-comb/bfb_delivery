@@ -1744,7 +1744,6 @@ def test_build_stop_array_adds_subfield(value: None | str, col: str, keys: list[
     assert stop_array[0][keys[0]].get(keys[1]) == value
 
 
-@typechecked
 @pytest.mark.parametrize(
     "col, circuit_field, circuit_dict_name",
     [
@@ -1756,6 +1755,7 @@ def test_build_stop_array_adds_subfield(value: None | str, col: str, keys: list[
         ),
     ],
 )
+@typechecked
 def test_build_plan_stops_adds_subfield(
     col: str,
     circuit_field: str,
@@ -1775,9 +1775,13 @@ def test_build_plan_stops_adds_subfield(
 
     plan_stops_dfs = []
     for stop_array in plan_stops.values():
-        plan_stop_df = pd.DataFrame(pd.DataFrame(stop_array[0])[circuit_dict_name].to_list())[
-            [CircuitColumns.NAME, circuit_field]
+        name_df = pd.DataFrame(
+            pd.DataFrame(pd.DataFrame(stop_array[0])[CircuitColumns.RECIPIENT].to_list())
+        )[[CircuitColumns.NAME]]
+        field_df = pd.DataFrame(pd.DataFrame(stop_array[0])[circuit_dict_name].to_list())[
+            [circuit_field]
         ]
+        plan_stop_df = pd.concat([name_df, field_df], axis=1)
         plan_stops_dfs.append(plan_stop_df)
     returned_plan_stops = (
         pd.concat(plan_stops_dfs)
