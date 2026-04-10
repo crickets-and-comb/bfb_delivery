@@ -22,12 +22,12 @@ from bfb_delivery.lib.constants import (
     FORMATTED_ROUTES_COLUMNS,
     MANIFEST_DATE_FORMAT,
     NOTES_COLUMN_WIDTH,
-    PROTEIN_BOX_TYPES,
     SPLIT_ROUTE_COLUMNS,
     BoxType,
     CellColors,
     Columns,
     DocStrings,
+    ProteinOptInValues,
 )
 from bfb_delivery.lib.formatting.data_cleaning import (
     format_and_validate_data,
@@ -352,7 +352,9 @@ def _aggregate_route_data(df: pd.DataFrame, extra_notes_df: pd.DataFrame) -> dic
         "box_counts": df.groupby(Columns.BOX_TYPE)[Columns.ORDER_COUNT].sum().to_dict(),
         "total_box_count": df[Columns.ORDER_COUNT].sum(),
         "protein_box_count": (
-            df[df[Columns.BOX_TYPE].isin(PROTEIN_BOX_TYPES)][Columns.ORDER_COUNT].sum()
+            df[df[Columns.PROTEIN_OPT_IN] == ProteinOptInValues.YES][
+                Columns.ORDER_COUNT
+            ].sum()
         ),
         "neighborhoods": df[Columns.NEIGHBORHOOD].unique().tolist(),
         "extra_notes": extra_notes_list,
@@ -414,6 +416,7 @@ def _add_header_row(ws: Worksheet) -> None:
             "fill": fill,
         },
         {"value": "", "font": font, "alignment": None, "fill": fill},
+        {"value": "", "font": font, "alignment": None, "fill": fill},
         {
             "value": "PLEASE SHRED MANIFEST AFTER COMPLETING ROUTE.",
             "font": font,
@@ -473,7 +476,7 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, sheet_name: str) -> int:
             if cell_def["value"] and cell_def["value"].startswith("Neighborhoods"):
                 neighborhoods_row_number = i
 
-        for col_idx, cell_definition in enumerate(right_row, start=5):
+        for col_idx, cell_definition in enumerate(right_row, start=6):
             cell = ws.cell(row=i, column=col_idx, value=cell_definition["value"])
             cell.font = bold_font
             cell.alignment = alignment_right
@@ -694,7 +697,7 @@ def _append_extra_notes(ws: Worksheet, extra_notes: list[str]) -> None:
     """
     start_row = ws.max_row + 2
     start_col = 1
-    end_col = 6
+    end_col = 7
     for i, note in enumerate(extra_notes, start=start_row):
         cell = ws.cell(row=i, column=start_col, value=note)
         cell.alignment = Alignment(wrap_text=True, horizontal="left", vertical="top")

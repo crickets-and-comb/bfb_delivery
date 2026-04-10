@@ -18,6 +18,7 @@ from bfb_delivery.lib.constants import (
     CIRCUIT_DATE_FORMAT,
     CIRCUIT_DRIVERS_URL,
     MANIFEST_DATE_FORMAT,
+    MAX_STOPS_PER_BATCH,
     CircuitColumns,
     Columns,
     DocStrings,
@@ -670,10 +671,7 @@ def _build_plan_stops(
         # Split all_stops_typed into chunks of 100 stops.
         number_of_stops = len(all_stops_typed)
         for i in range(0, number_of_stops, RateLimits.BATCH_STOP_IMPORT_MAX_STOPS):
-            stop_arrays.append(
-                all_stops_typed[i : i + 100]  # noqa: E203
-            )  # TODO: Add noqa E203 to shared, and remove throughout codebase.
-            # https://github.com/crickets-and-comb/shared/issues/41
+            stop_arrays.append(all_stops_typed[i : i + MAX_STOPS_PER_BATCH])
         plan_stops[plan_id] = stop_arrays  # type: ignore[assignment]
 
     plan_stops_typed = cast(
@@ -954,10 +952,17 @@ def _build_stop_array(route_stops: pd.DataFrame, driver_id: str) -> list[dict[st
             recipient_dict[CircuitColumns.PHONE] = stop_row[Columns.PHONE]
         if stop_row.get(Columns.NAME) and not pd.isna(stop_row[Columns.NAME]):
             recipient_dict[CircuitColumns.NAME] = stop_row[Columns.NAME]
+        # TODO: Stop assiging neighborhood to external ID. Use `customProperties` dict.
+        # https://github.com/crickets-and-comb/bfb_delivery/issues/167
         if stop_row.get(Columns.NEIGHBORHOOD) and not pd.isna(stop_row[Columns.NEIGHBORHOOD]):
             recipient_dict[CircuitColumns.EXTERNAL_ID] = stop_row[Columns.NEIGHBORHOOD]
         if recipient_dict:
             stop[CircuitColumns.RECIPIENT] = recipient_dict
+
+        custom_properties_dict = {
+            CircuitColumns.PROTEIN_OPT_IN: stop_row[Columns.PROTEIN_OPT_IN]
+        }
+        stop[CircuitColumns.CUSTOM_PROPERTIES] = custom_properties_dict
 
         stop_array.append(stop)
 

@@ -56,6 +56,7 @@ class CircuitColumns:
     ADDRESS_LINE_1: Final[str] = "addressLineOne"
     ADDRESS_LINE_2: Final[str] = "addressLineTwo"
     ALLOWED_DRIVERS: Final[str] = "allowedDrivers"
+    CUSTOM_PROPERTIES: Final[str] = "customProperties"
     CANCELED: Final[str] = "canceled"
     CITY: Final[str] = "city"
     CODE: Final[str] = "code"
@@ -81,6 +82,7 @@ class CircuitColumns:
     PLAN: Final[str] = "plan"
     PLANS: Final[str] = "plans"
     PRODUCTS: Final[str] = "products"
+    PROTEIN_OPT_IN: Final[str] = "protein"
     RECIPIENT: Final[str] = "recipient"
     RESULT: Final[str] = "result"
     ROUTE: Final[str] = "route"
@@ -113,6 +115,7 @@ class Columns:
     ORDER_COUNT: Final[str] = "Order Count"
     PHONE: Final[str] = "Phone"
     PRODUCT_TYPE: Final[str] = "Product Type"
+    PROTEIN_OPT_IN: Final[str] = "Protein"
     STOP_NO: Final[str] = "Stop #"
 
 
@@ -130,6 +133,7 @@ COMBINED_ROUTES_COLUMNS: Final[list[str]] = [
     Columns.ORDER_COUNT,
     Columns.BOX_TYPE,
     Columns.NEIGHBORHOOD,
+    Columns.PROTEIN_OPT_IN,
 ]
 
 CIRCUIT_DOWNLOAD_COLUMNS: Final[list[str]] = COMBINED_ROUTES_COLUMNS + [Columns.EMAIL]
@@ -504,6 +508,7 @@ FORMATTED_ROUTES_COLUMNS: Final[list[str]] = [
     Columns.PHONE,
     Columns.NOTES,
     Columns.BOX_TYPE,
+    Columns.PROTEIN_OPT_IN,
 ]
 
 
@@ -527,9 +532,17 @@ MANIFEST_DATE_FORMAT: Final[str] = "%m.%d"
 
 MAX_ORDER_COUNT: Final[int] = 5
 
+# TODO: Test that this does set max stop array length.
+MAX_STOPS_PER_BATCH: Final[int] = 100
+
 NOTES_COLUMN_WIDTH: Final[float] = 56.67
 
-PROTEIN_BOX_TYPES: Final[list[str]] = ["BASIC", "GF", "LA"]
+
+class ProteinOptInValues(StrEnum):
+    """Values for the "Protein Opt-In" column."""
+
+    YES = "Yes"
+    NO = "No"
 
 
 class RateLimits:
@@ -556,4 +569,5 @@ SPLIT_ROUTE_COLUMNS: Final[list[str]] = [
     Columns.ORDER_COUNT,
     Columns.PRODUCT_TYPE,
     Columns.NEIGHBORHOOD,
+    Columns.PROTEIN_OPT_IN,
 ]
