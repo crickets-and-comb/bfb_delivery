@@ -693,7 +693,7 @@ def _merge_and_wrap_neighborhoods(ws: Worksheet, neighborhoods_row_number: int) 
 def _append_extra_notes(ws: Worksheet, extra_notes: list[str]) -> None:
     """Append extra notes to the worksheet in the leftmost column.
 
-    Places notes in column A and merges across all columns (A-F) with text wrapping.
+    Places notes in column A and merges across all columns (A-G) with text wrapping.
     """
     start_row = ws.max_row + 2
     start_col = 1
