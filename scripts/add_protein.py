@@ -42,7 +42,12 @@ def add_protein_field(data):  # noqa: ANN001, ANN201
                     route = stop.get("route")
                     stop_count = route.get("stopCount")
                     if stop_position != 0 and stop_position != stop_count + 1:
-                        breakpoint()
+                        raise ValueError(
+                            "Encountered stop without products that is not in a depot "
+                            f"position: data[{i}][{j}]['stops'][{k}] with "
+                            f"stopPosition={stop_position}, stopCount={stop_count}, "
+                            f"stop={stop!r}"
+                        )
                     else:
                         box_type = "depot"
                 if box_type in PROTEIN_BOX_TYPES:
