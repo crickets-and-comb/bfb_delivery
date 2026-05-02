@@ -18,7 +18,6 @@ from bfb_delivery.lib.constants import (
     CIRCUIT_DATE_FORMAT,
     CIRCUIT_DRIVERS_URL,
     MANIFEST_DATE_FORMAT,
-    MAX_STOPS_PER_BATCH,
     CircuitColumns,
     Columns,
     DocStrings,
@@ -671,7 +670,9 @@ def _build_plan_stops(
         # Split all_stops_typed into batches using the same size for stepping and slicing.
         number_of_stops = len(all_stops_typed)
         for i in range(0, number_of_stops, RateLimits.BATCH_STOP_IMPORT_MAX_STOPS):
-            stop_arrays.append(all_stops_typed[i : i + MAX_STOPS_PER_BATCH])
+            stop_arrays.append(
+                all_stops_typed[i : i + RateLimits.BATCH_STOP_IMPORT_MAX_STOPS]
+            )
         plan_stops[plan_id] = stop_arrays  # type: ignore[assignment]
 
     plan_stops_typed = cast(
