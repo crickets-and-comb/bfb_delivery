@@ -1,4 +1,4 @@
-"""Sets the protein field to the default based on boxt type."""
+"""Sets the protein field to the default based on box type."""
 
 import json
 from pathlib import Path
