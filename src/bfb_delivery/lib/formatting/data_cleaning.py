@@ -10,7 +10,7 @@ import pandas as pd
 import phonenumbers
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import MAX_ORDER_COUNT, Columns
+from bfb_delivery.lib.constants import MAX_ORDER_COUNT, Columns, ProteinOptInValues
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -86,6 +86,7 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
         Columns.PHONE: _format_and_validate_phone,
         Columns.PRODUCT_TYPE: _format_and_validate_product_type,
         Columns.STOP_NO: _format_and_validate_stop_no,
+        Columns.PROTEIN_OPT_IN: _format_and_validate_protein_opt_in,
     }
     for column in columns:
         formatter_fx: Callable
@@ -259,6 +260,22 @@ def _format_and_validate_stop_no(df: pd.DataFrame) -> None:
 
 
 @typechecked
+def _format_and_validate_protein_opt_in(df: pd.DataFrame) -> None:
+    """Format the protein opt-in column."""
+    _format_and_validate_names_title(df=df, column=Columns.PROTEIN_OPT_IN)
+    # TODO: Apply this to other categorical/enum columns.
+    col = pd.Series(df[Columns.PROTEIN_OPT_IN])
+    dtype = pd.CategoricalDtype(categories=[v for v in ProteinOptInValues], ordered=False)
+    df[Columns.PROTEIN_OPT_IN] = df[Columns.PROTEIN_OPT_IN].astype(dtype)
+    invalid_mask = df[Columns.PROTEIN_OPT_IN].isna()
+    if invalid_mask.any():
+        raise ValueError(
+            f"Invalid protein opt-in values found: {set(col[invalid_mask].to_list())}"
+        )
+    return
+
+
+@typechecked
 def _format_and_validate_names_to_upper(df: pd.DataFrame, column: str) -> None:
     """Format a column with names."""
     _format_and_validate_names_base(df=df, column=column)
@@ -285,7 +302,7 @@ def _format_and_validate_names_base(df: pd.DataFrame, column: str) -> None:
 @typechecked
 def _format_int(df: pd.DataFrame, column: str) -> None:
     """Basic formatting for an integer column."""
-    df[column] = df[column].astype(str).str.strip()
+    _format_string(df=df, column=column)
     df[column] = df[column].astype(float).astype(int)
     return
 

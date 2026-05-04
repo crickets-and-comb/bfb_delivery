@@ -9,7 +9,7 @@ import pytest
 from click.testing import CliRunner
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import SPLIT_ROUTE_COLUMNS, Columns
+from bfb_delivery.lib.constants import SPLIT_ROUTE_COLUMNS, Columns, ProteinOptInValues
 
 
 @pytest.fixture()
@@ -55,6 +55,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
                 "1",
                 "Basic",
                 "York",
+                ProteinOptInValues.YES,
                 "Driver A",
                 2,
                 1,
@@ -68,6 +69,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
                 "1",
                 "GF",
                 "Puget",
+                ProteinOptInValues.YES,
                 "Driver A",
                 None,
                 2,
@@ -81,6 +83,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
                 "1",
                 "Vegan",
                 "Puget",
+                ProteinOptInValues.NO,
                 "Driver B",
                 2,
                 3,
@@ -94,6 +97,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
                 "1",
                 "LA",
                 "Puget",
+                ProteinOptInValues.YES,
                 "Driver B",
                 None,
                 4,
@@ -107,6 +111,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
                 "1",
                 "Basic",
                 "Samish",
+                ProteinOptInValues.YES,
                 "Driver C",
                 1,
                 5,
@@ -120,6 +125,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
                 "1",
                 "GF",
                 "Sehome",
+                ProteinOptInValues.YES,
                 "Driver D #1",
                 1,
                 6,
@@ -133,6 +139,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
                 "1",
                 "Vegan",
                 "Samish",
+                ProteinOptInValues.NO,
                 "Driver D #2",
                 2,
                 7,
@@ -146,6 +153,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
                 "1",
                 "LA",
                 "South Hill",
+                ProteinOptInValues.YES,
                 "Driver D #2",
                 None,
                 8,
@@ -159,6 +167,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
                 "1",
                 "Basic",
                 "South Hill",
+                ProteinOptInValues.YES,
                 "Driver E",
                 2,
                 9,
@@ -172,6 +181,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
                 "1",
                 "LA",
                 "South Hill",
+                ProteinOptInValues.YES,
                 "Driver E",
                 None,
                 10,
@@ -185,6 +195,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
                 "1",
                 "Basic",
                 "Eldridge",
+                ProteinOptInValues.YES,
                 "Driver F",
                 2,
                 11,
@@ -198,6 +209,7 @@ def mock_chunked_sheet_raw(tmp_path_factory: pytest.TempPathFactory) -> Path:
                 "1",
                 "Basic",
                 "Eldridge",
+                ProteinOptInValues.YES,
                 "Driver F",
                 None,
                 12,

@@ -38,6 +38,7 @@ from bfb_delivery.lib.constants import (
     CircuitColumns,
     Columns,
     IntermediateColumns,
+    ProteinOptInValues,
 )
 from bfb_delivery.lib.dispatch.read_circuit import (
     _get_raw_plans,
@@ -239,7 +240,7 @@ class TestCreateManifestsFromCircuit:
     @pytest.fixture(scope="class")
     @typechecked
     def manifest_ExcelFile(self, outputs: tuple[Path, Path]) -> Iterator[pd.ExcelFile]:
-        """Create a basic manifest workbook scoped to class for reuse."""
+        """Create a basic manifest Excel file scoped to class for reuse."""
         with pd.ExcelFile(outputs[0]) as xls:
             yield xls
 
@@ -455,7 +456,8 @@ class TestCreateManifestsFromCircuit:
             ("C1", None),
             ("D1", "RECIPIENT SUPPORT: 555-555-5555 x5"),
             ("E1", None),
-            ("F1", "PLEASE SHRED MANIFEST AFTER COMPLETING ROUTE."),
+            ("F1", None),
+            ("G1", "PLEASE SHRED MANIFEST AFTER COMPLETING ROUTE."),
         ],
     )
     @typechecked
@@ -469,15 +471,15 @@ class TestCreateManifestsFromCircuit:
 
     @typechecked
     def test_header_row_end(self, manifest_workbook: Workbook) -> None:
-        """Test that the header row ends at F1."""
+        """Test that the header row ends at G1."""
         for sheet_name in manifest_workbook.sheetnames:
             ws = manifest_workbook[sheet_name]
             last_non_empty_col = max(
                 (cell.column for cell in ws[1] if cell.value), default=None
             )
-            assert last_non_empty_col == 6
+            assert last_non_empty_col == 7
 
-    @pytest.mark.parametrize("cell", ["A1", "B1", "C1", "D1", "E1", "F1"])
+    @pytest.mark.parametrize("cell", ["A1", "B1", "C1", "D1", "E1", "F1", "G1"])
     @typechecked
     def test_header_row_color(self, cell: str, manifest_workbook: Workbook) -> None:
         """Test the header row fill color."""
@@ -518,18 +520,18 @@ class TestCreateManifestsFromCircuit:
 
             neighborhoods = ", ".join(agg_dict["neighborhoods"])
             assert ws["A7"].value == f"Neighborhoods: {neighborhoods.upper()}"
-            assert ws["E3"].value == BoxType.BASIC
-            assert ws["F3"].value == agg_dict["box_counts"][BoxType.BASIC]
-            assert ws["E4"].value == BoxType.LA
-            assert ws["F4"].value == agg_dict["box_counts"][BoxType.LA]
-            assert ws["E5"].value == BoxType.GF
-            assert ws["F5"].value == agg_dict["box_counts"][BoxType.GF]
-            assert ws["E6"].value == BoxType.VEGAN
-            assert ws["F6"].value == agg_dict["box_counts"][BoxType.VEGAN]
-            assert ws["E7"].value == "TOTAL BOX COUNT="
-            assert ws["F7"].value == agg_dict["total_box_count"]
-            assert ws["E8"].value == "PROTEIN COUNT="
-            assert ws["F8"].value == agg_dict["protein_box_count"]
+            assert ws["F3"].value == BoxType.BASIC
+            assert ws["G3"].value == agg_dict["box_counts"][BoxType.BASIC]
+            assert ws["F4"].value == BoxType.LA
+            assert ws["G4"].value == agg_dict["box_counts"][BoxType.LA]
+            assert ws["F5"].value == BoxType.GF
+            assert ws["G5"].value == agg_dict["box_counts"][BoxType.GF]
+            assert ws["F6"].value == BoxType.VEGAN
+            assert ws["G6"].value == agg_dict["box_counts"][BoxType.VEGAN]
+            assert ws["F7"].value == "TOTAL BOX COUNT="
+            assert ws["G7"].value == agg_dict["total_box_count"]
+            assert ws["F8"].value == "PROTEIN COUNT="
+            assert ws["G8"].value == agg_dict["protein_box_count"]
 
     @typechecked
     def test_box_type_cell_colors(self, manifest_workbook: Workbook) -> None:
@@ -539,7 +541,7 @@ class TestCreateManifestsFromCircuit:
             for cell in ws["F"]:
                 if cell.row > 9:
                     assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
-            for cell in ws["E"]:
+            for cell in ws["F"]:
                 if cell.row > 2 and cell.row < 7:
                     assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
 
@@ -561,22 +563,24 @@ class TestCreateManifestsFromCircuit:
             "D1",
             "E1",
             "F1",
+            "G1",
             # Aggregated data.
             "A3",
             "A5",
             "A7",
-            "E3",
-            "E4",
-            "E5",
-            "E6",
-            "E7",
-            "E8",
             "F3",
             "F4",
             "F5",
             "F6",
             "F7",
             "F8",
+            "G3",
+            "G4",
+            "G5",
+            "G6",
+            "G7",
+            "G8",
+            "G9",
             # Data header.
             "A9",
             "B9",
@@ -584,6 +588,7 @@ class TestCreateManifestsFromCircuit:
             "D9",
             "E9",
             "F9",
+            "G9",
         ],
     )
     @typechecked
@@ -598,8 +603,8 @@ class TestCreateManifestsFromCircuit:
         """Test right-aligned cells."""
         for sheet_name in manifest_workbook.sheetnames:
             ws = manifest_workbook[sheet_name]
-            right_aligned_cells = [ws["D1"], ws["F1"]] + [
-                cell for row in ws["E3:F8"] for cell in row
+            right_aligned_cells = [ws["D1"], ws["G1"]] + [
+                cell for row in ws["F3:G8"] for cell in row
             ]
             for cell in right_aligned_cells:
                 assert cell.alignment.horizontal == "right"
@@ -610,7 +615,7 @@ class TestCreateManifestsFromCircuit:
         for sheet_name in manifest_workbook.sheetnames:
             ws = manifest_workbook[sheet_name]
             left_aligned_cells = [cell for row in ws["A1:A8"] for cell in row] + [
-                cell for row in ws["A9:F9"] for cell in row
+                cell for row in ws["A9:G9"] for cell in row
             ]
             for cell in left_aligned_cells:
                 assert cell.alignment.horizontal == "left"
@@ -647,6 +652,51 @@ class TestCreateManifestsFromCircuit:
                 pytest.raises(ValueError, match=re.escape("equal_to(1)")),
             ),
             (Columns.BOX_TYPE, None, pytest.raises(ValueError, match="contains null values")),
+            (
+                Columns.PROTEIN_OPT_IN,
+                None,
+                pytest.raises(ValueError, match="contains null values"),
+            ),
+            # TODO: Change match messages.
+            (
+                Columns.PROTEIN_OPT_IN,
+                1,
+                pytest.raises(
+                    TypeError,
+                    match=re.escape(
+                        (
+                            "Cannot setitem on a Categorical with a new category (1), "
+                            "set the categories first"
+                        )
+                    ),
+                ),
+            ),
+            (
+                Columns.PROTEIN_OPT_IN,
+                "yes",
+                pytest.raises(
+                    TypeError,
+                    match=re.escape(
+                        (
+                            "Cannot setitem on a Categorical with a new category (yes), "
+                            "set the categories first"
+                        )
+                    ),
+                ),
+            ),
+            (
+                Columns.PROTEIN_OPT_IN,
+                True,
+                pytest.raises(
+                    TypeError,
+                    match=re.escape(
+                        (
+                            "Cannot setitem on a Categorical with a new category (True), "
+                            "set the categories first"
+                        )
+                    ),
+                ),
+            ),
         ],
     )
     @typechecked
@@ -660,8 +710,8 @@ class TestCreateManifestsFromCircuit:
     ) -> None:
         """Raises for field violations."""
         bad_df = copy.deepcopy(transformed_routes_df)
-        bad_df.loc[0, field] = bad_value
         with expected_error:
+            bad_df.loc[0, field] = bad_value
             _write_routes_dfs(routes_df=bad_df, output_dir=tmp_path)
 
     @pytest.mark.parametrize(
@@ -984,6 +1034,9 @@ def test_set_routes_df_values_sets_neighborhoods() -> None:
                 CircuitColumns.ORDER_INFO: {},
                 IntermediateColumns.DRIVER_SHEET_NAME: "Driver A",
                 IntermediateColumns.ROUTE_TITLE: "01.01 Driver A",
+                CircuitColumns.CUSTOM_PROPERTIES: {
+                    CircuitColumns.PROTEIN_OPT_IN: ProteinOptInValues.YES
+                },
             },
             {
                 CircuitColumns.RECIPIENT: {
@@ -999,6 +1052,9 @@ def test_set_routes_df_values_sets_neighborhoods() -> None:
                 CircuitColumns.ROUTE: {CircuitColumns.TITLE: "01.01 Driver A"},
                 CircuitColumns.ORDER_INFO: {},
                 IntermediateColumns.DRIVER_SHEET_NAME: "01.01 Driver A",
+                CircuitColumns.CUSTOM_PROPERTIES: {
+                    CircuitColumns.PROTEIN_OPT_IN: ProteinOptInValues.YES
+                },
             },
         ]
     )
