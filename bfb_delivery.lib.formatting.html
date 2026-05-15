@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="bfb_delivery.lib.schema package" href="bfb_delivery.lib.schema.html"><link rel="prev" title="bfb_delivery.lib.dispatch package" href="bfb_delivery.lib.dispatch.html">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>bfb_delivery.lib.formatting package - bfb_delivery 2.0.11 documentation</title>
+        <title>bfb_delivery.lib.formatting package - bfb_delivery 3.0.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 2.0.11 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 3.0.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">bfb_delivery 2.0.11 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 3.0.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -404,6 +404,17 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="bfb_delivery.lib.formatting.data_cleaning._format_and_validate_protein_opt_in">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.formatting.data_cleaning.</span></span><span class="sig-name descname"><span class="pre">_format_and_validate_protein_opt_in</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_protein_opt_in" title="Link to this definition">¶</a></dt>
+<dd><p>Format the protein opt-in column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="bfb_delivery.lib.formatting.data_cleaning._format_and_validate_stop_no">
 <span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.formatting.data_cleaning.</span></span><span class="sig-name descname"><span class="pre">_format_and_validate_stop_no</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_stop_no" title="Link to this definition">¶</a></dt>
 <dd><p>Format the stop number column.</p>
@@ -586,7 +597,7 @@
 <dt class="sig sig-object py" id="bfb_delivery.lib.formatting.sheet_shaping._append_extra_notes">
 <span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.formatting.sheet_shaping.</span></span><span class="sig-name descname"><span class="pre">_append_extra_notes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ws</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_notes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.formatting.sheet_shaping._append_extra_notes" title="Link to this definition">¶</a></dt>
 <dd><p>Append extra notes to the worksheet in the leftmost column.</p>
-<p>Places notes in column A and merges across all columns (A-F) with text wrapping.</p>
+<p>Places notes in column A and merges across all columns (A-G) with text wrapping.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
@@ -1073,6 +1084,7 @@ Modifies the row height in place.</p>
 <li><a class="reference internal" href="#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_phone"><code class="docutils literal notranslate"><span class="pre">_format_and_validate_phone()</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_product_or_box_type"><code class="docutils literal notranslate"><span class="pre">_format_and_validate_product_or_box_type()</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_product_type"><code class="docutils literal notranslate"><span class="pre">_format_and_validate_product_type()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_protein_opt_in"><code class="docutils literal notranslate"><span class="pre">_format_and_validate_protein_opt_in()</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_stop_no"><code class="docutils literal notranslate"><span class="pre">_format_and_validate_stop_no()</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.formatting.data_cleaning._format_int"><code class="docutils literal notranslate"><span class="pre">_format_int()</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.formatting.data_cleaning._format_notes"><code class="docutils literal notranslate"><span class="pre">_format_notes()</span></code></a></li>
@@ -1129,7 +1141,7 @@ Modifies the row height in place.</p>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=e9b04946"></script>
+</div><script src="_static/documentation_options.js?v=9b3fc59f"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

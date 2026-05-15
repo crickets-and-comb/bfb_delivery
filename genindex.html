@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#"><link rel="search" title="Search" href="search.html">
 
-    <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 --><title>Index - bfb_delivery 2.0.11 documentation</title>
+    <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 --><title>Index - bfb_delivery 3.0.3 documentation</title>
 <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -159,7 +159,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 2.0.11 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 3.0.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -180,7 +180,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">bfb_delivery 2.0.11 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 3.0.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -416,6 +416,8 @@
         <ul>
           <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.BoxType.__new__">(bfb_delivery.lib.constants.BoxType method)</a>
 </li>
+          <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ProteinOptInValues.__new__">(bfb_delivery.lib.constants.ProteinOptInValues method)</a>
+</li>
         </ul></li>
         <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseBFBDeleteCaller._abc_impl">_abc_impl (bfb_delivery.lib.dispatch.api_callers.BaseBFBDeleteCaller attribute)</a>
 
@@ -487,6 +489,8 @@
 </li>
         <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_product_type">_format_and_validate_product_type() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
 </li>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_protein_opt_in">_format_and_validate_protein_opt_in() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
+</li>
         <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_and_validate_stop_no">_format_and_validate_stop_no() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
 </li>
         <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.data_cleaning._format_int">_format_int() (in module bfb_delivery.lib.formatting.data_cleaning)</a>
@@ -500,15 +504,17 @@
         <ul>
           <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.BoxType._generate_next_value_">(bfb_delivery.lib.constants.BoxType static method)</a>
 </li>
+          <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ProteinOptInValues._generate_next_value_">(bfb_delivery.lib.constants.ProteinOptInValues static method)</a>
+</li>
         </ul></li>
         <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.api_callers.BaseKeyRetriever._get_API_key">_get_API_key() (bfb_delivery.lib.dispatch.api_callers.BaseKeyRetriever method)</a>
 </li>
         <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.utils._get_cell_width">_get_cell_width() (in module bfb_delivery.lib.formatting.utils)</a>
 </li>
-        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._get_driver_sets">_get_driver_sets() (in module bfb_delivery.lib.formatting.sheet_shaping)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._get_driver_sets">_get_driver_sets() (in module bfb_delivery.lib.formatting.sheet_shaping)</a>
+</li>
         <li><a href="bfb_delivery.lib.formatting.html#bfb_delivery.lib.formatting.sheet_shaping._get_left_block">_get_left_block() (in module bfb_delivery.lib.formatting.sheet_shaping)</a>
 </li>
         <li><a href="bfb_delivery.lib.dispatch.html#bfb_delivery.lib.dispatch.read_circuit._get_plan_responses">_get_plan_responses() (in module bfb_delivery.lib.dispatch.read_circuit)</a>
@@ -1137,6 +1143,10 @@
           <li><a href="bfb_delivery.api.html#bfb_delivery.api.public.create_manifests_from_circuit">(in module bfb_delivery.api.public)</a>
 </li>
         </ul></li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.CUSTOM_PROPERTIES">CUSTOM_PROPERTIES (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict.customProperties">customProperties (bfb_delivery.lib.schema.schema.CircuitRoutesTransformInFromDict attribute)</a>
+</li>
     </ul></td>
   </tr></table>
 </section>
@@ -1589,6 +1599,8 @@
           <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.neighborhood">(bfb_delivery.lib.schema.schema.Stops attribute)</a>
 </li>
         </ul></li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ProteinOptInValues.NO">NO (bfb_delivery.lib.constants.ProteinOptInValues attribute)</a>
+</li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.NOTES">NOTES (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
 
         <ul>
@@ -1749,14 +1761,14 @@
 </li>
         <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut">PlansAssignDriversToPlansOut (class in bfb_delivery.lib.schema.schema)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansAssignDriversToPlansOut.Config">PlansAssignDriversToPlansOut.Config (class in bfb_delivery.lib.schema.schema)</a>
 </li>
         <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansBuildStopsIn">PlansBuildStopsIn (class in bfb_delivery.lib.schema.schema)</a>
 </li>
         <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansBuildStopsIn.Config">PlansBuildStopsIn.Config (class in bfb_delivery.lib.schema.schema)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn">PlansConfirmOptimizationsIn (class in bfb_delivery.lib.schema.schema)</a>
 </li>
         <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.PlansConfirmOptimizationsIn.Config">PlansConfirmOptimizationsIn.Config (class in bfb_delivery.lib.schema.schema)</a>
@@ -1810,6 +1822,24 @@
         <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.product_type">product_type (bfb_delivery.lib.schema.schema.Stops attribute)</a>
 </li>
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.PRODUCTS">PRODUCTS (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
+</li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.PROTEIN_OPT_IN">PROTEIN_OPT_IN (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.Columns.PROTEIN_OPT_IN">(bfb_delivery.lib.constants.Columns attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut.protein_opt_in">protein_opt_in (bfb_delivery.lib.schema.schema.CircuitRoutesTransformOut attribute)</a>
+
+        <ul>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn.protein_opt_in">(bfb_delivery.lib.schema.schema.CircuitRoutesWriteIn attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut.protein_opt_in">(bfb_delivery.lib.schema.schema.CircuitRoutesWriteOut attribute)</a>
+</li>
+          <li><a href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.Stops.protein_opt_in">(bfb_delivery.lib.schema.schema.Stops attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ProteinOptInValues">ProteinOptInValues (class in bfb_delivery.lib.constants)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -2033,6 +2063,10 @@
         <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.CircuitColumns.YEAR">YEAR (bfb_delivery.lib.constants.CircuitColumns attribute)</a>
 </li>
     </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ProteinOptInValues.YES">YES (bfb_delivery.lib.constants.ProteinOptInValues attribute)</a>
+</li>
+    </ul></td>
   </tr></table>
 </section>
 
@@ -2078,7 +2112,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=e9b04946"></script>
+</div><script src="_static/documentation_options.js?v=9b3fc59f"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
