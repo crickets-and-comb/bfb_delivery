@@ -41,9 +41,9 @@ Now, create an env with the following command:
 
 .. code:: bash
 
-    conda create -n bfb_delivery python=3.12 --yes
+    conda create -n bfb_delivery python=3.13 --yes
 
-This will create an env named "bfb_delivery" with Python 3.12 installed. You can name it something else if you'd like, like ``my_bfb_delivery_env_name``.
+This will create an env named "bfb_delivery" with Python 3.13 installed. You can name it something else if you'd like, like ``my_bfb_delivery_env_name``.
 
 Activate the env with the following command:
 
