@@ -114,11 +114,11 @@ class BaseOptimizationCaller(BaseKeyRetriever, BaseCaller):
         self.finished = self.response_json[CircuitColumns.DONE]
 
 
-class CustomPropertiesGetter(BaseKeyRetriever, BaseGetCaller):
-    """Class for getting custom properties."""
+class CustomStopPropertiesGetter(BaseKeyRetriever, BaseGetCaller):
+    """Class for getting custom stop properties."""
 
-    #: The custom properties dictionary.
-    custom_properties: dict[str, list[dict[str, bool]]]
+    #: The custom stop properties dictionary.
+    custom_stop_properties: dict[str, list[dict[str, str | bool]]]
 
     @typechecked
     def _set_url(self) -> None:
@@ -129,10 +129,38 @@ class CustomPropertiesGetter(BaseKeyRetriever, BaseGetCaller):
     def _handle_200(self) -> None:
         """Handle a 200 response.
 
-        Sets `custom_properties` to the custom properties dictionary.
+        Sets `custom_stop_properties` to the custom stop properties dictionary.
         """
         super()._handle_200()
-        self.custom_properties = self.response_json
+        self.custom_stop_properties = self.response_json
+
+    def get_property_ID(self, property_name: str) -> str | bool:
+        """Get the ID of a custom stop property.
+
+        Args:
+            property_name: The name of the custom stop property.
+
+        Returns:
+            The ID of the custom stop property.
+
+        Raises:
+            ValueError: If the custom stop property name is not found.
+        """
+        property_ID = None
+
+        custom_stop_properties = self.custom_stop_properties[
+            CircuitColumns.CUSTOM_STOP_PROPERTIES
+        ]
+        for prop in custom_stop_properties:
+            if prop[CircuitColumns.NAME] == property_name:
+                property_ID = prop[CircuitColumns.ID]
+
+        if property_ID is None:
+            raise ValueError(
+                f"Custom stop property {property_name} not found in {custom_stop_properties}"
+            )
+
+        return property_ID
 
 
 class PagedResponseGetterBFB(BaseKeyRetriever, BasePagedResponseGetter):
