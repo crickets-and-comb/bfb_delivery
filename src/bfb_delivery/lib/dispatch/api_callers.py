@@ -134,7 +134,7 @@ class CustomStopPropertiesGetter(BaseKeyRetriever, BaseGetCaller):
         super()._handle_200()
         self.custom_stop_properties = self.response_json
 
-    def get_property_ID(self, property_name: str) -> str | bool:
+    def get_property_ID(self, property_name: str) -> str:
         """Get the ID of a custom stop property.
 
         Args:
@@ -160,7 +160,35 @@ class CustomStopPropertiesGetter(BaseKeyRetriever, BaseGetCaller):
                 f"Custom stop property {property_name} not found in {custom_stop_properties}"
             )
 
-        return property_ID
+        return str(property_ID)
+
+    def get_property_name(self, property_ID: str) -> str:
+        """Get the name of a custom stop property.
+
+        Args:
+            property_ID: The ID of the custom stop property.
+
+        Returns:
+            The name of the custom stop property.
+
+        Raises:
+            ValueError: If the custom stop property ID is not found.
+        """
+        property_name = None
+
+        custom_stop_properties = self.custom_stop_properties[
+            CircuitColumns.CUSTOM_STOP_PROPERTIES
+        ]
+        for prop in custom_stop_properties:
+            if prop[CircuitColumns.ID] == property_ID:
+                property_name = prop[CircuitColumns.NAME]
+
+        if property_name is None:
+            raise ValueError(
+                f"Custom stop property ID {property_ID} not found in {custom_stop_properties}"
+            )
+
+        return str(property_name)
 
 
 class PagedResponseGetterBFB(BaseKeyRetriever, BasePagedResponseGetter):
