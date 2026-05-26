@@ -1,7 +1,6 @@
 """Classes for making API calls."""
 
 import logging
-from typing import Any
 
 from typeguard import typechecked
 
@@ -119,7 +118,7 @@ class CustomPropertiesGetter(BaseKeyRetriever, BaseGetCaller):
     """Class for getting custom properties."""
 
     #: The custom properties dictionary.
-    custom_properties: Any
+    custom_properties: dict[str, list[dict[str, bool]]]
 
     @typechecked
     def _set_url(self) -> None:
