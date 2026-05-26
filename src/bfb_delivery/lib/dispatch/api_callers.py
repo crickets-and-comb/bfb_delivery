@@ -115,7 +115,7 @@ class BaseOptimizationCaller(BaseKeyRetriever, BaseCaller):
         self.finished = self.response_json[CircuitColumns.DONE]
 
 
-class CustomPropertyGetter(BaseKeyRetriever, BaseGetCaller):
+class CustomPropertiesGetter(BaseKeyRetriever, BaseGetCaller):
     """Class for getting custom properties."""
 
     #: The custom properties dictionary.
