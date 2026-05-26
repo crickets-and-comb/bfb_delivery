@@ -1,6 +1,7 @@
 """Classes for making API calls."""
 
 import logging
+from typing import Any
 
 from typeguard import typechecked
 
@@ -112,6 +113,27 @@ class BaseOptimizationCaller(BaseKeyRetriever, BaseCaller):
 
         self.operation_id = self.response_json[CircuitColumns.ID]
         self.finished = self.response_json[CircuitColumns.DONE]
+
+
+class CustomPropertyGetter(BaseKeyRetriever, BaseGetCaller):
+    """Class for getting custom properties."""
+
+    #: The custom properties dictionary.
+    custom_properties: Any
+
+    @typechecked
+    def _set_url(self) -> None:
+        """Set the URL for the API call."""
+        self._url = f"{CIRCUIT_URL}/team/customStopProperties/"
+
+    @typechecked
+    def _handle_200(self) -> None:
+        """Handle a 200 response.
+
+        Sets `custom_properties` to the custom properties dictionary.
+        """
+        super()._handle_200()
+        self.custom_properties = self.response_json
 
 
 class PagedResponseGetterBFB(BaseKeyRetriever, BasePagedResponseGetter):
