@@ -114,7 +114,7 @@ class BaseOptimizationCaller(BaseKeyRetriever, BaseCaller):
         self.finished = self.response_json[CircuitColumns.DONE]
 
 
-class CustomStopPropertiesGetter(BaseKeyRetriever, BaseGetCaller):
+class CustomStopPropertiesGetter(BaseBFBGetCaller):
     """Class for getting custom stop properties."""
 
     #: The custom stop properties dictionary.
@@ -161,34 +161,6 @@ class CustomStopPropertiesGetter(BaseKeyRetriever, BaseGetCaller):
             )
 
         return str(property_ID)
-
-    def get_property_name(self, property_ID: str) -> str:
-        """Get the name of a custom stop property.
-
-        Args:
-            property_ID: The ID of the custom stop property.
-
-        Returns:
-            The name of the custom stop property.
-
-        Raises:
-            ValueError: If the custom stop property ID is not found.
-        """
-        property_name = None
-
-        custom_stop_properties = self.custom_stop_properties[
-            CircuitColumns.CUSTOM_STOP_PROPERTIES
-        ]
-        for prop in custom_stop_properties:
-            if prop[CircuitColumns.ID] == property_ID:
-                property_name = prop[CircuitColumns.NAME]
-
-        if property_name is None:
-            raise ValueError(
-                f"Custom stop property ID {property_ID} not found in {custom_stop_properties}"
-            )
-
-        return str(property_name)
 
 
 class PagedResponseGetterBFB(BaseKeyRetriever, BasePagedResponseGetter):
