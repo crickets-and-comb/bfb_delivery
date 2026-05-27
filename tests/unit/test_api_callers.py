@@ -39,7 +39,6 @@ _CALLER_DICT: Final[dict[str, type[BaseCaller]]] = {
     "opt_launcher": OptimizationLauncher,
     "opt_checker": OptimizationChecker,
     "stop_uploader": StopUploader,
-    # "custom_stop_properties_getter": CustomStopPropertiesGetter,
 }
 _REQUEST_METHOD_DICT: Final[dict[str, str]] = {
     "get": "get",
@@ -48,7 +47,6 @@ _REQUEST_METHOD_DICT: Final[dict[str, str]] = {
     "opt_launcher": "post",
     "opt_checker": "get",
     "stop_uploader": "post",
-    # "custom_stop_properties_getter": "get",
 }
 _CALLER_KWARGS_DICT: Final[dict[str, dict[str, Any]]] = {
     "opt_launcher": {"plan_id": _MOCK_PLAN_ID, "plan_title": _MOCK_PLAN_TITLE},
@@ -62,7 +60,6 @@ _CALLER_KWARGS_DICT: Final[dict[str, dict[str, Any]]] = {
         "plan_title": _MOCK_PLAN_TITLE,
         "stop_array": _MOCK_STOP_ARRAY,
     },
-    # "custom_stop_properties_getter": {},
 }
 
 _OPT_JSON_200_DONE: Final[dict[str, Any]] = {
