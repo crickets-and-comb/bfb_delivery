@@ -15,6 +15,7 @@ from bfb_delivery.lib.dispatch.api_callers import (
     BaseBFBGetCaller,
     BaseBFBPostCaller,
     BaseCaller,
+    CustomStopPropertiesGetter,
     OptimizationChecker,
     OptimizationLauncher,
     PlanDeleter,
@@ -38,6 +39,7 @@ _CALLER_DICT: Final[dict[str, type[BaseCaller]]] = {
     "opt_launcher": OptimizationLauncher,
     "opt_checker": OptimizationChecker,
     "stop_uploader": StopUploader,
+    # "custom_stop_properties_getter": CustomStopPropertiesGetter,
 }
 _REQUEST_METHOD_DICT: Final[dict[str, str]] = {
     "get": "get",
@@ -46,6 +48,7 @@ _REQUEST_METHOD_DICT: Final[dict[str, str]] = {
     "opt_launcher": "post",
     "opt_checker": "get",
     "stop_uploader": "post",
+    # "custom_stop_properties_getter": "get",
 }
 _CALLER_KWARGS_DICT: Final[dict[str, dict[str, Any]]] = {
     "opt_launcher": {"plan_id": _MOCK_PLAN_ID, "plan_title": _MOCK_PLAN_TITLE},
@@ -59,6 +62,7 @@ _CALLER_KWARGS_DICT: Final[dict[str, dict[str, Any]]] = {
         "plan_title": _MOCK_PLAN_TITLE,
         "stop_array": _MOCK_STOP_ARRAY,
     },
+    # "custom_stop_properties_getter": {},
 }
 
 _OPT_JSON_200_DONE: Final[dict[str, Any]] = {
@@ -504,6 +508,50 @@ def test_optimization_callers(
             )
             assert caller.operation_id == _MOCK_OPERATION_ID
             assert caller.finished == expected_done_status
+
+
+@pytest.mark.parametrize(
+    "property_name, expected_id, error_context",
+    [
+        ("protein", "aJyl6WxtFXXPXPt-7pGa2", nullcontext()),
+        ("test property", "test id", nullcontext()),
+        (
+            "invalid_property",
+            None,
+            pytest.raises(
+                ValueError, match="Custom stop property invalid_property not found"
+            ),
+        ),
+    ],
+)
+@typechecked
+def test_custom_stop_properties_getter(
+    property_name: str, expected_id: str | None, error_context: AbstractContextManager
+) -> None:
+    """Test CustomStopPropertiesGetter."""
+    mock_response = {
+        "customStopProperties": [
+            {
+                "id": "aJyl6WxtFXXPXPt-7pGa2",
+                "name": "protein",
+                "visibleToDrivers": True,
+                "visibleToRecipients": True,
+            },
+            {
+                "id": "test id",
+                "name": "test property",
+            },
+        ]
+    }
+    with patch("requests.get") as mock_request:
+        mock_request.return_value = Mock(status_code=200, json=lambda: mock_response)
+
+        caller = CustomStopPropertiesGetter()
+        caller.call_api()
+
+        with error_context:
+            prop_id = caller.get_property_ID(property_name=property_name)
+            assert prop_id == expected_id
 
 
 @pytest.mark.parametrize(
