@@ -1708,12 +1708,12 @@ def test_delete_plan_return(fail: bool, error_context: AbstractContextManager) -
         (
             ProteinOptInValues.YES,
             Columns.PROTEIN_OPT_IN,
-            [CircuitColumns.CUSTOM_PROPERTIES, CircuitColumns.PROTEIN_OPT_IN],
+            [CircuitColumns.CUSTOM_STOP_PROPERTIES, CircuitColumns.PROTEIN_OPT_IN],
         ),
         (
             ProteinOptInValues.NO,
             Columns.PROTEIN_OPT_IN,
-            [CircuitColumns.CUSTOM_PROPERTIES, CircuitColumns.PROTEIN_OPT_IN],
+            [CircuitColumns.CUSTOM_STOP_PROPERTIES, CircuitColumns.PROTEIN_OPT_IN],
         ),
     ],
 )

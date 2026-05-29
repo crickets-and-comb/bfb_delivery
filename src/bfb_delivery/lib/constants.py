@@ -84,6 +84,7 @@ class CircuitColumns:
     PLANS: Final[str] = "plans"
     PRODUCTS: Final[str] = "products"
     PROTEIN_OPT_IN: Final[str] = "protein"
+    PROTEIN_OPT_IN_ID: Final[str] = "aJyl6WxtFXXPXPt-7pGa2"
     RECIPIENT: Final[str] = "recipient"
     RESULT: Final[str] = "result"
     ROUTE: Final[str] = "route"

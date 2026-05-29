@@ -122,12 +122,12 @@ class CircuitRoutesTransformInFromDict(pa.DataFrameModel):
     orderInfo: Series[object] = ORDER_INFO_FIELD()
     packageCount: Series[float] = _NULLABLE_FIELD(eq=1, alias=CircuitColumns.PACKAGE_COUNT)
     # Series[dict[str, Any]] breaks pydantic/json-schema generation.
-    # TODO: When adding neighborhood to customProperties, will need to run item_in_field_dict
+    # TODO: When adding neighborhood to customStopProperties, will need to run item_in_field_dict
     # on multiple columns. We'll want to do that in recipient too.
     # See https://github.com/crickets-and-comb/stormwater_monitoring_datasheet_extraction
-    customProperties: Series[object] = _COERCE_FIELD(
-        item_in_field_dict=CircuitColumns.PROTEIN_OPT_IN,
-        alias=CircuitColumns.CUSTOM_PROPERTIES,
+    customStopProperties: Series[object] = _COERCE_FIELD(
+        item_in_field_dict=CircuitColumns.PROTEIN_OPT_IN_ID,
+        alias=CircuitColumns.CUSTOM_STOP_PROPERTIES,
     )
 
     class Config:
