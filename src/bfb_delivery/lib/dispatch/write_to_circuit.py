@@ -963,7 +963,7 @@ def _build_stop_array(route_stops: pd.DataFrame, driver_id: str) -> list[dict[st
         custom_properties_dict = {
             CircuitColumns.PROTEIN_OPT_IN_ID: stop_row[Columns.PROTEIN_OPT_IN]
         }
-        stop[CircuitColumns.CUSTOM_STOP_PROPERTIES] = custom_properties_dict
+        stop[CircuitColumns.CUSTOM_PROPERTIES] = custom_properties_dict
 
         stop_array.append(stop)
 
