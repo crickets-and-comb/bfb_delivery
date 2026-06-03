@@ -125,7 +125,7 @@ class CircuitRoutesTransformInFromDict(pa.DataFrameModel):
     # TODO: When adding neighborhood to customProperties, will need to run
     # item_in_field_dict on multiple columns. We'll want to do that in recipient too.
     # See https://github.com/crickets-and-comb/stormwater_monitoring_datasheet_extraction
-    customProperties: Series[object] = _COERCE_FIELD(
+    customProperties: Series[object] = _NULLABLE_FIELD(
         item_in_field_dict=CircuitColumns.PROTEIN_OPT_IN_ID,
         alias=CircuitColumns.CUSTOM_PROPERTIES,
     )
@@ -150,6 +150,7 @@ class CircuitRoutesTransformInFromDict(pa.DataFrameModel):
         # https://github.com/crickets-and-comb/bfb_delivery/issues/84
         address1_in_address = True
         address2_in_address = True
+        custom_properties_not_null_except_depot = True
 
 
 class CircuitRoutesTransformOut(pa.DataFrameModel):

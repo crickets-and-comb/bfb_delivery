@@ -83,6 +83,18 @@ def contiguous_group(
     )
 
 
+@extensions.register_check_method(statistics=["flag"])
+def custom_properties_not_null_except_depot(df: pd.DataFrame, flag: bool) -> bool:
+    """Assert that custom properties are not null except at the depot."""
+    return (
+        all(
+            df[CircuitColumns.CUSTOM_PROPERTIES].notnull() | (df[CircuitColumns.STOP_POSITION] == 0)
+        )
+        if flag
+        else True
+    )
+
+
 @extensions.register_check_method(statistics=["col_a", "col_b"])
 def equal_cols(df: pd.DataFrame, col_a: str, col_b: str) -> bool:
     """Assert that plan titles are the same as route titles."""
