@@ -143,7 +143,12 @@ class CustomStopPropertiesGetter(BaseBFBGetCaller):
 
     @typechecked
     def _raise_for_status(self) -> None:
-        """Raise an error for a non-200 response."""
+        """Raise an error for a non-200 response.
+
+        We just want to use the default custom stop properties if the API call fails.
+        Calling the API is just a best-practice, but we don't want a hiccup to cause
+        a failure.
+        """
         try:
             super()._raise_for_status()
         except Exception:
