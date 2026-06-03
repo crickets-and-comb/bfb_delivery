@@ -14,9 +14,16 @@ from bfb_delivery.lib.constants import (
     IntermediateColumns,
     ProteinOptInValues,
 )
+from bfb_delivery.lib.dispatch.api_callers import CustomStopPropertiesGetter
 
 # This import registers the checks with pandera, even if unused.
 from bfb_delivery.lib.schema import checks  # noqa: F401
+
+custom_properties_getter = CustomStopPropertiesGetter()
+custom_properties_getter.call_api()
+_PROTEIN_OPT_IN_ID = custom_properties_getter.get_property_ID(
+    property_name=CircuitColumns.PROTEIN_OPT_IN
+)
 
 _COERCE_FIELD = partial(pa.Field, coerce=True)
 _NULLABLE_FIELD = partial(_COERCE_FIELD, nullable=True)
@@ -126,7 +133,7 @@ class CircuitRoutesTransformInFromDict(pa.DataFrameModel):
     # item_in_field_dict on multiple columns. We'll want to do that in recipient too.
     # See https://github.com/crickets-and-comb/stormwater_monitoring_datasheet_extraction
     customProperties: Series[object] = _NULLABLE_FIELD(
-        item_in_field_dict=CircuitColumns.PROTEIN_OPT_IN_ID,
+        item_in_field_dict=_PROTEIN_OPT_IN_ID,
         alias=CircuitColumns.CUSTOM_PROPERTIES,
     )
 

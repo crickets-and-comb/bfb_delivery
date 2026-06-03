@@ -25,6 +25,7 @@ from bfb_delivery.lib.constants import (
     RateLimits,
 )
 from bfb_delivery.lib.dispatch.api_callers import (
+    CustomStopPropertiesGetter,
     OptimizationChecker,
     OptimizationLauncher,
     PagedResponseGetterBFB,
@@ -960,9 +961,12 @@ def _build_stop_array(route_stops: pd.DataFrame, driver_id: str) -> list[dict[st
         if recipient_dict:
             stop[CircuitColumns.RECIPIENT] = recipient_dict
 
-        custom_properties_dict = {
-            CircuitColumns.PROTEIN_OPT_IN_ID: stop_row[Columns.PROTEIN_OPT_IN]
-        }
+        custom_properties_getter = CustomStopPropertiesGetter()
+        custom_properties_getter.call_api()
+        protein_opt_in_id = custom_properties_getter.get_property_ID(
+            property_name=CircuitColumns.PROTEIN_OPT_IN
+        )
+        custom_properties_dict = {protein_opt_in_id: stop_row[Columns.PROTEIN_OPT_IN]}
         stop[CircuitColumns.CUSTOM_PROPERTIES] = custom_properties_dict
 
         stop_array.append(stop)

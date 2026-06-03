@@ -21,7 +21,10 @@ from bfb_delivery.lib.constants import (
     Columns,
     IntermediateColumns,
 )
-from bfb_delivery.lib.dispatch.api_callers import PagedResponseGetterBFB
+from bfb_delivery.lib.dispatch.api_callers import (
+    CustomStopPropertiesGetter,
+    PagedResponseGetterBFB,
+)
 from bfb_delivery.lib.schema import (
     CircuitPlansFromDict,
     CircuitPlansOut,
@@ -431,10 +434,13 @@ def _set_routes_df_values(routes_df: pd.DataFrame) -> pd.DataFrame:
     routes_df[IntermediateColumns.ROUTE_TITLE] = _clean_title(
         routes_df[IntermediateColumns.ROUTE_TITLE], warn=False
     )
+    custom_stop_properties_getter = CustomStopPropertiesGetter()
+    custom_stop_properties_getter.call_api()
+    protein_opt_in_id = custom_stop_properties_getter.get_property_ID(
+        property_name=CircuitColumns.PROTEIN_OPT_IN
+    )
     routes_df[Columns.PROTEIN_OPT_IN] = routes_df[CircuitColumns.CUSTOM_PROPERTIES].apply(
-        lambda custom_properties_dict: custom_properties_dict.get(
-            CircuitColumns.PROTEIN_OPT_IN_ID
-        )
+        lambda custom_properties_dict: custom_properties_dict.get(protein_opt_in_id)
     )
 
     _warn_and_impute(routes_df=routes_df)
