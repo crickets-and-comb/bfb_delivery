@@ -150,7 +150,10 @@ class CircuitRoutesTransformInFromDict(pa.DataFrameModel):
         # https://github.com/crickets-and-comb/bfb_delivery/issues/84
         address1_in_address = True
         address2_in_address = True
-        custom_properties_not_null_except_depot = True
+        field_not_null_except_depot = {
+            "col": CircuitColumns.CUSTOM_PROPERTIES,
+            "stop_col": CircuitColumns.STOP_POSITION,
+        }
 
 
 class CircuitRoutesTransformOut(pa.DataFrameModel):
@@ -172,7 +175,7 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
     box_type: Series[pa.Category] = BOX_TYPE_FIELD()
     neighborhood: Series[str] = NEIGHBORHOOD_FIELD()
     email: Series[str] = EMAIL_FIELD()
-    protein_opt_in: Series[pa.Category] = PROTEIN_OPT_IN_FIELD()
+    protein_opt_in: Series[pa.Category] = PROTEIN_OPT_IN_FIELD(nullable=True)
 
     # Ancillary columns.
     plan: Series[str] = PLAN_ID_FIELD(alias=CircuitColumns.PLAN)
@@ -216,6 +219,10 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
             "start_idx": 1,
         }
         increasing_by = {"cols": [IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO]}
+        field_not_null_except_depot = {
+            "col": Columns.PROTEIN_OPT_IN,
+            "stop_col": Columns.STOP_NO,
+        }
 
 
 class CircuitRoutesWriteIn(pa.DataFrameModel):

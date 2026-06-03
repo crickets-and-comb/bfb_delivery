@@ -433,7 +433,7 @@ def _set_routes_df_values(routes_df: pd.DataFrame) -> pd.DataFrame:
     )
     routes_df[Columns.PROTEIN_OPT_IN] = routes_df[CircuitColumns.CUSTOM_PROPERTIES].apply(
         lambda custom_properties_dict: custom_properties_dict.get(
-            CircuitColumns.PROTEIN_OPT_IN
+            CircuitColumns.PROTEIN_OPT_IN_ID
         )
     )
 
