@@ -2,10 +2,12 @@
 
 from collections.abc import Iterator
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import pytest
 from typeguard import typechecked
+
+from bfb_delivery.lib.dispatch.api_callers import CustomStopPropertiesGetter
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
@@ -22,6 +24,46 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
             item.add_marker("integration")
         elif test_path.startswith(e2e_tests_dir):
             item.add_marker("e2e")
+
+
+@pytest.fixture(autouse=True)
+def mock_custom_stop_properties_getter_make_call() -> Iterator:
+    """Mock the API call in CustomStopPropertiesGetter."""
+    response = Mock()
+    response.status_code = 200
+    response.json.return_value = {
+        "customStopProperties": [
+            {
+                "id": "aJyl6WxtFXXPXPt-7pGa2",
+                "name": "protein",
+            },
+        ]
+    }
+    response.raise_for_status.return_value = None
+
+    class MockCustomStopPropertiesGetter(CustomStopPropertiesGetter):
+        """Mock CustomStopPropertiesGetter to use the mock response."""
+
+        def _make_call(self) -> None:
+            self._response = response
+
+    mock_getter = MockCustomStopPropertiesGetter()
+    mock_getter.call_api()
+
+    with patch(
+        "bfb_delivery.lib.utils.get_custom_stop_properties_getter", return_value=mock_getter
+    ), patch(
+        "bfb_delivery.lib.dispatch.read_circuit.get_custom_stop_properties_getter",
+        return_value=mock_getter,
+    ), patch(
+        "bfb_delivery.lib.dispatch.write_to_circuit.get_custom_stop_properties_getter",
+        return_value=mock_getter,
+    ):
+        from bfb_delivery.lib.utils import get_custom_stop_properties_getter
+
+        get_custom_stop_properties_getter.cache_clear()
+        yield
+        get_custom_stop_properties_getter.cache_clear()
 
 
 @pytest.fixture

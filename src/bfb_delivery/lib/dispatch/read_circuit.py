@@ -21,10 +21,7 @@ from bfb_delivery.lib.constants import (
     Columns,
     IntermediateColumns,
 )
-from bfb_delivery.lib.dispatch.api_callers import (
-    CustomStopPropertiesGetter,
-    PagedResponseGetterBFB,
-)
+from bfb_delivery.lib.dispatch.api_callers import PagedResponseGetterBFB
 from bfb_delivery.lib.schema import (
     CircuitPlansFromDict,
     CircuitPlansOut,
@@ -35,7 +32,7 @@ from bfb_delivery.lib.schema import (
     CircuitRoutesWriteOut,
 )
 from bfb_delivery.lib.schema.utils import schema_error_handler
-from bfb_delivery.lib.utils import get_friday
+from bfb_delivery.lib.utils import get_custom_stop_properties_getter, get_friday
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -434,8 +431,7 @@ def _set_routes_df_values(routes_df: pd.DataFrame) -> pd.DataFrame:
     routes_df[IntermediateColumns.ROUTE_TITLE] = _clean_title(
         routes_df[IntermediateColumns.ROUTE_TITLE], warn=False
     )
-    custom_stop_properties_getter = CustomStopPropertiesGetter()
-    custom_stop_properties_getter.call_api()
+    custom_stop_properties_getter = get_custom_stop_properties_getter()
     protein_opt_in_id = custom_stop_properties_getter.get_property_ID(
         property_name=CircuitColumns.PROTEIN_OPT_IN
     )
