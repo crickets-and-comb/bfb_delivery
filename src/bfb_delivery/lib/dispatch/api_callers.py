@@ -12,7 +12,12 @@ from comb_utils import (
     BasePostCaller,
 )
 
-from bfb_delivery.lib.constants import CIRCUIT_URL, CircuitColumns, RateLimits
+from bfb_delivery.lib.constants import (
+    CIRCUIT_URL,
+    DEFAULT_CUSTOM_STOP_PROPERTIES,
+    CircuitColumns,
+    RateLimits,
+)
 from bfb_delivery.lib.dispatch.utils import get_circuit_key
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -118,7 +123,9 @@ class CustomStopPropertiesGetter(BaseBFBGetCaller):
     """Class for getting custom stop properties."""
 
     #: The custom stop properties dictionary.
-    custom_stop_properties: dict[str, list[dict[str, str | bool]]]
+    custom_stop_properties: dict[str, list[dict[str, str | bool]]] = (
+        DEFAULT_CUSTOM_STOP_PROPERTIES
+    )
 
     @typechecked
     def _set_url(self) -> None:
@@ -133,6 +140,14 @@ class CustomStopPropertiesGetter(BaseBFBGetCaller):
         """
         super()._handle_200()
         self.custom_stop_properties = self.response_json
+
+    @typechecked
+    def _raise_for_status(self) -> None:
+        """Raise an error for a non-200 response."""
+        try:
+            super()._raise_for_status()
+        except Exception:
+            pass
 
     def get_property_ID(self, property_name: str) -> str:
         """Get the ID of a custom stop property.

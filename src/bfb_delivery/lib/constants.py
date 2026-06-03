@@ -84,7 +84,6 @@ class CircuitColumns:
     PLANS: Final[str] = "plans"
     PRODUCTS: Final[str] = "products"
     PROTEIN_OPT_IN: Final[str] = "protein"
-    # PROTEIN_OPT_IN_ID: Final[str] = "aJyl6WxtFXXPXPt-7pGa2"
     RECIPIENT: Final[str] = "recipient"
     RESULT: Final[str] = "result"
     ROUTE: Final[str] = "route"
@@ -139,6 +138,16 @@ COMBINED_ROUTES_COLUMNS: Final[list[str]] = [
 ]
 
 CIRCUIT_DOWNLOAD_COLUMNS: Final[list[str]] = COMBINED_ROUTES_COLUMNS + [Columns.EMAIL]
+
+DEFAULT_PROTEIN_OPT_IN_ID: Final[str] = "aJyl6WxtFXXPXPt-7pGa2"
+DEFAULT_CUSTOM_STOP_PROPERTIES: Final[dict[str, list[dict[str, str | bool]]]] = {
+    CircuitColumns.CUSTOM_STOP_PROPERTIES: [
+        {
+            CircuitColumns.ID: DEFAULT_PROTEIN_OPT_IN_ID,
+            CircuitColumns.NAME: CircuitColumns.PROTEIN_OPT_IN,
+        }
+    ]
+}
 
 
 class DocStrings:
