@@ -16,6 +16,7 @@ from comb_utils import concat_response_pages, get_responses
 from bfb_delivery.lib.constants import (
     ALL_HHS_DRIVER,
     CIRCUIT_DOWNLOAD_COLUMNS,
+    CIRCUIT_DATE_FORMAT,
     DEPOT_PLACE_ID,
     CircuitColumns,
     Columns,
@@ -73,7 +74,7 @@ def get_route_files(
         ValueError: If no stops are found for the given plans.
         ValueError: If no routed stops are found for the given plans.
     """
-    start_date = start_date if start_date else get_friday(fmt="%Y%m%d")
+    start_date = start_date if start_date else get_friday(fmt=CIRCUIT_DATE_FORMAT)
     end_date = end_date if end_date else start_date
     sub_dir = "routes_" + start_date
     output_dir = (
