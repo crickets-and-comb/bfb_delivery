@@ -1,7 +1,7 @@
 """DataFrame checks."""
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 import pandera.extensions as extensions
 
 from bfb_delivery.lib.constants import CircuitColumns, Columns, IntermediateColumns
@@ -87,7 +87,12 @@ def contiguous_group(
 @extensions.register_check_method(statistics=["col"])
 def field_not_null_where_product(df: pd.DataFrame, col: str) -> bool:
     """Assert field values are not null where there is a product to deliver."""
-    no_product_mask = np.array([True if orderInfo.get(CircuitColumns.PRODUCTS) else False for orderInfo in df[CircuitColumns.ORDER_INFO]])
+    no_product_mask = np.array(
+        [
+            True if orderInfo.get(CircuitColumns.PRODUCTS) else False
+            for orderInfo in df[CircuitColumns.ORDER_INFO]
+        ]
+    )
     return all(df[col].notnull() | no_product_mask)
 
 

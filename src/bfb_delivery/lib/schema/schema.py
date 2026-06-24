@@ -153,9 +153,7 @@ class CircuitRoutesTransformInFromDict(pa.DataFrameModel):
         # https://github.com/crickets-and-comb/bfb_delivery/issues/84
         address1_in_address = True
         address2_in_address = True
-        field_not_null_where_product = {
-            "col": CircuitColumns.CUSTOM_PROPERTIES
-        }
+        field_not_null_where_product = {"col": CircuitColumns.CUSTOM_PROPERTIES}
 
 
 class CircuitRoutesTransformOut(pa.DataFrameModel):
@@ -221,9 +219,7 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
             "start_idx": 1,
         }
         increasing_by = {"cols": [IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO]}
-        field_not_null_where_product = {
-            "col": Columns.PROTEIN_OPT_IN
-        }
+        field_not_null_where_product = {"col": Columns.PROTEIN_OPT_IN}
 
 
 class CircuitRoutesWriteIn(pa.DataFrameModel):

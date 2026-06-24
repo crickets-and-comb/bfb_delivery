@@ -15,8 +15,8 @@ from comb_utils import concat_response_pages, get_responses
 
 from bfb_delivery.lib.constants import (
     ALL_HHS_DRIVER,
-    CIRCUIT_DOWNLOAD_COLUMNS,
     CIRCUIT_DATE_FORMAT,
+    CIRCUIT_DOWNLOAD_COLUMNS,
     DEPOT_PLACE_ID,
     CircuitColumns,
     Columns,
