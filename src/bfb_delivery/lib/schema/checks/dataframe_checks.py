@@ -89,7 +89,7 @@ def field_not_null_where_product(df: pd.DataFrame, col: str) -> bool:
     """Assert field values are not null where there is a product to deliver."""
     no_product_mask = np.array(
         [
-            True if orderInfo.get(CircuitColumns.PRODUCTS) else False
+            False if orderInfo.get(CircuitColumns.PRODUCTS) else True
             for orderInfo in df[CircuitColumns.ORDER_INFO]
         ]
     )
