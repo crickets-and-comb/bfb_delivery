@@ -263,8 +263,9 @@ def _format_and_validate_stop_no(df: pd.DataFrame) -> None:
 def _format_and_validate_protein_opt_in(df: pd.DataFrame) -> None:
     """Format the protein opt-in column."""
     _format_and_validate_names_title(df=df, column=Columns.PROTEIN_OPT_IN)
-    # TODO: Apply this to other categorical/enum columns.
     col = pd.Series(df[Columns.PROTEIN_OPT_IN])
+    # TODO: Create this categorical type in the constants file, and use it in the Pandera schema as well?
+    # TODO: Apply this to other categorical/enum columns.
     dtype = pd.CategoricalDtype(categories=[v for v in ProteinOptInValues], ordered=False)
     df[Columns.PROTEIN_OPT_IN] = df[Columns.PROTEIN_OPT_IN].astype(dtype)
     invalid_mask = df[Columns.PROTEIN_OPT_IN].isna()
