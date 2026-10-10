@@ -39,6 +39,7 @@ from bfb_delivery import split_chunked_route
 from bfb_delivery.lib.constants import (
     CIRCUIT_DRIVERS_URL,
     CIRCUIT_URL,
+    DEFAULT_PROTEIN_OPT_IN_ID,
     CircuitColumns,
     Columns,
     IntermediateColumns,
@@ -1708,12 +1709,12 @@ def test_delete_plan_return(fail: bool, error_context: AbstractContextManager) -
         (
             ProteinOptInValues.YES,
             Columns.PROTEIN_OPT_IN,
-            [CircuitColumns.CUSTOM_PROPERTIES, CircuitColumns.PROTEIN_OPT_IN],
+            [CircuitColumns.CUSTOM_PROPERTIES, DEFAULT_PROTEIN_OPT_IN_ID],
         ),
         (
             ProteinOptInValues.NO,
             Columns.PROTEIN_OPT_IN,
-            [CircuitColumns.CUSTOM_PROPERTIES, CircuitColumns.PROTEIN_OPT_IN],
+            [CircuitColumns.CUSTOM_PROPERTIES, DEFAULT_PROTEIN_OPT_IN_ID],
         ),
     ],
 )
