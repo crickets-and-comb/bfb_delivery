@@ -1751,7 +1751,7 @@ def test_build_stop_array_adds_subfield(value: None | str, col: str, keys: list[
         (Columns.NEIGHBORHOOD, CircuitColumns.EXTERNAL_ID, CircuitColumns.RECIPIENT),
         (
             Columns.PROTEIN_OPT_IN,
-            CircuitColumns.PROTEIN_OPT_IN,
+            DEFAULT_PROTEIN_OPT_IN_ID,
             CircuitColumns.CUSTOM_PROPERTIES,
         ),
     ],
