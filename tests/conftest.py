@@ -41,29 +41,21 @@ def mock_custom_stop_properties_getter_make_call() -> Iterator:
     }
     response.raise_for_status.return_value = None
 
-    class MockCustomStopPropertiesGetter(CustomStopPropertiesGetter):
-        """Mock CustomStopPropertiesGetter to use the mock response."""
+    def mock_make_call(self: CustomStopPropertiesGetter) -> None:
+        self._response = response
 
-        def _make_call(self) -> None:
-            self._response = response
+    from bfb_delivery.lib.utils import get_custom_stop_properties_getter
 
-    mock_getter = MockCustomStopPropertiesGetter()
-    mock_getter.call_api()
+    get_custom_stop_properties_getter.cache_clear()
 
-    with patch(
-        "bfb_delivery.lib.utils.get_custom_stop_properties_getter", return_value=mock_getter
-    ), patch(
-        "bfb_delivery.lib.dispatch.read_circuit.get_custom_stop_properties_getter",
-        return_value=mock_getter,
-    ), patch(
-        "bfb_delivery.lib.dispatch.write_to_circuit.get_custom_stop_properties_getter",
-        return_value=mock_getter,
+    with patch.object(
+        CustomStopPropertiesGetter,
+        "_make_call",
+        mock_make_call,
     ):
-        from bfb_delivery.lib.utils import get_custom_stop_properties_getter
-
-        get_custom_stop_properties_getter.cache_clear()
         yield
-        get_custom_stop_properties_getter.cache_clear()
+
+    get_custom_stop_properties_getter.cache_clear()
 
 
 @pytest.fixture
