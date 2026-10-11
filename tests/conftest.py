@@ -26,7 +26,7 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
             item.add_marker("e2e")
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(scope="class", autouse=True)
 def mock_custom_stop_properties_getter_make_call() -> Iterator:
     """Mock the API call in CustomStopPropertiesGetter."""
     response = Mock()
