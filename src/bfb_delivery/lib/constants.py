@@ -98,7 +98,7 @@ class CircuitColumns:
     ZIP: Final[str] = "zip"
 
 
-SPOKE_API_BASE_URL: Final[str] = "https://api.spoke.com/public/v0.2b"
+SPOKE_API_BASE_URL: Final[str] = "https://api.spoke.com/public/v1"
 CIRCUIT_DRIVERS_URL: Final[str] = f"{SPOKE_API_BASE_URL}/drivers"
 
 
