@@ -14,7 +14,6 @@ from comb_utils import (
 
 from bfb_delivery.lib.constants import (
     DEFAULT_CUSTOM_STOP_PROPERTIES,
-    SPOKE_API_BASE_URL,
     CircuitColumns,
     RateLimits,
     SpokeURLs,
@@ -209,7 +208,7 @@ class PlanInitializer(BaseBFBPostCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call."""
-        self._url = f"{SPOKE_API_BASE_URL}/plans"
+        self._url = SpokeURLs.PLANS
 
     @typechecked
     def _handle_200(self) -> None:
@@ -257,7 +256,7 @@ class StopUploader(BaseBFBPostCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call with `plan_id`."""
-        self._url = f"{SPOKE_API_BASE_URL}/{self._plan_id}/stops:import"
+        self._url = f"{SpokeURLs.BASE}/{self._plan_id}/stops:import"
 
     @typechecked
     def _handle_200(self) -> None:
@@ -295,7 +294,7 @@ class OptimizationLauncher(BaseOptimizationCaller, BaseBFBPostCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call with the `plan_id`."""
-        self._url = f"{SPOKE_API_BASE_URL}/{self._plan_id}:optimize"
+        self._url = f"{SpokeURLs.BASE}/{self._plan_id}:optimize"
 
 
 class OptimizationChecker(BaseOptimizationCaller, BaseBFBGetCaller):
@@ -320,7 +319,7 @@ class OptimizationChecker(BaseOptimizationCaller, BaseBFBGetCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call."""
-        self._url = f"{SPOKE_API_BASE_URL}/{self.operation_id}"
+        self._url = f"{SpokeURLs.BASE}/{self.operation_id}"
 
 
 class PlanDistributor(BaseBFBPostCaller):
@@ -348,7 +347,7 @@ class PlanDistributor(BaseBFBPostCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call with the `plan_id`."""
-        self._url = f"{SPOKE_API_BASE_URL}/{self._plan_id}:distribute"
+        self._url = f"{SpokeURLs.BASE}/{self._plan_id}:distribute"
 
     @typechecked
     def _handle_200(self) -> None:
@@ -385,7 +384,7 @@ class PlanDeleter(BaseBFBDeleteCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call with the `plan_id`."""
-        self._url = f"{SPOKE_API_BASE_URL}/{self._plan_id}"
+        self._url = f"{SpokeURLs.BASE}/{self._plan_id}"
 
     @typechecked
     def _handle_204(self) -> None:

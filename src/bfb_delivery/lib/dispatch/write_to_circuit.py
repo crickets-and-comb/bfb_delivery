@@ -16,13 +16,13 @@ from comb_utils import concat_response_pages, get_responses
 from bfb_delivery.lib import errors, schema
 from bfb_delivery.lib.constants import (
     CIRCUIT_DATE_FORMAT,
-    CIRCUIT_DRIVERS_URL,
     MANIFEST_DATE_FORMAT,
     CircuitColumns,
     Columns,
     DocStrings,
     IntermediateColumns,
     RateLimits,
+    SpokeURLs,
 )
 from bfb_delivery.lib.dispatch.api_callers import (
     OptimizationChecker,
@@ -689,7 +689,7 @@ def _get_all_drivers() -> schema.DriversGetAllDriversOut:
     """Get all drivers."""
     logger.info("Getting all drivers from Circuit ...")
     driver_pages = get_responses(
-        url=CIRCUIT_DRIVERS_URL, paged_response_class=PagedResponseGetterBFB
+        url=SpokeURLs.CIRCUIT_DRIVERS, paged_response_class=PagedResponseGetterBFB
     )
     logger.info("Finished getting drivers.")
     drivers_list = concat_response_pages(
