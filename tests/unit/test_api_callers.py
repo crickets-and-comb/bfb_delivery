@@ -523,10 +523,13 @@ def test_optimization_callers(
 )
 @typechecked
 def test_custom_stop_properties_getter(
-    property_name: str, expected_id: str | None, error_context: AbstractContextManager
+    property_name: str,
+    expected_id: str | None,
+    error_context: AbstractContextManager,
+    mock_custom_stop_properties_get_call: Mock,
 ) -> None:
     """Test CustomStopPropertiesGetter."""
-    mock_response = {
+    mock_custom_stop_properties_get_call.return_value.json.return_value = {
         "customStopProperties": [
             {
                 "id": "aJyl6WxtFXXPXPt-7pGa2",
@@ -540,15 +543,13 @@ def test_custom_stop_properties_getter(
             },
         ]
     }
-    with patch("requests.get") as mock_request:
-        mock_request.return_value = Mock(status_code=200, json=lambda: mock_response)
 
-        caller = CustomStopPropertiesGetter()
-        caller.call_api()
+    caller = CustomStopPropertiesGetter()
+    caller.call_api()
 
-        with error_context:
-            prop_id = caller.get_property_ID(property_name=property_name)
-            assert prop_id == expected_id
+    with error_context:
+        prop_id = caller.get_property_ID(property_name=property_name)
+        assert prop_id == expected_id
 
 
 @pytest.mark.parametrize(

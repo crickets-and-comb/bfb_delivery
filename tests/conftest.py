@@ -27,8 +27,8 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
 
 
 @pytest.fixture(scope="class", autouse=True)
-def mock_custom_stop_properties_getter_make_call() -> Iterator:
-    """Mock the API call in CustomStopPropertiesGetter."""
+def mock_custom_stop_properties_get_call() -> Iterator[Mock]:
+    """Mock only the GET call made by CustomStopPropertiesGetter."""
     response = Mock()
     response.status_code = 200
     response.json.return_value = {
@@ -41,21 +41,24 @@ def mock_custom_stop_properties_getter_make_call() -> Iterator:
     }
     response.raise_for_status.return_value = None
 
-    def mock_make_call(self: CustomStopPropertiesGetter) -> None:
-        self._response = response
+    mock_request_call = Mock(return_value=response)
+
+    def mock_set_request_call(self: CustomStopPropertiesGetter) -> None:
+        self._request_call = mock_request_call
 
     from bfb_delivery.lib.utils import get_custom_stop_properties_getter
 
     get_custom_stop_properties_getter.cache_clear()
 
-    with patch.object(
-        CustomStopPropertiesGetter,
-        "_make_call",
-        mock_make_call,
-    ):
-        yield
-
-    get_custom_stop_properties_getter.cache_clear()
+    try:
+        with patch.object(
+            CustomStopPropertiesGetter,
+            "_set_request_call",
+            mock_set_request_call,
+        ):
+            yield mock_request_call
+    finally:
+        get_custom_stop_properties_getter.cache_clear()
 
 
 @pytest.fixture
