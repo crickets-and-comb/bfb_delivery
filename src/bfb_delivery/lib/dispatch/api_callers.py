@@ -17,6 +17,7 @@ from bfb_delivery.lib.constants import (
     DEFAULT_CUSTOM_STOP_PROPERTIES,
     CircuitColumns,
     RateLimits,
+    SpokeURLs,
 )
 from bfb_delivery.lib.dispatch.utils import get_circuit_key
 
@@ -130,28 +131,24 @@ class CustomStopPropertiesGetter(BaseBFBGetCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call."""
-        self._url = f"{CIRCUIT_URL}/team/customStopProperties"
+        self._url = SpokeURLs.CUSTOM_STOP_PROPERTIES
 
     @typechecked
     def _handle_200(self) -> None:
         """Handle a 200 response.
 
         Sets `custom_stop_properties` to the custom stop properties dictionary.
-        """
-        super()._handle_200()
-        self.custom_stop_properties = self.response_json
-
-    @typechecked
-    def _raise_for_status(self) -> None:
-        """Raise an error for a non-200 response.
-
-        We want to use the default custom stop properties if the API call fails.
-        Calling the API is a best practice, but we don't want a hiccup to cause a failure.
+        Defaults to `DEFAULT_CUSTOM_STOP_PROPERTIES` if the API call fails.
         """
         try:
-            super()._raise_for_status()
+            super()._handle_200()
         except Exception:
-            pass
+            logger.warning(
+                "Failed to get custom stop properties, using default: "
+                f"{DEFAULT_CUSTOM_STOP_PROPERTIES}"
+            )
+        else:
+            self.custom_stop_properties = self.response_json
 
     def get_property_ID(self, property_name: str) -> str:
         """Get the ID of a custom stop property.

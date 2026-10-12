@@ -26,9 +26,9 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
             item.add_marker("e2e")
 
 
-@pytest.fixture(autouse=True)
-def mock_custom_stop_properties_getter_make_call() -> Iterator:
-    """Mock the API call in CustomStopPropertiesGetter."""
+@pytest.fixture(scope="class", autouse=True)
+def mock_custom_stop_properties_request_call() -> Iterator[Mock]:
+    """Mock only the _request_call made by CustomStopPropertiesGetter."""
     response = Mock()
     response.status_code = 200
     response.json.return_value = {
@@ -41,28 +41,23 @@ def mock_custom_stop_properties_getter_make_call() -> Iterator:
     }
     response.raise_for_status.return_value = None
 
-    class MockCustomStopPropertiesGetter(CustomStopPropertiesGetter):
-        """Mock CustomStopPropertiesGetter to use the mock response."""
+    mock_request_call = Mock(return_value=response)
 
-        def _make_call(self) -> None:
-            self._response = response
+    def mock_set_request_call(self: CustomStopPropertiesGetter) -> None:
+        self._request_call = mock_request_call
 
-    mock_getter = MockCustomStopPropertiesGetter()
-    mock_getter.call_api()
+    from bfb_delivery.lib.utils import get_custom_stop_properties_getter
 
-    with patch(
-        "bfb_delivery.lib.utils.get_custom_stop_properties_getter", return_value=mock_getter
-    ), patch(
-        "bfb_delivery.lib.dispatch.read_circuit.get_custom_stop_properties_getter",
-        return_value=mock_getter,
-    ), patch(
-        "bfb_delivery.lib.dispatch.write_to_circuit.get_custom_stop_properties_getter",
-        return_value=mock_getter,
-    ):
-        from bfb_delivery.lib.utils import get_custom_stop_properties_getter
+    get_custom_stop_properties_getter.cache_clear()
 
-        get_custom_stop_properties_getter.cache_clear()
-        yield
+    try:
+        with patch.object(
+            CustomStopPropertiesGetter,
+            "_set_request_call",
+            mock_set_request_call,
+        ):
+            yield mock_request_call
+    finally:
         get_custom_stop_properties_getter.cache_clear()
 
 
