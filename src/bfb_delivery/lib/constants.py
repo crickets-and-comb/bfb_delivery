@@ -98,8 +98,8 @@ class CircuitColumns:
     ZIP: Final[str] = "zip"
 
 
-CIRCUIT_URL: Final[str] = "https://api.getcircuit.com/public/v0.2b"
-CIRCUIT_DRIVERS_URL: Final[str] = f"{CIRCUIT_URL}/drivers"
+SPOKE_API_BASE_URL: Final[str] = "https://api.spoke.com/public/v0.2b"
+CIRCUIT_DRIVERS_URL: Final[str] = f"{SPOKE_API_BASE_URL}/drivers"
 
 
 class Columns:
@@ -584,5 +584,5 @@ SPLIT_ROUTE_COLUMNS: Final[list[str]] = [
 class SpokeURLs:
     """URLs for Spoke API."""
 
-    BASE: Final[str] = CIRCUIT_URL
+    BASE: Final[str] = SPOKE_API_BASE_URL
     CUSTOM_STOP_PROPERTIES: Final[str] = f"{BASE}/team/customStopProperties"

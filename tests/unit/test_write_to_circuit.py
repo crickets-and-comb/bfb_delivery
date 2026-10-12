@@ -38,8 +38,8 @@ from typeguard import typechecked
 from bfb_delivery import split_chunked_route
 from bfb_delivery.lib.constants import (
     CIRCUIT_DRIVERS_URL,
-    CIRCUIT_URL,
     DEFAULT_PROTEIN_OPT_IN_ID,
+    SPOKE_API_BASE_URL,
     CircuitColumns,
     Columns,
     IntermediateColumns,
@@ -340,7 +340,7 @@ def register_plan_initialization(
         return responses[plan_title]
 
     requests_mock.register_uri(
-        "POST", f"{CIRCUIT_URL}/plans", json=post_callback, status_code=200
+        "POST", f"{SPOKE_API_BASE_URL}/plans", json=post_callback, status_code=200
     )
 
 
@@ -434,7 +434,7 @@ def register_stop_upload(
     for plan_id in responses:
         requests_mock.register_uri(
             "POST",
-            f"{CIRCUIT_URL}/{plan_id}/stops:import",
+            f"{SPOKE_API_BASE_URL}/{plan_id}/stops:import",
             json=responses[plan_id],
             status_code=200,
         )
@@ -550,7 +550,7 @@ def register_optimizations(
     for plan_id in responses:
         requests_mock.register_uri(
             "POST",
-            f"{CIRCUIT_URL}/{plan_id}:optimize",
+            f"{SPOKE_API_BASE_URL}/{plan_id}:optimize",
             json=responses[plan_id],
             status_code=200,
         )
@@ -637,7 +637,7 @@ def register_optimization_confirmations(
         requests_mock.register_uri(
             "GET",
             (
-                f"{CIRCUIT_URL}/"
+                f"{SPOKE_API_BASE_URL}/"
                 f"{plan_id.replace(CircuitColumns.PLANS, CircuitColumns.OPERATIONS)}"
             ),
             json=responses[plan_id],
@@ -731,7 +731,7 @@ def register_route_distributions(
     for plan_id in responses:
         requests_mock.register_uri(
             "POST",
-            f"{CIRCUIT_URL}/{plan_id}:distribute",
+            f"{SPOKE_API_BASE_URL}/{plan_id}:distribute",
             json=responses[plan_id],
             status_code=200,
         )
@@ -938,7 +938,9 @@ def test_create_plans_calls(
     assert len(driver_requests) == 2
 
     plan_posts = [
-        req for req in requests_mock.request_history if req.url == f"{CIRCUIT_URL}/plans"
+        req
+        for req in requests_mock.request_history
+        if req.url == f"{SPOKE_API_BASE_URL}/plans"
     ]
     assert len(plan_posts) == len(expected_plan_df)
 
@@ -1078,7 +1080,7 @@ def test_upload_stops_calls(
     _ = _upload_stops(stops_df=mock_stops_df, plan_df=plan_df_initialized, verbose=False)
 
     for plan_id, expected_stop_array in mock_stop_upload.items():
-        expected_url = f"{CIRCUIT_URL}/{plan_id}/stops:import"
+        expected_url = f"{SPOKE_API_BASE_URL}/{plan_id}/stops:import"
         matching_requests = [
             req for req in requests_mock.request_history if req.url == expected_url
         ]
@@ -1137,7 +1139,7 @@ def test_upload_stops_no_addressName(
     )
 
     for plan_id, _ in mock_stop_upload.items():
-        expected_url = f"{CIRCUIT_URL}/{plan_id}/stops:import"
+        expected_url = f"{SPOKE_API_BASE_URL}/{plan_id}/stops:import"
         matching_requests = [
             req for req in requests_mock.request_history if req.url == expected_url
         ]
@@ -1161,7 +1163,7 @@ def test_upload_stops_minimal_address_line_2(
     )
 
     for plan_id, _ in mock_stop_upload.items():
-        expected_url = f"{CIRCUIT_URL}/{plan_id}/stops:import"
+        expected_url = f"{SPOKE_API_BASE_URL}/{plan_id}/stops:import"
         matching_requests = [
             req for req in requests_mock.request_history if req.url == expected_url
         ]
@@ -1217,14 +1219,14 @@ def test_optimize_routes_calls(
     for plan_id in mock_plan_df_stops_uploaded[
         mock_plan_df_stops_uploaded[IntermediateColumns.STOPS_UPLOADED]
     ][IntermediateColumns.PLAN_ID]:
-        assert f"{CIRCUIT_URL}/{plan_id}:optimize" in [
+        assert f"{SPOKE_API_BASE_URL}/{plan_id}:optimize" in [
             req.url for req in requests_mock.request_history
         ]
     for plan_id in plan_df_launched[plan_df_launched[IntermediateColumns.OPTIMIZED]][
         IntermediateColumns.PLAN_ID
     ]:
         assert (
-            f"{CIRCUIT_URL}/"
+            f"{SPOKE_API_BASE_URL}/"
             f"{plan_id.replace(CircuitColumns.PLANS, CircuitColumns.OPERATIONS)}"
         ) in [req.url for req in requests_mock.request_history]
 
@@ -1289,7 +1291,7 @@ def test_distribute_routes_calls(
     for plan_id in plan_df_optimized[
         plan_df_optimized[IntermediateColumns.OPTIMIZED] == True  # noqa: E712
     ][IntermediateColumns.PLAN_ID]:
-        assert f"{CIRCUIT_URL}/{plan_id}:distribute" in [
+        assert f"{SPOKE_API_BASE_URL}/{plan_id}:distribute" in [
             req.url for req in requests_mock.request_history
         ]
 
@@ -1428,7 +1430,7 @@ def test_upload_split_chunked_calls(
     )
 
     for plan_id, expected_stop_array in mock_stop_upload.items():
-        expected_url = f"{CIRCUIT_URL}/{plan_id}/stops:import"
+        expected_url = f"{SPOKE_API_BASE_URL}/{plan_id}/stops:import"
         matching_requests = [
             req for req in requests_mock.request_history if req.url == expected_url
         ]
@@ -1640,7 +1642,7 @@ def test_delete_plans(
     for idx, plan_id in enumerate(plan_ids_to_delete):
         requests_mock.register_uri(
             "DELETE",
-            f"{CIRCUIT_URL}/{plan_id}",
+            f"{SPOKE_API_BASE_URL}/{plan_id}",
             json={},
             status_code=(
                 204 if not fail_deletion or (fail_deletion and idx != _FAILURE_IDX) else 400
@@ -1675,7 +1677,7 @@ def test_delete_plan_call(fail: bool, error_context: AbstractContextManager) -> 
         with error_context:
             _ = delete_plan(plan_id=plan_id)
 
-        assert mock_delete.call_args_list[0][1]["url"] == f"{CIRCUIT_URL}/{plan_id}"
+        assert mock_delete.call_args_list[0][1]["url"] == f"{SPOKE_API_BASE_URL}/{plan_id}"
 
 
 @pytest.mark.parametrize(

@@ -9,7 +9,7 @@ import pytest
 import requests
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import CIRCUIT_URL, CircuitColumns, RateLimits
+from bfb_delivery.lib.constants import SPOKE_API_BASE_URL, CircuitColumns, RateLimits
 from bfb_delivery.lib.dispatch.api_callers import (
     BaseBFBDeleteCaller,
     BaseBFBGetCaller,
@@ -499,9 +499,9 @@ def test_optimization_callers(
             caller.call_api()
             assert (
                 mock_request.call_args_list[0][1]["url"]
-                == f"{CIRCUIT_URL}/{kwargs['plan_id']}:optimize"
+                == f"{SPOKE_API_BASE_URL}/{kwargs['plan_id']}:optimize"
                 if request_type == "opt_launcher"
-                else f"{CIRCUIT_URL}{kwargs['operation_id']}"
+                else f"{SPOKE_API_BASE_URL}{kwargs['operation_id']}"
             )
             assert caller.operation_id == _MOCK_OPERATION_ID
             assert caller.finished == expected_done_status
@@ -589,7 +589,7 @@ def test_plan_initializer(response_sequence: list[dict[str, Any]]) -> None:
         caller = PlanInitializer(plan_data=plan_data)
         caller.call_api()
 
-        assert mock_request.call_args_list[0][1]["url"] == f"{CIRCUIT_URL}/plans"
+        assert mock_request.call_args_list[0][1]["url"] == f"{SPOKE_API_BASE_URL}/plans"
         assert mock_request.call_args_list[0][1]["json"] == plan_data
         assert caller.plan_id == _MOCK_PLAN_ID
         assert (
@@ -670,7 +670,7 @@ def test_stop_uploader(
 
             assert (
                 mock_request.call_args_list[0][1]["url"]
-                == f"{CIRCUIT_URL}/{_MOCK_PLAN_ID}/stops:import"
+                == f"{SPOKE_API_BASE_URL}/{_MOCK_PLAN_ID}/stops:import"
             )
             assert caller.stop_ids == response_sequence[0]["json.return_value"]["success"]
 
@@ -708,7 +708,7 @@ def test_plan_distributor(
 
             assert (
                 mock_request.call_args_list[0][1]["url"]
-                == f"{CIRCUIT_URL}/{_MOCK_PLAN_ID}:distribute"
+                == f"{SPOKE_API_BASE_URL}/{_MOCK_PLAN_ID}:distribute"
             )
             assert (
                 caller.distributed
@@ -735,5 +735,8 @@ def test_plan_deleter(
         caller = PlanDeleter(plan_id=_MOCK_PLAN_ID)
         caller.call_api()
 
-        assert mock_request.call_args_list[0][1]["url"] == f"{CIRCUIT_URL}/{_MOCK_PLAN_ID}"
+        assert (
+            mock_request.call_args_list[0][1]["url"]
+            == f"{SPOKE_API_BASE_URL}/{_MOCK_PLAN_ID}"
+        )
         assert caller.deletion == expected_deletion_status
