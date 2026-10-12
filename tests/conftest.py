@@ -2,10 +2,12 @@
 
 from collections.abc import Iterator
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import pytest
 from typeguard import typechecked
+
+from bfb_delivery.lib.dispatch.api_callers import CustomStopPropertiesGetter
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
@@ -22,6 +24,41 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
             item.add_marker("integration")
         elif test_path.startswith(e2e_tests_dir):
             item.add_marker("e2e")
+
+
+@pytest.fixture(scope="class", autouse=True)
+def mock_custom_stop_properties_request_call() -> Iterator[Mock]:
+    """Mock only the _request_call made by CustomStopPropertiesGetter."""
+    response = Mock()
+    response.status_code = 200
+    response.json.return_value = {
+        "customStopProperties": [
+            {
+                "id": "aJyl6WxtFXXPXPt-7pGa2",
+                "name": "protein",
+            },
+        ]
+    }
+    response.raise_for_status.return_value = None
+
+    mock_request_call = Mock(return_value=response)
+
+    def mock_set_request_call(self: CustomStopPropertiesGetter) -> None:
+        self._request_call = mock_request_call
+
+    from bfb_delivery.lib.utils import get_custom_stop_properties_getter
+
+    get_custom_stop_properties_getter.cache_clear()
+
+    try:
+        with patch.object(
+            CustomStopPropertiesGetter,
+            "_set_request_call",
+            mock_set_request_call,
+        ):
+            yield mock_request_call
+    finally:
+        get_custom_stop_properties_getter.cache_clear()
 
 
 @pytest.fixture

@@ -7,6 +7,7 @@ import pandera.pandas as pa
 from pandera.typing import Series
 
 from bfb_delivery.lib.constants import (
+    DEFAULT_PROTEIN_OPT_IN_ID,
     DEPOT_PLACE_ID,
     BoxType,
     CircuitColumns,
@@ -122,11 +123,13 @@ class CircuitRoutesTransformInFromDict(pa.DataFrameModel):
     orderInfo: Series[object] = ORDER_INFO_FIELD()
     packageCount: Series[float] = _NULLABLE_FIELD(eq=1, alias=CircuitColumns.PACKAGE_COUNT)
     # Series[dict[str, Any]] breaks pydantic/json-schema generation.
-    # TODO: When adding neighborhood to customProperties, will need to run item_in_field_dict
-    # on multiple columns. We'll want to do that in recipient too.
+    # TODO: When adding neighborhood to customProperties, will need to run
+    # item_in_field_dict on multiple columns. We'll want to do that in recipient too.
     # See https://github.com/crickets-and-comb/stormwater_monitoring_datasheet_extraction
-    customProperties: Series[object] = _COERCE_FIELD(
-        item_in_field_dict=CircuitColumns.PROTEIN_OPT_IN,
+    customProperties: Series[object] = _NULLABLE_FIELD(
+        # TODO: Make a schema factory so we can use CustomStopPropertiesGetter
+        # without calling the API at import time, instead of harcoding here.
+        item_in_field_dict=DEFAULT_PROTEIN_OPT_IN_ID,
         alias=CircuitColumns.CUSTOM_PROPERTIES,
     )
 
@@ -150,6 +153,7 @@ class CircuitRoutesTransformInFromDict(pa.DataFrameModel):
         # https://github.com/crickets-and-comb/bfb_delivery/issues/84
         address1_in_address = True
         address2_in_address = True
+        field_not_null_where_product = {"col": CircuitColumns.CUSTOM_PROPERTIES}
 
 
 class CircuitRoutesTransformOut(pa.DataFrameModel):
@@ -171,7 +175,7 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
     box_type: Series[pa.Category] = BOX_TYPE_FIELD()
     neighborhood: Series[str] = NEIGHBORHOOD_FIELD()
     email: Series[str] = EMAIL_FIELD()
-    protein_opt_in: Series[pa.Category] = PROTEIN_OPT_IN_FIELD()
+    protein_opt_in: Series[pa.Category] = PROTEIN_OPT_IN_FIELD(nullable=True)
 
     # Ancillary columns.
     plan: Series[str] = PLAN_ID_FIELD(alias=CircuitColumns.PLAN)
@@ -215,6 +219,7 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
             "start_idx": 1,
         }
         increasing_by = {"cols": [IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO]}
+        field_not_null_where_product = {"col": Columns.PROTEIN_OPT_IN}
 
 
 class CircuitRoutesWriteIn(pa.DataFrameModel):

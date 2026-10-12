@@ -56,11 +56,12 @@ class CircuitColumns:
     ADDRESS_LINE_1: Final[str] = "addressLineOne"
     ADDRESS_LINE_2: Final[str] = "addressLineTwo"
     ALLOWED_DRIVERS: Final[str] = "allowedDrivers"
-    CUSTOM_PROPERTIES: Final[str] = "customProperties"
     CANCELED: Final[str] = "canceled"
     CITY: Final[str] = "city"
     CODE: Final[str] = "code"
     COUNTRY: Final[str] = "country"
+    CUSTOM_PROPERTIES: Final[str] = "customProperties"
+    CUSTOM_STOP_PROPERTIES: Final[str] = "customStopProperties"
     DAY: Final[str] = "day"
     DEPOT: Final[str] = "depot"
     DISTRIBUTED: Final[str] = "distributed"
@@ -137,6 +138,16 @@ COMBINED_ROUTES_COLUMNS: Final[list[str]] = [
 ]
 
 CIRCUIT_DOWNLOAD_COLUMNS: Final[list[str]] = COMBINED_ROUTES_COLUMNS + [Columns.EMAIL]
+
+DEFAULT_PROTEIN_OPT_IN_ID: Final[str] = "aJyl6WxtFXXPXPt-7pGa2"
+DEFAULT_CUSTOM_STOP_PROPERTIES: Final[dict[str, list[dict[str, str | bool]]]] = {
+    CircuitColumns.CUSTOM_STOP_PROPERTIES: [
+        {
+            CircuitColumns.ID: DEFAULT_PROTEIN_OPT_IN_ID,
+            CircuitColumns.NAME: CircuitColumns.PROTEIN_OPT_IN,
+        }
+    ]
+}
 
 
 class DocStrings:
@@ -568,3 +579,10 @@ SPLIT_ROUTE_COLUMNS: Final[list[str]] = [
     Columns.NEIGHBORHOOD,
     Columns.PROTEIN_OPT_IN,
 ]
+
+
+class SpokeURLs:
+    """URLs for Spoke API."""
+
+    BASE: Final[str] = CIRCUIT_URL
+    CUSTOM_STOP_PROPERTIES: Final[str] = f"{BASE}/team/customStopProperties"

@@ -1,5 +1,6 @@
 """DataFrame checks."""
 
+import numpy as np
 import pandas as pd
 import pandera.extensions as extensions
 
@@ -81,6 +82,18 @@ def contiguous_group(
         sorted(vals) == list(range(start_idx, len(vals) + start_idx))
         for _, vals in df.groupby(group_col)[contiguous_col]
     )
+
+
+@extensions.register_check_method(statistics=["col"])
+def field_not_null_where_product(df: pd.DataFrame, col: str) -> bool:
+    """Assert field values are not null where there is a product to deliver."""
+    no_product_mask = np.array(
+        [
+            False if orderInfo.get(CircuitColumns.PRODUCTS) else True
+            for orderInfo in df[CircuitColumns.ORDER_INFO]
+        ]
+    )
+    return all(df[col].notnull() | no_product_mask)
 
 
 @extensions.register_check_method(statistics=["col_a", "col_b"])

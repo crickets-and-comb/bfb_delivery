@@ -15,6 +15,7 @@ from bfb_delivery.lib.dispatch.api_callers import (
     BaseBFBGetCaller,
     BaseBFBPostCaller,
     BaseCaller,
+    CustomStopPropertiesGetter,
     OptimizationChecker,
     OptimizationLauncher,
     PlanDeleter,
@@ -504,6 +505,51 @@ def test_optimization_callers(
             )
             assert caller.operation_id == _MOCK_OPERATION_ID
             assert caller.finished == expected_done_status
+
+
+@pytest.mark.parametrize(
+    "property_name, expected_id, error_context",
+    [
+        ("protein", "aJyl6WxtFXXPXPt-7pGa2", nullcontext()),
+        ("test property", "test id", nullcontext()),
+        (
+            "invalid_property",
+            None,
+            pytest.raises(
+                ValueError, match="Custom stop property invalid_property not found"
+            ),
+        ),
+    ],
+)
+@typechecked
+def test_custom_stop_properties_getter(
+    property_name: str,
+    expected_id: str | None,
+    error_context: AbstractContextManager,
+    mock_custom_stop_properties_request_call: Mock,
+) -> None:
+    """Test CustomStopPropertiesGetter."""
+    mock_custom_stop_properties_request_call.return_value.json.return_value = {
+        "customStopProperties": [
+            {
+                "id": "aJyl6WxtFXXPXPt-7pGa2",
+                "name": "protein",
+                "visibleToDrivers": True,
+                "visibleToRecipients": True,
+            },
+            {
+                "id": "test id",
+                "name": "test property",
+            },
+        ]
+    }
+
+    caller = CustomStopPropertiesGetter()
+    caller.call_api()
+
+    with error_context:
+        prop_id = caller.get_property_ID(property_name=property_name)
+        assert prop_id == expected_id
 
 
 @pytest.mark.parametrize(

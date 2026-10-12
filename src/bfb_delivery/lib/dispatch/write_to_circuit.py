@@ -36,7 +36,7 @@ from bfb_delivery.lib.dispatch.api_callers import (
 from bfb_delivery.lib.dispatch.read_circuit import get_route_files
 from bfb_delivery.lib.formatting.sheet_shaping import create_manifests, split_chunked_route
 from bfb_delivery.lib.schema.utils import schema_error_handler
-from bfb_delivery.lib.utils import get_friday
+from bfb_delivery.lib.utils import get_custom_stop_properties_getter, get_friday
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -960,9 +960,11 @@ def _build_stop_array(route_stops: pd.DataFrame, driver_id: str) -> list[dict[st
         if recipient_dict:
             stop[CircuitColumns.RECIPIENT] = recipient_dict
 
-        custom_properties_dict = {
-            CircuitColumns.PROTEIN_OPT_IN: stop_row[Columns.PROTEIN_OPT_IN]
-        }
+        custom_properties_getter = get_custom_stop_properties_getter()
+        protein_opt_in_id = custom_properties_getter.get_property_ID(
+            property_name=CircuitColumns.PROTEIN_OPT_IN
+        )
+        custom_properties_dict = {protein_opt_in_id: stop_row[Columns.PROTEIN_OPT_IN]}
         stop[CircuitColumns.CUSTOM_PROPERTIES] = custom_properties_dict
 
         stop_array.append(stop)

@@ -15,6 +15,7 @@ from comb_utils import concat_response_pages, get_responses
 
 from bfb_delivery.lib.constants import (
     ALL_HHS_DRIVER,
+    CIRCUIT_DATE_FORMAT,
     CIRCUIT_DOWNLOAD_COLUMNS,
     DEPOT_PLACE_ID,
     CircuitColumns,
@@ -32,7 +33,7 @@ from bfb_delivery.lib.schema import (
     CircuitRoutesWriteOut,
 )
 from bfb_delivery.lib.schema.utils import schema_error_handler
-from bfb_delivery.lib.utils import get_friday
+from bfb_delivery.lib.utils import get_custom_stop_properties_getter, get_friday
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -73,7 +74,7 @@ def get_route_files(
         ValueError: If no stops are found for the given plans.
         ValueError: If no routed stops are found for the given plans.
     """
-    start_date = start_date if start_date else get_friday(fmt="%Y%m%d")
+    start_date = start_date if start_date else get_friday(fmt=CIRCUIT_DATE_FORMAT)
     end_date = end_date if end_date else start_date
     sub_dir = "routes_" + start_date
     output_dir = (
@@ -431,10 +432,12 @@ def _set_routes_df_values(routes_df: pd.DataFrame) -> pd.DataFrame:
     routes_df[IntermediateColumns.ROUTE_TITLE] = _clean_title(
         routes_df[IntermediateColumns.ROUTE_TITLE], warn=False
     )
+    custom_stop_properties_getter = get_custom_stop_properties_getter()
+    protein_opt_in_id = custom_stop_properties_getter.get_property_ID(
+        property_name=CircuitColumns.PROTEIN_OPT_IN
+    )
     routes_df[Columns.PROTEIN_OPT_IN] = routes_df[CircuitColumns.CUSTOM_PROPERTIES].apply(
-        lambda custom_properties_dict: custom_properties_dict.get(
-            CircuitColumns.PROTEIN_OPT_IN
-        )
+        lambda custom_properties_dict: custom_properties_dict.get(protein_opt_in_id)
     )
 
     _warn_and_impute(routes_df=routes_df)
