@@ -17,6 +17,7 @@ from bfb_delivery.lib.constants import (
     DEFAULT_CUSTOM_STOP_PROPERTIES,
     CircuitColumns,
     RateLimits,
+    SpokeURLs,
 )
 from bfb_delivery.lib.dispatch.utils import get_circuit_key
 
@@ -130,7 +131,7 @@ class CustomStopPropertiesGetter(BaseBFBGetCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call."""
-        self._url = f"{CIRCUIT_URL}/team/customStopProperties"
+        self._url = SpokeURLs.CUSTOM_STOP_PROPERTIES
 
     @typechecked
     def _handle_200(self) -> None:

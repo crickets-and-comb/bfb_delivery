@@ -579,3 +579,10 @@ SPLIT_ROUTE_COLUMNS: Final[list[str]] = [
     Columns.NEIGHBORHOOD,
     Columns.PROTEIN_OPT_IN,
 ]
+
+
+class SpokeURLs:
+    """URLs for Spoke API."""
+
+    BASE: Final[str] = CIRCUIT_URL
+    CUSTOM_STOP_PROPERTIES: Final[str] = f"{BASE}/team/customStopProperties"
