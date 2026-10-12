@@ -27,8 +27,8 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
 
 
 @pytest.fixture(scope="class", autouse=True)
-def mock_custom_stop_properties_get_call() -> Iterator[Mock]:
-    """Mock only the GET call made by CustomStopPropertiesGetter."""
+def mock_custom_stop_properties_request_call() -> Iterator[Mock]:
+    """Mock only the _request_call made by CustomStopPropertiesGetter."""
     response = Mock()
     response.status_code = 200
     response.json.return_value = {

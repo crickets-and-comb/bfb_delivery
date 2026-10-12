@@ -526,10 +526,10 @@ def test_custom_stop_properties_getter(
     property_name: str,
     expected_id: str | None,
     error_context: AbstractContextManager,
-    mock_custom_stop_properties_get_call: Mock,
+    mock_custom_stop_properties_request_call: Mock,
 ) -> None:
     """Test CustomStopPropertiesGetter."""
-    mock_custom_stop_properties_get_call.return_value.json.return_value = {
+    mock_custom_stop_properties_request_call.return_value.json.return_value = {
         "customStopProperties": [
             {
                 "id": "aJyl6WxtFXXPXPt-7pGa2",
