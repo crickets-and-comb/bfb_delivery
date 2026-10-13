@@ -1,7 +1,7 @@
-"""Test suite for write_to_circuit.py."""
+"""Test suite for write_to_spoke.py."""
 
 # NOTE: We're ignoring the top-level `build_routes_from_chunked` since everything it wraps is
-# already under test, except the parts defined in the write_to_circuit module itself, i.e.
+# already under test, except the parts defined in the write_to_spoke module itself, i.e.
 # `upload_split_chunked`.
 
 # TODO: Use schema in typehints where applicable.
@@ -37,15 +37,14 @@ from typeguard import typechecked
 
 from bfb_delivery import split_chunked_route
 from bfb_delivery.lib.constants import (
-    CIRCUIT_DRIVERS_URL,
-    CIRCUIT_URL,
     DEFAULT_PROTEIN_OPT_IN_ID,
-    CircuitColumns,
     Columns,
     IntermediateColumns,
     ProteinOptInValues,
+    SpokeColumns,
+    SpokeURLs,
 )
-from bfb_delivery.lib.dispatch.write_to_circuit import (
+from bfb_delivery.lib.dispatch.write_to_spoke import (
     _assign_drivers,
     _assign_drivers_to_plans,
     _build_plan_stops,
@@ -92,24 +91,24 @@ def mock_driver_df(mock_chunked_sheet_raw: Path) -> pd.DataFrame:
     chunked_sheet = pd.read_excel(mock_chunked_sheet_raw)
     driver_df = pd.DataFrame(
         columns=[
-            CircuitColumns.ID,
-            CircuitColumns.NAME,
-            CircuitColumns.EMAIL,
-            CircuitColumns.ACTIVE,
+            SpokeColumns.ID,
+            SpokeColumns.NAME,
+            SpokeColumns.EMAIL,
+            SpokeColumns.ACTIVE,
         ]
     )
-    driver_df[CircuitColumns.NAME] = list(
+    driver_df[SpokeColumns.NAME] = list(
         set([driver.split("#")[0].strip() for driver in chunked_sheet[Columns.DRIVER]])
     )
-    driver_df[CircuitColumns.ID] = driver_df[CircuitColumns.NAME].apply(
+    driver_df[SpokeColumns.ID] = driver_df[SpokeColumns.NAME].apply(
         lambda name: f"drivers/{name.replace(' ', '')}"
     )
-    driver_df[CircuitColumns.EMAIL] = driver_df[CircuitColumns.NAME].apply(
+    driver_df[SpokeColumns.EMAIL] = driver_df[SpokeColumns.NAME].apply(
         lambda name: f"{name.replace(' ', '')}@example.com"
     )
-    driver_df[CircuitColumns.ACTIVE] = True
+    driver_df[SpokeColumns.ACTIVE] = True
 
-    driver_df = driver_df.sort_values(by=CircuitColumns.NAME).reset_index(drop=True)
+    driver_df = driver_df.sort_values(by=SpokeColumns.NAME).reset_index(drop=True)
 
     return driver_df
 
@@ -122,14 +121,14 @@ def register_driver_gets(
     next_page_token = "token123"
 
     requests_mock.get(
-        url=CIRCUIT_DRIVERS_URL,
+        url=SpokeURLs.DRIVERS,
         json={
             "drivers": drivers_array[0 : len(drivers_array) // 2],
             "nextPageToken": next_page_token,
         },
     )
     requests_mock.get(
-        url=CIRCUIT_DRIVERS_URL + f"?pageToken={next_page_token}",
+        url=SpokeURLs.DRIVERS + f"?pageToken={next_page_token}",
         json={
             "drivers": drivers_array[len(drivers_array) // 2 : len(drivers_array)],
             "nextPageToken": None,
@@ -142,7 +141,7 @@ def register_driver_gets(
 def mock_get_all_drivers(
     mock_driver_df: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
-    """Mock the Circuit API to return a simple list of drivers."""
+    """Mock the Spoke API to return a simple list of drivers."""
     register_driver_gets(
         drivers_array=mock_driver_df.to_dict(orient="records"), requests_mock=requests_mock
     )
@@ -153,9 +152,9 @@ def mock_get_all_drivers(
 def mock_get_all_drivers_with_inactive(
     mock_driver_df: pd.DataFrame, requests_mock: Mocker  # noqa: F811
 ) -> None:
-    """Mock the Circuit API to return a simple list of drivers."""
+    """Mock the Spoke API to return a simple list of drivers."""
     driver_df = mock_driver_df.copy()
-    driver_df.loc[_FAILURE_IDX, CircuitColumns.ACTIVE] = False
+    driver_df.loc[_FAILURE_IDX, SpokeColumns.ACTIVE] = False
     register_driver_gets(
         drivers_array=driver_df.to_dict(orient="records"), requests_mock=requests_mock
     )
@@ -181,8 +180,8 @@ def mock_plan_df_initial(mock_stops_df: pd.DataFrame) -> pd.DataFrame:
                 mock_stops_df[IntermediateColumns.SHEET_NAME].unique()
             ),
             IntermediateColumns.DRIVER_NAME: None,
-            CircuitColumns.EMAIL: None,
-            CircuitColumns.ID: None,
+            SpokeColumns.EMAIL: None,
+            SpokeColumns.ID: None,
         }
     )
 
@@ -196,17 +195,17 @@ def mock_plan_df_drivers_assigned(
     plan_df = mock_plan_df_initial.copy()[[IntermediateColumns.ROUTE_TITLE]]
     plan_df[IntermediateColumns.DRIVER_NAME] = [
         mock_driver_df[
-            mock_driver_df[CircuitColumns.NAME].apply(lambda x: x in title)  # noqa: B023
-        ][CircuitColumns.NAME].iloc[0]
+            mock_driver_df[SpokeColumns.NAME].apply(lambda x: x in title)  # noqa: B023
+        ][SpokeColumns.NAME].iloc[0]
         for title in plan_df[IntermediateColumns.ROUTE_TITLE]
     ]
     plan_df = plan_df.merge(
         mock_driver_df,
         left_on=IntermediateColumns.DRIVER_NAME,
-        right_on=CircuitColumns.NAME,
+        right_on=SpokeColumns.NAME,
         how="left",
     )
-    plan_df = plan_df[mock_plan_df_initial.columns.to_list() + [CircuitColumns.ACTIVE]]
+    plan_df = plan_df[mock_plan_df_initial.columns.to_list() + [SpokeColumns.ACTIVE]]
 
     return plan_df
 
@@ -218,7 +217,7 @@ def driver_selections(mock_stops_df: pd.DataFrame, mock_driver_df: pd.DataFrame)
     driver_selections = []
     for sheet_name in sorted(mock_stops_df[IntermediateColumns.SHEET_NAME].unique()):
         driver_row = mock_driver_df[
-            mock_driver_df[CircuitColumns.NAME].apply(lambda x: x in sheet_name)  # noqa: B023
+            mock_driver_df[SpokeColumns.NAME].apply(lambda x: x in sheet_name)  # noqa: B023
         ]
         driver_selections.append(f"{driver_row.index[0] + 1}")
 
@@ -298,10 +297,10 @@ def mock_plan_df_plans_initialized(
     plan_df[IntermediateColumns.PLAN_ID] = mock_plan_df_drivers_assigned[
         IntermediateColumns.ROUTE_TITLE
     ].apply(lambda title: f"plans/{title.replace(' ', '').replace('#', '')}")
-    plan_df[CircuitColumns.WRITABLE] = True
+    plan_df[SpokeColumns.WRITABLE] = True
     # TODO: Do we need this column?
     # https://github.com/crickets-and-comb/bfb_delivery/issues/64
-    plan_df[CircuitColumns.OPTIMIZATION] = None
+    plan_df[SpokeColumns.OPTIMIZATION] = None
     plan_df[IntermediateColumns.INITIALIZED] = True
 
     return plan_df
@@ -314,7 +313,7 @@ def mock_plan_df_plans_initialized_with_failure(
 ) -> pd.DataFrame:
     """Return a mock plan DataFrame with failed initialization."""
     plan_df = mock_plan_df_plans_initialized.copy()
-    plan_df.loc[_FAILURE_IDX, CircuitColumns.WRITABLE] = False
+    plan_df.loc[_FAILURE_IDX, SpokeColumns.WRITABLE] = False
     plan_df.loc[_FAILURE_IDX, IntermediateColumns.INITIALIZED] = False
 
     return plan_df
@@ -329,19 +328,17 @@ def register_plan_initialization(
     for _, row in plan_df.iterrows():
         title = row[IntermediateColumns.ROUTE_TITLE]
         responses[title] = {
-            CircuitColumns.ID: row[IntermediateColumns.PLAN_ID],
-            CircuitColumns.WRITABLE: row[CircuitColumns.WRITABLE],
+            SpokeColumns.ID: row[IntermediateColumns.PLAN_ID],
+            SpokeColumns.WRITABLE: row[SpokeColumns.WRITABLE],
         }
 
     def post_callback(request: Request, context: Any) -> Any:
         # mypy sees request.json as an attribute only.
         data = request.json()  # type: ignore[misc]
-        plan_title = data.get(CircuitColumns.TITLE)
+        plan_title = data.get(SpokeColumns.TITLE)
         return responses[plan_title]
 
-    requests_mock.register_uri(
-        "POST", f"{CIRCUIT_URL}/plans", json=post_callback, status_code=200
-    )
+    requests_mock.register_uri("POST", SpokeURLs.PLANS, json=post_callback, status_code=200)
 
 
 @pytest.fixture
@@ -416,7 +413,7 @@ def register_stop_upload(
         this_stops_df = _parse_addresses(stops_df=this_stops_df)
 
         stop_arrays[plan_id] = _build_stop_array(
-            route_stops=this_stops_df, driver_id=row[CircuitColumns.ID]
+            route_stops=this_stops_df, driver_id=row[SpokeColumns.ID]
         )
 
         responses[plan_id] = (
@@ -434,7 +431,7 @@ def register_stop_upload(
     for plan_id in responses:
         requests_mock.register_uri(
             "POST",
-            f"{CIRCUIT_URL}/{plan_id}/stops:import",
+            SpokeURLs.STOPS_IMPORT.format(plan_id=plan_id),
             json=responses[plan_id],
             status_code=200,
         )
@@ -536,21 +533,19 @@ def register_optimizations(
     for _, row in plan_df.iterrows():
         plan_id = row[IntermediateColumns.PLAN_ID]
         responses[plan_id] = {
-            CircuitColumns.ID: plan_id.replace(
-                CircuitColumns.PLANS, CircuitColumns.OPERATIONS
-            ),
-            CircuitColumns.DONE: False,
-            CircuitColumns.METADATA: (
-                {CircuitColumns.CANCELED: False}
+            SpokeColumns.ID: plan_id.replace(SpokeColumns.PLANS, SpokeColumns.OPERATIONS),
+            SpokeColumns.DONE: False,
+            SpokeColumns.METADATA: (
+                {SpokeColumns.CANCELED: False}
                 if row[IntermediateColumns.OPTIMIZED]
-                else {CircuitColumns.CANCELED: True}
+                else {SpokeColumns.CANCELED: True}
             ),
         }
 
     for plan_id in responses:
         requests_mock.register_uri(
             "POST",
-            f"{CIRCUIT_URL}/{plan_id}:optimize",
+            SpokeURLs.OPTIMIZE.format(plan_id=plan_id),
             json=responses[plan_id],
             status_code=200,
         )
@@ -624,12 +619,10 @@ def register_optimization_confirmations(
     for _, row in plan_df.iterrows():
         plan_id = row[IntermediateColumns.PLAN_ID]
         responses[plan_id] = {
-            CircuitColumns.ID: plan_id.replace(
-                CircuitColumns.PLANS, CircuitColumns.OPERATIONS
-            ),
-            CircuitColumns.DONE: True,
-            CircuitColumns.METADATA: {
-                CircuitColumns.CANCELED: False if row[IntermediateColumns.OPTIMIZED] else True
+            SpokeColumns.ID: plan_id.replace(SpokeColumns.PLANS, SpokeColumns.OPERATIONS),
+            SpokeColumns.DONE: True,
+            SpokeColumns.METADATA: {
+                SpokeColumns.CANCELED: False if row[IntermediateColumns.OPTIMIZED] else True
             },
         }
 
@@ -637,8 +630,8 @@ def register_optimization_confirmations(
         requests_mock.register_uri(
             "GET",
             (
-                f"{CIRCUIT_URL}/"
-                f"{plan_id.replace(CircuitColumns.PLANS, CircuitColumns.OPERATIONS)}"
+                f"{SpokeURLs.BASE}/"
+                f"{plan_id.replace(SpokeColumns.PLANS, SpokeColumns.OPERATIONS)}"
             ),
             json=responses[plan_id],
             status_code=200,
@@ -683,7 +676,7 @@ def mock_optimization_confirmations_after_failure(
 def mock_plan_df_distributed(mock_plan_df_confirmed: pd.DataFrame) -> pd.DataFrame:
     """Return a mock plan DataFrame with optimizations confirmed."""
     plan_df = mock_plan_df_confirmed.copy()
-    plan_df[CircuitColumns.DISTRIBUTED] = True
+    plan_df[SpokeColumns.DISTRIBUTED] = True
 
     return plan_df
 
@@ -695,7 +688,7 @@ def mock_plan_df_distributed_with_failure(
 ) -> pd.DataFrame:
     """Return a mock plan DataFrame with optimizations confirmed."""
     plan_df = mock_plan_df_distributed.copy()
-    plan_df.loc[_FAILURE_IDX, CircuitColumns.DISTRIBUTED] = False
+    plan_df.loc[_FAILURE_IDX, SpokeColumns.DISTRIBUTED] = False
 
     return plan_df
 
@@ -707,10 +700,10 @@ def mock_plan_df_distributed_after_failure(
 ) -> pd.DataFrame:
     """Return a mock plan DataFrame with optimizations confirmed."""
     plan_df = mock_plan_df_confirmed_with_failure.copy()
-    plan_df[CircuitColumns.DISTRIBUTED] = False
+    plan_df[SpokeColumns.DISTRIBUTED] = False
     plan_df.loc[
         plan_df[IntermediateColumns.OPTIMIZED] == True,  # noqa: E712
-        CircuitColumns.DISTRIBUTED,
+        SpokeColumns.DISTRIBUTED,
     ] = True
 
     return plan_df
@@ -725,13 +718,13 @@ def register_route_distributions(
     for _, row in plan_df.iterrows():
         plan_id = row[IntermediateColumns.PLAN_ID]
         responses[plan_id] = {
-            CircuitColumns.DISTRIBUTED: True if row[CircuitColumns.DISTRIBUTED] else False
+            SpokeColumns.DISTRIBUTED: True if row[SpokeColumns.DISTRIBUTED] else False
         }
 
     for plan_id in responses:
         requests_mock.register_uri(
             "POST",
-            f"{CIRCUIT_URL}/{plan_id}:distribute",
+            SpokeURLs.DISTRIBUTE_PLAN.format(_plan_id=plan_id),
             json=responses[plan_id],
             status_code=200,
         )
@@ -772,7 +765,7 @@ def mock_route_distributions_after_failure(
 
 @typechecked
 def test_get_all_drivers(mock_driver_df: pd.DataFrame, mock_get_all_drivers: None) -> None:
-    """Test that _get_all_drivers retrieves all drivers from the Circuit API."""
+    """Test that _get_all_drivers retrieves all drivers from the Spoke API."""
     drivers_df = _get_all_drivers()
 
     pd.testing.assert_frame_equal(
@@ -781,7 +774,7 @@ def test_get_all_drivers(mock_driver_df: pd.DataFrame, mock_get_all_drivers: Non
     )
 
     pd.testing.assert_frame_equal(
-        drivers_df, drivers_df.sort_values(by=CircuitColumns.NAME).reset_index(drop=True)
+        drivers_df, drivers_df.sort_values(by=SpokeColumns.NAME).reset_index(drop=True)
     )
 
 
@@ -806,7 +799,7 @@ def test_assign_drivers(
 
     result_df = _assign_drivers(drivers_df=mock_driver_df, plan_df=mock_plan_df_initial)
 
-    result_df[CircuitColumns.ACTIVE] = result_df[CircuitColumns.ACTIVE].astype(bool)
+    result_df[SpokeColumns.ACTIVE] = result_df[SpokeColumns.ACTIVE].astype(bool)
     pd.testing.assert_frame_equal(result_df, mock_plan_df_drivers_assigned)
 
 
@@ -834,14 +827,14 @@ def test_assign_drivers_to_plans(
     if assignment_fixture == "mock_driver_assignment_with_inactive":
         mock_plan_df_drivers_assigned.loc[
             _FAILURE_IDX,
-            [IntermediateColumns.DRIVER_NAME, CircuitColumns.EMAIL, CircuitColumns.ID],
+            [IntermediateColumns.DRIVER_NAME, SpokeColumns.EMAIL, SpokeColumns.ID],
         ] = mock_plan_df_drivers_assigned.iloc[_FAILURE_IDX + 1][
-            [IntermediateColumns.DRIVER_NAME, CircuitColumns.EMAIL, CircuitColumns.ID]
+            [IntermediateColumns.DRIVER_NAME, SpokeColumns.EMAIL, SpokeColumns.ID]
         ]
 
     result_df = _assign_drivers_to_plans(stops_df=mock_stops_df)
 
-    result_df[CircuitColumns.ACTIVE] = result_df[CircuitColumns.ACTIVE].astype(bool)
+    result_df[SpokeColumns.ACTIVE] = result_df[SpokeColumns.ACTIVE].astype(bool)
     pd.testing.assert_frame_equal(result_df, mock_plan_df_drivers_assigned)
 
 
@@ -918,9 +911,9 @@ def test_create_plans_calls(
     if assignment_fixture == "mock_driver_assignment_with_inactive":
         expected_plan_df.loc[
             _FAILURE_IDX,
-            [IntermediateColumns.DRIVER_NAME, CircuitColumns.EMAIL, CircuitColumns.ID],
+            [IntermediateColumns.DRIVER_NAME, SpokeColumns.EMAIL, SpokeColumns.ID],
         ] = expected_plan_df.iloc[_FAILURE_IDX + 1][
-            [IntermediateColumns.DRIVER_NAME, CircuitColumns.EMAIL, CircuitColumns.ID]
+            [IntermediateColumns.DRIVER_NAME, SpokeColumns.EMAIL, SpokeColumns.ID]
         ]
 
     _ = _create_plans(
@@ -931,29 +924,25 @@ def test_create_plans_calls(
     )
 
     driver_requests = [
-        req
-        for req in requests_mock.request_history
-        if req.url.startswith(CIRCUIT_DRIVERS_URL)
+        req for req in requests_mock.request_history if req.url.startswith(SpokeURLs.DRIVERS)
     ]
     assert len(driver_requests) == 2
 
-    plan_posts = [
-        req for req in requests_mock.request_history if req.url == f"{CIRCUIT_URL}/plans"
-    ]
+    plan_posts = [req for req in requests_mock.request_history if req.url == SpokeURLs.PLANS]
     assert len(plan_posts) == len(expected_plan_df)
 
     payloads = [req.json() for req in plan_posts]
     expected_payloads = [
         {
-            CircuitColumns.TITLE: row[IntermediateColumns.ROUTE_TITLE],
+            SpokeColumns.TITLE: row[IntermediateColumns.ROUTE_TITLE],
             # TODO: Just make this once.
             # https://github.com/crickets-and-comb/bfb_delivery/issues/65
-            CircuitColumns.STARTS: {
-                CircuitColumns.DAY: int(_START_DATE.split("-")[2]),
-                CircuitColumns.MONTH: int(_START_DATE.split("-")[1]),
-                CircuitColumns.YEAR: int(_START_DATE.split("-")[0]),
+            SpokeColumns.STARTS: {
+                SpokeColumns.DAY: int(_START_DATE.split("-")[2]),
+                SpokeColumns.MONTH: int(_START_DATE.split("-")[1]),
+                SpokeColumns.YEAR: int(_START_DATE.split("-")[0]),
             },
-            CircuitColumns.DRIVERS: [row[CircuitColumns.ID]],
+            SpokeColumns.DRIVERS: [row[SpokeColumns.ID]],
         }
         for _, row in expected_plan_df.iterrows()
     ]
@@ -1007,15 +996,15 @@ def test_create_plans_returns(
         if initialization_fixture == "mock_plan_initialization"
         else request.getfixturevalue("mock_plan_df_plans_initialized_with_failure")
     )
-    expected_plan_df[CircuitColumns.ACTIVE] = expected_plan_df[CircuitColumns.ACTIVE].astype(
+    expected_plan_df[SpokeColumns.ACTIVE] = expected_plan_df[SpokeColumns.ACTIVE].astype(
         object
     )
     if assignment_fixture == "mock_driver_assignment_with_inactive":
         expected_plan_df.loc[
             _FAILURE_IDX,
-            [IntermediateColumns.DRIVER_NAME, CircuitColumns.EMAIL, CircuitColumns.ID],
+            [IntermediateColumns.DRIVER_NAME, SpokeColumns.EMAIL, SpokeColumns.ID],
         ] = expected_plan_df.iloc[_FAILURE_IDX + 1][
-            [IntermediateColumns.DRIVER_NAME, CircuitColumns.EMAIL, CircuitColumns.ID]
+            [IntermediateColumns.DRIVER_NAME, SpokeColumns.EMAIL, SpokeColumns.ID]
         ]
 
     plan_df = _create_plans(
@@ -1039,7 +1028,7 @@ def test_create_plans_writes_if_initialization_raises(
     """Test that _create_plans writes the plan_df if initialization raises."""
     plan_df_path = tmp_path / "plan_df.csv"
     with patch(
-        "bfb_delivery.lib.dispatch.write_to_circuit._initialize_plans"
+        "bfb_delivery.lib.dispatch.write_to_spoke._initialize_plans"
     ) as mock_initalize:
         mock_initalize.side_effect = ValueError("Something went wrong.")
 
@@ -1078,7 +1067,7 @@ def test_upload_stops_calls(
     _ = _upload_stops(stops_df=mock_stops_df, plan_df=plan_df_initialized, verbose=False)
 
     for plan_id, expected_stop_array in mock_stop_upload.items():
-        expected_url = f"{CIRCUIT_URL}/{plan_id}/stops:import"
+        expected_url = SpokeURLs.STOPS_IMPORT.format(plan_id=plan_id)
         matching_requests = [
             req for req in requests_mock.request_history if req.url == expected_url
         ]
@@ -1137,7 +1126,7 @@ def test_upload_stops_no_addressName(
     )
 
     for plan_id, _ in mock_stop_upload.items():
-        expected_url = f"{CIRCUIT_URL}/{plan_id}/stops:import"
+        expected_url = SpokeURLs.STOPS_IMPORT.format(plan_id=plan_id)
         matching_requests = [
             req for req in requests_mock.request_history if req.url == expected_url
         ]
@@ -1145,7 +1134,7 @@ def test_upload_stops_no_addressName(
 
         actual_payload = matching_requests[0].json()
         for stop in actual_payload:
-            assert "addressName" not in stop[CircuitColumns.ADDRESS].keys()
+            assert "addressName" not in stop[SpokeColumns.ADDRESS].keys()
 
 
 @typechecked
@@ -1161,7 +1150,7 @@ def test_upload_stops_minimal_address_line_2(
     )
 
     for plan_id, _ in mock_stop_upload.items():
-        expected_url = f"{CIRCUIT_URL}/{plan_id}/stops:import"
+        expected_url = SpokeURLs.STOPS_IMPORT.format(plan_id=plan_id)
         matching_requests = [
             req for req in requests_mock.request_history if req.url == expected_url
         ]
@@ -1169,12 +1158,12 @@ def test_upload_stops_minimal_address_line_2(
 
         actual_payload = matching_requests[0].json()
         for stop in actual_payload:
-            addressLine2 = stop[CircuitColumns.ADDRESS].get(CircuitColumns.ADDRESS_LINE_2, "")
+            addressLine2 = stop[SpokeColumns.ADDRESS].get(SpokeColumns.ADDRESS_LINE_2, "")
             if addressLine2:
                 assert (
-                    stop[CircuitColumns.ADDRESS][CircuitColumns.CITY] not in addressLine2
-                    and stop[CircuitColumns.ADDRESS][CircuitColumns.STATE] not in addressLine2
-                    and stop[CircuitColumns.ADDRESS][CircuitColumns.ZIP] not in addressLine2
+                    stop[SpokeColumns.ADDRESS][SpokeColumns.CITY] not in addressLine2
+                    and stop[SpokeColumns.ADDRESS][SpokeColumns.STATE] not in addressLine2
+                    and stop[SpokeColumns.ADDRESS][SpokeColumns.ZIP] not in addressLine2
                 )
                 assert "#" in addressLine2
 
@@ -1217,15 +1206,15 @@ def test_optimize_routes_calls(
     for plan_id in mock_plan_df_stops_uploaded[
         mock_plan_df_stops_uploaded[IntermediateColumns.STOPS_UPLOADED]
     ][IntermediateColumns.PLAN_ID]:
-        assert f"{CIRCUIT_URL}/{plan_id}:optimize" in [
+        assert SpokeURLs.OPTIMIZE.format(plan_id=plan_id) in [
             req.url for req in requests_mock.request_history
         ]
     for plan_id in plan_df_launched[plan_df_launched[IntermediateColumns.OPTIMIZED]][
         IntermediateColumns.PLAN_ID
     ]:
         assert (
-            f"{CIRCUIT_URL}/"
-            f"{plan_id.replace(CircuitColumns.PLANS, CircuitColumns.OPERATIONS)}"
+            f"{SpokeURLs.BASE}/"
+            f"{plan_id.replace(SpokeColumns.PLANS, SpokeColumns.OPERATIONS)}"
         ) in [req.url for req in requests_mock.request_history]
 
 
@@ -1289,7 +1278,7 @@ def test_distribute_routes_calls(
     for plan_id in plan_df_optimized[
         plan_df_optimized[IntermediateColumns.OPTIMIZED] == True  # noqa: E712
     ][IntermediateColumns.PLAN_ID]:
-        assert f"{CIRCUIT_URL}/{plan_id}:distribute" in [
+        assert SpokeURLs.DISTRIBUTE_PLAN.format(_plan_id=plan_id) in [
             req.url for req in requests_mock.request_history
         ]
 
@@ -1428,7 +1417,7 @@ def test_upload_split_chunked_calls(
     )
 
     for plan_id, expected_stop_array in mock_stop_upload.items():
-        expected_url = f"{CIRCUIT_URL}/{plan_id}/stops:import"
+        expected_url = SpokeURLs.STOPS_IMPORT.format(plan_id=plan_id)
         matching_requests = [
             req for req in requests_mock.request_history if req.url == expected_url
         ]
@@ -1548,7 +1537,7 @@ def test_upload_split_chunked_return(
 
     expected_df = mock_plan_df_distributed.copy()
     expected_df[IntermediateColumns.START_DATE] = _START_DATE
-    expected_df[CircuitColumns.ACTIVE] = expected_df[CircuitColumns.ACTIVE].astype(object)
+    expected_df[SpokeColumns.ACTIVE] = expected_df[SpokeColumns.ACTIVE].astype(object)
 
     failure_route_title = expected_df[IntermediateColumns.ROUTE_TITLE].iloc[_FAILURE_IDX]
 
@@ -1559,7 +1548,7 @@ def test_upload_split_chunked_return(
         ] = False
         expected_df.loc[
             expected_df[IntermediateColumns.ROUTE_TITLE] == failure_route_title,
-            CircuitColumns.WRITABLE,
+            SpokeColumns.WRITABLE,
         ] = False
     if failure_step in ["initialize_plans", "upload_stops"]:
         expected_df.loc[
@@ -1585,11 +1574,11 @@ def test_upload_split_chunked_return(
     ]:
         expected_df.loc[
             expected_df[IntermediateColumns.ROUTE_TITLE] == failure_route_title,
-            CircuitColumns.DISTRIBUTED,
+            SpokeColumns.DISTRIBUTED,
         ] = False
 
     if no_distribute:
-        expected_df[CircuitColumns.DISTRIBUTED] = False
+        expected_df[SpokeColumns.DISTRIBUTED] = False
         pd.testing.assert_frame_equal(result_df, expected_df)
     else:
         pd.testing.assert_frame_equal(result_df, expected_df)
@@ -1640,7 +1629,7 @@ def test_delete_plans(
     for idx, plan_id in enumerate(plan_ids_to_delete):
         requests_mock.register_uri(
             "DELETE",
-            f"{CIRCUIT_URL}/{plan_id}",
+            f"{SpokeURLs.BASE}/{plan_id}",
             json={},
             status_code=(
                 204 if not fail_deletion or (fail_deletion and idx != _FAILURE_IDX) else 400
@@ -1675,7 +1664,7 @@ def test_delete_plan_call(fail: bool, error_context: AbstractContextManager) -> 
         with error_context:
             _ = delete_plan(plan_id=plan_id)
 
-        assert mock_delete.call_args_list[0][1]["url"] == f"{CIRCUIT_URL}/{plan_id}"
+        assert mock_delete.call_args_list[0][1]["url"] == f"{SpokeURLs.BASE}/{plan_id}"
 
 
 @pytest.mark.parametrize(
@@ -1700,21 +1689,21 @@ def test_delete_plan_return(fail: bool, error_context: AbstractContextManager) -
 @pytest.mark.parametrize(
     "value, col, keys",
     [
-        (None, Columns.NEIGHBORHOOD, [CircuitColumns.RECIPIENT, CircuitColumns.EXTERNAL_ID]),
+        (None, Columns.NEIGHBORHOOD, [SpokeColumns.RECIPIENT, SpokeColumns.EXTERNAL_ID]),
         (
             "Neighborhood 1",
             Columns.NEIGHBORHOOD,
-            [CircuitColumns.RECIPIENT, CircuitColumns.EXTERNAL_ID],
+            [SpokeColumns.RECIPIENT, SpokeColumns.EXTERNAL_ID],
         ),
         (
             ProteinOptInValues.YES,
             Columns.PROTEIN_OPT_IN,
-            [CircuitColumns.CUSTOM_PROPERTIES, DEFAULT_PROTEIN_OPT_IN_ID],
+            [SpokeColumns.CUSTOM_PROPERTIES, DEFAULT_PROTEIN_OPT_IN_ID],
         ),
         (
             ProteinOptInValues.NO,
             Columns.PROTEIN_OPT_IN,
-            [CircuitColumns.CUSTOM_PROPERTIES, DEFAULT_PROTEIN_OPT_IN_ID],
+            [SpokeColumns.CUSTOM_PROPERTIES, DEFAULT_PROTEIN_OPT_IN_ID],
         ),
     ],
 )
@@ -1723,12 +1712,12 @@ def test_build_stop_array_adds_subfield(value: None | str, col: str, keys: list[
     """_build_stop_array assigns the specified field to the specified dict."""
     stop_df = pd.DataFrame(
         {
-            CircuitColumns.ADDRESS_LINE_1: ["ADDRESS_LINE_1"],
-            CircuitColumns.ADDRESS_LINE_2: ["ADDRESS_LINE_2"],
-            CircuitColumns.CITY: ["CITY"],
-            CircuitColumns.STATE: ["STATE"],
-            CircuitColumns.ZIP: ["ZIP"],
-            CircuitColumns.COUNTRY: ["COUNTRY"],
+            SpokeColumns.ADDRESS_LINE_1: ["ADDRESS_LINE_1"],
+            SpokeColumns.ADDRESS_LINE_2: ["ADDRESS_LINE_2"],
+            SpokeColumns.CITY: ["CITY"],
+            SpokeColumns.STATE: ["STATE"],
+            SpokeColumns.ZIP: ["ZIP"],
+            SpokeColumns.COUNTRY: ["COUNTRY"],
             Columns.PRODUCT_TYPE: ["PRODUCT_TYPE"],
             Columns.ORDER_COUNT: [1],
             Columns.EMAIL: ["EMAIL"],
@@ -1746,21 +1735,21 @@ def test_build_stop_array_adds_subfield(value: None | str, col: str, keys: list[
 
 
 @pytest.mark.parametrize(
-    "col, circuit_field, circuit_dict_name",
+    "col, spoke_field, spoke_dict_name",
     [
-        (Columns.NEIGHBORHOOD, CircuitColumns.EXTERNAL_ID, CircuitColumns.RECIPIENT),
+        (Columns.NEIGHBORHOOD, SpokeColumns.EXTERNAL_ID, SpokeColumns.RECIPIENT),
         (
             Columns.PROTEIN_OPT_IN,
             DEFAULT_PROTEIN_OPT_IN_ID,
-            CircuitColumns.CUSTOM_PROPERTIES,
+            SpokeColumns.CUSTOM_PROPERTIES,
         ),
     ],
 )
 @typechecked
 def test_build_plan_stops_adds_subfield(
     col: str,
-    circuit_field: str,
-    circuit_dict_name: str,
+    spoke_field: str,
+    spoke_dict_name: str,
     mock_stops_df: pd.DataFrame,
     mock_plan_df_plans_initialized: pd.DataFrame,
 ) -> None:
@@ -1777,10 +1766,10 @@ def test_build_plan_stops_adds_subfield(
     plan_stops_dfs = []
     for stop_array in plan_stops.values():
         name_df = pd.DataFrame(
-            pd.DataFrame(pd.DataFrame(stop_array[0])[CircuitColumns.RECIPIENT].to_list())
-        )[[CircuitColumns.NAME]]
-        field_df = pd.DataFrame(pd.DataFrame(stop_array[0])[circuit_dict_name].to_list())[
-            [circuit_field]
+            pd.DataFrame(pd.DataFrame(stop_array[0])[SpokeColumns.RECIPIENT].to_list())
+        )[[SpokeColumns.NAME]]
+        field_df = pd.DataFrame(pd.DataFrame(stop_array[0])[spoke_dict_name].to_list())[
+            [spoke_field]
         ]
         plan_stop_df = pd.concat([name_df, field_df], axis=1)
         plan_stops_dfs.append(plan_stop_df)
@@ -1788,8 +1777,8 @@ def test_build_plan_stops_adds_subfield(
         pd.concat(plan_stops_dfs)
         .rename(
             columns={
-                CircuitColumns.NAME: Columns.NAME,
-                circuit_field: col,
+                SpokeColumns.NAME: Columns.NAME,
+                spoke_field: col,
             }
         )
         .sort_values(by=sort_cols)

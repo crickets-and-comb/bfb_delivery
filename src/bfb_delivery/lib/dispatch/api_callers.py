@@ -13,13 +13,12 @@ from comb_utils import (
 )
 
 from bfb_delivery.lib.constants import (
-    CIRCUIT_URL,
     DEFAULT_CUSTOM_STOP_PROPERTIES,
-    CircuitColumns,
     RateLimits,
+    SpokeColumns,
     SpokeURLs,
 )
-from bfb_delivery.lib.dispatch.utils import get_circuit_key
+from bfb_delivery.lib.dispatch.utils import get_spoke_key
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -43,19 +42,19 @@ class BaseKeyRetriever:
         Returns:
             The API key.
         """
-        return get_circuit_key()
+        return get_spoke_key()
 
 
 class BaseBFBGetCaller(BaseKeyRetriever, BaseGetCaller):
-    """A base class for making GET API calls with BFB Circuit key."""
+    """A base class for making GET API calls with BFB Spoke key."""
 
 
 class BaseBFBPostCaller(BaseKeyRetriever, BasePostCaller):
-    """A base class for making POST API calls with BFB Circuit key."""
+    """A base class for making POST API calls with BFB Spoke key."""
 
 
 class BaseBFBDeleteCaller(BaseKeyRetriever, BaseDeleteCaller):
-    """A base class for making DELETE API calls with BFB Circuit key."""
+    """A base class for making DELETE API calls with BFB Spoke key."""
 
 
 class BaseOptimizationCaller(BaseKeyRetriever, BaseCaller):
@@ -99,25 +98,25 @@ class BaseOptimizationCaller(BaseKeyRetriever, BaseCaller):
         """
         super()._handle_200()
 
-        if self.response_json[CircuitColumns.METADATA][CircuitColumns.CANCELED]:
+        if self.response_json[SpokeColumns.METADATA][SpokeColumns.CANCELED]:
             raise RuntimeError(
                 f"Optimization canceled for {self._plan_title} ({self._plan_id}):"
                 f"\n{self.response_json}"
             )
-        if self.response_json.get(CircuitColumns.RESULT):
-            if self.response_json[CircuitColumns.RESULT].get(CircuitColumns.SKIPPED_STOPS):
+        if self.response_json.get(SpokeColumns.RESULT):
+            if self.response_json[SpokeColumns.RESULT].get(SpokeColumns.SKIPPED_STOPS):
                 raise RuntimeError(
                     f"Skipped optimization stops for {self._plan_title} ({self._plan_id}):"
                     f"\n{self.response_json}"
                 )
-            if self.response_json[CircuitColumns.RESULT].get(CircuitColumns.CODE):
+            if self.response_json[SpokeColumns.RESULT].get(SpokeColumns.CODE):
                 raise RuntimeError(
                     f"Errors in optimization for {self._plan_title} ({self._plan_id}):"
                     f"\n{self.response_json}"
                 )
 
-        self.operation_id = self.response_json[CircuitColumns.ID]
-        self.finished = self.response_json[CircuitColumns.DONE]
+        self.operation_id = self.response_json[SpokeColumns.ID]
+        self.finished = self.response_json[SpokeColumns.DONE]
 
 
 class CustomStopPropertiesGetter(BaseBFBGetCaller):
@@ -165,11 +164,11 @@ class CustomStopPropertiesGetter(BaseBFBGetCaller):
         property_ID = None
 
         custom_stop_properties = self.custom_stop_properties[
-            CircuitColumns.CUSTOM_STOP_PROPERTIES
+            SpokeColumns.CUSTOM_STOP_PROPERTIES
         ]
         for prop in custom_stop_properties:
-            if prop[CircuitColumns.NAME] == property_name:
-                property_ID = prop[CircuitColumns.ID]
+            if prop[SpokeColumns.NAME] == property_name:
+                property_ID = prop[SpokeColumns.ID]
 
         if property_ID is None:
             raise ValueError(
@@ -209,7 +208,7 @@ class PlanInitializer(BaseBFBPostCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call."""
-        self._url = f"{CIRCUIT_URL}/plans"
+        self._url = SpokeURLs.PLANS
 
     @typechecked
     def _handle_200(self) -> None:
@@ -218,8 +217,8 @@ class PlanInitializer(BaseBFBPostCaller):
         Sets `plan_id` and `writable`.
         """
         super()._handle_200()
-        self.plan_id = self.response_json[CircuitColumns.ID]
-        self.writable = self.response_json[CircuitColumns.WRITABLE]
+        self.plan_id = self.response_json[SpokeColumns.ID]
+        self.writable = self.response_json[SpokeColumns.WRITABLE]
 
 
 class StopUploader(BaseBFBPostCaller):
@@ -257,7 +256,7 @@ class StopUploader(BaseBFBPostCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call with `plan_id`."""
-        self._url = f"{CIRCUIT_URL}/{self._plan_id}/stops:import"
+        self._url = f"{SpokeURLs.STOPS_IMPORT.format(plan_id=self._plan_id)}"
 
     @typechecked
     def _handle_200(self) -> None:
@@ -295,7 +294,7 @@ class OptimizationLauncher(BaseOptimizationCaller, BaseBFBPostCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call with the `plan_id`."""
-        self._url = f"{CIRCUIT_URL}/{self._plan_id}:optimize"
+        self._url = SpokeURLs.OPTIMIZE.format(plan_id=self._plan_id)
 
 
 class OptimizationChecker(BaseOptimizationCaller, BaseBFBGetCaller):
@@ -320,7 +319,7 @@ class OptimizationChecker(BaseOptimizationCaller, BaseBFBGetCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call."""
-        self._url = f"{CIRCUIT_URL}/{self.operation_id}"
+        self._url = SpokeURLs.OPTIMIZATION_CHECK.format(operation_id=self.operation_id)
 
 
 class PlanDistributor(BaseBFBPostCaller):
@@ -348,7 +347,7 @@ class PlanDistributor(BaseBFBPostCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call with the `plan_id`."""
-        self._url = f"{CIRCUIT_URL}/{self._plan_id}:distribute"
+        self._url = SpokeURLs.DISTRIBUTE_PLAN.format(_plan_id=self._plan_id)
 
     @typechecked
     def _handle_200(self) -> None:
@@ -358,7 +357,7 @@ class PlanDistributor(BaseBFBPostCaller):
             RuntimeError: If the plan was not distributed.
         """
         super()._handle_200()
-        self.distributed = self.response_json[CircuitColumns.DISTRIBUTED]
+        self.distributed = self.response_json[SpokeColumns.DISTRIBUTED]
         if not self.distributed:
             raise RuntimeError(
                 f"Failed to distribute plan {self._plan_title} ({self._plan_id}):"
@@ -385,7 +384,7 @@ class PlanDeleter(BaseBFBDeleteCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call with the `plan_id`."""
-        self._url = f"{CIRCUIT_URL}/{self._plan_id}"
+        self._url = SpokeURLs.DELETE_PLAN.format(plan_id=self._plan_id)
 
     @typechecked
     def _handle_204(self) -> None:

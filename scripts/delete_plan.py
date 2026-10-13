@@ -1,10 +1,10 @@
-"""Delete a plan from Circuit."""
+"""Delete a plan from Spoke."""
 
 import logging
 
 import click
 
-from bfb_delivery.lib.dispatch.write_to_circuit import delete_plans
+from bfb_delivery.lib.dispatch.write_to_spoke import delete_plans
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
     help="The file path to a dataframe with plan IDs to be deleted in column 'plan_id'.",
 )
 def main(plan_id: str, plan_df_fp: str) -> list[str]:
-    """Delete a plan from Circuit."""
+    """Delete a plan from Spoke."""
     if plan_id and plan_df_fp:
         raise ValueError("Please provide either a plan_id or a file path, not both.")
     if not plan_id and not plan_df_fp:

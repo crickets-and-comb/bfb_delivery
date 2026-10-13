@@ -71,7 +71,7 @@ NEIGHBORHOODS: Final[list[str]] = ["York", "Puget", "Samish", "Sehome", "South H
 def mock_route_tables(
     tmp_path_factory: pytest.TempPathFactory, mock_chunked_sheet_raw: Path
 ) -> Path:
-    """Mock the driver route tables returned by Circuit."""
+    """Mock the driver route tables returned by Spoke."""
     tmp_output = tmp_path_factory.mktemp("tmp_mock_route_tables_class_scoped", numbered=True)
     output_dir = tmp_output / "mock_route_tables"
     output_dir.mkdir()

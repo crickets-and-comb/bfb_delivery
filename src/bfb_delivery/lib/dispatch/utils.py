@@ -13,14 +13,14 @@ logger = logging.getLogger(__name__)
 
 
 @typechecked
-def get_circuit_key() -> str:
-    """Get the Circuit API key."""
+def get_spoke_key() -> str:
+    """Get the Spoke API key."""
     load_dotenv(dotenv_path=Path(os_getcwd()) / ".env", override=True)
 
-    key = os.getenv("CIRCUIT_API_KEY")
+    key = os.getenv("SPOKE_API_KEY")
     if not key:
         raise ValueError(
-            "Circuit API key not found. Set the CIRCUIT_API_KEY environment variable."
+            "Spoke API key not found. Set the SPOKE_API_KEY environment variable."
         )
 
     return key

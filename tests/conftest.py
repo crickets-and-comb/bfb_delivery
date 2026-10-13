@@ -62,19 +62,19 @@ def mock_custom_stop_properties_request_call() -> Iterator[Mock]:
 
 
 @pytest.fixture
-def mock_dispatch_utils_circuit_key() -> str:
-    """Fake Circuit API key."""
-    return "Mock Dispatch Utils Circuit Key"
+def mock_dispatch_utils_spoke_key() -> str:
+    """Fake Spoke API key."""
+    return "Mock Dispatch Utils Spoke Key"
 
 
 @pytest.fixture(autouse=True)
 @typechecked
-def mock_get_circuit_key_dispatch_utils(
-    mock_dispatch_utils_circuit_key: str, tmp_path: Path
+def mock_get_spoke_key_dispatch_utils(
+    mock_dispatch_utils_spoke_key: str, tmp_path: Path
 ) -> Iterator:
-    """Mock get_circuit_key."""
+    """Mock get_spoke_key."""
     env_path = tmp_path / ".env"
-    env_path.write_text(f"CIRCUIT_API_KEY={mock_dispatch_utils_circuit_key}")
+    env_path.write_text(f"SPOKE_API_KEY={mock_dispatch_utils_spoke_key}")
 
     with patch(
         "bfb_delivery.lib.dispatch.utils.os_getcwd", return_value=tmp_path
@@ -85,9 +85,9 @@ def mock_get_circuit_key_dispatch_utils(
 
 @pytest.fixture(autouse=True)
 @typechecked
-def mock_get_circuit_key_api_callers() -> Iterator:
-    """Mock get_circuit_key."""
+def mock_get_spoke_key_api_callers() -> Iterator:
+    """Mock get_spoke_key."""
     with patch(
-        "bfb_delivery.lib.dispatch.api_callers.get_circuit_key", return_value="caller_key"
+        "bfb_delivery.lib.dispatch.api_callers.get_spoke_key", return_value="caller_key"
     ):
         yield

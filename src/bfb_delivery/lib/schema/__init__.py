@@ -1,14 +1,6 @@
 """schema module."""
 
 from bfb_delivery.lib.schema.schema import (  # noqa: F403
-    CircuitPlansFromDict,
-    CircuitPlansOut,
-    CircuitPlansTransformIn,
-    CircuitRoutesTransformInFromDict,
-    CircuitRoutesTransformOut,
-    CircuitRoutesWriteIn,
-    CircuitRoutesWriteInAllHHs,
-    CircuitRoutesWriteOut,
     DriversAssignDriverIn,
     DriversAssignDriversIn,
     DriversGetAllDriversOut,
@@ -29,5 +21,13 @@ from bfb_delivery.lib.schema.schema import (  # noqa: F403
     PlansUploadSplitChunkedOut,
     PlansUploadStopsIn,
     PlansUploadStopsOut,
+    SpokePlansFromDict,
+    SpokePlansOut,
+    SpokePlansTransformIn,
+    SpokeRoutesTransformInFromDict,
+    SpokeRoutesTransformOut,
+    SpokeRoutesWriteIn,
+    SpokeRoutesWriteInAllHHs,
+    SpokeRoutesWriteOut,
     Stops,
 )
