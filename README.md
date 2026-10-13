@@ -64,7 +64,7 @@ There are certainly improvements that can be made, so please take a look at the 
 
 ## Dependencies
 
-* Python>=3.12
+* Python>=3.13
 * [make](https://www.gnu.org/software/make/)
 
 See `setup.cfg` for installation requirements.
