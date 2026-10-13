@@ -12,10 +12,10 @@ bfb\_delivery.lib.dispatch.api\_callers module
    :undoc-members:
    :show-inheritance:
 
-bfb\_delivery.lib.dispatch.read\_circuit module
------------------------------------------------
+bfb\_delivery.lib.dispatch.read\_spoke module
+---------------------------------------------
 
-.. automodule:: bfb_delivery.lib.dispatch.read_circuit
+.. automodule:: bfb_delivery.lib.dispatch.read_spoke
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,10 +28,10 @@ bfb\_delivery.lib.dispatch.utils module
    :undoc-members:
    :show-inheritance:
 
-bfb\_delivery.lib.dispatch.write\_to\_circuit module
-----------------------------------------------------
+bfb\_delivery.lib.dispatch.write\_to\_spoke module
+--------------------------------------------------
 
-.. automodule:: bfb_delivery.lib.dispatch.write_to_circuit
+.. automodule:: bfb_delivery.lib.dispatch.write_to_spoke
    :members:
    :undoc-members:
    :show-inheritance:

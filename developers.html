@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="prev" title="bfb_delivery.lib.schema.checks package" href="bfb_delivery.lib.schema.checks.html">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>Developer Resources - bfb_delivery 3.0.3 documentation</title>
+        <title>Developer Resources - bfb_delivery 4.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 3.0.3 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 4.0.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">bfb_delivery 3.0.3 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 4.0.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -193,7 +193,7 @@
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow.html">The Delivery-Planning Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="build_routes_from_chunked.html">Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_routes_from_chunked.html">Build, Optimize, and Distribute Spoke Routes from Chunked Routes Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="intro_to_bash.html">Intro to Command Line and Bash</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input aria-label="Toggle navigation of bfb_delivery" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -268,9 +268,9 @@
 </pre></div>
 </div>
 </section>
-<section id="circuit-api">
-<h2>Circuit API<a class="headerlink" href="#circuit-api" title="Link to this heading">¶</a></h2>
-<p>The Circuit API is used to create, optimize, and retrieve routes etc.. The API is documented in the <a class="reference external" href="https://developer.team.getcircuit.com/api">Circuit API documentation</a>.</p>
+<section id="spoke-api">
+<h2>Spoke API<a class="headerlink" href="#spoke-api" title="Link to this heading">¶</a></h2>
+<p>The Spoke API is used to create, optimize, and retrieve routes etc.. The API is documented in the <a class="reference external" href="https://developer.dispatch.spoke.com">Spoke Dispatch documentation</a>.</p>
 <section id="data-structure">
 <h3>Data structure<a class="headerlink" href="#data-structure" title="Link to this heading">¶</a></h3>
 <p>At a high level, the data structure is:</p>
@@ -280,8 +280,8 @@
     plan --&gt;|1:m| stops[Stops]
     drivers --&gt;|1:m| routes[Routes]
     routes --&gt;|1:m| stops[Stops]
-    </pre><p>So, in Circuit, a plan can have multiple drivers, and routes only get created when a plan with stops and drivers is created and optimized. Optimization allocates stops to the drivers in the plan, with one route per driver in the plan. A driver may have multiple routes, and plan may have multiple routes.</p>
-<p>But, for the Bellingham Food Bank, there is only ever one route per plan. They only assign a single driver to each plan. A driver may still have multiple routes. If a driver has multiple routes, they number the plan titles (e.g., “1.17 Tim #1”, “1.17 Tim #2”). Plan titles function essentially as route IDs, and plan titles are also a quasi-ID for drivers. The <code class="docutils literal notranslate"><span class="pre">plan:driver</span></code> relationship goes from <code class="docutils literal notranslate"><span class="pre">m:m</span></code> in Circuit to <code class="docutils literal notranslate"><span class="pre">m:1</span></code> for the food bank.</p>
+    </pre><p>So, in Spoke, a plan can have multiple drivers, and routes only get created when a plan with stops and drivers is created and optimized. Optimization allocates stops to the drivers in the plan, with one route per driver in the plan. A driver may have multiple routes, and plan may have multiple routes.</p>
+<p>But, for the Bellingham Food Bank, there is only ever one route per plan. They only assign a single driver to each plan. A driver may still have multiple routes. If a driver has multiple routes, they number the plan titles (e.g., “1.17 Tim #1”, “1.17 Tim #2”). Plan titles function essentially as route IDs, and plan titles are also a quasi-ID for drivers. The <code class="docutils literal notranslate"><span class="pre">plan:driver</span></code> relationship goes from <code class="docutils literal notranslate"><span class="pre">m:m</span></code> in Spoke to <code class="docutils literal notranslate"><span class="pre">m:1</span></code> for the food bank.</p>
 <pre  class="mermaid">
         graph TD;
     plan[Plan] --&gt;|**m:1**| drivers[Drivers]
@@ -289,7 +289,7 @@
     drivers --&gt;|1:m| routes[Routes]
     routes --&gt;|1:m| stops[Stops]
     </pre><p>Additionally, the data come from the API in a JSON structure that is not normalized. So, routes docs do contain plan IDs, and plan docs contain route IDs. And, the food bank is not ready to maintain an RDBMS for this purpose.</p>
-<p>Given the data structure and format, <a class="reference internal" href="bfb_delivery.api.html#bfb_delivery.api.public.create_manifests_from_circuit" title="bfb_delivery.api.public.create_manifests_from_circuit"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.create_manifests_from_circuit()</span></code></a> has built-in validations to ensure normalized relationships within the stricter special case of the food bank’s use case. See <a class="reference internal" href="bfb_delivery.lib.schema.html#module-bfb_delivery.lib.schema" title="bfb_delivery.lib.schema"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bfb_delivery.lib.schema</span></code></a>.</p>
+<p>Given the data structure and format, <a class="reference internal" href="bfb_delivery.api.html#bfb_delivery.api.public.create_manifests_from_spoke" title="bfb_delivery.api.public.create_manifests_from_spoke"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.create_manifests_from_spoke()</span></code></a> has built-in validations to ensure normalized relationships within the stricter special case of the food bank’s use case. See <a class="reference internal" href="bfb_delivery.lib.schema.html#module-bfb_delivery.lib.schema" title="bfb_delivery.lib.schema"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bfb_delivery.lib.schema</span></code></a>.</p>
 </section>
 </section>
 <section id="see-also">
@@ -353,7 +353,7 @@
             <ul>
 <li><a class="reference internal" href="#">Developer Resources</a><ul>
 <li><a class="reference internal" href="#type-checking">Type Checking</a></li>
-<li><a class="reference internal" href="#circuit-api">Circuit API</a><ul>
+<li><a class="reference internal" href="#spoke-api">Spoke API</a><ul>
 <li><a class="reference internal" href="#data-structure">Data structure</a></li>
 </ul>
 </li>
@@ -369,7 +369,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=9b3fc59f"></script>
+</div><script src="_static/documentation_options.js?v=3304f9e4"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

@@ -2,19 +2,19 @@
 The Delivery-Planning Workflow
 ==============================
 
-Once you're set up (see :doc:`getting_started`), and you have a master list of chunked routes you want to split up and optimize in Circuit, and you've activated the selected drivers in Circuit, you can begin using :code:`bfb_delivery`. Here's the workflow.
+Once you're set up (see :doc:`getting_started`), and you have a master list of chunked routes you want to split up and optimize in Spoke, and you've activated the selected drivers in Spoke, you can begin using :code:`bfb_delivery`. Here's the workflow.
 
 .. mermaid::
    :caption: Delivery Planning Workflow
 
    graph TD;
-       activate_all_hhs_driver["Activate 'All HHs' driver in Circuit."];
+       activate_all_hhs_driver["Activate 'All HHs' driver in Spoke."];
        activate_env[Activate your conda env.];
-       activate_all_hhs_driver --> get_long_route[Use **build_routes_from_chunked** to route all stops with Circuit.];
+       activate_all_hhs_driver --> get_long_route[Use **build_routes_from_chunked** to route all stops with Spoke.];
        activate_env --> get_long_route;
        get_long_route --> chunk["'Chunk' stops by driver."];
-       get_long_route --> activate_drivers[Activate drivers in Circuit.];
-       chunk --> build_routes_from_chunked[Use **build_routes_from_chunked** to run routes through Circuit and create manifests.];
+       get_long_route --> activate_drivers[Activate drivers in Spoke.];
+       chunk --> build_routes_from_chunked[Use **build_routes_from_chunked** to run routes through Spoke and create manifests.];
        activate_drivers --> build_routes_from_chunked;
        build_routes_from_chunked --> review_output[Review the console output to confirm success.];
        build_routes_from_chunked --> print[Review and print the manifests for your drivers.];
@@ -39,12 +39,12 @@ First, open your terminal (e.g., Anaconda Command Prompt), navigate to the corre
 
 Now you're ready to use the tools in the ``bfb_delivery`` command-line interface (CLI).
 
-Route all stops with Circuit
+Route all stops with Spoke
 ----------------------------
 
-When you have all the stops for the week, you need to upload them to Circuit and optimize them in a single route with the title "All HHs". You'll use this single route as a starting point to allocate stops to drivers.
+When you have all the stops for the week, you need to upload them to Spoke and optimize them in a single route with the title "All HHs". You'll use this single route as a starting point to allocate stops to drivers.
 
-You can build the single route manually, or you can use :code:`build_routes_from_chunked` to upload the stops to Circuit and optimize the route for you. Just put "All HHs" in the driver column for all stops in the routes spreadsheet, activate the All HHs driver (or whatever driver you want to assign it to), then run the tool:
+You can build the single route manually, or you can use :code:`build_routes_from_chunked` to upload the stops to Spoke and optimize the route for you. Just put "All HHs" in the driver column for all stops in the routes spreadsheet, activate the All HHs driver (or whatever driver you want to assign it to), then run the tool:
 
 .. code:: bash
 
@@ -78,7 +78,7 @@ From the single optimized route of several hundred stops, you'll next allocate t
 Build and distribute the routes
 -------------------------------
 
-Phewf! You have your chunked routes. Now you need to upload the routes to Circuit, optimize them, distribute them to the driver apps (if you wish), and build the final manifests to print for the drivers. You can do this with :code:`build_routes_from_chunked`.
+Phewf! You have your chunked routes. Now you need to upload the routes to Spoke, optimize them, distribute them to the driver apps (if you wish), and build the final manifests to print for the drivers. You can do this with :code:`build_routes_from_chunked`.
 
 .. code:: bash
 
@@ -103,7 +103,7 @@ Once you've confirmed the driver assignments, allow the tool to run up to a minu
 Review the console output to confirm success
 --------------------------------------------
 
-Review the console output to confirm that the routes were uploaded to Circuit, optimized, and distributed to the drivers. If there are any errors, you'll see them here. See :doc:`build_routes_from_chunked` for what to look for.
+Review the console output to confirm that the routes were uploaded to Spoke, optimized, and distributed to the drivers. If there are any errors, you'll see them here. See :doc:`build_routes_from_chunked` for what to look for.
 
 Review and print manifests
 --------------------------

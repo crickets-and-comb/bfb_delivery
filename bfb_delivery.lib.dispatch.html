@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="bfb_delivery.lib.formatting package" href="bfb_delivery.lib.formatting.html"><link rel="prev" title="bfb_delivery.lib package" href="bfb_delivery.lib.html">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>bfb_delivery.lib.dispatch package - bfb_delivery 3.0.3 documentation</title>
+        <title>bfb_delivery.lib.dispatch package - bfb_delivery 4.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 3.0.3 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 4.0.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">bfb_delivery 3.0.3 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 4.0.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -193,7 +193,7 @@
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow.html">The Delivery-Planning Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="build_routes_from_chunked.html">Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_routes_from_chunked.html">Build, Optimize, and Distribute Spoke Routes from Chunked Routes Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="intro_to_bash.html">Intro to Command Line and Bash</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input aria-label="Toggle navigation of bfb_delivery" checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
@@ -264,7 +264,7 @@
 <dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.api_callers.BaseBFBDeleteCaller">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.api_callers.</span></span><span class="sig-name descname"><span class="pre">BaseBFBDeleteCaller</span></span><a class="headerlink" href="#bfb_delivery.lib.dispatch.api_callers.BaseBFBDeleteCaller" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.dispatch.api_callers.BaseKeyRetriever" title="bfb_delivery.lib.dispatch.api_callers.BaseKeyRetriever"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseKeyRetriever</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseDeleteCaller</span></code></p>
-<p>A base class for making DELETE API calls with BFB Circuit key.</p>
+<p>A base class for making DELETE API calls with BFB Spoke key.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.api_callers.BaseBFBDeleteCaller._abc_impl">
 <span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#bfb_delivery.lib.dispatch.api_callers.BaseBFBDeleteCaller._abc_impl" title="Link to this definition">¶</a></dt>
@@ -276,7 +276,7 @@
 <dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.api_callers.BaseBFBGetCaller">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.api_callers.</span></span><span class="sig-name descname"><span class="pre">BaseBFBGetCaller</span></span><a class="headerlink" href="#bfb_delivery.lib.dispatch.api_callers.BaseBFBGetCaller" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.dispatch.api_callers.BaseKeyRetriever" title="bfb_delivery.lib.dispatch.api_callers.BaseKeyRetriever"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseKeyRetriever</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseGetCaller</span></code></p>
-<p>A base class for making GET API calls with BFB Circuit key.</p>
+<p>A base class for making GET API calls with BFB Spoke key.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.api_callers.BaseBFBGetCaller._abc_impl">
 <span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#bfb_delivery.lib.dispatch.api_callers.BaseBFBGetCaller._abc_impl" title="Link to this definition">¶</a></dt>
@@ -288,7 +288,7 @@
 <dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.api_callers.BaseBFBPostCaller">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.api_callers.</span></span><span class="sig-name descname"><span class="pre">BaseBFBPostCaller</span></span><a class="headerlink" href="#bfb_delivery.lib.dispatch.api_callers.BaseBFBPostCaller" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.dispatch.api_callers.BaseKeyRetriever" title="bfb_delivery.lib.dispatch.api_callers.BaseKeyRetriever"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseKeyRetriever</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">BasePostCaller</span></code></p>
-<p>A base class for making POST API calls with BFB Circuit key.</p>
+<p>A base class for making POST API calls with BFB Spoke key.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.api_callers.BaseBFBPostCaller._abc_impl">
 <span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#bfb_delivery.lib.dispatch.api_callers.BaseBFBPostCaller._abc_impl" title="Link to this definition">¶</a></dt>
@@ -398,6 +398,68 @@
 <dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller.operation_id">
 <span class="sig-name descname"><span class="pre">operation_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller.operation_id" title="Link to this definition">¶</a></dt>
 <dd><p>The ID of the operation.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.api_callers.CustomStopPropertiesGetter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.api_callers.</span></span><span class="sig-name descname"><span class="pre">CustomStopPropertiesGetter</span></span><a class="headerlink" href="#bfb_delivery.lib.dispatch.api_callers.CustomStopPropertiesGetter" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bfb_delivery.lib.dispatch.api_callers.BaseBFBGetCaller" title="bfb_delivery.lib.dispatch.api_callers.BaseBFBGetCaller"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseBFBGetCaller</span></code></a></p>
+<p>Class for getting custom stop properties.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.api_callers.CustomStopPropertiesGetter._abc_impl">
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#bfb_delivery.lib.dispatch.api_callers.CustomStopPropertiesGetter._abc_impl" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.api_callers.CustomStopPropertiesGetter._handle_200">
+<span class="sig-name descname"><span class="pre">_handle_200</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.api_callers.CustomStopPropertiesGetter._handle_200" title="Link to this definition">¶</a></dt>
+<dd><p>Handle a 200 response.</p>
+<p>Sets <cite>custom_stop_properties</cite> to the custom stop properties dictionary.
+Defaults to <cite>DEFAULT_CUSTOM_STOP_PROPERTIES</cite> if the API call fails.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.api_callers.CustomStopPropertiesGetter._set_url">
+<span class="sig-name descname"><span class="pre">_set_url</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.api_callers.CustomStopPropertiesGetter._set_url" title="Link to this definition">¶</a></dt>
+<dd><p>Set the URL for the API call.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.api_callers.CustomStopPropertiesGetter.custom_stop_properties">
+<span class="sig-name descname"><span class="pre">custom_stop_properties</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> <span class="pre">|</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><span class="pre">]]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'customStopProperties':</span> <span class="pre">[{'id':</span> <span class="pre">'aJyl6WxtFXXPXPt-7pGa2',</span> <span class="pre">'name':</span> <span class="pre">'protein'}]}</span></em><a class="headerlink" href="#bfb_delivery.lib.dispatch.api_callers.CustomStopPropertiesGetter.custom_stop_properties" title="Link to this definition">¶</a></dt>
+<dd><p>The custom stop properties dictionary.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.api_callers.CustomStopPropertiesGetter.get_property_ID">
+<span class="sig-name descname"><span class="pre">get_property_ID</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">property_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.api_callers.CustomStopPropertiesGetter.get_property_ID" title="Link to this definition">¶</a></dt>
+<dd><p>Get the ID of a custom stop property.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>property_name</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The name of the custom stop property.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The ID of the custom stop property.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the custom stop property name is not found.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -771,12 +833,12 @@ To pass to <cite>requests.post</cite> <cite>json</cite> param.</p></li>
 </dd></dl>
 
 </section>
-<section id="module-bfb_delivery.lib.dispatch.read_circuit">
-<span id="bfb-delivery-lib-dispatch-read-circuit-module"></span><h2>bfb_delivery.lib.dispatch.read_circuit module<a class="headerlink" href="#module-bfb_delivery.lib.dispatch.read_circuit" title="Link to this heading">¶</a></h2>
-<p>Read from Circuit.</p>
+<section id="module-bfb_delivery.lib.dispatch.read_spoke">
+<span id="bfb-delivery-lib-dispatch-read-spoke-module"></span><h2>bfb_delivery.lib.dispatch.read_spoke module<a class="headerlink" href="#module-bfb_delivery.lib.dispatch.read_spoke" title="Link to this heading">¶</a></h2>
+<p>Read from Spoke.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_circuit._clean_title">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_circuit.</span></span><span class="sig-name descname"><span class="pre">_clean_title</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title_series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_circuit._clean_title" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_spoke._clean_title">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_spoke.</span></span><span class="sig-name descname"><span class="pre">_clean_title</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title_series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_spoke._clean_title" title="Link to this definition">¶</a></dt>
 <dd><p>Clean the title column.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -786,8 +848,8 @@ To pass to <cite>requests.post</cite> <cite>json</cite> param.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_circuit._count_allhhs_dropped">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_circuit.</span></span><span class="sig-name descname"><span class="pre">_count_allhhs_dropped</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_hhs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plan_count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plan_mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_circuit._count_allhhs_dropped" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_spoke._count_allhhs_dropped">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_spoke.</span></span><span class="sig-name descname"><span class="pre">_count_allhhs_dropped</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_hhs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plan_count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plan_mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_spoke._count_allhhs_dropped" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
@@ -796,8 +858,8 @@ To pass to <cite>requests.post</cite> <cite>json</cite> param.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_circuit._count_plan_ids_dropped">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_circuit.</span></span><span class="sig-name descname"><span class="pre">_count_plan_ids_dropped</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan_count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plan_mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_circuit._count_plan_ids_dropped" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_spoke._count_plan_ids_dropped">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_spoke.</span></span><span class="sig-name descname"><span class="pre">_count_plan_ids_dropped</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan_count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plan_mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_spoke._count_plan_ids_dropped" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
@@ -806,8 +868,8 @@ To pass to <cite>requests.post</cite> <cite>json</cite> param.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_circuit._get_plan_responses">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_circuit.</span></span><span class="sig-name descname"><span class="pre">_get_plan_responses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_circuit._get_plan_responses" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_spoke._get_plan_responses">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_spoke.</span></span><span class="sig-name descname"><span class="pre">_get_plan_responses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_spoke._get_plan_responses" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]]</span></p>
@@ -816,9 +878,9 @@ To pass to <cite>requests.post</cite> <cite>json</cite> param.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_circuit._get_raw_plans">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_circuit.</span></span><span class="sig-name descname"><span class="pre">_get_raw_plans</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_circuit._get_raw_plans" title="Link to this definition">¶</a></dt>
-<dd><p>Call Circuit API to get the plans for the given date.</p>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_spoke._get_raw_plans">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_spoke.</span></span><span class="sig-name descname"><span class="pre">_get_raw_plans</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_spoke._get_raw_plans" title="Link to this definition">¶</a></dt>
+<dd><p>Call Spoke API to get the plans for the given date.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]]</span></p>
@@ -827,9 +889,9 @@ To pass to <cite>requests.post</cite> <cite>json</cite> param.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_circuit._get_raw_stops">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_circuit.</span></span><span class="sig-name descname"><span class="pre">_get_raw_stops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_circuit._get_raw_stops" title="Link to this definition">¶</a></dt>
-<dd><p>Get the raw stops list from Circuit.</p>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_spoke._get_raw_stops">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_spoke.</span></span><span class="sig-name descname"><span class="pre">_get_raw_stops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_spoke._get_raw_stops" title="Link to this definition">¶</a></dt>
+<dd><p>Get the raw stops list from Spoke.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]]</span></p>
@@ -838,8 +900,8 @@ To pass to <cite>requests.post</cite> <cite>json</cite> param.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_circuit.</span></span><span class="sig-name descname"><span class="pre">_get_raw_stops_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_spoke._get_raw_stops_list">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_spoke.</span></span><span class="sig-name descname"><span class="pre">_get_raw_stops_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_spoke._get_raw_stops_list" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span></p>
@@ -848,8 +910,8 @@ To pass to <cite>requests.post</cite> <cite>json</cite> param.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_circuit._get_stops_responses">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_circuit.</span></span><span class="sig-name descname"><span class="pre">_get_stops_responses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_circuit._get_stops_responses" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_spoke._get_stops_responses">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_spoke.</span></span><span class="sig-name descname"><span class="pre">_get_stops_responses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_spoke._get_stops_responses" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]]</span></p>
@@ -858,8 +920,8 @@ To pass to <cite>requests.post</cite> <cite>json</cite> param.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_circuit._getcwd">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_circuit.</span></span><span class="sig-name descname"><span class="pre">_getcwd</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_circuit._getcwd" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_spoke._getcwd">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_spoke.</span></span><span class="sig-name descname"><span class="pre">_getcwd</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_spoke._getcwd" title="Link to this definition">¶</a></dt>
 <dd><p>Wrapping to allow restricted mocking.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -869,19 +931,19 @@ To pass to <cite>requests.post</cite> <cite>json</cite> param.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_circuit._make_plans_df">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_circuit.</span></span><span class="sig-name descname"><span class="pre">_make_plans_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plans_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_hhs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plan_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_circuit._make_plans_df" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_spoke._make_plans_df">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_spoke.</span></span><span class="sig-name descname"><span class="pre">_make_plans_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plans_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_hhs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plan_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_spoke._make_plans_df" title="Link to this definition">¶</a></dt>
 <dd><p>Make the plans DataFrame from the plans.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>[<a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.CircuitPlansOut" title="bfb_delivery.lib.schema.schema.CircuitPlansOut"><code class="xref py py-class docutils literal notranslate"><span class="pre">CircuitPlansOut</span></code></a>]</span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>[<a class="reference internal" href="bfb_delivery.lib.schema.html#bfb_delivery.lib.schema.schema.SpokePlansOut" title="bfb_delivery.lib.schema.schema.SpokePlansOut"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpokePlansOut</span></code></a>]</span></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_circuit._pare_routes_df">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_circuit.</span></span><span class="sig-name descname"><span class="pre">_pare_routes_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_circuit._pare_routes_df" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_spoke._pare_routes_df">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_spoke.</span></span><span class="sig-name descname"><span class="pre">_pare_routes_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_spoke._pare_routes_df" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></span></p>
@@ -890,8 +952,8 @@ To pass to <cite>requests.post</cite> <cite>json</cite> param.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_circuit._set_routes_df_values">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_circuit.</span></span><span class="sig-name descname"><span class="pre">_set_routes_df_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes_df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_circuit._set_routes_df_values" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_spoke._set_routes_df_values">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_spoke.</span></span><span class="sig-name descname"><span class="pre">_set_routes_df_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes_df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_spoke._set_routes_df_values" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></span></p>
@@ -900,8 +962,8 @@ To pass to <cite>requests.post</cite> <cite>json</cite> param.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_circuit._split_multi_route_drivers">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_circuit.</span></span><span class="sig-name descname"><span class="pre">_split_multi_route_drivers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes_df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_circuit._split_multi_route_drivers" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_spoke._split_multi_route_drivers">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_spoke.</span></span><span class="sig-name descname"><span class="pre">_split_multi_route_drivers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes_df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_spoke._split_multi_route_drivers" title="Link to this definition">¶</a></dt>
 <dd><p>If a driver sheet name has multiple routes, split them into separate sheet names.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -911,8 +973,8 @@ To pass to <cite>requests.post</cite> <cite>json</cite> param.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_circuit._warn_and_impute">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_circuit.</span></span><span class="sig-name descname"><span class="pre">_warn_and_impute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes_df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_circuit._warn_and_impute" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_spoke._warn_and_impute">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_spoke.</span></span><span class="sig-name descname"><span class="pre">_warn_and_impute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes_df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_spoke._warn_and_impute" title="Link to this definition">¶</a></dt>
 <dd><p>Warn and impute missing values in the routes DataFrame.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -922,8 +984,8 @@ To pass to <cite>requests.post</cite> <cite>json</cite> param.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_circuit.get_route_files">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_circuit.</span></span><span class="sig-name descname"><span class="pre">get_route_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plan_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_hhs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_circuit.get_route_files" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.read_spoke.get_route_files">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.read_spoke.</span></span><span class="sig-name descname"><span class="pre">get_route_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plan_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_hhs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.read_spoke.get_route_files" title="Link to this definition">¶</a></dt>
 <dd><p>Get the route files for the given date.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -965,9 +1027,9 @@ Overriden by <cite>plan_ids</cite>.</p></li>
 <span id="bfb-delivery-lib-dispatch-utils-module"></span><h2>bfb_delivery.lib.dispatch.utils module<a class="headerlink" href="#module-bfb_delivery.lib.dispatch.utils" title="Link to this heading">¶</a></h2>
 <p>Utility functions for the dispatch module.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.utils.get_circuit_key">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.utils.</span></span><span class="sig-name descname"><span class="pre">get_circuit_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.utils.get_circuit_key" title="Link to this definition">¶</a></dt>
-<dd><p>Get the Circuit API key.</p>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.utils.get_spoke_key">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.utils.</span></span><span class="sig-name descname"><span class="pre">get_spoke_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.utils.get_spoke_key" title="Link to this definition">¶</a></dt>
+<dd><p>Get the Spoke API key.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
@@ -976,12 +1038,12 @@ Overriden by <cite>plan_ids</cite>.</p></li>
 </dd></dl>
 
 </section>
-<section id="module-bfb_delivery.lib.dispatch.write_to_circuit">
-<span id="bfb-delivery-lib-dispatch-write-to-circuit-module"></span><h2>bfb_delivery.lib.dispatch.write_to_circuit module<a class="headerlink" href="#module-bfb_delivery.lib.dispatch.write_to_circuit" title="Link to this heading">¶</a></h2>
-<p>Write routes to Circuit.</p>
+<section id="module-bfb_delivery.lib.dispatch.write_to_spoke">
+<span id="bfb-delivery-lib-dispatch-write-to-spoke-module"></span><h2>bfb_delivery.lib.dispatch.write_to_spoke module<a class="headerlink" href="#module-bfb_delivery.lib.dispatch.write_to_spoke" title="Link to this heading">¶</a></h2>
+<p>Write routes to Spoke.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.write_to_circuit._build_stop_array">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.write_to_circuit.</span></span><span class="sig-name descname"><span class="pre">_build_stop_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route_stops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">driver_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.write_to_circuit._build_stop_array" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.write_to_spoke._build_stop_array">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.write_to_spoke.</span></span><span class="sig-name descname"><span class="pre">_build_stop_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route_stops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">driver_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.write_to_spoke._build_stop_array" title="Link to this definition">¶</a></dt>
 <dd><p>Build a stop array for a route.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -991,8 +1053,8 @@ Overriden by <cite>plan_ids</cite>.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.write_to_circuit._create_stops_df">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.write_to_circuit.</span></span><span class="sig-name descname"><span class="pre">_create_stops_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">split_chunked_workbook_fp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stops_df_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.write_to_circuit._create_stops_df" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.write_to_spoke._create_stops_df">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.write_to_spoke.</span></span><span class="sig-name descname"><span class="pre">_create_stops_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">split_chunked_workbook_fp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stops_df_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.write_to_spoke._create_stops_df" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></span></p>
@@ -1001,8 +1063,8 @@ Overriden by <cite>plan_ids</cite>.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.write_to_circuit._parse_addresses">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.write_to_circuit.</span></span><span class="sig-name descname"><span class="pre">_parse_addresses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stops_df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.write_to_circuit._parse_addresses" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.write_to_spoke._parse_addresses">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.write_to_spoke.</span></span><span class="sig-name descname"><span class="pre">_parse_addresses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stops_df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.write_to_spoke._parse_addresses" title="Link to this definition">¶</a></dt>
 <dd><p>Parse addresses for each route.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -1012,8 +1074,8 @@ Overriden by <cite>plan_ids</cite>.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.write_to_circuit._print_report">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.write_to_circuit.</span></span><span class="sig-name descname"><span class="pre">_print_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_distribute</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.write_to_circuit._print_report" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.write_to_spoke._print_report">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.write_to_spoke.</span></span><span class="sig-name descname"><span class="pre">_print_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_distribute</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.write_to_spoke._print_report" title="Link to this definition">¶</a></dt>
 <dd><p>Print a report of upload results.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -1023,13 +1085,13 @@ Overriden by <cite>plan_ids</cite>.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.write_to_circuit.build_routes_from_chunked">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.write_to_circuit.</span></span><span class="sig-name descname"><span class="pre">build_routes_from_chunked</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_distribute</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_notes_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.write_to_circuit.build_routes_from_chunked" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.write_to_spoke.build_routes_from_chunked">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.write_to_spoke.</span></span><span class="sig-name descname"><span class="pre">build_routes_from_chunked</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_distribute</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_notes_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.write_to_spoke.build_routes_from_chunked" title="Link to this definition">¶</a></dt>
 <dd><p>Build and disbribute routes from chunked routes.</p>
 <p>From a chunked route spreadsheet, builds, optimizes, and distributes routes to drivers.
 Produces a final manifest spreadsheet.</p>
 <p>Prompts interactive user input to confirm driver assignments.</p>
-<p>See <a class="reference internal" href="build_routes_from_chunked.html"><span class="doc">Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet</span></a> for more information.</p>
+<p>See <a class="reference internal" href="build_routes_from_chunked.html"><span class="doc">Build, Optimize, and Distribute Spoke Routes from Chunked Routes Sheet</span></a> for more information.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1051,9 +1113,9 @@ Produces a final manifest spreadsheet.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.write_to_circuit.delete_plan">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.write_to_circuit.</span></span><span class="sig-name descname"><span class="pre">delete_plan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.write_to_circuit.delete_plan" title="Link to this definition">¶</a></dt>
-<dd><p>Delete a plan from Circuit.</p>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.write_to_spoke.delete_plan">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.write_to_spoke.</span></span><span class="sig-name descname"><span class="pre">delete_plan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.write_to_spoke.delete_plan" title="Link to this definition">¶</a></dt>
+<dd><p>Delete a plan from Spoke.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>plan_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The plan ID to be deleted.</p>
@@ -1068,9 +1130,9 @@ Produces a final manifest spreadsheet.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.write_to_circuit.delete_plans">
-<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.write_to_circuit.</span></span><span class="sig-name descname"><span class="pre">delete_plans</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plan_df_fp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.write_to_circuit.delete_plans" title="Link to this definition">¶</a></dt>
-<dd><p>Delete plans from Circuit.</p>
+<dt class="sig sig-object py" id="bfb_delivery.lib.dispatch.write_to_spoke.delete_plans">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.dispatch.write_to_spoke.</span></span><span class="sig-name descname"><span class="pre">delete_plans</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plan_df_fp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.dispatch.write_to_spoke.delete_plans" title="Link to this definition">¶</a></dt>
+<dd><p>Delete plans from Spoke.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1189,6 +1251,14 @@ in column ‘plan_id’.</p></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.dispatch.api_callers.BaseOptimizationCaller.operation_id"><code class="docutils literal notranslate"><span class="pre">BaseOptimizationCaller.operation_id</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.api_callers.CustomStopPropertiesGetter"><code class="docutils literal notranslate"><span class="pre">CustomStopPropertiesGetter</span></code></a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.api_callers.CustomStopPropertiesGetter._abc_impl"><code class="docutils literal notranslate"><span class="pre">CustomStopPropertiesGetter._abc_impl</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.api_callers.CustomStopPropertiesGetter._handle_200"><code class="docutils literal notranslate"><span class="pre">CustomStopPropertiesGetter._handle_200()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.api_callers.CustomStopPropertiesGetter._set_url"><code class="docutils literal notranslate"><span class="pre">CustomStopPropertiesGetter._set_url()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.api_callers.CustomStopPropertiesGetter.custom_stop_properties"><code class="docutils literal notranslate"><span class="pre">CustomStopPropertiesGetter.custom_stop_properties</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.api_callers.CustomStopPropertiesGetter.get_property_ID"><code class="docutils literal notranslate"><span class="pre">CustomStopPropertiesGetter.get_property_ID()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#bfb_delivery.lib.dispatch.api_callers.OptimizationChecker"><code class="docutils literal notranslate"><span class="pre">OptimizationChecker</span></code></a><ul>
 <li><a class="reference internal" href="#bfb_delivery.lib.dispatch.api_callers.OptimizationChecker.__init__"><code class="docutils literal notranslate"><span class="pre">OptimizationChecker.__init__()</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.dispatch.api_callers.OptimizationChecker._abc_impl"><code class="docutils literal notranslate"><span class="pre">OptimizationChecker._abc_impl</span></code></a></li>
@@ -1249,36 +1319,36 @@ in column ‘plan_id’.</p></li>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-bfb_delivery.lib.dispatch.read_circuit">bfb_delivery.lib.dispatch.read_circuit module</a><ul>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_circuit._clean_title"><code class="docutils literal notranslate"><span class="pre">_clean_title()</span></code></a></li>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_circuit._count_allhhs_dropped"><code class="docutils literal notranslate"><span class="pre">_count_allhhs_dropped()</span></code></a></li>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_circuit._count_plan_ids_dropped"><code class="docutils literal notranslate"><span class="pre">_count_plan_ids_dropped()</span></code></a></li>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_circuit._get_plan_responses"><code class="docutils literal notranslate"><span class="pre">_get_plan_responses()</span></code></a></li>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_circuit._get_raw_plans"><code class="docutils literal notranslate"><span class="pre">_get_raw_plans()</span></code></a></li>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_circuit._get_raw_stops"><code class="docutils literal notranslate"><span class="pre">_get_raw_stops()</span></code></a></li>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list"><code class="docutils literal notranslate"><span class="pre">_get_raw_stops_list()</span></code></a></li>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_circuit._get_stops_responses"><code class="docutils literal notranslate"><span class="pre">_get_stops_responses()</span></code></a></li>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_circuit._getcwd"><code class="docutils literal notranslate"><span class="pre">_getcwd()</span></code></a></li>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_circuit._make_plans_df"><code class="docutils literal notranslate"><span class="pre">_make_plans_df()</span></code></a></li>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_circuit._pare_routes_df"><code class="docutils literal notranslate"><span class="pre">_pare_routes_df()</span></code></a></li>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_circuit._set_routes_df_values"><code class="docutils literal notranslate"><span class="pre">_set_routes_df_values()</span></code></a></li>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_circuit._split_multi_route_drivers"><code class="docutils literal notranslate"><span class="pre">_split_multi_route_drivers()</span></code></a></li>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_circuit._warn_and_impute"><code class="docutils literal notranslate"><span class="pre">_warn_and_impute()</span></code></a></li>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_circuit.get_route_files"><code class="docutils literal notranslate"><span class="pre">get_route_files()</span></code></a></li>
+<li><a class="reference internal" href="#module-bfb_delivery.lib.dispatch.read_spoke">bfb_delivery.lib.dispatch.read_spoke module</a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_spoke._clean_title"><code class="docutils literal notranslate"><span class="pre">_clean_title()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_spoke._count_allhhs_dropped"><code class="docutils literal notranslate"><span class="pre">_count_allhhs_dropped()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_spoke._count_plan_ids_dropped"><code class="docutils literal notranslate"><span class="pre">_count_plan_ids_dropped()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_spoke._get_plan_responses"><code class="docutils literal notranslate"><span class="pre">_get_plan_responses()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_spoke._get_raw_plans"><code class="docutils literal notranslate"><span class="pre">_get_raw_plans()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_spoke._get_raw_stops"><code class="docutils literal notranslate"><span class="pre">_get_raw_stops()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_spoke._get_raw_stops_list"><code class="docutils literal notranslate"><span class="pre">_get_raw_stops_list()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_spoke._get_stops_responses"><code class="docutils literal notranslate"><span class="pre">_get_stops_responses()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_spoke._getcwd"><code class="docutils literal notranslate"><span class="pre">_getcwd()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_spoke._make_plans_df"><code class="docutils literal notranslate"><span class="pre">_make_plans_df()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_spoke._pare_routes_df"><code class="docutils literal notranslate"><span class="pre">_pare_routes_df()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_spoke._set_routes_df_values"><code class="docutils literal notranslate"><span class="pre">_set_routes_df_values()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_spoke._split_multi_route_drivers"><code class="docutils literal notranslate"><span class="pre">_split_multi_route_drivers()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_spoke._warn_and_impute"><code class="docutils literal notranslate"><span class="pre">_warn_and_impute()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.read_spoke.get_route_files"><code class="docutils literal notranslate"><span class="pre">get_route_files()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-bfb_delivery.lib.dispatch.utils">bfb_delivery.lib.dispatch.utils module</a><ul>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.utils.get_circuit_key"><code class="docutils literal notranslate"><span class="pre">get_circuit_key()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.utils.get_spoke_key"><code class="docutils literal notranslate"><span class="pre">get_spoke_key()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-bfb_delivery.lib.dispatch.write_to_circuit">bfb_delivery.lib.dispatch.write_to_circuit module</a><ul>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.write_to_circuit._build_stop_array"><code class="docutils literal notranslate"><span class="pre">_build_stop_array()</span></code></a></li>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.write_to_circuit._create_stops_df"><code class="docutils literal notranslate"><span class="pre">_create_stops_df()</span></code></a></li>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.write_to_circuit._parse_addresses"><code class="docutils literal notranslate"><span class="pre">_parse_addresses()</span></code></a></li>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.write_to_circuit._print_report"><code class="docutils literal notranslate"><span class="pre">_print_report()</span></code></a></li>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.write_to_circuit.build_routes_from_chunked"><code class="docutils literal notranslate"><span class="pre">build_routes_from_chunked()</span></code></a></li>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.write_to_circuit.delete_plan"><code class="docutils literal notranslate"><span class="pre">delete_plan()</span></code></a></li>
-<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.write_to_circuit.delete_plans"><code class="docutils literal notranslate"><span class="pre">delete_plans()</span></code></a></li>
+<li><a class="reference internal" href="#module-bfb_delivery.lib.dispatch.write_to_spoke">bfb_delivery.lib.dispatch.write_to_spoke module</a><ul>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.write_to_spoke._build_stop_array"><code class="docutils literal notranslate"><span class="pre">_build_stop_array()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.write_to_spoke._create_stops_df"><code class="docutils literal notranslate"><span class="pre">_create_stops_df()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.write_to_spoke._parse_addresses"><code class="docutils literal notranslate"><span class="pre">_parse_addresses()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.write_to_spoke._print_report"><code class="docutils literal notranslate"><span class="pre">_print_report()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.write_to_spoke.build_routes_from_chunked"><code class="docutils literal notranslate"><span class="pre">build_routes_from_chunked()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.write_to_spoke.delete_plan"><code class="docutils literal notranslate"><span class="pre">delete_plan()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.dispatch.write_to_spoke.delete_plans"><code class="docutils literal notranslate"><span class="pre">delete_plans()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-bfb_delivery.lib.dispatch">Module contents</a></li>
@@ -1293,7 +1363,7 @@ in column ‘plan_id’.</p></li>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=9b3fc59f"></script>
+</div><script src="_static/documentation_options.js?v=3304f9e4"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

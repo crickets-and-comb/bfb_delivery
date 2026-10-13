@@ -28,10 +28,10 @@ bfb\_delivery.cli.create\_manifests module
    :undoc-members:
    :show-inheritance:
 
-bfb\_delivery.cli.create\_manifests\_from\_circuit module
----------------------------------------------------------
+bfb\_delivery.cli.create\_manifests\_from\_spoke module
+-------------------------------------------------------
 
-.. automodule:: bfb_delivery.cli.create_manifests_from_circuit
+.. automodule:: bfb_delivery.cli.create_manifests_from_spoke
    :members:
    :undoc-members:
    :show-inheritance:

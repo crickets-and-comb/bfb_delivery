@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Intro to Command Line and Bash" href="intro_to_bash.html"><link rel="prev" title="The Delivery-Planning Workflow" href="workflow.html">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet - bfb_delivery 3.0.3 documentation</title>
+        <title>Build, Optimize, and Distribute Spoke Routes from Chunked Routes Sheet - bfb_delivery 4.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 3.0.3 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 4.0.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">bfb_delivery 3.0.3 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 4.0.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -193,7 +193,7 @@
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow.html">The Delivery-Planning Workflow</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Build, Optimize, and Distribute Spoke Routes from Chunked Routes Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="intro_to_bash.html">Intro to Command Line and Bash</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input aria-label="Toggle navigation of bfb_delivery" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -252,18 +252,18 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="build-optimize-and-distribute-circuit-routes-from-chunked-routes-sheet">
-<h1>Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet<a class="headerlink" href="#build-optimize-and-distribute-circuit-routes-from-chunked-routes-sheet" title="Link to this heading">¶</a></h1>
-<p>Once you have a large single-route sheet labeled by driver, representing individual driver routes, you need to upload them to Circuit, optimized them, distribute them to driver apps, and produce driver manifests ready to print, with headers, aggregate data, and color-coded box types. You can do this all at once with the <code class="code docutils literal notranslate"><span class="pre">build_routes_from_chunked</span></code> tool.</p>
+          <section id="build-optimize-and-distribute-spoke-routes-from-chunked-routes-sheet">
+<h1>Build, Optimize, and Distribute Spoke Routes from Chunked Routes Sheet<a class="headerlink" href="#build-optimize-and-distribute-spoke-routes-from-chunked-routes-sheet" title="Link to this heading">¶</a></h1>
+<p>Once you have a large single-route sheet labeled by driver, representing individual driver routes, you need to upload them to Spoke, optimized them, distribute them to driver apps, and produce driver manifests ready to print, with headers, aggregate data, and color-coded box types. You can do this all at once with the <code class="code docutils literal notranslate"><span class="pre">build_routes_from_chunked</span></code> tool.</p>
 <p>This tool replaces the manual tasks of:</p>
 <ul class="simple">
-<li><p>Splitting the single route grouped by driver into individual Excel worksheets for each driver, grouped into a handful of workbooks for each staff member to upload to Circuit.</p></li>
-<li><p>Uploading to Circuit, mapping fields and routes to drivers, optimizing routes, and distributing them to driver apps.</p></li>
+<li><p>Splitting the single route grouped by driver into individual Excel worksheets for each driver, grouped into a handful of workbooks for each staff member to upload to Spoke.</p></li>
+<li><p>Uploading to Spoke, mapping fields and routes to drivers, optimizing routes, and distributing them to driver apps.</p></li>
 <li><p>Downloading the optimized routes, copying each route into a single workbook, running an Excel macro, and finishing up with some manual steps.</p></li>
 </ul>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>Before using this tool, you need to log in to Circuit and activate the drivers you want to assign routes to.</p>
+<p>Before using this tool, you need to log in to Spoke and activate the drivers you want to assign routes to.</p>
 </div>
 <p>Python API documentation at <a class="reference internal" href="bfb_delivery.api.html#bfb_delivery.api.public.build_routes_from_chunked" title="bfb_delivery.api.public.build_routes_from_chunked"><code class="xref py py-func docutils literal notranslate"><span class="pre">bfb_delivery.api.public.build_routes_from_chunked()</span></code></a>.</p>
 <p>CLI documentation at <a class="reference internal" href="CLI.html"><span class="doc">CLI</span></a>.</p>
@@ -273,28 +273,28 @@
 <p>In Python:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfb_delivery</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_routes_from_chunked</span>
 
-<span class="n">build_routes_from_chunked</span><span class="p">(</span><span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/master_chunked_sheet.xlsx&quot;</span><span class="p">)</span>
+<span class="n">build_routes_from_chunked</span><span class="p">(</span><span class="n">input_path</span><span class="o">=</span><span class="s2">"path/to/master_chunked_sheet.xlsx"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>With CLI:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--input_path<span class="w"> </span><span class="s2">&quot;path/to/master_chunked_sheet.xlsx&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--input_path<span class="w"> </span><span class="s2">"path/to/master_chunked_sheet.xlsx"</span>
 </pre></div>
 </div>
 <p>The function will return the filepath to the final manifest. If you’re using the CLI, the filepath will print to the console.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This takes up to a minute per route to run as it uploads the routes to Circuit, optimizes them, and downloads the optimized routes. So, for a typical number of routes, it will take about 30 minutes.</p>
+<p>This takes up to a minute per route to run as it uploads the routes to Spoke, optimizes them, and downloads the optimized routes. So, for a typical number of routes, it will take about 30 minutes.</p>
 </div>
 <section id="examining-output">
 <h3>Examining output<a class="headerlink" href="#examining-output" title="Link to this heading">¶</a></h3>
 <p>Below is an example with three routes (usually about 40-50 routes). The tool will prompt you to assign drivers to each route, e.g. “Enter the number of the driver for ‘02.14 Eric’(ctl+c to start over):”. You use the driver numbers printed to the console to assign drivers to each route, 48 in this example (see input below). The tool will then run for up to a minute per route and finish successfully by printing the filepath to the final manifest.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Notice how the driver status is printed with the driver. The tool will not allow you to assign an inactive driver to a route, re-prompting you if you do enter an inactive driver. If you need to assign an inactive driver, you will need to activate them in Circuit first.</p>
+<p>Notice how the driver status is printed with the driver. The tool will not allow you to assign an inactive driver to a route, re-prompting you if you do enter an inactive driver. If you need to assign an inactive driver, you will need to activate them in Spoke first.</p>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>(bfb_delivery_py3.12) MacBook-Pro:bfb_delivery me$ build_routes_from_chunked --input_path .test_data/scratch/test_master_chunked_sample.xlsx --output_dir .test_data/scratch/
 2025-02-12 17:49:38,585 - INFO - Writing split chunked workbooks to /Users/me/repos/bfb_delivery/.test_data/scratch/split_chunked
-2025-02-12 17:49:38,620 - INFO - Getting all drivers from Circuit ...
+2025-02-12 17:49:38,620 - INFO - Getting all drivers from Spoke ...
 2025-02-12 17:49:39,568 - INFO - Finished getting drivers.
 1. Active: Hank Hill hank@propane.com
 ... (more drivers) ...
@@ -307,7 +307,7 @@ Best guesses:
 48. Active: Eric Cartman emoney@southpark.com
 
 
-Enter the number of the driver for &#39;02.14 Eric&#39;(ctl+c to start over):48
+Enter the number of the driver for '02.14 Eric'(ctl+c to start over):48
 
 Assigned 02.14 Eric to Eric Cartman.
 
@@ -317,7 +317,7 @@ Best guesses:
 23. Inactive: Hankie Who hankie@realtalk.com
 
 
-Enter the number of the driver for &#39;02.14 Hank&#39;(ctl+c to start over):1
+Enter the number of the driver for '02.14 Hank'(ctl+c to start over):1
 
 Assigned 02.14 Hank to Hank Hill.
 
@@ -326,7 +326,7 @@ Best guesses:
 84. Active: Nosferatu pinebox@bfb.com
 
 
-Enter the number of the driver for &#39;02.14 Nos&#39;(ctl+c to start over):84
+Enter the number of the driver for '02.14 Nos'(ctl+c to start over):84
 
 Assigned 02.14 Nos to Nosferatu.
 02.14 Eric: Eric Cartman, emoney@southpark.com
@@ -354,11 +354,11 @@ Plans initialized: 3
 Plans with stops: 3
 Plans optimized: 3
 Plans distributed: 3
-2025-02-12 17:51:53,231 - INFO - Getting route plans from Circuit ...
+2025-02-12 17:51:53,231 - INFO - Getting route plans from Spoke ...
 2025-02-12 17:51:53,692 - INFO - Finished getting route plans.
-2025-02-12 17:51:53,711 - INFO - Getting stops from Circuit ...
+2025-02-12 17:51:53,711 - INFO - Getting stops from Spoke ...
 2025-02-12 17:51:57,597 - INFO - Finished getting stops.
-2025-02-12 17:51:57,629 - WARNING - Missing neighborhood for 50 stops. Imputing best guesses from Circuit-supplied address.
+2025-02-12 17:51:57,629 - WARNING - Missing neighborhood for 50 stops. Imputing best guesses from Spoke-supplied address.
 2025-02-12 17:51:57,655 - WARNING - Output directory exists /Users/me/repos/bfb_delivery/.test_data/scratch/routes_2025-02-14. Overwriting.
 2025-02-12 17:51:57,655 - INFO - Writing route CSVs to /Users/me/repos/bfb_delivery/.test_data/scratch/routes_2025-02-14
 2025-02-12 17:51:57,676 - INFO - Writing combined routes to /Users/me/repos/bfb_delivery/.test_data/scratch/combined_routes_20250212.xlsx
@@ -375,7 +375,7 @@ Plans distributed: 3
 <p>Note that the filepaths to some intermediate files will print to the console as well, before finally printing the filepath to the final manifest workbook. In addition to the final manifest, there will be:</p>
 <ul class="simple">
 <li><p>An Excel workbook of the pre-optmized routes split into separate spreadsheets that you could upload manually. In the example: <code class="docutils literal notranslate"><span class="pre">2025-02-12</span> <span class="pre">17:49:38,585</span> <span class="pre">-</span> <span class="pre">INFO</span> <span class="pre">-</span> <span class="pre">Writing</span> <span class="pre">split</span> <span class="pre">chunked</span> <span class="pre">workbooks</span> <span class="pre">to</span> <span class="pre">/Users/me/repos/bfb_delivery/.test_data/scratch/split_chunked</span></code></p></li>
-<li><p>Optmized route CSVs downloaded from Circuit that you could combine into a single Excel workbook. In the example: <code class="docutils literal notranslate"><span class="pre">2025-02-12</span> <span class="pre">17:51:57,655</span> <span class="pre">-</span> <span class="pre">INFO</span> <span class="pre">-</span> <span class="pre">Writing</span> <span class="pre">route</span> <span class="pre">CSVs</span> <span class="pre">to</span> <span class="pre">/Users/me/repos/bfb_delivery/.test_data/scratch/routes_2025-02-14</span></code></p></li>
+<li><p>Optmized route CSVs downloaded from Spoke that you could combine into a single Excel workbook. In the example: <code class="docutils literal notranslate"><span class="pre">2025-02-12</span> <span class="pre">17:51:57,655</span> <span class="pre">-</span> <span class="pre">INFO</span> <span class="pre">-</span> <span class="pre">Writing</span> <span class="pre">route</span> <span class="pre">CSVs</span> <span class="pre">to</span> <span class="pre">/Users/me/repos/bfb_delivery/.test_data/scratch/routes_2025-02-14</span></code></p></li>
 <li><p>An unformatted Excel workbook of all the routes that you could run the old macro on to produce the final manifests. In the example: <code class="docutils literal notranslate"><span class="pre">2025-02-12</span> <span class="pre">17:51:57,676</span> <span class="pre">-</span> <span class="pre">INFO</span> <span class="pre">-</span> <span class="pre">Writing</span> <span class="pre">combined</span> <span class="pre">routes</span> <span class="pre">to</span> <span class="pre">/Users/me/repos/bfb_delivery/.test_data/scratch/combined_routes_20250212.xlsx</span></code></p></li>
 </ul>
 <p>This can be helpful if you need to revert to the old method for one of the steps for some reason.</p>
@@ -395,29 +395,29 @@ Plans distributed: 3
 <p>Use the optional argument <code class="code docutils literal notranslate"><span class="pre">output_dir</span></code> to specify the directory to save the workbook file in. The default if not passed is a new directory in the present working directory, named “deliveries_{date}”.</p>
 <p>In Python:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">build_routes_from_chunked</span><span class="p">(</span>
-    <span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/master_chunked_sheet.xlsx&quot;</span><span class="p">,</span>
-    <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;path/to/output_dir/&quot;</span><span class="p">,</span>
+    <span class="n">input_path</span><span class="o">=</span><span class="s2">"path/to/master_chunked_sheet.xlsx"</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="o">=</span><span class="s2">"path/to/output_dir/"</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <p>With CLI:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--input_path<span class="w"> </span><span class="s2">&quot;path/to/master_chunked_sheet.xlsx&quot;</span><span class="w"> </span>--output_dir<span class="w"> </span><span class="s2">&quot;path/to/output_dir/&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--input_path<span class="w"> </span><span class="s2">"path/to/master_chunked_sheet.xlsx"</span><span class="w"> </span>--output_dir<span class="w"> </span><span class="s2">"path/to/output_dir/"</span>
 </pre></div>
 </div>
 </section>
 <section id="start-date">
 <h4>Start date<a class="headerlink" href="#start-date" title="Link to this heading">¶</a></h4>
-<p>Use the optional argument <code class="code docutils literal notranslate"><span class="pre">start_date</span></code> to specify the beginning of the date range to search Circuit for routes. The default if not passed in is the soonest Friday.</p>
+<p>Use the optional argument <code class="code docutils literal notranslate"><span class="pre">start_date</span></code> to specify the beginning of the date range to search Spoke for routes. The default if not passed in is the soonest Friday.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfb_delivery</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_routes_from_chunked</span>
 
 <span class="n">build_routes_from_chunked</span><span class="p">(</span>
-    <span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/master_chunked_sheet.xlsx&quot;</span><span class="p">,</span>
-    <span class="n">start_date</span><span class="o">=</span><span class="s2">&quot;1947-10-14&quot;</span><span class="p">,</span>
+    <span class="n">input_path</span><span class="o">=</span><span class="s2">"path/to/master_chunked_sheet.xlsx"</span><span class="p">,</span>
+    <span class="n">start_date</span><span class="o">=</span><span class="s2">"1947-10-14"</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <p>With CLI:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--input_path<span class="w"> </span><span class="s2">&quot;path/to/master_chunked_sheet.xlsx&quot;</span><span class="w"> </span>--start_date<span class="w"> </span><span class="m">1957</span>-10-04
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--input_path<span class="w"> </span><span class="s2">"path/to/master_chunked_sheet.xlsx"</span><span class="w"> </span>--start_date<span class="w"> </span><span class="m">1957</span>-10-04
 </pre></div>
 </div>
 </section>
@@ -426,13 +426,13 @@ Plans distributed: 3
 <p>By default, the tool will distribute the routes to the driver apps. Use the optional argument <code class="code docutils literal notranslate"><span class="pre">no_distribute</span></code> to skip this.</p>
 <p>In Python:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">build_routes_from_chunked</span><span class="p">(</span>
-    <span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/master_chunked_sheet.xlsx&quot;</span><span class="p">,</span>
+    <span class="n">input_path</span><span class="o">=</span><span class="s2">"path/to/master_chunked_sheet.xlsx"</span><span class="p">,</span>
     <span class="n">no_distribute</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <p>With CLI:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--input_path<span class="w"> </span><span class="s2">&quot;path/to/master_chunked_sheet.xlsx&quot;</span><span class="w"> </span>--no_distribute
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--input_path<span class="w"> </span><span class="s2">"path/to/master_chunked_sheet.xlsx"</span><span class="w"> </span>--no_distribute
 </pre></div>
 </div>
 </section>
@@ -441,13 +441,13 @@ Plans distributed: 3
 <p>Use the optional argument <code class="code docutils literal notranslate"><span class="pre">verbose</span></code> to print more information to the console. This can be useful for debugging, but it is pretty noisy.</p>
 <p>In Python:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">build_routes_from_chunked</span><span class="p">(</span>
-    <span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/master_chunked_sheet.xlsx&quot;</span><span class="p">,</span>
+    <span class="n">input_path</span><span class="o">=</span><span class="s2">"path/to/master_chunked_sheet.xlsx"</span><span class="p">,</span>
     <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <p>With CLI:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--input_path<span class="w"> </span><span class="s2">&quot;path/to/master_chunked_sheet.xlsx&quot;</span><span class="w"> </span>--verbose
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--input_path<span class="w"> </span><span class="s2">"path/to/master_chunked_sheet.xlsx"</span><span class="w"> </span>--verbose
 </pre></div>
 </div>
 </section>
@@ -462,13 +462,13 @@ Cedarwood Apartments special instructions *,Please call the recipient when you a
 <p>If you don’t provide <code class="code docutils literal notranslate"><span class="pre">extra_notes_file</span></code> provide, the tool will use the constant notes in the codebase: <a class="reference internal" href="bfb_delivery.lib.html#bfb_delivery.lib.constants.ExtraNotes" title="bfb_delivery.lib.constants.ExtraNotes"><code class="xref py py-data docutils literal notranslate"><span class="pre">bfb_delivery.lib.constants.ExtraNotes</span></code></a> (currently empty).</p>
 <p>In Python:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">build_routes_from_chunked</span><span class="p">(</span>
-    <span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;path/to/master_chunked_sheet.xlsx&quot;</span><span class="p">,</span>
-    <span class="n">extra_notes_file</span><span class="o">=</span><span class="s2">&quot;path/to/extra_notes.csv&quot;</span><span class="p">,</span>
+    <span class="n">input_path</span><span class="o">=</span><span class="s2">"path/to/master_chunked_sheet.xlsx"</span><span class="p">,</span>
+    <span class="n">extra_notes_file</span><span class="o">=</span><span class="s2">"path/to/extra_notes.csv"</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <p>With CLI:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--input_path<span class="w"> </span><span class="s2">&quot;path/to/master_chunked_sheet.xlsx&quot;</span><span class="w"> </span>--extra_notes_file<span class="w"> </span>path/to/extra_notes.csv
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--input_path<span class="w"> </span><span class="s2">"path/to/master_chunked_sheet.xlsx"</span><span class="w"> </span>--extra_notes_file<span class="w"> </span>path/to/extra_notes.csv
 </pre></div>
 </div>
 <div class="admonition note">
@@ -480,15 +480,15 @@ Cedarwood Apartments special instructions *,Please call the recipient when you a
 </section>
 <section id="note-on-tools-this-tool-wraps">
 <span id="tools-wrapped-note"></span><h2>Note on tools this tool wraps<a class="headerlink" href="#note-on-tools-this-tool-wraps" title="Link to this heading">¶</a></h2>
-<p><code class="code docutils literal notranslate"><span class="pre">build_routes_from_chunked</span></code> wraps other tools that run each segment of the pipeline. First it runs <code class="code docutils literal notranslate"><span class="pre">split_chunked_route</span></code> to split the master chunked sheet into spreadsheets for each route in a single workbook before uploading. It then runs <code class="code docutils literal notranslate"><span class="pre">create_manifests_from_circuit</span></code>, so you don’t have to download and move files around and format them. <code class="code docutils literal notranslate"><span class="pre">create_manifests_from_circuit</span></code> actually wraps <code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code>, which in turn wraps two other tools, <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> and <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code> into one tool. You can still use any of those tools if you wish, but you can instead just use <code class="code docutils literal notranslate"><span class="pre">build_routes_from_chunked</span></code>. Calling these intermediate tools from <code class="code docutils literal notranslate"><span class="pre">build_routes_from_chunked</span></code> wasn’t necessary, but it was convenient to develop that way and has the added benefit of producing intermediate files at each step that you can use if you need to revert to the old method for some of the steps for some reason (say there was an error in one of the route optimizations and you want to retry it without running all of them again).</p>
+<p><code class="code docutils literal notranslate"><span class="pre">build_routes_from_chunked</span></code> wraps other tools that run each segment of the pipeline. First it runs <code class="code docutils literal notranslate"><span class="pre">split_chunked_route</span></code> to split the master chunked sheet into spreadsheets for each route in a single workbook before uploading. It then runs <code class="code docutils literal notranslate"><span class="pre">create_manifests_from_spoke</span></code>, so you don’t have to download and move files around and format them. <code class="code docutils literal notranslate"><span class="pre">create_manifests_from_spoke</span></code> actually wraps <code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code>, which in turn wraps two other tools, <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> and <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code> into one tool. You can still use any of those tools if you wish, but you can instead just use <code class="code docutils literal notranslate"><span class="pre">build_routes_from_chunked</span></code>. Calling these intermediate tools from <code class="code docutils literal notranslate"><span class="pre">build_routes_from_chunked</span></code> wasn’t necessary, but it was convenient to develop that way and has the added benefit of producing intermediate files at each step that you can use if you need to revert to the old method for some of the steps for some reason (say there was an error in one of the route optimizations and you want to retry it without running all of them again).</p>
 <figure class="align-default" id="id1">
 <pre  class="mermaid">
         graph TD;
     A[**build_routes_from_chunked**] --&gt; B[**split_chunked_route**]
     B --&gt; B1[Splits master chunked sheet into individual driver route sheets.]
-    A --&gt; C[Uploads routes to Circuit, optimizes, and distributes to drivers.]
-    A --&gt; D[**create_manifests_from_circuit**]
-    D --&gt; E[Gets routes from Circuit.]
+    A --&gt; C[Uploads routes to Spoke, optimizes, and distributes to drivers.]
+    A --&gt; D[**create_manifests_from_spoke**]
+    D --&gt; E[Gets routes from Spoke.]
     D --&gt; F[**create_manifests**]
     F --&gt; G[**combine_route_tables**]
     F --&gt; H[**format_combined_routes**]
@@ -498,14 +498,14 @@ Cedarwood Apartments special instructions *,Please call the recipient when you a
 <p><span class="caption-text">Subtools wrapped and alternatively available for use</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
-<p>For instance, say you’ve found a bug when using <code class="code docutils literal notranslate"><span class="pre">build_routes_from_chunked</span></code> where the routes uploaded and optimized but for some reason didn’t produce the final printable manifest. You could try downloading the routes manually then running <code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code>, or downloading manually then running <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> and passing its output to <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code>. For whichever of those steps fails, you can revert to using your old method, but you can still ostensibly use a tool for the other piece that didn’t fail. For example, say <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> ran fine, but <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code> threw an error, so you reverted to using the old Excel macro and manually formatting. See <a class="reference internal" href="split_chunked_route.html"><span class="doc">Split Chunked Route Sheet into Multiple Files</span></a>, <a class="reference internal" href="create_manifests_from_circuit.html"><span class="doc">Create Printable Manifests from Optimized Routes from Circuit</span></a>, <a class="reference internal" href="create_manifests.html"><span class="doc">Create Printable Manifests from Downloaded Optimized Routes</span></a>, <a class="reference internal" href="combine_route_tables.html"><span class="doc">Combine Driver Route Tables into a Single Workbook</span></a> and <a class="reference internal" href="format_combined_routes.html"><span class="doc">Format Manifests</span></a>.</p>
+<p>For instance, say you’ve found a bug when using <code class="code docutils literal notranslate"><span class="pre">build_routes_from_chunked</span></code> where the routes uploaded and optimized but for some reason didn’t produce the final printable manifest. You could try downloading the routes manually then running <code class="code docutils literal notranslate"><span class="pre">create_manifests</span></code>, or downloading manually then running <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> and passing its output to <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code>. For whichever of those steps fails, you can revert to using your old method, but you can still ostensibly use a tool for the other piece that didn’t fail. For example, say <code class="code docutils literal notranslate"><span class="pre">combine_route_tables</span></code> ran fine, but <code class="code docutils literal notranslate"><span class="pre">format_combined_routes</span></code> threw an error, so you reverted to using the old Excel macro and manually formatting. See <a class="reference internal" href="split_chunked_route.html"><span class="doc">Split Chunked Route Sheet into Multiple Files</span></a>, <a class="reference internal" href="create_manifests_from_spoke.html"><span class="doc">Create Printable Manifests from Optimized Routes from Spoke</span></a>, <a class="reference internal" href="create_manifests.html"><span class="doc">Create Printable Manifests from Downloaded Optimized Routes</span></a>, <a class="reference internal" href="combine_route_tables.html"><span class="doc">Combine Driver Route Tables into a Single Workbook</span></a> and <a class="reference internal" href="format_combined_routes.html"><span class="doc">Format Manifests</span></a>.</p>
 <p>Most likely you’ll find that the tool works fine unless the underlying data schemata have changed, but it’s good to know you have options to explore instead of doing it all manually again.</p>
 </section>
 <section id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
 <p><a class="reference internal" href="workflow.html"><span class="doc">The Delivery-Planning Workflow</span></a></p>
 <p><a class="reference internal" href="split_chunked_route.html"><span class="doc">Split Chunked Route Sheet into Multiple Files</span></a></p>
-<p><a class="reference internal" href="create_manifests_from_circuit.html"><span class="doc">Create Printable Manifests from Optimized Routes from Circuit</span></a></p>
+<p><a class="reference internal" href="create_manifests_from_spoke.html"><span class="doc">Create Printable Manifests from Optimized Routes from Spoke</span></a></p>
 <p><a class="reference internal" href="create_manifests.html"><span class="doc">Create Printable Manifests from Downloaded Optimized Routes</span></a></p>
 <p><a class="reference internal" href="combine_route_tables.html"><span class="doc">Combine Driver Route Tables into a Single Workbook</span></a></p>
 <p><a class="reference internal" href="format_combined_routes.html"><span class="doc">Format Manifests</span></a></p>
@@ -569,7 +569,7 @@ Cedarwood Apartments special instructions *,Please call the recipient when you a
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet</a><ul>
+<li><a class="reference internal" href="#">Build, Optimize, and Distribute Spoke Routes from Chunked Routes Sheet</a><ul>
 <li><a class="reference internal" href="#usage">Usage</a><ul>
 <li><a class="reference internal" href="#examining-output">Examining output</a></li>
 <li><a class="reference internal" href="#reviewing-final-manifests">Reviewing final manifests</a></li>
@@ -596,7 +596,7 @@ Cedarwood Apartments special instructions *,Please call the recipient when you a
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=9b3fc59f"></script>
+</div><script src="_static/documentation_options.js?v=3304f9e4"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

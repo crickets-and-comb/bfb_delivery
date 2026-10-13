@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Developer Resources" href="developers.html"><link rel="prev" title="bfb_delivery.lib.schema package" href="bfb_delivery.lib.schema.html">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>bfb_delivery.lib.schema.checks package - bfb_delivery 3.0.3 documentation</title>
+        <title>bfb_delivery.lib.schema.checks package - bfb_delivery 4.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 3.0.3 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 4.0.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">bfb_delivery 3.0.3 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 4.0.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -193,7 +193,7 @@
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow.html">The Delivery-Planning Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="build_routes_from_chunked.html">Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_routes_from_chunked.html">Build, Optimize, and Distribute Spoke Routes from Chunked Routes Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="intro_to_bash.html">Intro to Command Line and Bash</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input aria-label="Toggle navigation of bfb_delivery" checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
@@ -352,6 +352,17 @@
 <dt class="sig sig-object py" id="bfb_delivery.lib.schema.checks.dataframe_checks.equal_cols">
 <span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.checks.dataframe_checks.</span></span><span class="sig-name descname"><span class="pre">equal_cols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.schema.checks.dataframe_checks.equal_cols" title="Link to this definition">¶</a></dt>
 <dd><p>Assert that plan titles are the same as route titles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bfb_delivery.lib.schema.checks.dataframe_checks.field_not_null_where_product">
+<span class="sig-prename descclassname"><span class="pre">bfb_delivery.lib.schema.checks.dataframe_checks.</span></span><span class="sig-name descname"><span class="pre">field_not_null_where_product</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfb_delivery.lib.schema.checks.dataframe_checks.field_not_null_where_product" title="Link to this definition">¶</a></dt>
+<dd><p>Assert field values are not null where there is a product to deliver.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
@@ -580,6 +591,7 @@
 <li><a class="reference internal" href="#bfb_delivery.lib.schema.checks.dataframe_checks.at_least_one_in_group_sheet_stop"><code class="docutils literal notranslate"><span class="pre">at_least_one_in_group_sheet_stop()</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.schema.checks.dataframe_checks.contiguous_group"><code class="docutils literal notranslate"><span class="pre">contiguous_group()</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.schema.checks.dataframe_checks.equal_cols"><code class="docutils literal notranslate"><span class="pre">equal_cols()</span></code></a></li>
+<li><a class="reference internal" href="#bfb_delivery.lib.schema.checks.dataframe_checks.field_not_null_where_product"><code class="docutils literal notranslate"><span class="pre">field_not_null_where_product()</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.schema.checks.dataframe_checks.increasing_by"><code class="docutils literal notranslate"><span class="pre">increasing_by()</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.schema.checks.dataframe_checks.item_in_dict_col"><code class="docutils literal notranslate"><span class="pre">item_in_dict_col()</span></code></a></li>
 <li><a class="reference internal" href="#bfb_delivery.lib.schema.checks.dataframe_checks.many_to_one"><code class="docutils literal notranslate"><span class="pre">many_to_one()</span></code></a></li>
@@ -610,7 +622,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=9b3fc59f"></script>
+</div><script src="_static/documentation_options.js?v=3304f9e4"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

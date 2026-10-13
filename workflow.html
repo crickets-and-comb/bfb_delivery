@@ -3,10 +3,10 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet" href="build_routes_from_chunked.html"><link rel="prev" title="Getting Started" href="getting_started.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Build, Optimize, and Distribute Spoke Routes from Chunked Routes Sheet" href="build_routes_from_chunked.html"><link rel="prev" title="Getting Started" href="getting_started.html">
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
-        <title>The Delivery-Planning Workflow - bfb_delivery 3.0.3 documentation</title>
+        <title>The Delivery-Planning Workflow - bfb_delivery 4.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">bfb_delivery 3.0.3 documentation</div></a>
+      <a href="index.html"><div class="brand">bfb_delivery 4.0.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">bfb_delivery 3.0.3 documentation</span>
+  <span class="sidebar-brand-text">bfb_delivery 4.0.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -193,7 +193,7 @@
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">The Delivery-Planning Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="build_routes_from_chunked.html">Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_routes_from_chunked.html">Build, Optimize, and Distribute Spoke Routes from Chunked Routes Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="intro_to_bash.html">Intro to Command Line and Bash</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI.html">CLI</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">bfb_delivery</a><input aria-label="Toggle navigation of bfb_delivery" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -254,17 +254,17 @@
         <article role="main" id="furo-main-content">
           <section id="the-delivery-planning-workflow">
 <h1>The Delivery-Planning Workflow<a class="headerlink" href="#the-delivery-planning-workflow" title="Link to this heading">¶</a></h1>
-<p>Once you’re set up (see <a class="reference internal" href="getting_started.html"><span class="doc">Getting Started</span></a>), and you have a master list of chunked routes you want to split up and optimize in Circuit, and you’ve activated the selected drivers in Circuit, you can begin using <code class="code docutils literal notranslate"><span class="pre">bfb_delivery</span></code>. Here’s the workflow.</p>
+<p>Once you’re set up (see <a class="reference internal" href="getting_started.html"><span class="doc">Getting Started</span></a>), and you have a master list of chunked routes you want to split up and optimize in Spoke, and you’ve activated the selected drivers in Spoke, you can begin using <code class="code docutils literal notranslate"><span class="pre">bfb_delivery</span></code>. Here’s the workflow.</p>
 <figure class="align-default" id="id1">
 <pre  class="mermaid">
         graph TD;
-    activate_all_hhs_driver[&quot;Activate 'All HHs' driver in Circuit.&quot;];
+    activate_all_hhs_driver[&quot;Activate 'All HHs' driver in Spoke.&quot;];
     activate_env[Activate your conda env.];
-    activate_all_hhs_driver --&gt; get_long_route[Use **build_routes_from_chunked** to route all stops with Circuit.];
+    activate_all_hhs_driver --&gt; get_long_route[Use **build_routes_from_chunked** to route all stops with Spoke.];
     activate_env --&gt; get_long_route;
     get_long_route --&gt; chunk[&quot;'Chunk' stops by driver.&quot;];
-    get_long_route --&gt; activate_drivers[Activate drivers in Circuit.];
-    chunk --&gt; build_routes_from_chunked[Use **build_routes_from_chunked** to run routes through Circuit and create manifests.];
+    get_long_route --&gt; activate_drivers[Activate drivers in Spoke.];
+    chunk --&gt; build_routes_from_chunked[Use **build_routes_from_chunked** to run routes through Spoke and create manifests.];
     activate_drivers --&gt; build_routes_from_chunked;
     build_routes_from_chunked --&gt; review_output[Review the console output to confirm success.];
     build_routes_from_chunked --&gt; print[Review and print the manifests for your drivers.];
@@ -287,11 +287,11 @@ conda<span class="w"> </span>activate<span class="w"> </span>bfb_delivery
 </div>
 <p>Now you’re ready to use the tools in the <code class="docutils literal notranslate"><span class="pre">bfb_delivery</span></code> command-line interface (CLI).</p>
 </section>
-<section id="route-all-stops-with-circuit">
-<h2>Route all stops with Circuit<a class="headerlink" href="#route-all-stops-with-circuit" title="Link to this heading">¶</a></h2>
-<p>When you have all the stops for the week, you need to upload them to Circuit and optimize them in a single route with the title “All HHs”. You’ll use this single route as a starting point to allocate stops to drivers.</p>
-<p>You can build the single route manually, or you can use <code class="code docutils literal notranslate"><span class="pre">build_routes_from_chunked</span></code> to upload the stops to Circuit and optimize the route for you. Just put “All HHs” in the driver column for all stops in the routes spreadsheet, activate the All HHs driver (or whatever driver you want to assign it to), then run the tool:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--input_path<span class="w"> </span><span class="s2">&quot;path/to/all_hhs.xlsx&quot;</span>
+<section id="route-all-stops-with-spoke">
+<h2>Route all stops with Spoke<a class="headerlink" href="#route-all-stops-with-spoke" title="Link to this heading">¶</a></h2>
+<p>When you have all the stops for the week, you need to upload them to Spoke and optimize them in a single route with the title “All HHs”. You’ll use this single route as a starting point to allocate stops to drivers.</p>
+<p>You can build the single route manually, or you can use <code class="code docutils literal notranslate"><span class="pre">build_routes_from_chunked</span></code> to upload the stops to Spoke and optimize the route for you. Just put “All HHs” in the driver column for all stops in the routes spreadsheet, activate the All HHs driver (or whatever driver you want to assign it to), then run the tool:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--input_path<span class="w"> </span><span class="s2">"path/to/all_hhs.xlsx"</span>
 </pre></div>
 </div>
 <div class="admonition attention">
@@ -302,7 +302,7 @@ conda<span class="w"> </span>activate<span class="w"> </span>bfb_delivery
 <p class="admonition-title">Note</p>
 <p>“path/to/all_hhs.xlsx” is a dummy path. Replace it with the path to your spreadsheet. It might be something like “C:/Users/you/Downloads/all_hhs.xlsx”. It’s up to you to know where you put your file.</p>
 </div>
-<p>The tool will prompt you to confirm the driver assignment. See <a class="reference internal" href="build_routes_from_chunked.html"><span class="doc">Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet</span></a> for an example, as well as e.g. for how to set the output directory. You may also use <cite>–help</cite> to see all the optional arguments in the CLI:</p>
+<p>The tool will prompt you to confirm the driver assignment. See <a class="reference internal" href="build_routes_from_chunked.html"><span class="doc">Build, Optimize, and Distribute Spoke Routes from Chunked Routes Sheet</span></a> for an example, as well as e.g. for how to set the output directory. You may also use <cite>–help</cite> to see all the optional arguments in the CLI:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--help
 </pre></div>
 </div>
@@ -318,8 +318,8 @@ conda<span class="w"> </span>activate<span class="w"> </span>bfb_delivery
 </section>
 <section id="build-and-distribute-the-routes">
 <h2>Build and distribute the routes<a class="headerlink" href="#build-and-distribute-the-routes" title="Link to this heading">¶</a></h2>
-<p>Phewf! You have your chunked routes. Now you need to upload the routes to Circuit, optimize them, distribute them to the driver apps (if you wish), and build the final manifests to print for the drivers. You can do this with <code class="code docutils literal notranslate"><span class="pre">build_routes_from_chunked</span></code>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--input_path<span class="w"> </span><span class="s2">&quot;path/to/master_chunked.xlsx&quot;</span>
+<p>Phewf! You have your chunked routes. Now you need to upload the routes to Spoke, optimize them, distribute them to the driver apps (if you wish), and build the final manifests to print for the drivers. You can do this with <code class="code docutils literal notranslate"><span class="pre">build_routes_from_chunked</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--input_path<span class="w"> </span><span class="s2">"path/to/master_chunked.xlsx"</span>
 </pre></div>
 </div>
 <div class="admonition attention">
@@ -330,7 +330,7 @@ conda<span class="w"> </span>activate<span class="w"> </span>bfb_delivery
 <p class="admonition-title">Note</p>
 <p>“path/to/master_chunked.xlsx” is a dummy path. Replace it with the path to your spreadsheet. It might be something like “C:/Users/you/Downloads/master_chunked.xlsx”. It’s up to you to know where you put your file.</p>
 </div>
-<p>The tool will prompt you to confirm the driver assignments. See <a class="reference internal" href="build_routes_from_chunked.html"><span class="doc">Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet</span></a> for an example, as well as e.g. for how to set the output directory. You may also use <cite>–help</cite> to see all the optional arguments in the CLI:</p>
+<p>The tool will prompt you to confirm the driver assignments. See <a class="reference internal" href="build_routes_from_chunked.html"><span class="doc">Build, Optimize, and Distribute Spoke Routes from Chunked Routes Sheet</span></a> for an example, as well as e.g. for how to set the output directory. You may also use <cite>–help</cite> to see all the optional arguments in the CLI:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>build_routes_from_chunked<span class="w"> </span>--help
 </pre></div>
 </div>
@@ -338,7 +338,7 @@ conda<span class="w"> </span>activate<span class="w"> </span>bfb_delivery
 </section>
 <section id="review-the-console-output-to-confirm-success">
 <h2>Review the console output to confirm success<a class="headerlink" href="#review-the-console-output-to-confirm-success" title="Link to this heading">¶</a></h2>
-<p>Review the console output to confirm that the routes were uploaded to Circuit, optimized, and distributed to the drivers. If there are any errors, you’ll see them here. See <a class="reference internal" href="build_routes_from_chunked.html"><span class="doc">Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet</span></a> for what to look for.</p>
+<p>Review the console output to confirm that the routes were uploaded to Spoke, optimized, and distributed to the drivers. If there are any errors, you’ll see them here. See <a class="reference internal" href="build_routes_from_chunked.html"><span class="doc">Build, Optimize, and Distribute Spoke Routes from Chunked Routes Sheet</span></a> for what to look for.</p>
 </section>
 <section id="review-and-print-manifests">
 <h2>Review and print manifests<a class="headerlink" href="#review-and-print-manifests" title="Link to this heading">¶</a></h2>
@@ -347,7 +347,7 @@ conda<span class="w"> </span>activate<span class="w"> </span>bfb_delivery
 <section id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
 <p><a class="reference internal" href="getting_started.html"><span class="doc">Getting Started</span></a></p>
-<p><a class="reference internal" href="build_routes_from_chunked.html"><span class="doc">Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet</span></a></p>
+<p><a class="reference internal" href="build_routes_from_chunked.html"><span class="doc">Build, Optimize, and Distribute Spoke Routes from Chunked Routes Sheet</span></a></p>
 <p><a class="reference internal" href="CLI.html"><span class="doc">CLI</span></a></p>
 <p><a class="reference internal" href="bfb_delivery.api.html"><span class="doc">bfb_delivery.api package</span></a></p>
 </section>
@@ -363,7 +363,7 @@ conda<span class="w"> </span>activate<span class="w"> </span>bfb_delivery
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Build, Optimize, and Distribute Circuit Routes from Chunked Routes Sheet</div>
+                <div class="title">Build, Optimize, and Distribute Spoke Routes from Chunked Routes Sheet</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -410,7 +410,7 @@ conda<span class="w"> </span>activate<span class="w"> </span>bfb_delivery
             <ul>
 <li><a class="reference internal" href="#">The Delivery-Planning Workflow</a><ul>
 <li><a class="reference internal" href="#activate-your-env">Activate your env</a></li>
-<li><a class="reference internal" href="#route-all-stops-with-circuit">Route all stops with Circuit</a></li>
+<li><a class="reference internal" href="#route-all-stops-with-spoke">Route all stops with Spoke</a></li>
 <li><a class="reference internal" href="#chunk-the-stops-by-driver">Chunk the stops by driver</a></li>
 <li><a class="reference internal" href="#build-and-distribute-the-routes">Build and distribute the routes</a></li>
 <li><a class="reference internal" href="#review-the-console-output-to-confirm-success">Review the console output to confirm success</a></li>
@@ -427,7 +427,7 @@ conda<span class="w"> </span>activate<span class="w"> </span>bfb_delivery
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=9b3fc59f"></script>
+</div><script src="_static/documentation_options.js?v=3304f9e4"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
