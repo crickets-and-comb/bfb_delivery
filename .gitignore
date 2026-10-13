@@ -16,3 +16,6 @@ docs/**/*.pickle
 
 # Workflows
 .github/workflows/CI_CD_act.yml
+
+# System
+.DS_Store
