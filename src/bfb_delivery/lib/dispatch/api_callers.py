@@ -256,7 +256,7 @@ class StopUploader(BaseBFBPostCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call with `plan_id`."""
-        self._url = f"{SpokeURLs.BASE}/{self._plan_id}/stops:import"
+        self._url = f"{SpokeURLs.STOPS_IMPORT.format(plan_id=self._plan_id)}"
 
     @typechecked
     def _handle_200(self) -> None:
@@ -294,7 +294,7 @@ class OptimizationLauncher(BaseOptimizationCaller, BaseBFBPostCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call with the `plan_id`."""
-        self._url = f"{SpokeURLs.BASE}/{self._plan_id}:optimize"
+        self._url = SpokeURLs.OPTIMIZE.format(plan_id=self._plan_id)
 
 
 class OptimizationChecker(BaseOptimizationCaller, BaseBFBGetCaller):
@@ -319,7 +319,7 @@ class OptimizationChecker(BaseOptimizationCaller, BaseBFBGetCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call."""
-        self._url = f"{SpokeURLs.BASE}/{self.operation_id}"
+        self._url = SpokeURLs.OPTIMIZATION_CHECK.format(operation_id=self.operation_id)
 
 
 class PlanDistributor(BaseBFBPostCaller):
@@ -347,7 +347,7 @@ class PlanDistributor(BaseBFBPostCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call with the `plan_id`."""
-        self._url = f"{SpokeURLs.BASE}/{self._plan_id}:distribute"
+        self._url = SpokeURLs.DISTRIBUTE_PLAN.format(_plan_id=self._plan_id)
 
     @typechecked
     def _handle_200(self) -> None:
@@ -384,7 +384,7 @@ class PlanDeleter(BaseBFBDeleteCaller):
     @typechecked
     def _set_url(self) -> None:
         """Set the URL for the API call with the `plan_id`."""
-        self._url = f"{SpokeURLs.BASE}/{self._plan_id}"
+        self._url = SpokeURLs.DELETE_PLAN.format(plan_id=self._plan_id)
 
     @typechecked
     def _handle_204(self) -> None:

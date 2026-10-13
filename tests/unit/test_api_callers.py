@@ -499,9 +499,9 @@ def test_optimization_callers(
             caller.call_api()
             assert (
                 mock_request.call_args_list[0][1]["url"]
-                == f"{SpokeURLs.BASE}/{kwargs['plan_id']}:optimize"
+                == SpokeURLs.OPTIMIZE.format(plan_id=kwargs["plan_id"])
                 if request_type == "opt_launcher"
-                else f"{SpokeURLs.BASE}{kwargs['operation_id']}"
+                else SpokeURLs.OPTIMIZATION_CHECK.format(operation_id=kwargs["operation_id"])
             )
             assert caller.operation_id == _MOCK_OPERATION_ID
             assert caller.finished == expected_done_status
@@ -668,9 +668,8 @@ def test_stop_uploader(
         with error_context:
             caller.call_api()
 
-            assert (
-                mock_request.call_args_list[0][1]["url"]
-                == f"{SpokeURLs.BASE}/{_MOCK_PLAN_ID}/stops:import"
+            assert mock_request.call_args_list[0][1]["url"] == SpokeURLs.STOPS_IMPORT.format(
+                plan_id=_MOCK_PLAN_ID
             )
             assert caller.stop_ids == response_sequence[0]["json.return_value"]["success"]
 
@@ -706,10 +705,9 @@ def test_plan_distributor(
         with error_context:
             caller.call_api()
 
-            assert (
-                mock_request.call_args_list[0][1]["url"]
-                == f"{SpokeURLs.BASE}/{_MOCK_PLAN_ID}:distribute"
-            )
+            assert mock_request.call_args_list[0][1][
+                "url"
+            ] == SpokeURLs.DISTRIBUTE_PLAN.format(_plan_id=_MOCK_PLAN_ID)
             assert (
                 caller.distributed
                 == response_sequence[0]["json.return_value"][CircuitColumns.DISTRIBUTED]
@@ -735,5 +733,7 @@ def test_plan_deleter(
         caller = PlanDeleter(plan_id=_MOCK_PLAN_ID)
         caller.call_api()
 
-        assert mock_request.call_args_list[0][1]["url"] == f"{SpokeURLs.BASE}/{_MOCK_PLAN_ID}"
+        assert mock_request.call_args_list[0][1]["url"] == SpokeURLs.DELETE_PLAN.format(
+            plan_id=_MOCK_PLAN_ID
+        )
         assert caller.deletion == expected_deletion_status

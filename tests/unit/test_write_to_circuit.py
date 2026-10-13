@@ -431,7 +431,7 @@ def register_stop_upload(
     for plan_id in responses:
         requests_mock.register_uri(
             "POST",
-            f"{SpokeURLs.BASE}/{plan_id}/stops:import",
+            SpokeURLs.STOPS_IMPORT.format(plan_id=plan_id),
             json=responses[plan_id],
             status_code=200,
         )
@@ -547,7 +547,7 @@ def register_optimizations(
     for plan_id in responses:
         requests_mock.register_uri(
             "POST",
-            f"{SpokeURLs.BASE}/{plan_id}:optimize",
+            SpokeURLs.OPTIMIZE.format(plan_id=plan_id),
             json=responses[plan_id],
             status_code=200,
         )
@@ -728,7 +728,7 @@ def register_route_distributions(
     for plan_id in responses:
         requests_mock.register_uri(
             "POST",
-            f"{SpokeURLs.BASE}/{plan_id}:distribute",
+            SpokeURLs.DISTRIBUTE_PLAN.format(_plan_id=plan_id),
             json=responses[plan_id],
             status_code=200,
         )
@@ -1073,7 +1073,7 @@ def test_upload_stops_calls(
     _ = _upload_stops(stops_df=mock_stops_df, plan_df=plan_df_initialized, verbose=False)
 
     for plan_id, expected_stop_array in mock_stop_upload.items():
-        expected_url = f"{SpokeURLs.BASE}/{plan_id}/stops:import"
+        expected_url = SpokeURLs.STOPS_IMPORT.format(plan_id=plan_id)
         matching_requests = [
             req for req in requests_mock.request_history if req.url == expected_url
         ]
@@ -1132,7 +1132,7 @@ def test_upload_stops_no_addressName(
     )
 
     for plan_id, _ in mock_stop_upload.items():
-        expected_url = f"{SpokeURLs.BASE}/{plan_id}/stops:import"
+        expected_url = SpokeURLs.STOPS_IMPORT.format(plan_id=plan_id)
         matching_requests = [
             req for req in requests_mock.request_history if req.url == expected_url
         ]
@@ -1156,7 +1156,7 @@ def test_upload_stops_minimal_address_line_2(
     )
 
     for plan_id, _ in mock_stop_upload.items():
-        expected_url = f"{SpokeURLs.BASE}/{plan_id}/stops:import"
+        expected_url = SpokeURLs.STOPS_IMPORT.format(plan_id=plan_id)
         matching_requests = [
             req for req in requests_mock.request_history if req.url == expected_url
         ]
@@ -1212,7 +1212,7 @@ def test_optimize_routes_calls(
     for plan_id in mock_plan_df_stops_uploaded[
         mock_plan_df_stops_uploaded[IntermediateColumns.STOPS_UPLOADED]
     ][IntermediateColumns.PLAN_ID]:
-        assert f"{SpokeURLs.BASE}/{plan_id}:optimize" in [
+        assert SpokeURLs.OPTIMIZE.format(plan_id=plan_id) in [
             req.url for req in requests_mock.request_history
         ]
     for plan_id in plan_df_launched[plan_df_launched[IntermediateColumns.OPTIMIZED]][
@@ -1284,7 +1284,7 @@ def test_distribute_routes_calls(
     for plan_id in plan_df_optimized[
         plan_df_optimized[IntermediateColumns.OPTIMIZED] == True  # noqa: E712
     ][IntermediateColumns.PLAN_ID]:
-        assert f"{SpokeURLs.BASE}/{plan_id}:distribute" in [
+        assert SpokeURLs.DISTRIBUTE_PLAN.format(_plan_id=plan_id) in [
             req.url for req in requests_mock.request_history
         ]
 
@@ -1423,7 +1423,7 @@ def test_upload_split_chunked_calls(
     )
 
     for plan_id, expected_stop_array in mock_stop_upload.items():
-        expected_url = f"{SpokeURLs.BASE}/{plan_id}/stops:import"
+        expected_url = SpokeURLs.STOPS_IMPORT.format(plan_id=plan_id)
         matching_requests = [
             req for req in requests_mock.request_history if req.url == expected_url
         ]
