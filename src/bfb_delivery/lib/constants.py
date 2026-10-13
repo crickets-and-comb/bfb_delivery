@@ -581,7 +581,7 @@ class SpokeURLs:
     """URLs for Spoke API."""
 
     BASE: Final[str] = "https://api.spoke.com/public/v1"
-    SPOKE_DRIVERS: Final[str] = f"{BASE}/drivers"
+    DRIVERS: Final[str] = f"{BASE}/drivers"
     CUSTOM_STOP_PROPERTIES: Final[str] = f"{BASE}/team/customStopProperties"
     DELETE_PLAN: Final[str] = f"{BASE}/{{plan_id}}"
     DISTRIBUTE_PLAN: Final[str] = f"{BASE}/{{_plan_id}}:distribute"

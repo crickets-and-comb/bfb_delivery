@@ -121,14 +121,14 @@ def register_driver_gets(
     next_page_token = "token123"
 
     requests_mock.get(
-        url=SpokeURLs.SPOKE_DRIVERS,
+        url=SpokeURLs.DRIVERS,
         json={
             "drivers": drivers_array[0 : len(drivers_array) // 2],
             "nextPageToken": next_page_token,
         },
     )
     requests_mock.get(
-        url=SpokeURLs.SPOKE_DRIVERS + f"?pageToken={next_page_token}",
+        url=SpokeURLs.DRIVERS + f"?pageToken={next_page_token}",
         json={
             "drivers": drivers_array[len(drivers_array) // 2 : len(drivers_array)],
             "nextPageToken": None,
@@ -924,9 +924,7 @@ def test_create_plans_calls(
     )
 
     driver_requests = [
-        req
-        for req in requests_mock.request_history
-        if req.url.startswith(SpokeURLs.SPOKE_DRIVERS)
+        req for req in requests_mock.request_history if req.url.startswith(SpokeURLs.DRIVERS)
     ]
     assert len(driver_requests) == 2
 

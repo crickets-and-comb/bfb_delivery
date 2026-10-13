@@ -687,7 +687,7 @@ def _get_all_drivers() -> schema.DriversGetAllDriversOut:
     """Get all drivers."""
     logger.info("Getting all drivers from Spoke ...")
     driver_pages = get_responses(
-        url=SpokeURLs.SPOKE_DRIVERS, paged_response_class=PagedResponseGetterBFB
+        url=SpokeURLs.DRIVERS, paged_response_class=PagedResponseGetterBFB
     )
     logger.info("Finished getting drivers.")
     drivers_list = concat_response_pages(
