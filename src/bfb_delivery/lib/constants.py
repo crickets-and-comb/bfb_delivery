@@ -588,4 +588,8 @@ class SpokeURLs:
     OPTIMIZE: Final[str] = f"{BASE}/{{plan_id}}:optimize"
     OPTIMIZATION_CHECK: Final[str] = f"{BASE}/{{operation_id}}"
     PLANS: Final[str] = f"{BASE}/plans"
+    PLANS_BY_DATE: Final[str] = (
+        f"{PLANS}?filter.startsGte={{start_date}}&filter.startsLte={{end_date}}"
+    )
+    STOPS: Final[str] = f"{BASE}/{{plan_id}}/stops"
     STOPS_IMPORT: Final[str] = f"{BASE}/{{plan_id}}/stops:import"

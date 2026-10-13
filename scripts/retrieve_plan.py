@@ -12,7 +12,7 @@ from requests.auth import HTTPBasicAuth
 
 from comb_utils import get_response_dict
 
-from bfb_delivery.lib.constants import RateLimits
+from bfb_delivery.lib.constants import RateLimits, SpokeURLs
 from bfb_delivery.lib.dispatch.utils import get_spoke_key
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 def main(plan_id: str, wait_seconds: float = RateLimits.WRITE_SECONDS) -> dict:
     """Delete a plan from Spoke."""
     response = requests.get(
-        url=f"https://api.getspoke.com/public/v0.2b/{plan_id}",
+        url=SpokeURLs.PLANS.format(plan_id=plan_id),
         auth=HTTPBasicAuth(get_spoke_key(), ""),
         timeout=RateLimits.WRITE_TIMEOUT_SECONDS,
     )

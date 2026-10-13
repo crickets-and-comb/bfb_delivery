@@ -21,6 +21,7 @@ from bfb_delivery.lib.constants import (
     Columns,
     IntermediateColumns,
     SpokeColumns,
+    SpokeURLs,
 )
 from bfb_delivery.lib.dispatch.api_callers import PagedResponseGetterBFB
 from bfb_delivery.lib.schema import (
@@ -105,14 +106,11 @@ def _getcwd() -> str:
     return os.getcwd()
 
 
+# TODO: Make this an api_caller.
 @typechecked
 def _get_raw_plans(start_date: str, end_date: str, verbose: bool) -> list[dict[str, Any]]:
     """Call Spoke API to get the plans for the given date."""
-    url = (
-        "https://api.getspoke.com/public/v0.2b/plans"
-        f"?filter.startsGte={start_date}"
-        f"&filter.startsLte={end_date}"
-    )
+    url = SpokeURLs.PLANS_BY_DATE.format(start_date=start_date, end_date=end_date)
     logger.info("Getting route plans from Spoke ...")
     if verbose:
         logger.info(f"Getting route plans from {url} ...")
@@ -241,8 +239,7 @@ def _get_raw_stops(plan_ids: list[str], verbose: bool) -> list[dict[str, Any]]:
 def _get_raw_stops_list(plan_ids: list[str], verbose: bool) -> list[Any]:
     stops_lists_list = []
     for plan_id in plan_ids:
-        # https://developer.team.getspoke.com/api#tag/Stops/operation/listStops
-        url = f"https://api.getspoke.com/public/v0.2b/{plan_id}/stops"
+        url = SpokeURLs.STOPS.format(plan_id=plan_id)
         if verbose:
             logger.info(f"Getting stops from {url} ...")
         stops_lists = _get_stops_responses(url=url)
