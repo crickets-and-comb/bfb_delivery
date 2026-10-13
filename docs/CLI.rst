@@ -16,8 +16,8 @@ Each tool includes a `--help` flag to see all the optional arguments in the CLI.
    :prog: split_chunked_route
    :nested: full
 
-.. click:: bfb_delivery.cli.create_manifests_from_circuit:main
-   :prog: create_manifests_from_circuit
+.. click:: bfb_delivery.cli.create_manifests_from_spoke:main
+   :prog: create_manifests_from_spoke
    :nested: full
 
 .. click:: bfb_delivery.cli.create_manifests:main

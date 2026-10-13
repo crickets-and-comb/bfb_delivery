@@ -1,4 +1,4 @@
-"""Write routes to Circuit."""
+"""Write routes to Spoke."""
 
 import logging
 import warnings
@@ -15,13 +15,13 @@ from comb_utils import concat_response_pages, get_responses
 
 from bfb_delivery.lib import errors, schema
 from bfb_delivery.lib.constants import (
-    CIRCUIT_DATE_FORMAT,
     MANIFEST_DATE_FORMAT,
-    CircuitColumns,
+    SPOKE_DATE_FORMAT,
     Columns,
     DocStrings,
     IntermediateColumns,
     RateLimits,
+    SpokeColumns,
     SpokeURLs,
 )
 from bfb_delivery.lib.dispatch.api_callers import (
@@ -33,7 +33,7 @@ from bfb_delivery.lib.dispatch.api_callers import (
     PlanInitializer,
     StopUploader,
 )
-from bfb_delivery.lib.dispatch.read_circuit import get_route_files
+from bfb_delivery.lib.dispatch.read_spoke import get_route_files
 from bfb_delivery.lib.formatting.sheet_shaping import create_manifests, split_chunked_route
 from bfb_delivery.lib.schema.utils import schema_error_handler
 from bfb_delivery.lib.utils import get_custom_stop_properties_getter, get_friday
@@ -51,7 +51,7 @@ def build_routes_from_chunked(  # noqa: D103
     verbose: bool,
     extra_notes_file: str,
 ) -> Path:
-    start_date = start_date or get_friday(fmt=CIRCUIT_DATE_FORMAT)
+    start_date = start_date or get_friday(fmt=SPOKE_DATE_FORMAT)
 
     input_path = str(Path(input_path).resolve())
     output_dir = output_dir if output_dir else f"./deliveries_{start_date}"
@@ -66,9 +66,7 @@ def build_routes_from_chunked(  # noqa: D103
         output_filename="",
         n_books=1,
         book_one_drivers_file="",
-        date=datetime.strptime(start_date, CIRCUIT_DATE_FORMAT).strftime(
-            MANIFEST_DATE_FORMAT
-        ),
+        date=datetime.strptime(start_date, SPOKE_DATE_FORMAT).strftime(MANIFEST_DATE_FORMAT),
     )[0]
 
     plan_df = upload_split_chunked(
@@ -83,7 +81,7 @@ def build_routes_from_chunked(  # noqa: D103
         IntermediateColumns.PLAN_ID
     ].to_list()
 
-    circuit_output_dir = get_route_files(
+    spoke_output_dir = get_route_files(
         start_date=start_date,
         end_date=start_date,
         plan_ids=successful_plans,
@@ -92,7 +90,7 @@ def build_routes_from_chunked(  # noqa: D103
     )
 
     final_manifest_path = create_manifests(
-        input_dir=circuit_output_dir,
+        input_dir=spoke_output_dir,
         output_dir=output_dir,
         output_filename="",
         extra_notes_file=str(extra_notes_file) if extra_notes_file else "",
@@ -117,7 +115,7 @@ def upload_split_chunked(
     no_distribute: bool,
     verbose: bool,
 ) -> DataFrame[schema.PlansUploadSplitChunkedOut]:
-    """Upload, optimize, and distribute a split chunked Excel workbook of routes to Circuit.
+    """Upload, optimize, and distribute a split chunked Excel workbook of routes to Spoke.
 
     The workbook contains multiple sheets, one per route. Each sheet is named after the driver
     with the date. The columns are:
@@ -165,7 +163,7 @@ def upload_split_chunked(
     if not no_distribute:
         plan_df = _distribute_routes(plan_df=plan_df, verbose=verbose)
     else:
-        plan_df[CircuitColumns.DISTRIBUTED] = False
+        plan_df[SpokeColumns.DISTRIBUTED] = False
 
     plan_df[IntermediateColumns.START_DATE] = start_date
     plan_df.to_csv(plan_df_path, index=False)
@@ -177,7 +175,7 @@ def upload_split_chunked(
 
 @typechecked
 def delete_plans(plan_ids: list[str], plan_df_fp: str) -> list[str]:
-    """Delete plans from Circuit.
+    """Delete plans from Spoke.
 
     Args:
         plan_ids: The plan IDs to delete.
@@ -223,7 +221,7 @@ def delete_plans(plan_ids: list[str], plan_df_fp: str) -> list[str]:
 
 @typechecked
 def delete_plan(plan_id: str) -> bool:
-    """Delete a plan from Circuit.
+    """Delete a plan from Spoke.
 
     Args:
         plan_id: The plan ID to be deleted.
@@ -257,7 +255,7 @@ def _create_stops_df(split_chunked_workbook_fp: Path, stops_df_path: Path) -> pd
 def _create_plans(
     stops_df: DataFrame[schema.Stops], start_date: str, plan_df_path: Path, verbose: bool
 ) -> DataFrame[schema.PlansCreatePlansOut]:
-    """Create a Circuit plan for each route.
+    """Create a Spoke plan for each route.
 
     Args:
         stops_df: The long DataFrame with all the routes.
@@ -459,11 +457,11 @@ def _distribute_routes(
         f"{len(plan_df[~(plan_df[IntermediateColumns.ROUTE_TITLE]).isin(errors.keys())])} "
         "plans."
     )
-    plan_df[CircuitColumns.DISTRIBUTED] = False
+    plan_df[SpokeColumns.DISTRIBUTED] = False
     plan_df.loc[
         (plan_df[IntermediateColumns.PLAN_ID].isin(plan_ids))
         & ~(plan_df[IntermediateColumns.ROUTE_TITLE].isin(errors.keys())),
-        CircuitColumns.DISTRIBUTED,
+        SpokeColumns.DISTRIBUTED,
     ] = True
     if errors:
         logger.warning(f"Errors distributing plans:\n{errors}")
@@ -484,17 +482,17 @@ def _print_report(plan_df: pd.DataFrame, no_distribute: bool) -> None:
     plans_optimized = plan_df[plan_df[IntermediateColumns.OPTIMIZED] == True][  # noqa: E712
         IntermediateColumns.ROUTE_TITLE
     ].to_list()
-    plans_distributed = plan_df[plan_df[CircuitColumns.DISTRIBUTED] == True][  # noqa: E712
+    plans_distributed = plan_df[plan_df[SpokeColumns.DISTRIBUTED] == True][  # noqa: E712
         IntermediateColumns.ROUTE_TITLE
     ].to_list()
     report_df = plan_df[
         [
             IntermediateColumns.ROUTE_TITLE,
             IntermediateColumns.INITIALIZED,
-            CircuitColumns.WRITABLE,
+            SpokeColumns.WRITABLE,
             IntermediateColumns.STOPS_UPLOADED,
             IntermediateColumns.OPTIMIZED,
-            CircuitColumns.DISTRIBUTED,
+            SpokeColumns.DISTRIBUTED,
         ]
     ]
     logger.info(
@@ -540,14 +538,14 @@ def _assign_drivers_to_plans(
                 stops_df[IntermediateColumns.SHEET_NAME].unique()
             ),
             IntermediateColumns.DRIVER_NAME: None,
-            CircuitColumns.EMAIL: None,
-            CircuitColumns.ID: None,
+            SpokeColumns.EMAIL: None,
+            SpokeColumns.ID: None,
         }
     )
 
     drivers_df = _get_all_drivers()
     plan_df = _assign_drivers(drivers_df=drivers_df, plan_df=plan_df)
-    inactive_drivers = plan_df[~(plan_df[CircuitColumns.ACTIVE])][
+    inactive_drivers = plan_df[~(plan_df[SpokeColumns.ACTIVE])][
         IntermediateColumns.DRIVER_NAME
     ].tolist()
     if inactive_drivers:
@@ -566,26 +564,26 @@ def _assign_drivers_to_plans(
 def _initialize_plans(
     plan_df: DataFrame[schema.PlansInitializePlansIn], start_date: str, verbose: bool
 ) -> DataFrame[schema.PlansInitializePlansOut]:
-    """Initialize Circuit plans with drivers."""
+    """Initialize Spoke plans with drivers."""
     plan_df[IntermediateColumns.PLAN_ID] = None
-    plan_df[CircuitColumns.WRITABLE] = None
+    plan_df[SpokeColumns.WRITABLE] = None
     # TODO: Do we need this column?
     # https://github.com/crickets-and-comb/bfb_delivery/issues/64
-    plan_df[CircuitColumns.OPTIMIZATION] = None
+    plan_df[SpokeColumns.OPTIMIZATION] = None
 
     logger.info("Initializing plans ...")
     errors = {}
     for idx, row in plan_df.iterrows():
         plan_data = {
-            CircuitColumns.TITLE: row[IntermediateColumns.ROUTE_TITLE],
+            SpokeColumns.TITLE: row[IntermediateColumns.ROUTE_TITLE],
             # TODO: Just make this once.
             # https://github.com/crickets-and-comb/bfb_delivery/issues/65
-            CircuitColumns.STARTS: {
-                CircuitColumns.DAY: int(start_date.split("-")[2]),
-                CircuitColumns.MONTH: int(start_date.split("-")[1]),
-                CircuitColumns.YEAR: int(start_date.split("-")[0]),
+            SpokeColumns.STARTS: {
+                SpokeColumns.DAY: int(start_date.split("-")[2]),
+                SpokeColumns.MONTH: int(start_date.split("-")[1]),
+                SpokeColumns.YEAR: int(start_date.split("-")[0]),
             },
-            CircuitColumns.DRIVERS: [row[CircuitColumns.ID]],
+            SpokeColumns.DRIVERS: [row[SpokeColumns.ID]],
         }
         if verbose:
             logger.info(f"Creating plan for {row[IntermediateColumns.ROUTE_TITLE]} ...")
@@ -600,7 +598,7 @@ def _initialize_plans(
         else:
             if verbose:
                 logger.info(
-                    f"Created plan {plan_initializer.response_json[CircuitColumns.ID]} for "
+                    f"Created plan {plan_initializer.response_json[SpokeColumns.ID]} for "
                     f"{row[IntermediateColumns.ROUTE_TITLE]}."
                     f"\n{plan_initializer.response_json}"
                 )
@@ -610,7 +608,7 @@ def _initialize_plans(
                 if "plan_id" in vars(plan_initializer)
                 else "plans/noID"
             )
-            plan_df.loc[idx, CircuitColumns.WRITABLE] = (
+            plan_df.loc[idx, SpokeColumns.WRITABLE] = (
                 plan_initializer.writable if "writable" in vars(plan_initializer) else False
             )
 
@@ -621,14 +619,14 @@ def _initialize_plans(
         (plan_df[IntermediateColumns.ROUTE_TITLE].isin(errors.keys()))
         # TODO: Make not_writable a failure within class?
         # https://github.com/crickets-and-comb/bfb_delivery/issues/66
-        | ~(plan_df[CircuitColumns.WRITABLE] == True),  # noqa: E712
+        | ~(plan_df[SpokeColumns.WRITABLE] == True),  # noqa: E712
         IntermediateColumns.INITIALIZED,
     ] = False
 
     if errors:
         logger.warning(f"Errors initializing plans:\n{errors}")
 
-    not_writable = plan_df[~(plan_df[CircuitColumns.WRITABLE] == True)]  # noqa: E712
+    not_writable = plan_df[~(plan_df[SpokeColumns.WRITABLE] == True)]  # noqa: E712
     # TODO: Add noqa E712 to shared, and remove throughout codebase.
     # https://github.com/crickets-and-comb/shared/issues/41
     if not not_writable.empty:
@@ -658,7 +656,7 @@ def _build_plan_stops(
         route_title = plan_row[IntermediateColumns.ROUTE_TITLE]
         route_stops = stops_df[stops_df[IntermediateColumns.SHEET_NAME] == route_title]
         plan_stops[plan_id] = _build_stop_array(
-            route_stops=route_stops, driver_id=plan_row[CircuitColumns.ID]
+            route_stops=route_stops, driver_id=plan_row[SpokeColumns.ID]
         )
 
     # Excessive casting to satisfy mypy. This doesn't need to be fast.
@@ -687,16 +685,16 @@ def _build_plan_stops(
 @pa.check_types(with_pydantic=True, lazy=True)
 def _get_all_drivers() -> schema.DriversGetAllDriversOut:
     """Get all drivers."""
-    logger.info("Getting all drivers from Circuit ...")
+    logger.info("Getting all drivers from Spoke ...")
     driver_pages = get_responses(
-        url=SpokeURLs.CIRCUIT_DRIVERS, paged_response_class=PagedResponseGetterBFB
+        url=SpokeURLs.SPOKE_DRIVERS, paged_response_class=PagedResponseGetterBFB
     )
     logger.info("Finished getting drivers.")
     drivers_list = concat_response_pages(
-        page_list=driver_pages, data_key=CircuitColumns.DRIVERS
+        page_list=driver_pages, data_key=SpokeColumns.DRIVERS
     )
     drivers_df = pd.DataFrame(drivers_list)
-    drivers_df = drivers_df.sort_values(by=CircuitColumns.NAME).reset_index(drop=True)
+    drivers_df = drivers_df.sort_values(by=SpokeColumns.NAME).reset_index(drop=True)
 
     return drivers_df
 
@@ -710,8 +708,8 @@ def _assign_drivers(
     """Ask users to assign drivers to each route."""
     for idx, row in drivers_df.iterrows():
         print(
-            f"{idx + 1}. {'Active' if row[CircuitColumns.ACTIVE] else 'Inactive'}: "
-            f"{row[CircuitColumns.NAME]} {row[CircuitColumns.EMAIL]}"
+            f"{idx + 1}. {'Active' if row[SpokeColumns.ACTIVE] else 'Inactive'}: "
+            f"{row[SpokeColumns.NAME]} {row[SpokeColumns.EMAIL]}"
         )
 
     print("\nUsing the driver numbers above, assign drivers to each route:")
@@ -723,7 +721,7 @@ def _assign_drivers(
     for _, row in plan_df.iterrows():
         print(
             f"{row[IntermediateColumns.ROUTE_TITLE]}: "
-            f"{row[IntermediateColumns.DRIVER_NAME]}, {row[CircuitColumns.EMAIL]}"
+            f"{row[IntermediateColumns.DRIVER_NAME]}, {row[SpokeColumns.EMAIL]}"
         )
     confirm = input("Confirm the drivers above? (y/n): ")
     # TODO: Check for y, n, and prompt again if neither.
@@ -751,22 +749,22 @@ def _assign_driver(  # noqa: C901
                 [
                     best_guesses,
                     drivers_df[
-                        drivers_df[CircuitColumns.NAME].str.contains(name_part, case=False)
+                        drivers_df[SpokeColumns.NAME].str.contains(name_part, case=False)
                     ],
                 ]
             )
     # Using ID with name/email as added validation of our assumptions about uniqueness.
     # Should break more loudly if so than if we only used ID or name/email compound key.
-    id_cols = [CircuitColumns.ID, CircuitColumns.NAME, CircuitColumns.EMAIL]
+    id_cols = [SpokeColumns.ID, SpokeColumns.NAME, SpokeColumns.EMAIL]
     best_guesses = best_guesses.drop_duplicates(subset=id_cols).sort_values(
-        by=CircuitColumns.NAME
+        by=SpokeColumns.NAME
     )
 
     print(f"\nRoute {route_title}:\nBest guesses:")
     for idx, driver in best_guesses.iterrows():
         print(
-            f"{idx + 1}. {'Active' if driver[CircuitColumns.ACTIVE] else 'Inactive'}: "
-            f"{driver[CircuitColumns.NAME]} {driver[CircuitColumns.EMAIL]}"
+            f"{idx + 1}. {'Active' if driver[SpokeColumns.ACTIVE] else 'Inactive'}: "
+            f"{driver[SpokeColumns.NAME]} {driver[SpokeColumns.EMAIL]}"
         )
     print("\n")
 
@@ -791,7 +789,7 @@ def _assign_driver(  # noqa: C901
                 if choice_int < 0 or choice_int >= len(drivers_df):
                     raise errors.AssignmentOutOfRange
                 driver = drivers_df.iloc[choice_int]
-                if not driver[CircuitColumns.ACTIVE]:
+                if not driver[SpokeColumns.ACTIVE]:
                     raise errors.InactiveDriverAssignment
             except ValueError:
                 print("Invalid input. Please enter a number.")
@@ -803,21 +801,21 @@ def _assign_driver(  # noqa: C901
                 plan_df.loc[
                     plan_df[IntermediateColumns.ROUTE_TITLE] == route_title,
                     [
-                        CircuitColumns.ID,
+                        SpokeColumns.ID,
                         IntermediateColumns.DRIVER_NAME,
-                        CircuitColumns.EMAIL,
-                        CircuitColumns.ACTIVE,
+                        SpokeColumns.EMAIL,
+                        SpokeColumns.ACTIVE,
                     ],
                 ] = [
-                    drivers_df.iloc[choice_int][CircuitColumns.ID],
-                    drivers_df.iloc[choice_int][CircuitColumns.NAME],
-                    drivers_df.iloc[choice_int][CircuitColumns.EMAIL],
-                    drivers_df.iloc[choice_int][CircuitColumns.ACTIVE],
+                    drivers_df.iloc[choice_int][SpokeColumns.ID],
+                    drivers_df.iloc[choice_int][SpokeColumns.NAME],
+                    drivers_df.iloc[choice_int][SpokeColumns.EMAIL],
+                    drivers_df.iloc[choice_int][SpokeColumns.ACTIVE],
                 ]
                 assigned = True
                 print(
                     f"\nAssigned {route_title} "
-                    f"to {drivers_df.iloc[choice_int][CircuitColumns.NAME]}."
+                    f"to {drivers_df.iloc[choice_int][SpokeColumns.NAME]}."
                 )
 
     return plan_df
@@ -826,22 +824,22 @@ def _assign_driver(  # noqa: C901
 @typechecked
 def _parse_addresses(stops_df: pd.DataFrame) -> pd.DataFrame:
     """Parse addresses for each route."""
-    stops_df[CircuitColumns.ADDRESS_LINE_1] = ""
-    stops_df[CircuitColumns.ADDRESS_LINE_2] = ""
-    stops_df[CircuitColumns.CITY] = ""
-    stops_df[CircuitColumns.STATE] = "WA"
-    stops_df[CircuitColumns.ZIP] = ""
-    stops_df[CircuitColumns.COUNTRY] = "US"
+    stops_df[SpokeColumns.ADDRESS_LINE_1] = ""
+    stops_df[SpokeColumns.ADDRESS_LINE_2] = ""
+    stops_df[SpokeColumns.CITY] = ""
+    stops_df[SpokeColumns.STATE] = "WA"
+    stops_df[SpokeColumns.ZIP] = ""
+    stops_df[SpokeColumns.COUNTRY] = "US"
 
     for idx, row in stops_df.iterrows():
         address = row[Columns.ADDRESS]
         split_address = address.split(",")
-        stops_df.at[idx, CircuitColumns.ADDRESS_LINE_1] = split_address[0].strip()
-        stops_df.at[idx, CircuitColumns.ADDRESS_LINE_2] = ", ".join(
+        stops_df.at[idx, SpokeColumns.ADDRESS_LINE_1] = split_address[0].strip()
+        stops_df.at[idx, SpokeColumns.ADDRESS_LINE_2] = ", ".join(
             [part.strip() for part in split_address[1:-3]]
         )
-        stops_df.at[idx, CircuitColumns.CITY] = split_address[-3].strip()
-        stops_df.at[idx, CircuitColumns.ZIP] = split_address[-1].strip()
+        stops_df.at[idx, SpokeColumns.CITY] = split_address[-3].strip()
+        stops_df.at[idx, SpokeColumns.ZIP] = split_address[-1].strip()
 
     return stops_df
 
@@ -923,49 +921,49 @@ def _build_stop_array(route_stops: pd.DataFrame, driver_id: str) -> list[dict[st
     stop_array = []
     for _, stop_row in route_stops.iterrows():
         stop = {
-            CircuitColumns.ADDRESS: {
-                CircuitColumns.ADDRESS_LINE_1: stop_row[CircuitColumns.ADDRESS_LINE_1],
-                CircuitColumns.CITY: stop_row[CircuitColumns.CITY],
-                CircuitColumns.STATE: stop_row[CircuitColumns.STATE],
-                CircuitColumns.ZIP: stop_row[CircuitColumns.ZIP],
-                CircuitColumns.COUNTRY: stop_row[CircuitColumns.COUNTRY],
+            SpokeColumns.ADDRESS: {
+                SpokeColumns.ADDRESS_LINE_1: stop_row[SpokeColumns.ADDRESS_LINE_1],
+                SpokeColumns.CITY: stop_row[SpokeColumns.CITY],
+                SpokeColumns.STATE: stop_row[SpokeColumns.STATE],
+                SpokeColumns.ZIP: stop_row[SpokeColumns.ZIP],
+                SpokeColumns.COUNTRY: stop_row[SpokeColumns.COUNTRY],
             },
-            CircuitColumns.ORDER_INFO: {
-                CircuitColumns.PRODUCTS: [stop_row[Columns.PRODUCT_TYPE]]
+            SpokeColumns.ORDER_INFO: {
+                SpokeColumns.PRODUCTS: [stop_row[Columns.PRODUCT_TYPE]]
             },
-            CircuitColumns.ALLOWED_DRIVERS: [driver_id],
-            CircuitColumns.PACKAGE_COUNT: stop_row[Columns.ORDER_COUNT],
+            SpokeColumns.ALLOWED_DRIVERS: [driver_id],
+            SpokeColumns.PACKAGE_COUNT: stop_row[Columns.ORDER_COUNT],
         }
-        if stop_row.get(CircuitColumns.ADDRESS_LINE_2) and not pd.isna(
-            stop_row[CircuitColumns.ADDRESS_LINE_2]
+        if stop_row.get(SpokeColumns.ADDRESS_LINE_2) and not pd.isna(
+            stop_row[SpokeColumns.ADDRESS_LINE_2]
         ):
-            stop[CircuitColumns.ADDRESS][CircuitColumns.ADDRESS_LINE_2] = stop_row[
-                CircuitColumns.ADDRESS_LINE_2
+            stop[SpokeColumns.ADDRESS][SpokeColumns.ADDRESS_LINE_2] = stop_row[
+                SpokeColumns.ADDRESS_LINE_2
             ]
 
         if stop_row.get(Columns.NOTES) and not pd.isna(stop_row[Columns.NOTES]):
-            stop[CircuitColumns.NOTES] = stop_row[Columns.NOTES]
+            stop[SpokeColumns.NOTES] = stop_row[Columns.NOTES]
 
         recipient_dict = {}
         if stop_row.get(Columns.EMAIL) and not pd.isna(stop_row[Columns.EMAIL]):
-            recipient_dict[CircuitColumns.EMAIL] = stop_row[Columns.EMAIL]
+            recipient_dict[SpokeColumns.EMAIL] = stop_row[Columns.EMAIL]
         if stop_row.get(Columns.PHONE) and not pd.isna(stop_row[Columns.PHONE]):
-            recipient_dict[CircuitColumns.PHONE] = stop_row[Columns.PHONE]
+            recipient_dict[SpokeColumns.PHONE] = stop_row[Columns.PHONE]
         if stop_row.get(Columns.NAME) and not pd.isna(stop_row[Columns.NAME]):
-            recipient_dict[CircuitColumns.NAME] = stop_row[Columns.NAME]
+            recipient_dict[SpokeColumns.NAME] = stop_row[Columns.NAME]
         # TODO: Stop assigning neighborhood to external ID. Use `customProperties` dict.
         # https://github.com/crickets-and-comb/bfb_delivery/issues/167
         if stop_row.get(Columns.NEIGHBORHOOD) and not pd.isna(stop_row[Columns.NEIGHBORHOOD]):
-            recipient_dict[CircuitColumns.EXTERNAL_ID] = stop_row[Columns.NEIGHBORHOOD]
+            recipient_dict[SpokeColumns.EXTERNAL_ID] = stop_row[Columns.NEIGHBORHOOD]
         if recipient_dict:
-            stop[CircuitColumns.RECIPIENT] = recipient_dict
+            stop[SpokeColumns.RECIPIENT] = recipient_dict
 
         custom_properties_getter = get_custom_stop_properties_getter()
         protein_opt_in_id = custom_properties_getter.get_property_ID(
-            property_name=CircuitColumns.PROTEIN_OPT_IN
+            property_name=SpokeColumns.PROTEIN_OPT_IN
         )
         custom_properties_dict = {protein_opt_in_id: stop_row[Columns.PROTEIN_OPT_IN]}
-        stop[CircuitColumns.CUSTOM_PROPERTIES] = custom_properties_dict
+        stop[SpokeColumns.CUSTOM_PROPERTIES] = custom_properties_dict
 
         stop_array.append(stop)
 

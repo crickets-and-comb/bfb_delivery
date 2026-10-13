@@ -107,7 +107,7 @@ def format_and_validate_data(df: pd.DataFrame, columns: list[str]) -> None:
 @typechecked
 def _format_and_validate_address(df: pd.DataFrame) -> None:
     """Format the address column."""
-    # Avoid modifying values until we need to. Mostly established values used in Circuit.
+    # Avoid modifying values until we need to. Mostly established values used in Spoke.
     # Will hold off on validation/formatting until we've swallowed more of the process
     # and are starting to map etc.
     _format_string(df=df, column=Columns.ADDRESS)

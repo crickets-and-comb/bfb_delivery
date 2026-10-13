@@ -1,4 +1,4 @@
-"""Mock run of the end-to-end Circuit delivery script.
+"""Mock run of the end-to-end Spoke delivery script.
 
 Use this to test on real data. in your .test_data dir.
 """
@@ -13,10 +13,10 @@ from typing import Final
 
 import click
 
-from bfb_delivery.lib.constants import CircuitColumns
+from bfb_delivery.lib.constants import SpokeColumns
 
-# from bfb_delivery import create_manifests_from_circuit
-from bfb_delivery.lib.dispatch.read_circuit import (
+# from bfb_delivery import create_manifests_from_spoke
+from bfb_delivery.lib.dispatch.read_spoke import (
     _get_raw_plans,
     _get_raw_stops,
     _make_plans_df,
@@ -31,7 +31,7 @@ sys.path.append(
 )
 
 OUTPUT_DIRS: Final[dict[str, str]] = {
-    "CIRCUIT_TABLES_DIR": str(Path(".test_data/circuit_tables")),
+    "SPOKE_TABLES_DIR": str(Path(".test_data/spoke_tables")),
     "MANIFESTS_DIR": str(Path(".test_data/manifests")),
 }
 
@@ -41,7 +41,7 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
     "--start_date",
     type=str,
     required=False,
-    # NOTE: Need to update eventually when data gets purged from Circuit.
+    # NOTE: Need to update eventually when data gets purged from Spoke.
     default="2025-01-17",
     help=(
         'The start date to use in the output workbook sheetnames as "YYYYMMDD". '
@@ -76,8 +76,8 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
     is_flag=True,
     default=False,
     help=(
-        "Use mock plan data instead of querying the Circuit API. "
-        "Only relevant if not using the public API, which will query Circuit."
+        "Use mock plan data instead of querying the Spoke API. "
+        "Only relevant if not using the public API, which will query Spoke."
     ),
 )
 @click.option(
@@ -85,8 +85,8 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
     is_flag=True,
     default=False,
     help=(
-        "Use mock routes data instead of querying the Circuit API. "
-        "Only relevant if not using the public API, which will query Circuit."
+        "Use mock routes data instead of querying the Spoke API. "
+        "Only relevant if not using the public API, which will query Spoke."
     ),
 )
 @click.option(
@@ -95,7 +95,7 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
     default=False,
     help=(
         "Use the public API instead of walking through internal helpers. "
-        "Does not mock data; overrides mock_raw_*, always queries the Circuit API."
+        "Does not mock data; overrides mock_raw_*, always queries the Spoke API."
     ),
 )
 def main(  # noqa: C901
@@ -107,27 +107,27 @@ def main(  # noqa: C901
     get_raw_routes: bool,
     use_public: bool,
 ) -> None:
-    """Mock run of the end-to-end Circuit integration."""
+    """Mock run of the end-to-end Spoke integration."""
     for output_dir_key in OUTPUT_DIRS.keys():
-        if output_dir_key != "CIRCUIT_TABLES_DIR":  # Func should delete it.
+        if output_dir_key != "SPOKE_TABLES_DIR":  # Func should delete it.
             this_output_dir = OUTPUT_DIRS[output_dir_key]
             shutil.rmtree(this_output_dir, ignore_errors=True)
             Path(this_output_dir).mkdir(parents=True)
 
     if use_public:
-        # final_manifest_path = create_manifests_from_circuit(
+        # final_manifest_path = create_manifests_from_spoke(
         #     start_date=start_date,
         #     end_date=end_date,
         #     all_hhs=all_hhs,
         #     output_dir=OUTPUT_DIRS["MANIFESTS_DIR"],
-        #     circuit_output_dir=OUTPUT_DIRS["CIRCUIT_TABLES_DIR"],
+        #     spoke_output_dir=OUTPUT_DIRS["SPOKE_TABLES_DIR"],
         # )
         # print(f"final_manifest_path: {final_manifest_path}")
         args_list = [
             "--output_dir",
             OUTPUT_DIRS["MANIFESTS_DIR"],
-            "--circuit_output_dir",
-            OUTPUT_DIRS["CIRCUIT_TABLES_DIR"],
+            "--spoke_output_dir",
+            OUTPUT_DIRS["SPOKE_TABLES_DIR"],
         ]
         if start_date:
             args_list += ["--start_date", start_date]
@@ -137,7 +137,7 @@ def main(  # noqa: C901
             args_list += ["--all_hhs"]
         if verbose:
             args_list += ["--verbose"]
-        result = subprocess.run(["create_manifests_from_circuit"] + args_list)
+        result = subprocess.run(["create_manifests_from_spoke"] + args_list)
         print(f"result: {result}")
 
     else:
@@ -167,7 +167,7 @@ def main(  # noqa: C901
 
         if get_raw_routes:
             plan_stops_list = _get_raw_stops(
-                plan_ids=plans_df[CircuitColumns.ID].to_list(), verbose=verbose
+                plan_ids=plans_df[SpokeColumns.ID].to_list(), verbose=verbose
             )
             # if all_hhs:
             #     with open(
@@ -198,12 +198,12 @@ def main(  # noqa: C901
         #         ".test_data/sample_responses/routes_df_transformed.csv", index=False
         #     )  # noqa: E501
         _write_routes_dfs(
-            routes_df=routes_df, output_dir=Path(OUTPUT_DIRS["CIRCUIT_TABLES_DIR"])
+            routes_df=routes_df, output_dir=Path(OUTPUT_DIRS["SPOKE_TABLES_DIR"])
         )
         # END: get_route_files
 
         formatted_manifest_path = sheet_shaping.create_manifests(
-            input_dir=Path(OUTPUT_DIRS["CIRCUIT_TABLES_DIR"]),
+            input_dir=Path(OUTPUT_DIRS["SPOKE_TABLES_DIR"]),
             output_dir=Path(OUTPUT_DIRS["MANIFESTS_DIR"]),
             output_filename="",
             extra_notes_file="",

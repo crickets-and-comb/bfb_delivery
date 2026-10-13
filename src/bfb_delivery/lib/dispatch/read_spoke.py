@@ -1,4 +1,4 @@
-"""Read from Circuit."""
+"""Read from Spoke."""
 
 import logging
 import os
@@ -15,22 +15,22 @@ from comb_utils import concat_response_pages, get_responses
 
 from bfb_delivery.lib.constants import (
     ALL_HHS_DRIVER,
-    CIRCUIT_DATE_FORMAT,
-    CIRCUIT_DOWNLOAD_COLUMNS,
     DEPOT_PLACE_ID,
-    CircuitColumns,
+    SPOKE_DATE_FORMAT,
+    SPOKE_DOWNLOAD_COLUMNS,
     Columns,
     IntermediateColumns,
+    SpokeColumns,
 )
 from bfb_delivery.lib.dispatch.api_callers import PagedResponseGetterBFB
 from bfb_delivery.lib.schema import (
-    CircuitPlansFromDict,
-    CircuitPlansOut,
-    CircuitPlansTransformIn,
-    CircuitRoutesTransformInFromDict,
-    CircuitRoutesTransformOut,
-    CircuitRoutesWriteIn,
-    CircuitRoutesWriteOut,
+    SpokePlansFromDict,
+    SpokePlansOut,
+    SpokePlansTransformIn,
+    SpokeRoutesTransformInFromDict,
+    SpokeRoutesTransformOut,
+    SpokeRoutesWriteIn,
+    SpokeRoutesWriteOut,
 )
 from bfb_delivery.lib.schema.utils import schema_error_handler
 from bfb_delivery.lib.utils import get_custom_stop_properties_getter, get_friday
@@ -74,7 +74,7 @@ def get_route_files(
         ValueError: If no stops are found for the given plans.
         ValueError: If no routed stops are found for the given plans.
     """
-    start_date = start_date if start_date else get_friday(fmt=CIRCUIT_DATE_FORMAT)
+    start_date = start_date if start_date else get_friday(fmt=SPOKE_DATE_FORMAT)
     end_date = end_date if end_date else start_date
     sub_dir = "routes_" + start_date
     output_dir = (
@@ -90,7 +90,7 @@ def get_route_files(
         verbose=verbose,
     )
     plan_stops_list = _get_raw_stops(
-        plan_ids=plans_df[CircuitColumns.ID].tolist(), verbose=verbose
+        plan_ids=plans_df[SpokeColumns.ID].tolist(), verbose=verbose
     )
     routes_df = _transform_routes_df(
         plan_stops_list=plan_stops_list, plans_df=plans_df, verbose=verbose
@@ -107,13 +107,13 @@ def _getcwd() -> str:
 
 @typechecked
 def _get_raw_plans(start_date: str, end_date: str, verbose: bool) -> list[dict[str, Any]]:
-    """Call Circuit API to get the plans for the given date."""
+    """Call Spoke API to get the plans for the given date."""
     url = (
-        "https://api.getcircuit.com/public/v0.2b/plans"
+        "https://api.getspoke.com/public/v0.2b/plans"
         f"?filter.startsGte={start_date}"
         f"&filter.startsLte={end_date}"
     )
-    logger.info("Getting route plans from Circuit ...")
+    logger.info("Getting route plans from Spoke ...")
     if verbose:
         logger.info(f"Getting route plans from {url} ...")
     plans = _get_plan_responses(url=url)
@@ -133,11 +133,11 @@ def _get_raw_plans(start_date: str, end_date: str, verbose: bool) -> list[dict[s
 # NOTE: with_pydantic allows check of other params.
 @pa.check_types(with_pydantic=True, lazy=True)
 def _make_plans_df(
-    plans_list: DataFrame[CircuitPlansFromDict],
+    plans_list: DataFrame[SpokePlansFromDict],
     all_hhs: bool,
     plan_ids: list[str] | None = None,
     verbose: bool = False,
-) -> DataFrame[CircuitPlansOut]:
+) -> DataFrame[SpokePlansOut]:
     """Make the plans DataFrame from the plans."""
     # What we'd do if not using from_format config:
     # plans_df = pd.DataFrame(plans_list)
@@ -148,19 +148,19 @@ def _make_plans_df(
         if all_hhs:
             plan_mask = [
                 ALL_HHS_DRIVER.upper() in title.upper()
-                for title in plans_list[CircuitColumns.TITLE]
+                for title in plans_list[SpokeColumns.TITLE]
             ]
         else:
             plan_mask = [
                 ALL_HHS_DRIVER.upper() not in title.upper()
-                for title in plans_list[CircuitColumns.TITLE]
+                for title in plans_list[SpokeColumns.TITLE]
             ]
 
         if verbose:
             _count_allhhs_dropped(all_hhs=all_hhs, plan_count=plan_count, plan_mask=plan_mask)
 
     else:
-        plan_mask = [plan_id in plan_ids for plan_id in plans_list[CircuitColumns.ID]]
+        plan_mask = [plan_id in plan_ids for plan_id in plans_list[SpokeColumns.ID]]
         if verbose:
             _count_plan_ids_dropped(plan_count=plan_count, plan_mask=plan_mask)
 
@@ -188,7 +188,7 @@ def _make_plans_df(
     elif verbose:
         logger.info(f"Left with {plan_count} plans.")
 
-    plans_df = plans_df[[CircuitColumns.ID, CircuitColumns.TITLE]]
+    plans_df = plans_df[[SpokeColumns.ID, SpokeColumns.TITLE]]
 
     return plans_df
 
@@ -221,15 +221,15 @@ def _count_plan_ids_dropped(plan_count: int, plan_mask: list[bool]) -> None:
 
 @typechecked
 def _get_raw_stops(plan_ids: list[str], verbose: bool) -> list[dict[str, Any]]:
-    """Get the raw stops list from Circuit."""
-    logger.info("Getting stops from Circuit ...")
+    """Get the raw stops list from Spoke."""
+    logger.info("Getting stops from Spoke ...")
     stops_lists_list = _get_raw_stops_list(plan_ids=plan_ids, verbose=verbose)
     logger.info("Finished getting stops.")
 
     plan_stops_list = []
     for stop_lists in stops_lists_list:
         plan_stops_list += concat_response_pages(
-            page_list=stop_lists, data_key=CircuitColumns.STOPS
+            page_list=stop_lists, data_key=SpokeColumns.STOPS
         )
     if not plan_stops_list:
         raise ValueError(f"No stops found for plans {plan_ids}.")
@@ -241,8 +241,8 @@ def _get_raw_stops(plan_ids: list[str], verbose: bool) -> list[dict[str, Any]]:
 def _get_raw_stops_list(plan_ids: list[str], verbose: bool) -> list[Any]:
     stops_lists_list = []
     for plan_id in plan_ids:
-        # https://developer.team.getcircuit.com/api#tag/Stops/operation/listStops
-        url = f"https://api.getcircuit.com/public/v0.2b/{plan_id}/stops"
+        # https://developer.team.getspoke.com/api#tag/Stops/operation/listStops
+        url = f"https://api.getspoke.com/public/v0.2b/{plan_id}/stops"
         if verbose:
             logger.info(f"Getting stops from {url} ...")
         stops_lists = _get_stops_responses(url=url)
@@ -254,17 +254,17 @@ def _get_raw_stops_list(plan_ids: list[str], verbose: bool) -> list[Any]:
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
 def _transform_routes_df(
-    plan_stops_list: DataFrame[CircuitRoutesTransformInFromDict],
-    plans_df: DataFrame[CircuitPlansTransformIn],
+    plan_stops_list: DataFrame[SpokeRoutesTransformInFromDict],
+    plans_df: DataFrame[SpokePlansTransformIn],
     verbose: bool = False,
-) -> DataFrame[CircuitRoutesTransformOut]:
+) -> DataFrame[SpokeRoutesTransformOut]:
     """Transform the raw routes DataFrame."""
     routes_df = _pare_routes_df(routes_df=plan_stops_list, verbose=verbose)
     del plan_stops_list
 
     routes_df = routes_df.merge(
-        plans_df.copy().rename(columns={CircuitColumns.ID: "plan_id"}),
-        left_on=CircuitColumns.PLAN,
+        plans_df.copy().rename(columns={SpokeColumns.ID: "plan_id"}),
+        left_on=SpokeColumns.PLAN,
         right_on="plan_id",
         how="left",
         validate="m:1",
@@ -273,11 +273,11 @@ def _transform_routes_df(
     routes_df.rename(
         columns={
             # Plan title is upload/download sheet name.
-            CircuitColumns.TITLE: IntermediateColumns.DRIVER_SHEET_NAME,
-            CircuitColumns.STOP_POSITION: Columns.STOP_NO,
-            CircuitColumns.NOTES: Columns.NOTES,
-            CircuitColumns.PACKAGE_COUNT: Columns.ORDER_COUNT,
-            CircuitColumns.ADDRESS: Columns.ADDRESS,
+            SpokeColumns.TITLE: IntermediateColumns.DRIVER_SHEET_NAME,
+            SpokeColumns.STOP_POSITION: Columns.STOP_NO,
+            SpokeColumns.NOTES: Columns.NOTES,
+            SpokeColumns.PACKAGE_COUNT: Columns.ORDER_COUNT,
+            SpokeColumns.ADDRESS: Columns.ADDRESS,
         },
         inplace=True,
     )
@@ -293,7 +293,7 @@ def _transform_routes_df(
 
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
-def _write_routes_dfs(routes_df: DataFrame[CircuitRoutesWriteIn], output_dir: Path) -> None:
+def _write_routes_dfs(routes_df: DataFrame[SpokeRoutesWriteIn], output_dir: Path) -> None:
     """Split and write the routes DataFrame to the output directory.
 
     Args:
@@ -306,7 +306,7 @@ def _write_routes_dfs(routes_df: DataFrame[CircuitRoutesWriteIn], output_dir: Pa
     output_dir.mkdir(parents=True)
 
     logger.info(f"Writing route CSVs to {output_dir.resolve()}")
-    for route, route_df in routes_df.groupby(CircuitColumns.ROUTE):
+    for route, route_df in routes_df.groupby(SpokeColumns.ROUTE):
         driver_sheet_names = route_df[IntermediateColumns.DRIVER_SHEET_NAME].unique()
         if len(driver_sheet_names) > 1:
             raise ValueError(
@@ -315,7 +315,7 @@ def _write_routes_dfs(routes_df: DataFrame[CircuitRoutesWriteIn], output_dir: Pa
         elif len(driver_sheet_names) < 1:
             raise ValueError(f"Route {route} has no driver sheet name.")
 
-        route_df = route_df[CIRCUIT_DOWNLOAD_COLUMNS]
+        route_df = route_df[SPOKE_DOWNLOAD_COLUMNS]
         driver_sheet_name = driver_sheet_names[0]
         fp = output_dir / f"{driver_sheet_name}.csv"
         _write_route_df(route_df=route_df, fp=fp)
@@ -323,7 +323,7 @@ def _write_routes_dfs(routes_df: DataFrame[CircuitRoutesWriteIn], output_dir: Pa
 
 @schema_error_handler
 @pa.check_types(with_pydantic=True, lazy=True)
-def _write_route_df(route_df: DataFrame[CircuitRoutesWriteOut], fp: Path) -> None:
+def _write_route_df(route_df: DataFrame[SpokeRoutesWriteOut], fp: Path) -> None:
     route_df.to_csv(fp, index=False)
 
 
@@ -342,17 +342,17 @@ def _pare_routes_df(routes_df: pd.DataFrame, verbose: bool) -> pd.DataFrame:
     routes_df = routes_df[
         [
             # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
-            CircuitColumns.PLAN,
-            CircuitColumns.ROUTE,
+            SpokeColumns.PLAN,
+            SpokeColumns.ROUTE,
             # stop id e.g. "plans/0IWNayD8NEkvD5fQe2SQ/stops/40lmbcQrd32NOfZiiC1b":
-            CircuitColumns.ID,
-            CircuitColumns.STOP_POSITION,
-            CircuitColumns.RECIPIENT,
-            CircuitColumns.ADDRESS,
-            CircuitColumns.NOTES,
-            CircuitColumns.ORDER_INFO,
-            CircuitColumns.PACKAGE_COUNT,
-            CircuitColumns.CUSTOM_PROPERTIES,
+            SpokeColumns.ID,
+            SpokeColumns.STOP_POSITION,
+            SpokeColumns.RECIPIENT,
+            SpokeColumns.ADDRESS,
+            SpokeColumns.NOTES,
+            SpokeColumns.ORDER_INFO,
+            SpokeColumns.PACKAGE_COUNT,
+            SpokeColumns.CUSTOM_PROPERTIES,
         ]
     ]
 
@@ -361,8 +361,8 @@ def _pare_routes_df(routes_df: pd.DataFrame, verbose: bool) -> pd.DataFrame:
         stop_count = len(routes_df)
 
     routed_stops_mask = [
-        isinstance(route_dict, dict) and route_dict.get(CircuitColumns.ID, "") != ""
-        for route_dict in routes_df[CircuitColumns.ROUTE]
+        isinstance(route_dict, dict) and route_dict.get(SpokeColumns.ID, "") != ""
+        for route_dict in routes_df[SpokeColumns.ROUTE]
     ]
     routes_df = routes_df[routed_stops_mask]
     if verbose:
@@ -375,10 +375,10 @@ def _pare_routes_df(routes_df: pd.DataFrame, verbose: bool) -> pd.DataFrame:
         logger.info("Filtering out depot stops.")
         stop_count = len(routes_df)
 
-    routes_df[CircuitColumns.PLACE_ID] = routes_df[CircuitColumns.ADDRESS].apply(
-        lambda address_dict: address_dict.get(CircuitColumns.PLACE_ID)
+    routes_df[SpokeColumns.PLACE_ID] = routes_df[SpokeColumns.ADDRESS].apply(
+        lambda address_dict: address_dict.get(SpokeColumns.PLACE_ID)
     )
-    routes_df = routes_df[routes_df[CircuitColumns.PLACE_ID] != DEPOT_PLACE_ID]
+    routes_df = routes_df[routes_df[SpokeColumns.PLACE_ID] != DEPOT_PLACE_ID]
 
     if verbose:
         dropped_count = stop_count - len(routes_df)
@@ -395,36 +395,36 @@ def _pare_routes_df(routes_df: pd.DataFrame, verbose: bool) -> pd.DataFrame:
 
 @typechecked
 def _set_routes_df_values(routes_df: pd.DataFrame) -> pd.DataFrame:
-    routes_df[IntermediateColumns.ROUTE_TITLE] = routes_df[CircuitColumns.ROUTE].apply(
-        lambda route_dict: route_dict.get(CircuitColumns.TITLE)
+    routes_df[IntermediateColumns.ROUTE_TITLE] = routes_df[SpokeColumns.ROUTE].apply(
+        lambda route_dict: route_dict.get(SpokeColumns.TITLE)
     )
-    routes_df[CircuitColumns.ROUTE] = routes_df[CircuitColumns.ROUTE].apply(
-        lambda route_dict: route_dict.get(CircuitColumns.ID)
+    routes_df[SpokeColumns.ROUTE] = routes_df[SpokeColumns.ROUTE].apply(
+        lambda route_dict: route_dict.get(SpokeColumns.ID)
     )
-    routes_df[Columns.NAME] = routes_df[CircuitColumns.RECIPIENT].apply(
-        lambda recipient_dict: recipient_dict.get(CircuitColumns.NAME)
+    routes_df[Columns.NAME] = routes_df[SpokeColumns.RECIPIENT].apply(
+        lambda recipient_dict: recipient_dict.get(SpokeColumns.NAME)
     )
-    routes_df[CircuitColumns.ADDRESS_LINE_1] = routes_df[Columns.ADDRESS].apply(
-        lambda address_dict: address_dict.get(CircuitColumns.ADDRESS_LINE_1)
+    routes_df[SpokeColumns.ADDRESS_LINE_1] = routes_df[Columns.ADDRESS].apply(
+        lambda address_dict: address_dict.get(SpokeColumns.ADDRESS_LINE_1)
     )
-    routes_df[CircuitColumns.ADDRESS_LINE_2] = routes_df[Columns.ADDRESS].apply(
-        lambda address_dict: address_dict.get(CircuitColumns.ADDRESS_LINE_2)
+    routes_df[SpokeColumns.ADDRESS_LINE_2] = routes_df[Columns.ADDRESS].apply(
+        lambda address_dict: address_dict.get(SpokeColumns.ADDRESS_LINE_2)
     )
-    routes_df[Columns.PHONE] = routes_df[CircuitColumns.RECIPIENT].apply(
-        lambda recipient_dict: recipient_dict.get(CircuitColumns.PHONE)
+    routes_df[Columns.PHONE] = routes_df[SpokeColumns.RECIPIENT].apply(
+        lambda recipient_dict: recipient_dict.get(SpokeColumns.PHONE)
     )
-    routes_df[Columns.BOX_TYPE] = routes_df[CircuitColumns.ORDER_INFO].apply(
+    routes_df[Columns.BOX_TYPE] = routes_df[SpokeColumns.ORDER_INFO].apply(
         lambda order_info_dict: (
-            order_info_dict[CircuitColumns.PRODUCTS][0]
-            if order_info_dict.get(CircuitColumns.PRODUCTS)
+            order_info_dict[SpokeColumns.PRODUCTS][0]
+            if order_info_dict.get(SpokeColumns.PRODUCTS)
             else None
         )
     )
-    routes_df[Columns.NEIGHBORHOOD] = routes_df[CircuitColumns.RECIPIENT].apply(
-        lambda recipient_dict: recipient_dict.get(CircuitColumns.EXTERNAL_ID)
+    routes_df[Columns.NEIGHBORHOOD] = routes_df[SpokeColumns.RECIPIENT].apply(
+        lambda recipient_dict: recipient_dict.get(SpokeColumns.EXTERNAL_ID)
     )
-    routes_df[Columns.EMAIL] = routes_df[CircuitColumns.RECIPIENT].apply(
-        lambda recipient_dict: recipient_dict.get(CircuitColumns.EMAIL)
+    routes_df[Columns.EMAIL] = routes_df[SpokeColumns.RECIPIENT].apply(
+        lambda recipient_dict: recipient_dict.get(SpokeColumns.EMAIL)
     )
     routes_df[IntermediateColumns.DRIVER_SHEET_NAME] = _clean_title(
         routes_df[IntermediateColumns.DRIVER_SHEET_NAME], warn=True
@@ -434,18 +434,16 @@ def _set_routes_df_values(routes_df: pd.DataFrame) -> pd.DataFrame:
     )
     custom_stop_properties_getter = get_custom_stop_properties_getter()
     protein_opt_in_id = custom_stop_properties_getter.get_property_ID(
-        property_name=CircuitColumns.PROTEIN_OPT_IN
+        property_name=SpokeColumns.PROTEIN_OPT_IN
     )
-    routes_df[Columns.PROTEIN_OPT_IN] = routes_df[CircuitColumns.CUSTOM_PROPERTIES].apply(
+    routes_df[Columns.PROTEIN_OPT_IN] = routes_df[SpokeColumns.CUSTOM_PROPERTIES].apply(
         lambda custom_properties_dict: custom_properties_dict.get(protein_opt_in_id)
     )
 
     _warn_and_impute(routes_df=routes_df)
 
     routes_df[Columns.ADDRESS] = (
-        routes_df[CircuitColumns.ADDRESS_LINE_1]
-        + ", "
-        + routes_df[CircuitColumns.ADDRESS_LINE_2]
+        routes_df[SpokeColumns.ADDRESS_LINE_1] + ", " + routes_df[SpokeColumns.ADDRESS_LINE_2]
     )
 
     _split_multi_route_drivers(routes_df=routes_df)
@@ -476,7 +474,7 @@ def _warn_and_impute(routes_df: pd.DataFrame) -> None:
     if missing_neighborhood.any():
         logger.warning(
             f"Missing neighborhood for {missing_neighborhood.sum()} stops. "
-            "Imputing best guesses from Circuit-supplied address."
+            "Imputing best guesses from Spoke-supplied address."
         )
     routes_df[Columns.NEIGHBORHOOD] = routes_df[
         [Columns.NEIGHBORHOOD, Columns.ADDRESS]
@@ -484,7 +482,7 @@ def _warn_and_impute(routes_df: pd.DataFrame) -> None:
         lambda row: (
             row[Columns.NEIGHBORHOOD]
             if row[Columns.NEIGHBORHOOD]
-            else row[Columns.ADDRESS].get(CircuitColumns.ADDRESS).split(",")[1].strip()
+            else row[Columns.ADDRESS].get(SpokeColumns.ADDRESS).split(",")[1].strip()
         ),
         axis=1,
     )
@@ -494,14 +492,14 @@ def _warn_and_impute(routes_df: pd.DataFrame) -> None:
 def _split_multi_route_drivers(routes_df: pd.DataFrame) -> None:
     """If a driver sheet name has multiple routes, split them into separate sheet names."""
     many_routes_to_one_driver = routes_df.groupby(IntermediateColumns.DRIVER_SHEET_NAME)[
-        CircuitColumns.ROUTE
+        SpokeColumns.ROUTE
     ].nunique()
     many_routes_to_one_driver = many_routes_to_one_driver[
         many_routes_to_one_driver > 1
     ].index.tolist()
     for sheet_name in many_routes_to_one_driver:
         routes = routes_df[routes_df[IntermediateColumns.DRIVER_SHEET_NAME] == sheet_name][
-            CircuitColumns.ROUTE
+            SpokeColumns.ROUTE
         ].unique()
         route_count = len(routes)
         logger.warning(
@@ -513,6 +511,6 @@ def _split_multi_route_drivers(routes_df: pd.DataFrame) -> None:
                 IntermediateColumns.DRIVER_SHEET_NAME,
                 IntermediateColumns.ROUTE_TITLE,
             ]:
-                routes_df.loc[routes_df[CircuitColumns.ROUTE] == route, title_col] = (
+                routes_df.loc[routes_df[SpokeColumns.ROUTE] == route, title_col] = (
                     f"{sheet_name} #{i + 1}"
                 )

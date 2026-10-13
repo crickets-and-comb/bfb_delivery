@@ -58,39 +58,37 @@ split_chunked_route.__doc__ = DocStrings.SPLIT_CHUNKED_ROUTE.api_docstring
 
 
 @typechecked
-def create_manifests_from_circuit(  # noqa: D103
-    start_date: str = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["start_date"],
-    end_date: str = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["end_date"],
-    plan_ids: list[str] = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["plan_ids"],
-    output_dir: str = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["output_dir"],
-    output_filename: str = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults[
-        "output_filename"
+def create_manifests_from_spoke(  # noqa: D103
+    start_date: str = DocStrings.CREATE_MANIFESTS_FROM_SPOKE.defaults["start_date"],
+    end_date: str = DocStrings.CREATE_MANIFESTS_FROM_SPOKE.defaults["end_date"],
+    plan_ids: list[str] = DocStrings.CREATE_MANIFESTS_FROM_SPOKE.defaults["plan_ids"],
+    output_dir: str = DocStrings.CREATE_MANIFESTS_FROM_SPOKE.defaults["output_dir"],
+    output_filename: str = DocStrings.CREATE_MANIFESTS_FROM_SPOKE.defaults["output_filename"],
+    spoke_output_dir: str = DocStrings.CREATE_MANIFESTS_FROM_SPOKE.defaults[
+        "spoke_output_dir"
     ],
-    circuit_output_dir: str = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults[
-        "circuit_output_dir"
-    ],
-    all_hhs: bool = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["all_hhs"],
-    verbose: bool = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults["verbose"],
-    extra_notes_file: str = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.defaults[
+    all_hhs: bool = DocStrings.CREATE_MANIFESTS_FROM_SPOKE.defaults["all_hhs"],
+    verbose: bool = DocStrings.CREATE_MANIFESTS_FROM_SPOKE.defaults["verbose"],
+    extra_notes_file: str = DocStrings.CREATE_MANIFESTS_FROM_SPOKE.defaults[
         "extra_notes_file"
     ],
 ) -> tuple[Path, Path]:
-    final_manifest_path, new_circuit_output_dir = internal.create_manifests_from_circuit(
+    final_manifest_path, new_spoke_output_dir = internal.create_manifests_from_spoke(
         start_date=start_date,
         end_date=end_date,
         plan_ids=plan_ids,
         output_dir=output_dir,
         output_filename=output_filename,
-        circuit_output_dir=circuit_output_dir,
+        spoke_output_dir=spoke_output_dir,
         all_hhs=all_hhs,
         verbose=verbose,
         extra_notes_file=extra_notes_file,
     )
 
-    return final_manifest_path, new_circuit_output_dir
+    return final_manifest_path, new_spoke_output_dir
 
 
-create_manifests_from_circuit.__doc__ = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.api_docstring
+create_manifests_from_spoke.__doc__ = DocStrings.CREATE_MANIFESTS_FROM_SPOKE.api_docstring
 
 
 @typechecked

@@ -23,7 +23,7 @@ from bfb_delivery.lib.constants import Columns
 
 OUTPUT_DIRS: Final[dict[str, str]] = {
     "SPLIT_CHUNKED_DIR": ".test_data/split_chunked",
-    "CIRCUIT_TABLES_DIR": ".test_data/circuit_tables",
+    "SPOKE_TABLES_DIR": ".test_data/spoke_tables",
     "COMBINED_TABLES_DIR": ".test_data/combined_tables",
     "FORMATTED_TABLES_DIR": ".test_data/formatted_tables",
     "MANIFESTS_DIR": ".test_data/manifests",
@@ -42,10 +42,10 @@ OUTPUT_DIRS: Final[dict[str, str]] = {
 def main(mock_raw_chunked_sheet_path: str) -> None:
     """Mock the workflow end to end.
 
-    Use this to test on real data that can't be saved to the tests or uploaded to Circuit.
+    Use this to test on real data that can't be saved to the tests or uploaded to Spoke.
 
-    This script takes the raw chunked workbook, splits it into workbooks to upload to Circuit,
-    mocks the CSVs returned by Circuit, recombines them, and formats them.
+    This script takes the raw chunked workbook, splits it into workbooks to upload to Spoke,
+    mocks the CSVs returned by Spoke, recombines them, and formats them.
     """
     for output_dir in OUTPUT_DIRS.values():
         shutil.rmtree(output_dir, ignore_errors=True)
@@ -65,13 +65,13 @@ def main(mock_raw_chunked_sheet_path: str) -> None:
 
     output_paths = mock_route_tables(
         split_chunked_sheet_paths=cast(list[Path | str], split_chunked_sheet_paths),
-        output_dir=OUTPUT_DIRS["CIRCUIT_TABLES_DIR"],
+        output_dir=OUTPUT_DIRS["SPOKE_TABLES_DIR"],
     )
     output_path = Path(output_paths[0]).parent
     click.echo(f"Mocked driver route tables saved to: {output_path}")
 
     combined_path = combine_route_tables(
-        input_dir=OUTPUT_DIRS["CIRCUIT_TABLES_DIR"],
+        input_dir=OUTPUT_DIRS["SPOKE_TABLES_DIR"],
         output_dir=OUTPUT_DIRS["COMBINED_TABLES_DIR"],
     )
     click.echo(f"Combined workbook saved to: {combined_path}")
@@ -84,7 +84,7 @@ def main(mock_raw_chunked_sheet_path: str) -> None:
     click.echo(f"Formatted workbook saved to: {formatted_path}")
 
     final_manifests_path = create_manifests(
-        input_dir=OUTPUT_DIRS["CIRCUIT_TABLES_DIR"],
+        input_dir=OUTPUT_DIRS["SPOKE_TABLES_DIR"],
         output_dir=OUTPUT_DIRS["MANIFESTS_DIR"],
         extra_notes_file=extra_notes_file,
     )
@@ -347,12 +347,12 @@ def _make_extra_notes() -> str:
 def mock_route_tables(
     split_chunked_sheet_paths: list[Path | str], output_dir: str
 ) -> list[str]:
-    """Mock the driver route tables returned by Circuit.
+    """Mock the driver route tables returned by Spoke.
 
-    This function takes the split chunked workbooks and mocks the CSVs returned by Circuit.
+    This function takes the split chunked workbooks and mocks the CSVs returned by Spoke.
 
     After splitting the chunked route into multiple books with multiple driver sheets,
-    the sheets are uploaded to Circuit. Circuit then returns the driver route tables
+    the sheets are uploaded to Spoke. Spoke then returns the driver route tables
     as CSVs, one per driver.
 
     Args:

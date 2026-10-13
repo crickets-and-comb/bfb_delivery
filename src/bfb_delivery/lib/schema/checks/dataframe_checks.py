@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pandera.extensions as extensions
 
-from bfb_delivery.lib.constants import CircuitColumns, Columns, IntermediateColumns
+from bfb_delivery.lib.constants import Columns, IntermediateColumns, SpokeColumns
 
 # NOTE: Registering as dataframe checks instead of field checks includes the columns in the
 # error message, whereas groupby field checks do not.
@@ -18,7 +18,7 @@ def at_least_one_in_group_sheet_plan(df: pd.DataFrame, flag: bool) -> bool:
         at_least_one_in_group(
             df=df,
             group_col=IntermediateColumns.DRIVER_SHEET_NAME,
-            at_least_one_col=CircuitColumns.PLAN,
+            at_least_one_col=SpokeColumns.PLAN,
         )
         if flag
         else True
@@ -31,7 +31,7 @@ def at_least_one_in_group_route_sheet(df: pd.DataFrame, flag: bool) -> bool:
     return (
         at_least_one_in_group(
             df=df,
-            group_col=CircuitColumns.ROUTE,
+            group_col=SpokeColumns.ROUTE,
             at_least_one_col=IntermediateColumns.DRIVER_SHEET_NAME,
         )
         if flag
@@ -46,7 +46,7 @@ def at_least_one_in_group_sheet_route(df: pd.DataFrame, flag: bool) -> bool:
         at_least_one_in_group(
             df=df,
             group_col=IntermediateColumns.DRIVER_SHEET_NAME,
-            at_least_one_col=CircuitColumns.ROUTE,
+            at_least_one_col=SpokeColumns.ROUTE,
         )
         if flag
         else True
@@ -89,8 +89,8 @@ def field_not_null_where_product(df: pd.DataFrame, col: str) -> bool:
     """Assert field values are not null where there is a product to deliver."""
     no_product_mask = np.array(
         [
-            False if orderInfo.get(CircuitColumns.PRODUCTS) else True
-            for orderInfo in df[CircuitColumns.ORDER_INFO]
+            False if orderInfo.get(SpokeColumns.PRODUCTS) else True
+            for orderInfo in df[SpokeColumns.ORDER_INFO]
         ]
     )
     return all(df[col].notnull() | no_product_mask)
@@ -121,7 +121,7 @@ def address1_in_address(df: pd.DataFrame, flag: bool) -> bool:
     """Check that a address line one in address."""
     return (
         item_in_dict_col(
-            df=df, col_name=CircuitColumns.ADDRESS, item_name=CircuitColumns.ADDRESS_LINE_1
+            df=df, col_name=SpokeColumns.ADDRESS, item_name=SpokeColumns.ADDRESS_LINE_1
         )
         if flag
         else True
@@ -133,7 +133,7 @@ def address2_in_address(df: pd.DataFrame, flag: bool) -> bool:
     """Check that a address line two in address."""
     return (
         item_in_dict_col(
-            df=df, col_name=CircuitColumns.ADDRESS, item_name=CircuitColumns.ADDRESS_LINE_2
+            df=df, col_name=SpokeColumns.ADDRESS, item_name=SpokeColumns.ADDRESS_LINE_2
         )
         if flag
         else True
@@ -157,7 +157,7 @@ def one_to_one_route_sheet(df: pd.DataFrame, flag: bool) -> bool:
     """Assert that columns have a 1:1 relationship."""
     return (
         one_to_one(
-            df=df, col_a=CircuitColumns.ROUTE, col_b=IntermediateColumns.DRIVER_SHEET_NAME
+            df=df, col_a=SpokeColumns.ROUTE, col_b=IntermediateColumns.DRIVER_SHEET_NAME
         )
         if flag
         else True
