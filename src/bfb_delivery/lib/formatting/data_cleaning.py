@@ -382,5 +382,9 @@ def _validate_greater_than_zero(df: pd.DataFrame, column: str) -> None:
 def _preserve_acronyms(name: str) -> str:
     """Format a name string, preserving acronyms in uppercase."""
     words = name.split()
-    result = [word.upper() if word.upper() in ACRONYMS else word for word in words]
+    result = [
+        w_upper if w_upper in ACRONYMS else word
+        for word in words
+        for w_upper in [word.upper()]
+    ]
     return " ".join(result)
