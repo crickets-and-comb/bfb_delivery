@@ -211,7 +211,7 @@ def _format_and_validate_phone(df: pd.DataFrame) -> None:
 
     formatting_df = df.copy()
     formatting_df["formatted_numbers"] = formatting_df[Columns.PHONE].apply(
-        lambda number: ("+" + number if (len(number) > 0 and number[0] != "+") else number)
+        lambda number: "+" + number if (len(number) > 0 and number[0] != "+") else number
     )
     formatting_df["formatted_numbers"] = [
         phonenumbers.parse(number) if len(number) > 0 else number
