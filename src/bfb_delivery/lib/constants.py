@@ -50,12 +50,11 @@ BOX_TYPE_COLOR_MAP: Final[dict[str, str]] = {
 }
 
 
-class CircuitColumns:
-    """Column/field/doc name constants for Circuit API."""
+class SpokeColumns:
+    """Column/field/doc name constants for Spoke API."""
 
     ACTIVE: Final[str] = "active"
     ADDRESS: Final[str] = "address"
-    ADDRESS_NAME: Final[str] = "addressName"
     ADDRESS_LINE_1: Final[str] = "addressLineOne"
     ADDRESS_LINE_2: Final[str] = "addressLineTwo"
     ALLOWED_DRIVERS: Final[str] = "allowedDrivers"
@@ -63,6 +62,8 @@ class CircuitColumns:
     CITY: Final[str] = "city"
     CODE: Final[str] = "code"
     COUNTRY: Final[str] = "country"
+    CUSTOM_PROPERTIES: Final[str] = "customProperties"
+    CUSTOM_STOP_PROPERTIES: Final[str] = "customStopProperties"
     DAY: Final[str] = "day"
     DEPOT: Final[str] = "depot"
     DISTRIBUTED: Final[str] = "distributed"
@@ -84,6 +85,7 @@ class CircuitColumns:
     PLAN: Final[str] = "plan"
     PLANS: Final[str] = "plans"
     PRODUCTS: Final[str] = "products"
+    PROTEIN_OPT_IN: Final[str] = "protein"
     RECIPIENT: Final[str] = "recipient"
     RESULT: Final[str] = "result"
     ROUTE: Final[str] = "route"
@@ -96,10 +98,6 @@ class CircuitColumns:
     WRITABLE: Final[str] = "writable"
     YEAR: Final[str] = "year"
     ZIP: Final[str] = "zip"
-
-
-CIRCUIT_URL: Final[str] = "https://api.getcircuit.com/public/v0.2b"
-CIRCUIT_DRIVERS_URL: Final[str] = f"{CIRCUIT_URL}/drivers"
 
 
 class Columns:
@@ -116,10 +114,11 @@ class Columns:
     ORDER_COUNT: Final[str] = "Order Count"
     PHONE: Final[str] = "Phone"
     PRODUCT_TYPE: Final[str] = "Product Type"
+    PROTEIN_OPT_IN: Final[str] = "Protein"
     STOP_NO: Final[str] = "Stop #"
 
 
-CIRCUIT_DATE_FORMAT: Final[str] = "%Y-%m-%d"
+SPOKE_DATE_FORMAT: Final[str] = "%Y-%m-%d"
 
 COLUMN_NAME_MAP: Final[dict[str, str]] = {Columns.BOX_TYPE: Columns.PRODUCT_TYPE}
 
@@ -133,53 +132,20 @@ COMBINED_ROUTES_COLUMNS: Final[list[str]] = [
     Columns.ORDER_COUNT,
     Columns.BOX_TYPE,
     Columns.NEIGHBORHOOD,
+    Columns.PROTEIN_OPT_IN,
 ]
 
-CIRCUIT_DOWNLOAD_COLUMNS: Final[list[str]] = COMBINED_ROUTES_COLUMNS + [Columns.EMAIL]
+SPOKE_DOWNLOAD_COLUMNS: Final[list[str]] = COMBINED_ROUTES_COLUMNS + [Columns.EMAIL]
 
-
-# TODO: Combine with DocString?
-# https://github.com/crickets-and-comb/bfb_delivery/issues/57
-class Defaults:
-    """Default values. E.g., for syncing public API with CLI."""
-
-    BUILD_ROUTES_FROM_CHUNKED: Final[dict[str, str | bool]] = {
-        "output_dir": "",
-        "start_date": "",
-        "no_distribute": False,
-        "verbose": False,
-        "book_one_drivers_file": "",
-        "extra_notes_file": "",
-    }
-    COMBINE_ROUTE_TABLES: Final[dict[str, str]] = {"output_dir": "", "output_filename": ""}
-    CREATE_MANIFESTS: Final[dict[str, str]] = {
-        "output_dir": "",
-        "output_filename": "",
-        "extra_notes_file": "",
-    }
-    CREATE_MANIFESTS_FROM_CIRCUIT: Final[dict[str, str | bool | list]] = {
-        "start_date": "",
-        "end_date": "",
-        "plan_ids": [],
-        "output_dir": CREATE_MANIFESTS["output_dir"],
-        "output_filename": CREATE_MANIFESTS["output_filename"],
-        "circuit_output_dir": "",
-        "all_hhs": False,
-        "verbose": False,
-        "extra_notes_file": CREATE_MANIFESTS["extra_notes_file"],
-    }
-    FORMAT_COMBINED_ROUTES: Final[dict[str, str]] = {
-        "output_dir": "",
-        "output_filename": "",
-        "extra_notes_file": CREATE_MANIFESTS["extra_notes_file"],
-    }
-    SPLIT_CHUNKED_ROUTE: Final[dict[str, str | int]] = {
-        "output_dir": "",
-        "output_filename": "",
-        "n_books": 4,
-        "book_one_drivers_file": "",
-        "date": "",
-    }
+DEFAULT_PROTEIN_OPT_IN_ID: Final[str] = "aJyl6WxtFXXPXPt-7pGa2"
+DEFAULT_CUSTOM_STOP_PROPERTIES: Final[dict[str, list[dict[str, str | bool]]]] = {
+    SpokeColumns.CUSTOM_STOP_PROPERTIES: [
+        {
+            SpokeColumns.ID: DEFAULT_PROTEIN_OPT_IN_ID,
+            SpokeColumns.NAME: SpokeColumns.PROTEIN_OPT_IN,
+        }
+    ]
+}
 
 
 class DocStrings:
@@ -215,6 +181,13 @@ See :doc:`build_routes_from_chunked` for more information.
         },
         returns=["The path to the final manifest spreadsheet."],
         raises=[],
+        defaults={
+            "output_dir": "",
+            "start_date": "",
+            "no_distribute": False,
+            "verbose": False,
+            "extra_notes_file": "",
+        },
     )
 
     COMBINE_ROUTE_TABLES: Final = DocString(
@@ -247,11 +220,12 @@ See :doc:`combine_route_tables` for more information.
             ErrorDocString(error_type="ValueError", docstring="If `input_paths` is empty.")
         ],
         returns=["The path to the output workbook."],
+        defaults={"output_dir": "", "output_filename": ""},
     )
 
     CREATE_MANIFESTS: Final = DocString(
         opening="""
-From Circuit route CSVs, creates driver manifest workbook ready to print.
+From Spoke route CSVs, creates driver manifest workbook ready to print.
 
 This is used after optimizing and exporting the routes to individual CSVs. Reads in
 driver route CSVs from `input_dir` and creates a formatted workbook with driver
@@ -290,13 +264,18 @@ See :doc:`create_manifests` for more information.
         },
         returns=["Path to the formatted manifest workbook."],
         raises=[],
+        defaults={
+            "output_dir": "",
+            "output_filename": "",
+            "extra_notes_file": "",
+        },
     )
 
-    CREATE_MANIFESTS_FROM_CIRCUIT: Final = DocString(
+    CREATE_MANIFESTS_FROM_SPOKE: Final = DocString(
         opening="""
-Gets optimized routes from Circuit, creates driver manifest workbook ready to print.
+Gets optimized routes from Spoke, creates driver manifest workbook ready to print.
 
-This is used after uploading and optimizing the routes. Reads routes CSVs from Circuit,
+This is used after uploading and optimizing the routes. Reads routes CSVs from Spoke,
 and creates a formatted workbook with driver manifests ready to print, with headers,
 aggregate data, and color-coded box types. Each driver's route is a separate sheet in the
 workbook.
@@ -311,12 +290,12 @@ The workbook is saved to `output_dir` with the name `output_filename`. Will crea
     set the manifest date field to "Date: 08.08". **But, this does not determine the
     search date range.**
 
-Wraps :py:func:`bfb_delivery.api.public.create_manifests` and adds Circuit integration.
+Wraps :py:func:`bfb_delivery.api.public.create_manifests` and adds Spoke integration.
 And, `create_manifests` just wraps :py:func:`bfb_delivery.api.public.combine_route_tables`
 and :py:func:`bfb_delivery.api.public.format_combined_routes`. Creates an intermediate
 output workbook with all routes combined, then formats it.
 
-See :doc:`create_manifests_from_circuit` for more information.
+See :doc:`create_manifests_from_spoke` for more information.
 """,
         args={
             "start_date": (
@@ -328,7 +307,7 @@ See :doc:`create_manifests_from_circuit` for more information.
                 "Empty string uses the start date. Range is inclusive."
             ),
             "plan_ids": (
-                "The list of plan IDs to filter the Circuit routes by. Overrides `all_hhs`. "
+                "The list of plan IDs to filter the Spoke routes by. Overrides `all_hhs`. "
                 "Not valid for CLI."
             ),
             "output_dir": (
@@ -339,9 +318,9 @@ See :doc:`create_manifests_from_circuit` for more information.
                 "The name of the output workbook. "
                 'Empty string sets filename to "final_manifests_{date}.xlsx".'
             ),
-            "circuit_output_dir": (
+            "spoke_output_dir": (
                 "The directory to create a subdir to save the routes to. Creates "
-                '"routes_{date}" directory within the `circuit_output_dir`. Empty string '
+                '"routes_{date}" directory within the `spoke_output_dir`. Empty string '
                 "uses `output_dir`. If the directory does not exist, it is created. If it "
                 "exists, it is overwritten."
             ),
@@ -358,6 +337,17 @@ See :doc:`create_manifests_from_circuit` for more information.
         },
         returns=["Path to the final manifest workbook."],
         raises=[],
+        defaults={
+            "start_date": "",
+            "end_date": "",
+            "plan_ids": [],
+            "output_dir": CREATE_MANIFESTS.defaults["output_dir"],
+            "output_filename": CREATE_MANIFESTS.defaults["output_filename"],
+            "spoke_output_dir": "",
+            "all_hhs": False,
+            "verbose": False,
+            "extra_notes_file": CREATE_MANIFESTS.defaults["extra_notes_file"],
+        },
     )
 
     FORMAT_COMBINED_ROUTES: Final = DocString(
@@ -396,13 +386,18 @@ See :doc:`format_combined_routes` for more information.
         },
         returns=["The path to the formatted table."],
         raises=[],
+        defaults={
+            "output_dir": "",
+            "output_filename": "",
+            "extra_notes_file": CREATE_MANIFESTS.defaults["extra_notes_file"],
+        },
     )
 
     SPLIT_CHUNKED_ROUTE: Final = DocString(
         opening="""
 Split route sheet into n workbooks with sheets by driver.
 
-Sheets by driver allows splitting routes by driver on Circuit upload.
+Sheets by driver allows splitting routes by driver on Spoke upload.
 Multiple workbooks allows team to split the uploads among members, so one person
 doesn't have to upload all routes.
 This process follows the "chunking" process in the route generation, where routes
@@ -415,14 +410,14 @@ create the directory if it doesn't exist.
 
 .. note::
 
-    Renames "Box Type" column name to "Product Type", per Circuit API.
+    Renames "Box Type" column name to "Product Type", per Spoke API.
 
 .. note::
 
     The date passed sets the date in the sheet names of the output workbooks, and that
     date in the sheet name is used for the manifest date field in later functions that
     make the manifests: :py:func:`bfb_delivery.api.public.format_combined_routes` and
-    :py:func:`bfb_delivery.api.public.create_manifests_from_circuit` (which wraps the former).
+    :py:func:`bfb_delivery.api.public.create_manifests_from_spoke` (which wraps the former).
 
 
 See :doc:`split_chunked_route` for more information.
@@ -463,6 +458,13 @@ See :doc:`split_chunked_route` for more information.
                 ),
             ),
         ],
+        defaults={
+            "output_dir": "",
+            "output_filename": "",
+            "n_books": 4,
+            "book_one_drivers_file": "",
+            "date": "",
+        },
     )
 
 
@@ -515,6 +517,7 @@ FORMATTED_ROUTES_COLUMNS: Final[list[str]] = [
     Columns.PHONE,
     Columns.NOTES,
     Columns.BOX_TYPE,
+    Columns.PROTEIN_OPT_IN,
 ]
 
 
@@ -532,17 +535,24 @@ class IntermediateColumns:
     STOPS_UPLOADED: Final[str] = "stops_uploaded"
 
 
+LINE_HEIGHT: Final[float] = 15.0
+
 MANIFEST_DATE_FORMAT: Final[str] = "%m.%d"
 
 MAX_ORDER_COUNT: Final[int] = 5
 
 NOTES_COLUMN_WIDTH: Final[float] = 56.67
 
-PROTEIN_BOX_TYPES: Final[list[str]] = ["BASIC", "GF", "LA"]
+
+class ProteinOptInValues(StrEnum):
+    """Values for the "Protein Opt-In" column."""
+
+    YES = "Yes"
+    NO = "No"
 
 
 class RateLimits:
-    """Rate limits for Circuit API."""
+    """Rate limits for Spoke API."""
 
     BATCH_STOP_IMPORT_SECONDS: Final[float] = 6
     BATCH_STOP_IMPORT_MAX_STOPS: Final[int] = 1000
@@ -565,4 +575,23 @@ SPLIT_ROUTE_COLUMNS: Final[list[str]] = [
     Columns.ORDER_COUNT,
     Columns.PRODUCT_TYPE,
     Columns.NEIGHBORHOOD,
+    Columns.PROTEIN_OPT_IN,
 ]
+
+
+class SpokeURLs:
+    """URLs for Spoke API."""
+
+    BASE: Final[str] = "https://api.spoke.com/public/v1"
+    DRIVERS: Final[str] = f"{BASE}/drivers"
+    CUSTOM_STOP_PROPERTIES: Final[str] = f"{BASE}/team/customStopProperties"
+    DELETE_PLAN: Final[str] = f"{BASE}/{{plan_id}}"
+    DISTRIBUTE_PLAN: Final[str] = f"{BASE}/{{_plan_id}}:distribute"
+    OPTIMIZE: Final[str] = f"{BASE}/{{plan_id}}:optimize"
+    OPTIMIZATION_CHECK: Final[str] = f"{BASE}/{{operation_id}}"
+    PLANS: Final[str] = f"{BASE}/plans"
+    PLANS_BY_DATE: Final[str] = (
+        f"{PLANS}?filter.startsGte={{start_date}}&filter.startsLte={{end_date}}"
+    )
+    STOPS: Final[str] = f"{BASE}/{{plan_id}}/stops"
+    STOPS_IMPORT: Final[str] = f"{BASE}/{{plan_id}}/stops:import"

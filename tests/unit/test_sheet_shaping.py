@@ -35,7 +35,8 @@ from bfb_delivery.lib.constants import (
     BoxType,
     CellColors,
     Columns,
-    Defaults,
+    DocStrings,
+    ProteinOptInValues,
 )
 from bfb_delivery.lib.formatting.data_cleaning import (
     _format_and_validate_box_type,
@@ -70,7 +71,7 @@ NEIGHBORHOODS: Final[list[str]] = ["York", "Puget", "Samish", "Sehome", "South H
 def mock_route_tables(
     tmp_path_factory: pytest.TempPathFactory, mock_chunked_sheet_raw: Path
 ) -> Path:
-    """Mock the driver route tables returned by Circuit."""
+    """Mock the driver route tables returned by Spoke."""
     tmp_output = tmp_path_factory.mktemp("tmp_mock_route_tables_class_scoped", numbered=True)
     output_dir = tmp_output / "mock_route_tables"
     output_dir.mkdir()
@@ -173,7 +174,7 @@ class TestSplitChunkedRoute:
             output_paths = split_chunked_route(
                 output_dir=tmp_path, input_path=mock_chunked_sheet_raw
             )
-            n_books = Defaults.SPLIT_CHUNKED_ROUTE["n_books"]
+            n_books = DocStrings.SPLIT_CHUNKED_ROUTE.defaults["n_books"]
         else:
             n_books = n_books_passed
             output_paths = split_chunked_route(
@@ -224,11 +225,11 @@ class TestSplitChunkedRoute:
             ]
             driver_sets.append(drivers)
         for i, driver_set in enumerate(driver_sets):
-            driver_sets_sans_i = driver_sets[:i] + driver_sets[i + 1 :]  # noqa: E203
-            driver_sets_sans_i = [
+            driver_sets_sans_i = driver_sets[:i] + driver_sets[i + 1 :]
+            driver_sets_sans_i_flat = [
                 driver for sublist in driver_sets_sans_i for driver in sublist
             ]
-            assert len(set(driver_set).intersection(set(driver_sets_sans_i))) == 0
+            assert len(set(driver_set).intersection(set(driver_sets_sans_i_flat))) == 0
 
     @pytest.mark.parametrize("n_books", N_BOOKS_MATRIX)
     @typechecked
@@ -278,17 +279,29 @@ class TestSplitChunkedRoute:
         tmp_path: Path,
     ) -> None:
         """Test that book-one drivers are in book one."""
-        if test_book_one_drivers:
-            TestBookOneDrivers = StrEnum(
-                "TestBookOneDrivers", {driver: driver for driver in test_book_one_drivers}
-            )
-        else:
 
-            class TestBookOneDrivers(StrEnum):
-                pass
+        def book_one_drivers_factory(test_book_one_drivers: list[str]) -> type[StrEnum]:
+            """Factory to create a BookOneDrivers enum with the test drivers."""
+            if test_book_one_drivers:
+                driver_dict = {driver: driver for driver in test_book_one_drivers}
+                mock_book_one_drivers = StrEnum(  # type: ignore[misc]
+                    # Second argument of StrEnum() must be ... , or dict literal for mypy
+                    "TestBookOneDrivers",
+                    driver_dict,
+                )
+                return mock_book_one_drivers
+            else:
+
+                class TestBookOneDrivers(StrEnum):
+                    pass
+
+                return TestBookOneDrivers
 
         mock_constant_context = (
-            patch("bfb_delivery.lib.formatting.utils.BookOneDrivers", new=TestBookOneDrivers)
+            patch(
+                "bfb_delivery.lib.formatting.utils.BookOneDrivers",
+                new=book_one_drivers_factory(test_book_one_drivers),
+            )
             if not book_one_drivers_file
             else nullcontext()
         )
@@ -640,6 +653,10 @@ class TestFormatCombinedRoutes:
                 df[Columns.NEIGHBORHOOD] = [
                     NEIGHBORHOODS[i % len(NEIGHBORHOODS)] for i in range(len(stops))
                 ]
+                df[Columns.PROTEIN_OPT_IN] = [
+                    ProteinOptInValues.NO if box == "Vegan" else ProteinOptInValues.YES
+                    for box in df[Columns.BOX_TYPE]
+                ]
 
                 assert df.isna().sum().sum() == 0
                 assert set(df.columns.to_list()) == set(COMBINED_ROUTES_COLUMNS)
@@ -793,7 +810,8 @@ class TestFormatCombinedRoutes:
             ("C1", None),
             ("D1", "RECIPIENT SUPPORT: 555-555-5555 x5"),
             ("E1", None),
-            ("F1", "PLEASE SHRED MANIFEST AFTER COMPLETING ROUTE."),
+            ("F1", None),
+            ("G1", "PLEASE SHRED MANIFEST AFTER COMPLETING ROUTE."),
         ],
     )
     @typechecked
@@ -807,15 +825,15 @@ class TestFormatCombinedRoutes:
 
     @typechecked
     def test_header_row_end(self, basic_manifest_workbook: Workbook) -> None:
-        """Test that the header row ends at F1."""
+        """Test that the header row ends at G1."""
         for sheet_name in basic_manifest_workbook.sheetnames:
             ws = basic_manifest_workbook[sheet_name]
             last_non_empty_col = max(
                 (cell.column for cell in ws[1] if cell.value), default=None
             )
-            assert last_non_empty_col == 6
+            assert last_non_empty_col == 7
 
-    @pytest.mark.parametrize("cell", ["A1", "B1", "C1", "D1", "E1", "F1"])
+    @pytest.mark.parametrize("cell", ["A1", "B1", "C1", "D1", "E1", "F1", "G1"])
     @typechecked
     def test_header_row_color(self, cell: str, basic_manifest_workbook: Workbook) -> None:
         """Test the header row fill color."""
@@ -855,18 +873,18 @@ class TestFormatCombinedRoutes:
 
             neighborhoods = ", ".join(agg_dict["neighborhoods"])
             assert ws["A7"].value == f"Neighborhoods: {neighborhoods.upper()}"
-            assert ws["E3"].value == BoxType.BASIC
-            assert ws["F3"].value == agg_dict["box_counts"][BoxType.BASIC]
-            assert ws["E4"].value == BoxType.LA
-            assert ws["F4"].value == agg_dict["box_counts"][BoxType.LA]
-            assert ws["E5"].value == BoxType.GF
-            assert ws["F5"].value == agg_dict["box_counts"][BoxType.GF]
-            assert ws["E6"].value == BoxType.VEGAN
-            assert ws["F6"].value == agg_dict["box_counts"][BoxType.VEGAN]
-            assert ws["E7"].value == "TOTAL BOX COUNT="
-            assert ws["F7"].value == agg_dict["total_box_count"]
-            assert ws["E8"].value == "PROTEIN COUNT="
-            assert ws["F8"].value == agg_dict["protein_box_count"]
+            assert ws["F3"].value == BoxType.BASIC
+            assert ws["G3"].value == agg_dict["box_counts"][BoxType.BASIC]
+            assert ws["F4"].value == BoxType.LA
+            assert ws["G4"].value == agg_dict["box_counts"][BoxType.LA]
+            assert ws["F5"].value == BoxType.GF
+            assert ws["G5"].value == agg_dict["box_counts"][BoxType.GF]
+            assert ws["F6"].value == BoxType.VEGAN
+            assert ws["G6"].value == agg_dict["box_counts"][BoxType.VEGAN]
+            assert ws["F7"].value == "TOTAL BOX COUNT="
+            assert ws["G7"].value == agg_dict["total_box_count"]
+            assert ws["F8"].value == "PROTEIN COUNT="
+            assert ws["G8"].value == agg_dict["protein_box_count"]
 
     @typechecked
     def test_box_type_cell_colors(self, basic_manifest_workbook: Workbook) -> None:
@@ -874,10 +892,7 @@ class TestFormatCombinedRoutes:
         for sheet_name in basic_manifest_workbook.sheetnames:
             ws = basic_manifest_workbook[sheet_name]
             for cell in ws["F"]:
-                if cell.row > 9:
-                    assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
-            for cell in ws["E"]:
-                if cell.row > 2 and cell.row < 7:
+                if cell.row > 9 or (cell.row > 2 and cell.row < 7):
                     assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
 
     @typechecked
@@ -885,7 +900,7 @@ class TestFormatCombinedRoutes:
         """Test that the box type cells are in the correct order."""
         for sheet_name in basic_manifest_workbook.sheetnames:
             ws = basic_manifest_workbook[sheet_name]
-            box_types = [cell[0].value for cell in ws["E3:E6"]]
+            box_types = [cell[0].value for cell in ws["F3:F6"]]
             assert box_types == [BoxType.BASIC, BoxType.LA, BoxType.GF, BoxType.VEGAN]
 
     @typechecked
@@ -906,22 +921,23 @@ class TestFormatCombinedRoutes:
             "D1",
             "E1",
             "F1",
+            "G1",
             # Aggregated data.
             "A3",
             "A5",
             "A7",
-            "E3",
-            "E4",
-            "E5",
-            "E6",
-            "E7",
-            "E8",
             "F3",
             "F4",
             "F5",
             "F6",
             "F7",
             "F8",
+            "G3",
+            "G4",
+            "G5",
+            "G6",
+            "G7",
+            "G8",
             # Data header.
             "A9",
             "B9",
@@ -929,6 +945,7 @@ class TestFormatCombinedRoutes:
             "D9",
             "E9",
             "F9",
+            "G9",
         ],
     )
     @typechecked
@@ -943,8 +960,8 @@ class TestFormatCombinedRoutes:
         """Test right-aligned cells."""
         for sheet_name in basic_manifest_workbook.sheetnames:
             ws = basic_manifest_workbook[sheet_name]
-            right_aligned_cells = [ws["D1"], ws["F1"]] + [
-                cell for row in ws["E3:F8"] for cell in row
+            right_aligned_cells = [ws["D1"], ws["G1"]] + [
+                cell for row in ws["F3:G8"] for cell in row
             ]
             for cell in right_aligned_cells:
                 assert cell.alignment.horizontal == "right"
@@ -955,7 +972,7 @@ class TestFormatCombinedRoutes:
         for sheet_name in basic_manifest_workbook.sheetnames:
             ws = basic_manifest_workbook[sheet_name]
             left_aligned_cells = [cell for row in ws["A1:A8"] for cell in row] + [
-                cell for row in ws["A9:F9"] for cell in row
+                cell for row in ws["A9:G9"] for cell in row
             ]
             for cell in left_aligned_cells:
                 assert cell.alignment.horizontal == "left"
@@ -1157,7 +1174,8 @@ class TestCreateManifests:
             ("C1", None),
             ("D1", "RECIPIENT SUPPORT: 555-555-5555 x5"),
             ("E1", None),
-            ("F1", "PLEASE SHRED MANIFEST AFTER COMPLETING ROUTE."),
+            ("F1", None),
+            ("G1", "PLEASE SHRED MANIFEST AFTER COMPLETING ROUTE."),
         ],
     )
     @typechecked
@@ -1171,15 +1189,15 @@ class TestCreateManifests:
 
     @typechecked
     def test_header_row_end(self, basic_manifest_workbook: Workbook) -> None:
-        """Test that the header row ends at F1."""
+        """Test that the header row ends at G1."""
         for sheet_name in basic_manifest_workbook.sheetnames:
             ws = basic_manifest_workbook[sheet_name]
             last_non_empty_col = max(
                 (cell.column for cell in ws[1] if cell.value), default=None
             )
-            assert last_non_empty_col == 6
+            assert last_non_empty_col == 7
 
-    @pytest.mark.parametrize("cell", ["A1", "B1", "C1", "D1", "E1", "F1"])
+    @pytest.mark.parametrize("cell", ["A1", "B1", "C1", "D1", "E1", "F1", "G1"])
     @typechecked
     def test_header_row_color(self, cell: str, basic_manifest_workbook: Workbook) -> None:
         """Test the header row fill color."""
@@ -1220,18 +1238,18 @@ class TestCreateManifests:
 
             neighborhoods = ", ".join(agg_dict["neighborhoods"])
             assert ws["A7"].value == f"Neighborhoods: {neighborhoods.upper()}"
-            assert ws["E3"].value == BoxType.BASIC
-            assert ws["F3"].value == agg_dict["box_counts"][BoxType.BASIC]
-            assert ws["E4"].value == BoxType.LA
-            assert ws["F4"].value == agg_dict["box_counts"][BoxType.LA]
-            assert ws["E5"].value == BoxType.GF
-            assert ws["F5"].value == agg_dict["box_counts"][BoxType.GF]
-            assert ws["E6"].value == BoxType.VEGAN
-            assert ws["F6"].value == agg_dict["box_counts"][BoxType.VEGAN]
-            assert ws["E7"].value == "TOTAL BOX COUNT="
-            assert ws["F7"].value == agg_dict["total_box_count"]
-            assert ws["E8"].value == "PROTEIN COUNT="
-            assert ws["F8"].value == agg_dict["protein_box_count"]
+            assert ws["F3"].value == BoxType.BASIC
+            assert ws["G3"].value == agg_dict["box_counts"][BoxType.BASIC]
+            assert ws["F4"].value == BoxType.LA
+            assert ws["G4"].value == agg_dict["box_counts"][BoxType.LA]
+            assert ws["F5"].value == BoxType.GF
+            assert ws["G5"].value == agg_dict["box_counts"][BoxType.GF]
+            assert ws["F6"].value == BoxType.VEGAN
+            assert ws["G6"].value == agg_dict["box_counts"][BoxType.VEGAN]
+            assert ws["F7"].value == "TOTAL BOX COUNT="
+            assert ws["G7"].value == agg_dict["total_box_count"]
+            assert ws["F8"].value == "PROTEIN COUNT="
+            assert ws["G8"].value == agg_dict["protein_box_count"]
 
     @typechecked
     def test_box_type_cell_colors(self, basic_manifest_workbook: Workbook) -> None:
@@ -1239,10 +1257,7 @@ class TestCreateManifests:
         for sheet_name in basic_manifest_workbook.sheetnames:
             ws = basic_manifest_workbook[sheet_name]
             for cell in ws["F"]:
-                if cell.row > 9:
-                    assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
-            for cell in ws["E"]:
-                if cell.row > 2 and cell.row < 7:
+                if cell.row > 9 or (cell.row > 2 and cell.row < 7):
                     assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
 
     @typechecked
@@ -1250,7 +1265,7 @@ class TestCreateManifests:
         """Test that the box type cells are in the correct order."""
         for sheet_name in basic_manifest_workbook.sheetnames:
             ws = basic_manifest_workbook[sheet_name]
-            box_types = [cell[0].value for cell in ws["E3:E6"]]
+            box_types = [cell[0].value for cell in ws["F3:F6"]]
             assert box_types == [BoxType.BASIC, BoxType.LA, BoxType.GF, BoxType.VEGAN]
 
     @pytest.mark.parametrize(
@@ -1263,22 +1278,23 @@ class TestCreateManifests:
             "D1",
             "E1",
             "F1",
+            "G1",
             # Aggregated data.
             "A3",
             "A5",
             "A7",
-            "E3",
-            "E4",
-            "E5",
-            "E6",
-            "E7",
-            "E8",
             "F3",
             "F4",
             "F5",
             "F6",
             "F7",
             "F8",
+            "G3",
+            "G4",
+            "G5",
+            "G6",
+            "G7",
+            "G8",
             # Data header.
             "A9",
             "B9",
@@ -1286,6 +1302,7 @@ class TestCreateManifests:
             "D9",
             "E9",
             "F9",
+            "G9",
         ],
     )
     @typechecked
@@ -1308,8 +1325,8 @@ class TestCreateManifests:
         """Test right-aligned cells."""
         for sheet_name in basic_manifest_workbook.sheetnames:
             ws = basic_manifest_workbook[sheet_name]
-            right_aligned_cells = [ws["D1"], ws["F1"]] + [
-                cell for row in ws["E3:F8"] for cell in row
+            right_aligned_cells = [ws["D1"], ws["G1"]] + [
+                cell for row in ws["F3:G8"] for cell in row
             ]
             for cell in right_aligned_cells:
                 assert cell.alignment.horizontal == "right"
@@ -1320,7 +1337,7 @@ class TestCreateManifests:
         for sheet_name in basic_manifest_workbook.sheetnames:
             ws = basic_manifest_workbook[sheet_name]
             left_aligned_cells = [cell for row in ws["A1:A8"] for cell in row] + [
-                cell for row in ws["A9:F9"] for cell in row
+                cell for row in ws["A9:G9"] for cell in row
             ]
             for cell in left_aligned_cells:
                 assert cell.alignment.horizontal == "left"
@@ -1375,6 +1392,15 @@ class TestCreateManifests:
             pd.DataFrame(
                 {
                     Columns.BOX_TYPE: ["BASIC", "GF", "LA", "BASIC", "GF", "LA", "Vegan"],
+                    Columns.PROTEIN_OPT_IN: [
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.NO,
+                    ],
                     Columns.ORDER_COUNT: [1, 1, 1, 2, 1, 1, 2],
                     Columns.NEIGHBORHOOD: [
                         "YORK",
@@ -1401,7 +1427,51 @@ class TestCreateManifests:
         (
             pd.DataFrame(
                 {
+                    Columns.BOX_TYPE: ["BASIC", "GF", "LA", "BASIC", "GF", "LA", "Vegan"],
+                    Columns.PROTEIN_OPT_IN: [
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.NO,
+                        ProteinOptInValues.NO,
+                        ProteinOptInValues.YES,
+                    ],
+                    Columns.ORDER_COUNT: [1, 1, 1, 2, 1, 1, 1],
+                    Columns.NEIGHBORHOOD: [
+                        "YORK",
+                        "YORK",
+                        "YORK",
+                        "PUGET",
+                        "YORK",
+                        "YORK",
+                        "PUGET",
+                    ],
+                    Columns.NOTES: ["", "", "", "", "", "", ""],
+                }
+            ),
+            pd.DataFrame(columns=["tag", "note"]),
+            {
+                "box_counts": {"BASIC": 3, "GF": 2, "LA": 2, "VEGAN": 1},
+                "total_box_count": 8,
+                "protein_box_count": 6,
+                "neighborhoods": ["YORK", "PUGET"],
+                "extra_notes": [],
+            },
+            nullcontext(),
+        ),
+        (
+            pd.DataFrame(
+                {
                     Columns.BOX_TYPE: ["BASIC", "GF", "LA", "BASIC", "GF", "LA"],
+                    Columns.PROTEIN_OPT_IN: [
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                    ],
                     Columns.ORDER_COUNT: [1, 1, 1, 2, 1, 1],
                     Columns.NEIGHBORHOOD: ["YORK", "YORK", "YORK", "PUGET", "YORK", "YORK"],
                     Columns.NOTES: ["Test tag * asfgasfg", "", "", "", "", ""],
@@ -1429,6 +1499,16 @@ class TestCreateManifests:
                         "LA",
                         "Vegan",
                         "bad box type",
+                    ],
+                    Columns.PROTEIN_OPT_IN: [
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.YES,
+                        ProteinOptInValues.NO,
+                        ProteinOptInValues.YES,
                     ],
                     Columns.ORDER_COUNT: [1, 1, 1, 2, 1, 1, 2, 1],
                     Columns.NEIGHBORHOOD: [
@@ -1547,8 +1627,9 @@ def test_get_driver_sets_group_numbered(
 def _get_extra_notes(
     extra_notes_file: str, extra_notes_dir: str, extra_notes_df: pd.DataFrame
 ) -> tuple[AbstractContextManager, str]:
-    mock_extra_notes_context = nullcontext()
+    mock_extra_notes_context: AbstractContextManager
     if extra_notes_file:
+        mock_extra_notes_context = nullcontext()
         extra_notes_file = f"{extra_notes_dir}/{extra_notes_file}"
         extra_notes_df.to_csv(extra_notes_file, index=False)
     else:
@@ -1595,25 +1676,31 @@ def _assert_extra_notes(
     start_first_notes = 11 + len(first_df)
     start_second_notes = 11 + len(second_df)
 
-    assert first_ws[f"E{start_first_notes}"].value.startswith(
+    assert first_ws[f"A{start_first_notes}"].value.startswith(
         "* " + extra_notes_df["tag"].iloc[0].replace("*", "").strip() + ": "
     )
-    assert extra_notes_df["note"].iloc[0] in first_ws[f"E{start_first_notes}"].value
-    assert first_ws[f"E{start_first_notes + 1}"].value.startswith(
+    assert extra_notes_df["note"].iloc[0] in first_ws[f"A{start_first_notes}"].value
+    assert first_ws[f"A{start_first_notes + 1}"].value.startswith(
         "* " + extra_notes_df["tag"].iloc[1].replace("*", "").strip() + ": "
     )
-    assert extra_notes_df["note"].iloc[1] in first_ws[f"E{start_first_notes + 1}"].value
-    assert second_ws[f"E{start_second_notes}"].value.startswith(
+    assert extra_notes_df["note"].iloc[1] in first_ws[f"A{start_first_notes + 1}"].value
+    assert second_ws[f"A{start_second_notes}"].value.startswith(
         "* " + extra_notes_df["tag"].iloc[2].replace("*", "").strip() + ": "
     )
-    assert extra_notes_df["note"].iloc[2] in second_ws[f"E{start_second_notes}"].value
+    assert extra_notes_df["note"].iloc[2] in second_ws[f"A{start_second_notes}"].value
+
+    assert f"A{start_first_notes}:G{start_first_notes}" in first_ws.merged_cells
+    assert first_ws[f"A{start_first_notes}"].alignment.wrap_text is True
+    assert first_ws[f"A{start_first_notes}"].alignment.vertical == "top"
+    assert first_ws[f"A{start_first_notes}"].alignment.horizontal == "left"
+    assert first_ws.row_dimensions[start_first_notes].height >= 15
 
     return
 
 
 @typechecked
 def _get_driver_sheets(output_paths: list[Path]) -> list[pd.DataFrame]:
-    driver_sheets = []
+    driver_sheets: list[pd.DataFrame] = []
     for output_path in output_paths:
         workbook = pd.ExcelFile(output_path)
         driver_sheets = driver_sheets + [

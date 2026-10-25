@@ -11,7 +11,7 @@ import click
 from typeguard import typechecked
 
 from bfb_delivery import build_routes_from_chunked
-from bfb_delivery.lib.constants import Defaults, DocStrings
+from bfb_delivery.lib.constants import DocStrings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -28,33 +28,33 @@ logger = logging.getLogger(__name__)
     "--output_dir",
     type=str,
     required=False,
-    default=Defaults.BUILD_ROUTES_FROM_CHUNKED["output_dir"],
+    default=DocStrings.BUILD_ROUTES_FROM_CHUNKED.defaults["output_dir"],
     help=DocStrings.BUILD_ROUTES_FROM_CHUNKED.args["output_dir"],
 )
 @click.option(
     "--start_date",
     type=str,
     required=False,
-    default=Defaults.BUILD_ROUTES_FROM_CHUNKED["start_date"],
+    default=DocStrings.BUILD_ROUTES_FROM_CHUNKED.defaults["start_date"],
     help=DocStrings.BUILD_ROUTES_FROM_CHUNKED.args["start_date"],
 )
 @click.option(
     "--no_distribute",
     is_flag=True,
-    default=Defaults.BUILD_ROUTES_FROM_CHUNKED["no_distribute"],
+    default=DocStrings.BUILD_ROUTES_FROM_CHUNKED.defaults["no_distribute"],
     help=DocStrings.BUILD_ROUTES_FROM_CHUNKED.args["no_distribute"],
 )
 @click.option(
     "--verbose",
     is_flag=True,
-    default=Defaults.BUILD_ROUTES_FROM_CHUNKED["verbose"],
+    default=DocStrings.BUILD_ROUTES_FROM_CHUNKED.defaults["verbose"],
     help=DocStrings.BUILD_ROUTES_FROM_CHUNKED.args["verbose"],
 )
 @click.option(
     "--extra_notes_file",
     type=str,
     required=False,
-    default=Defaults.BUILD_ROUTES_FROM_CHUNKED["extra_notes_file"],
+    default=DocStrings.BUILD_ROUTES_FROM_CHUNKED.defaults["extra_notes_file"],
     help=DocStrings.BUILD_ROUTES_FROM_CHUNKED.args["extra_notes_file"],
 )
 @typechecked

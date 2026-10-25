@@ -6,14 +6,14 @@ This is a [Crickets and Comb](https://cricketsandcomb.org) solution.
 
 ## What it solves
 
-The food bank uses Circuit (https://getcircuit.com) to create optimized routes from lists of addresses and products, but there were some tedious tasks to prepare the data for Circuit and then to format the optimized routes into manifests for printing. It took several hours each week. Staff don't need to do that anymore now that they use the tool deployed with this package. Previously, they would:
+The food bank uses Spoke (https://spoke.com/dispatch) to create optimized routes from lists of addresses and products, but there were some tedious tasks to prepare the data for Spoke and then to format the optimized routes into manifests for printing. It took several hours each week. Staff don't need to do that anymore now that they use the tool deployed with this package. Previously, they would:
 
 0. Put all the stops in a single spreadsheet.
-1. Upload stops to Circuit to produce a single huge route as a starting point.
+1. Upload stops to Spoke to produce a single huge route as a starting point.
 2. Download the optimized route.
 3. Manually "chunk" the route by driver (assign stops to drivers according to how many boxes a driver can carry, what is a sensible set of stops, per-driver constraints, etc.).
 4. Split those routes into separate worksheets.
-5. Upload those smaller routes to Circuit again.
+5. Upload those smaller routes to Spoke again.
 6. Set attributes etc., launch optimization, and distribute to drivers.
 7. Download the optimized CSVs.
 8. Combine the output CSVs into a single Excel workbook with a worksheet for each route.
@@ -23,7 +23,7 @@ Staff would spend several hours each week on the manual pieces of this, the chun
 
 ## Dev plan
 
-We have no intention or desire to replace Circuit. In addition to optimizing routes, Circuit pushes routes to an app drivers can use, etc. But, there are some processes outside of that that could be further automated or supported with tools:
+We have no intention or desire to replace Spoke. In addition to optimizing routes, Spoke pushes routes to an app drivers can use, etc. But, there are some processes outside of that that could be further automated or supported with tools:
 
 - Chunking by driver (step 3 above): This may be the most challenging piece. I'm only a little confident I can solve this well enough to justify using my solution. So, I have saved it for after I've cleared the low-hanging fruit. My first inclination is to try using a sort of recursive k-nearest neighbors to group stops into potential routes, but that may change once I research existing routing algorithms.
 
@@ -35,7 +35,7 @@ We have no intention or desire to replace Circuit. In addition to optimizing rou
 
 - GUI: This would be a desktop installation so users can click and select input files, enter other params, assign routes to drivers, and click to open the final output file. A couple of UX/UI developers may be taking that on at time of writing.
 
-The plan of attack has been to start with the low-hanging fruit of ETL before moving onto the bigger problem of chunking. Fully integrating with the Circuit API is the last step before taking on the chunking, and that is complete. We've put it into production and are seeing what arises (bugs, feature requests, etc.) before moving on. (Also, my attention needs to shift to finding paying work before I launch into anything serious again for this project.)
+The plan of attack has been to start with the low-hanging fruit of ETL before moving onto the bigger problem of chunking. Fully integrating with the Spoke API is the last step before taking on the chunking, and that is complete. We've put it into production and are seeing what arises (bugs, feature requests, etc.) before moving on. (Also, my attention needs to shift to finding paying work before I launch into anything serious again for this project.)
 
 ### Frankenstein's "Agile" caveat
 
@@ -64,7 +64,7 @@ There are certainly improvements that can be made, so please take a look at the 
 
 ## Dependencies
 
-* Python 3.11
+* Python>=3.13
 * [make](https://www.gnu.org/software/make/)
 
 See `setup.cfg` for installation requirements.
@@ -98,7 +98,7 @@ Unless you're developing, avoid importing directly from library:
 
 ```python
     # Don't do this:
-    from bfb_delivery.lib.dispatch.write_to_circuit import build_routes_from_chunked
+    from bfb_delivery.lib.dispatch.write_to_spoke import build_routes_from_chunked
 ```
 
 ### CLI
@@ -119,7 +119,7 @@ CLI tools (see docs for more information):
 
 - build_routes_from_chunked
 - split_chunked_route
-- create_manifests_from_circuit
+- create_manifests_from_spoke
 - create_manifests
 - combine_route_tables
 - format_combined_routes
@@ -192,8 +192,8 @@ There are some useful scripts for live-testing in 'scripts/':
 | script | functionality | bash |
 | ------ | ------------- | ------------- |
 | `delete_plan.py` | Deletes/cancels every route listed in a `plan.csv` **or** a single plan by ID. Note that 'plan.csv' is typically written to the plans/ subdirectory of the output folder. | `python scripts/delete_plan.py --plan_df_fp path/to/plan.csv`<br>`python scripts/delete_plan.py --plan_id plans/{id}` |
-| `retrieve_plan.py` | Pulls the latest state of a plan from Circuit and returns a JSON. | `python scripts/retrieve_plan.py --plan-id plans/123456` |
-| `mock_run_e2e.py` | Allows you to mock the workflow end to end by generating mock CSVs in place of Circuit's API responses. | `python scripts/mock_run_e2e.py` |
+| `retrieve_plan.py` | Pulls the latest state of a plan from Spoke and returns a JSON. | `python scripts/retrieve_plan.py --plan-id plans/123456` |
+| `mock_run_e2e.py` | Allows you to mock the workflow end to end by generating mock CSVs in place of Spoke's API responses. | `python scripts/mock_run_e2e.py` |
 
 #### QC and testing
 

@@ -4,7 +4,7 @@
 Combine Driver Route Tables into a Single Workbook
 ==================================================
 
-After you have optimized each driver's route in Circuit, you will need to combine the optimized routes back into a single workbook to create the driver manifest. This combining task can be done by using the :code:`combine_route_tables` tool.
+After you have optimized each driver's route in Spoke, you will need to combine the optimized routes back into a single workbook to create the driver manifest. This combining task can be done by using the :code:`combine_route_tables` tool.
 
 This tool replaces the manual task of copying each driver's optimized route into a single workbook. It will combine all the optimized routes into a single workbook, with each driver's route on a separate sheet.
 
@@ -25,11 +25,11 @@ You pass the directory containing the optimized route tables to :code:`combine_r
 
 .. note::
 
-    The route CSVs from Circuit should be in a single directory, with no other CSVs in it.
+    The route CSVs from Spoke should be in a single directory, with no other CSVs in it.
 
 .. note::
 
-    This will change the "Product Type" column name, per Circuit API, back to "Box Type" per food bank staff preferences.
+    This will change the "Product Type" column name, per Spoke API, back to "Box Type" per food bank staff preferences.
 
 You must at least pass :code:`input_dir` to :code:`combine_route_tables`.
 

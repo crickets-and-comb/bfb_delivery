@@ -3,16 +3,20 @@
 from functools import partial
 from typing import Any
 
-import pandera as pa
+import pandera.pandas as pa
 from pandera.typing import Series
 
 from bfb_delivery.lib.constants import (
+    DEFAULT_PROTEIN_OPT_IN_ID,
     DEPOT_PLACE_ID,
     BoxType,
-    CircuitColumns,
     Columns,
     IntermediateColumns,
+    ProteinOptInValues,
+    SpokeColumns,
 )
+
+# This import registers the checks with pandera, even if unused.
 from bfb_delivery.lib.schema import checks  # noqa: F401
 
 _COERCE_FIELD = partial(pa.Field, coerce=True)
@@ -24,40 +28,46 @@ BOX_TYPE_FIELD = partial(
     _COERCE_FIELD, in_list_case_insensitive={"category_list": BoxType}, alias=Columns.BOX_TYPE
 )
 DRIVER_ID_FIELD = partial(_COERCE_FIELD, str_startswith="drivers/")
-# Renamed CircuitColumns.TITLE column, e.g. "1.17 Andy W":
+# Renamed SpokeColumns.TITLE column, e.g. "1.17 Andy W":
 EMAIL_FIELD = partial(_NULLABLE_FIELD, alias=Columns.EMAIL)
 NAME_FIELD = partial(_COERCE_FIELD, alias=Columns.NAME)
 NEIGHBORHOOD_FIELD = partial(_NULLABLE_FIELD, alias=Columns.NEIGHBORHOOD)
 NOTES_FIELD = partial(_NULLABLE_FIELD, alias=Columns.NOTES)
 ORDER_COUNT_FIELD = partial(_COERCE_FIELD, eq=1, alias=Columns.ORDER_COUNT)
 ORDER_INFO_FIELD = partial(
-    _COERCE_FIELD, item_in_field_dict=CircuitColumns.PRODUCTS, alias=CircuitColumns.ORDER_INFO
+    _COERCE_FIELD, item_in_field_dict=SpokeColumns.PRODUCTS, alias=SpokeColumns.ORDER_INFO
 )
 PHONE_FIELD = partial(_NULLABLE_FIELD, alias=Columns.PHONE)
 # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
 PLAN_ID_FIELD = partial(_COERCE_FIELD, str_startswith="plans/")
-ROUTE_FIELD = partial(_COERCE_FIELD, alias=CircuitColumns.ROUTE)
+PROTEIN_OPT_IN_FIELD = partial(
+    _COERCE_FIELD,
+    in_list_case_insensitive={"category_list": ProteinOptInValues},
+    alias=Columns.PROTEIN_OPT_IN,
+)
+ROUTE_FIELD = partial(_COERCE_FIELD, alias=SpokeColumns.ROUTE)
 # stop id e.g. "plans/0IWNayD8NEkvD5fQe2SQ/stops/40lmbcQrd32NOfZiiC1b":
 STOP_ID_FIELD = partial(
-    _UNIQUE_FIELD, str_startswith="plans/", str_contains="/stops/", alias=CircuitColumns.ID
+    _UNIQUE_FIELD, str_startswith="plans/", str_contains="/stops/", alias=SpokeColumns.ID
 )
 STOP_NO_FIELD = partial(_COERCE_FIELD, ge=1, alias=Columns.STOP_NO)
 TITLE_FIELD = partial(_COERCE_FIELD, at_least_two_words=True)
 
 # TODO: Unsmurf.
 # https://github.com/crickets-and-comb/bfb_delivery/issues/83
+# https://github.com/crickets-and-comb/bfb_delivery/issues/205
 
 
-class CircuitPlansOut(pa.DataFrameModel):
-    """The schema for the Circuit plans data.
+class SpokePlansOut(pa.DataFrameModel):
+    """The schema for the Spoke plans data.
 
-    bfb_delivery.lib.dispatch.read_circuit._make_plans_df output.
+    bfb_delivery.lib.dispatch.read_spoke._make_plans_df output.
     """
 
     # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
-    id: Series[str] = PLAN_ID_FIELD(unique=True, alias=CircuitColumns.ID)
+    id: Series[str] = PLAN_ID_FIELD(unique=True, alias=SpokeColumns.ID)
     # e.g. "1.17 Andy W":
-    title: Series[str] = TITLE_FIELD(alias=CircuitColumns.TITLE)
+    title: Series[str] = TITLE_FIELD(alias=SpokeColumns.TITLE)
 
     class Config:
         """The configuration for the schema."""
@@ -65,13 +75,14 @@ class CircuitPlansOut(pa.DataFrameModel):
         strict = True
 
 
-class CircuitPlansFromDict(CircuitPlansOut):
-    """The schema for the Circuit plans data from a JSON-esque dict.
+class SpokePlansFromDict(SpokePlansOut):
+    """The schema for the Spoke plans data from a JSON-esque dict.
 
-    bfb_delivery.lib.dispatch.read_circuit._make_plans_df input.
+    bfb_delivery.lib.dispatch.read_spoke._make_plans_df input.
     """
 
-    routes: Series[list[str]] = _COERCE_FIELD(is_list_of_one_or_less=True)
+    # Series[list[str]] breaks pydantic/json-schema generation.
+    routes: Series[object] = _COERCE_FIELD(is_list_of_one_or_less=True)
 
     class Config:
         """The configuration for the schema."""
@@ -80,47 +91,61 @@ class CircuitPlansFromDict(CircuitPlansOut):
         strict = False
 
 
-class CircuitPlansTransformIn(CircuitPlansOut):
-    """The schema for the Circuit plans data.
+class SpokePlansTransformIn(SpokePlansOut):
+    """The schema for the Spoke plans data.
 
-    bfb_delivery.lib.dispatch.read_circuit._transform_routes_df input.
+    bfb_delivery.lib.dispatch.read_spoke._transform_routes_df input.
     """
 
 
-class CircuitRoutesTransformInFromDict(pa.DataFrameModel):
-    """The schema for the Circuit routes data from a JSON-esque dict.
+class SpokeRoutesTransformInFromDict(pa.DataFrameModel):
+    """The schema for the Spoke routes data from a JSON-esque dict.
 
-    bfb_delivery.lib.dispatch.read_circuit._transform_routes_df input.
+    bfb_delivery.lib.dispatch.read_spoke._transform_routes_df input.
     """
 
-    plan: Series[str] = PLAN_ID_FIELD(alias=CircuitColumns.PLAN)
-    route: Series[dict[str, Any]] = ROUTE_FIELD(item_in_field_dict=CircuitColumns.ID)
+    plan: Series[str] = PLAN_ID_FIELD(alias=SpokeColumns.PLAN)
+    # Series[dict[str, Any]] breaks pydantic/json-schema generation.
+    route: Series[object] = ROUTE_FIELD(item_in_field_dict=SpokeColumns.ID)
     id: Series[str] = STOP_ID_FIELD()
     # Position 0 is depot, which gets dropped later for the manifests.
-    stopPosition: Series[int] = STOP_NO_FIELD(ge=0, alias=CircuitColumns.STOP_POSITION)
-    recipient: Series[dict[str, Any]] = _COERCE_FIELD(
-        item_in_field_dict=CircuitColumns.NAME, alias=CircuitColumns.RECIPIENT
+    stopPosition: Series[int] = STOP_NO_FIELD(ge=0, alias=SpokeColumns.STOP_POSITION)
+    # Series[dict[str, Any]] breaks pydantic/json-schema generation.
+    recipient: Series[object] = _COERCE_FIELD(
+        item_in_field_dict=SpokeColumns.NAME, alias=SpokeColumns.RECIPIENT
     )
-    address: Series[dict[str, Any]] = ADDRESS_FIELD(
-        item_in_field_dict=CircuitColumns.PLACE_ID, alias=CircuitColumns.ADDRESS
+    # Series[dict[str, Any]] breaks pydantic/json-schema generation.
+    address: Series[object] = ADDRESS_FIELD(
+        item_in_field_dict=SpokeColumns.PLACE_ID, alias=SpokeColumns.ADDRESS
     )
-    notes: Series[str] = NOTES_FIELD(alias=CircuitColumns.NOTES)
-    orderInfo: Series[dict[str, Any]] = ORDER_INFO_FIELD()
-    packageCount: Series[float] = _NULLABLE_FIELD(eq=1, alias=CircuitColumns.PACKAGE_COUNT)
+    notes: Series[str] = NOTES_FIELD(alias=SpokeColumns.NOTES)
+    # Series[dict[str, Any]] breaks pydantic/json-schema generation.
+    orderInfo: Series[object] = ORDER_INFO_FIELD()
+    packageCount: Series[float] = _NULLABLE_FIELD(eq=1, alias=SpokeColumns.PACKAGE_COUNT)
+    # Series[dict[str, Any]] breaks pydantic/json-schema generation.
+    # TODO: When adding neighborhood to customProperties, will need to run
+    # item_in_field_dict on multiple columns. We'll want to do that in recipient too.
+    # See https://github.com/crickets-and-comb/stormwater_monitoring_datasheet_extraction
+    customProperties: Series[object] = _NULLABLE_FIELD(
+        # TODO: Make a schema factory so we can use CustomStopPropertiesGetter
+        # without calling the API at import time, instead of harcoding here.
+        item_in_field_dict=DEFAULT_PROTEIN_OPT_IN_ID,
+        alias=SpokeColumns.CUSTOM_PROPERTIES,
+    )
 
     class Config:
         """The configuration for the schema."""
 
         from_format = "dict"
 
-        many_to_one = {"many_col": CircuitColumns.ID, "one_col": CircuitColumns.PLAN}
+        many_to_one = {"many_col": SpokeColumns.ID, "one_col": SpokeColumns.PLAN}
         unique_group = {
-            "group_col": CircuitColumns.PLAN,
-            "unique_col": CircuitColumns.STOP_POSITION,
+            "group_col": SpokeColumns.PLAN,
+            "unique_col": SpokeColumns.STOP_POSITION,
         }
         contiguous_group = {
-            "group_col": CircuitColumns.PLAN,
-            "contiguous_col": CircuitColumns.STOP_POSITION,
+            "group_col": SpokeColumns.PLAN,
+            "contiguous_col": SpokeColumns.STOP_POSITION,
             "start_idx": 0,
         }
         # TODO: Convert back to field checks now that we know they must be uniquely defined
@@ -128,12 +153,13 @@ class CircuitRoutesTransformInFromDict(pa.DataFrameModel):
         # https://github.com/crickets-and-comb/bfb_delivery/issues/84
         address1_in_address = True
         address2_in_address = True
+        field_not_null_where_product = {"col": SpokeColumns.CUSTOM_PROPERTIES}
 
 
-class CircuitRoutesTransformOut(pa.DataFrameModel):
-    """The schema for the Circuit routes data after transformation.
+class SpokeRoutesTransformOut(pa.DataFrameModel):
+    """The schema for the Spoke routes data after transformation.
 
-    bfb_delivery.lib.dispatch.read_circuit._transform_routes_df output.
+    bfb_delivery.lib.dispatch.read_spoke._transform_routes_df output.
     """
 
     # Main output columns for downstream processing.
@@ -149,22 +175,23 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
     box_type: Series[pa.Category] = BOX_TYPE_FIELD()
     neighborhood: Series[str] = NEIGHBORHOOD_FIELD()
     email: Series[str] = EMAIL_FIELD()
+    protein_opt_in: Series[pa.Category] = PROTEIN_OPT_IN_FIELD(nullable=True)
 
     # Ancillary columns.
-    plan: Series[str] = PLAN_ID_FIELD(alias=CircuitColumns.PLAN)
+    plan: Series[str] = PLAN_ID_FIELD(alias=SpokeColumns.PLAN)
     id: Series[str] = STOP_ID_FIELD()
     orderInfo: Series[dict[str, Any]] = ORDER_INFO_FIELD(one_product=True)
     route_title: Series[str] = TITLE_FIELD(alias=IntermediateColumns.ROUTE_TITLE)
-    placeId: Series[str] = _COERCE_FIELD(ne=DEPOT_PLACE_ID, alias=CircuitColumns.PLACE_ID)
+    placeId: Series[str] = _COERCE_FIELD(ne=DEPOT_PLACE_ID, alias=SpokeColumns.PLACE_ID)
 
     class Config:
         """The configuration for the schema."""
 
-        # NOTE, the Circuit plan:route relationship is 1:m, but we only ever want 1:1.
-        one_to_one = {"col_a": CircuitColumns.ROUTE, "col_b": CircuitColumns.PLAN}
+        # NOTE, the Spoke plan:route relationship is 1:m, but we only ever want 1:1.
+        one_to_one = {"col_a": SpokeColumns.ROUTE, "col_b": SpokeColumns.PLAN}
         one_to_one_route_sheet = True
         at_least_one_in_group = {
-            "group_col": CircuitColumns.PLAN,
+            "group_col": SpokeColumns.PLAN,
             "at_least_one_col": IntermediateColumns.DRIVER_SHEET_NAME,
         }
         at_least_one_in_group_sheet_plan = True
@@ -181,7 +208,7 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
         # https://github.com/crickets-and-comb/bfb_delivery/issues/85
 
         many_to_one = {
-            "many_col": CircuitColumns.ID,
+            "many_col": SpokeColumns.ID,
             "one_col": IntermediateColumns.DRIVER_SHEET_NAME,
         }
         unique = [IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO]
@@ -192,12 +219,13 @@ class CircuitRoutesTransformOut(pa.DataFrameModel):
             "start_idx": 1,
         }
         increasing_by = {"cols": [IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO]}
+        field_not_null_where_product = {"col": Columns.PROTEIN_OPT_IN}
 
 
-class CircuitRoutesWriteIn(pa.DataFrameModel):
-    """The schema for the Circuit routes data before writing.
+class SpokeRoutesWriteIn(pa.DataFrameModel):
+    """The schema for the Spoke routes data before writing.
 
-    bfb_delivery.lib.dispatch.read_circuit._write_routes_df input.
+    bfb_delivery.lib.dispatch.read_spoke._write_routes_df input.
     """
 
     driver_sheet_name: Series[str] = TITLE_FIELD(alias=IntermediateColumns.DRIVER_SHEET_NAME)
@@ -210,16 +238,17 @@ class CircuitRoutesWriteIn(pa.DataFrameModel):
     box_type: Series[pa.Category] = BOX_TYPE_FIELD()
     neighborhood: Series[str] = NEIGHBORHOOD_FIELD()
     email: Series[str] | None = EMAIL_FIELD()
+    protein_opt_in: Series[pa.Category] = PROTEIN_OPT_IN_FIELD()
 
     class Config:
         """The configuration for the schema."""
 
         one_to_one = {
-            "col_a": CircuitColumns.ROUTE,
+            "col_a": SpokeColumns.ROUTE,
             "col_b": IntermediateColumns.DRIVER_SHEET_NAME,
         }
         many_to_one = {
-            "many_col": CircuitColumns.ID,
+            "many_col": SpokeColumns.ID,
             "one_col": IntermediateColumns.DRIVER_SHEET_NAME,
         }
         at_least_one_in_group_route_sheet = True
@@ -235,10 +264,10 @@ class CircuitRoutesWriteIn(pa.DataFrameModel):
         increasing_by = {"cols": [IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO]}
 
 
-class CircuitRoutesWriteInAllHHs(CircuitRoutesWriteIn):
-    """The schema for the Circuit routes data before writing for "All HHs".
+class SpokeRoutesWriteInAllHHs(SpokeRoutesWriteIn):
+    """The schema for the Spoke routes data before writing for "All HHs".
 
-    bfb_delivery.lib.dispatch.read_circuit._write_routes_df_all_hhs input.
+    bfb_delivery.lib.dispatch.read_spoke._write_routes_df_all_hhs input.
     """
 
     email: Series[str] = EMAIL_FIELD()
@@ -252,10 +281,10 @@ class CircuitRoutesWriteInAllHHs(CircuitRoutesWriteIn):
         }
 
 
-class CircuitRoutesWriteOut(pa.DataFrameModel):
-    """The schema for the Circuit routes data after writing.
+class SpokeRoutesWriteOut(pa.DataFrameModel):
+    """The schema for the Spoke routes data after writing.
 
-    bfb_delivery.lib.dispatch.read_circuit._write_routes_df input,
+    bfb_delivery.lib.dispatch.read_spoke._write_routes_df input,
     called within _write_routes_df as its "output."
     """
 
@@ -270,6 +299,7 @@ class CircuitRoutesWriteOut(pa.DataFrameModel):
     box_type: Series[pa.Category] = BOX_TYPE_FIELD()
     neighborhood: Series[str] = NEIGHBORHOOD_FIELD()
     email: Series[str] = EMAIL_FIELD()
+    protein_opt_in: Series[pa.Category] = PROTEIN_OPT_IN_FIELD()
 
     class Config:
         """The configuration for the schema."""
@@ -289,6 +319,7 @@ class Stops(pa.DataFrameModel):
     product_type: Series[pa.Category] = BOX_TYPE_FIELD(alias=Columns.PRODUCT_TYPE)
     neighborhood: Series[str] = NEIGHBORHOOD_FIELD()
     sheet_name: Series[str] = TITLE_FIELD(alias=IntermediateColumns.SHEET_NAME)
+    protein_opt_in: Series[pa.Category] = PROTEIN_OPT_IN_FIELD()
 
     class Config:
         """The configuration for the schema."""
@@ -299,10 +330,10 @@ class Stops(pa.DataFrameModel):
 class DriversGetAllDriversOut(pa.DataFrameModel):
     """The schema for the drivers data after getting all drivers."""
 
-    id: Series[str] = DRIVER_ID_FIELD(unique=True, alias=CircuitColumns.ID)
-    name: Series[str] = NAME_FIELD(alias=CircuitColumns.NAME)
-    email: Series[str] = EMAIL_FIELD(nullable=False, alias=CircuitColumns.EMAIL)
-    active: Series[bool] = _COERCE_FIELD(alias=CircuitColumns.ACTIVE)
+    id: Series[str] = DRIVER_ID_FIELD(unique=True, alias=SpokeColumns.ID)
+    name: Series[str] = NAME_FIELD(alias=SpokeColumns.NAME)
+    email: Series[str] = EMAIL_FIELD(nullable=False, alias=SpokeColumns.EMAIL)
+    active: Series[bool] = _COERCE_FIELD(alias=SpokeColumns.ACTIVE)
 
 
 class DriversAssignDriversIn(DriversGetAllDriversOut):
@@ -320,8 +351,8 @@ class PlansAssignDriversIn(pa.DataFrameModel):
     driver_name: Series[str] = NAME_FIELD(
         nullable=True, alias=IntermediateColumns.DRIVER_NAME
     )
-    email: Series[str] = EMAIL_FIELD(alias=CircuitColumns.EMAIL)
-    id: Series[str] = DRIVER_ID_FIELD(nullable=True, alias=CircuitColumns.ID)
+    email: Series[str] = EMAIL_FIELD(alias=SpokeColumns.EMAIL)
+    id: Series[str] = DRIVER_ID_FIELD(nullable=True, alias=SpokeColumns.ID)
 
 
 class PlansAssignDriverIn(PlansAssignDriversIn):
@@ -340,15 +371,15 @@ class PlansAssignDriversToPlansOut(PlansAssignDriversOut):
     """The schema for the plans data after assigning drivers."""
 
     driver_name: Series[str] = NAME_FIELD(alias=IntermediateColumns.DRIVER_NAME)
-    email: Series[str] = EMAIL_FIELD(nullable=False, alias=CircuitColumns.EMAIL)
-    id: Series[str] = DRIVER_ID_FIELD(alias=CircuitColumns.ID)
+    email: Series[str] = EMAIL_FIELD(nullable=False, alias=SpokeColumns.EMAIL)
+    id: Series[str] = DRIVER_ID_FIELD(alias=SpokeColumns.ID)
 
     class Config:
         """The configuration for the schema."""
 
         many_to_one = {
             "many_col": IntermediateColumns.ROUTE_TITLE,
-            "one_col": CircuitColumns.ID,  # Driver ID
+            "one_col": SpokeColumns.ID,  # Driver ID
         }
 
 
@@ -362,8 +393,8 @@ class PlansInitializePlansOut(PlansInitializePlansIn):
     plan_id: Series[str] = PLAN_ID_FIELD(
         unique=True, nullable=True, alias=IntermediateColumns.PLAN_ID
     )
-    writable: Series[bool] = _NULLABLE_FIELD(alias=CircuitColumns.WRITABLE)
-    optimization: Series[str] = _NULLABLE_FIELD(alias=CircuitColumns.OPTIMIZATION)
+    writable: Series[bool] = _NULLABLE_FIELD(alias=SpokeColumns.WRITABLE)
+    optimization: Series[str] = _NULLABLE_FIELD(alias=SpokeColumns.OPTIMIZATION)
     initialized: Series[bool] = _COERCE_FIELD(alias=IntermediateColumns.INITIALIZED)
 
     class Config:
@@ -431,7 +462,7 @@ class PlansDistributeRoutesIn(PlansOptimizeRoutesOut):
 class PlansDistributeRoutesOut(PlansDistributeRoutesIn):
     """The schema for the plans data after distributing routes."""
 
-    distributed: Series[bool] = _COERCE_FIELD(alias=CircuitColumns.DISTRIBUTED)
+    distributed: Series[bool] = _COERCE_FIELD(alias=SpokeColumns.DISTRIBUTED)
 
 
 class PlansUploadSplitChunkedOut(PlansDistributeRoutesOut):

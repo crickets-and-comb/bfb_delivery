@@ -3,7 +3,7 @@
 import pandas as pd
 import pandera.extensions as extensions
 
-from bfb_delivery.lib.constants import CircuitColumns
+from bfb_delivery.lib.constants import SpokeColumns
 
 
 @extensions.register_check_method(statistics=["flag"])
@@ -53,8 +53,8 @@ def one_product(pandas_obj: pd.Series, flag: bool) -> bool:
     """Ensure one and only one product per stop."""
     return (
         all(
-            isinstance(val.get(CircuitColumns.PRODUCTS), list)
-            and len(val.get(CircuitColumns.PRODUCTS)) == 1
+            isinstance(val.get(SpokeColumns.PRODUCTS), list)
+            and len(val.get(SpokeColumns.PRODUCTS)) == 1
             for val in pandas_obj
         )
         if flag

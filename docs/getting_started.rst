@@ -41,9 +41,9 @@ Now, create an env with the following command:
 
 .. code:: bash
 
-    conda create -n bfb_delivery python=3.12 --yes
+    conda create -n bfb_delivery python=3.13 --yes
 
-This will create an env named "bfb_delivery" with Python 3.12 installed. You can name it something else if you'd like, like ``my_bfb_delivery_env_name``.
+This will create an env named "bfb_delivery" with Python 3.13 installed. You can name it something else if you'd like, like ``my_bfb_delivery_env_name``.
 
 Activate the env with the following command:
 
@@ -71,9 +71,9 @@ First-time setup: File setup
 As mentioned above, this tool relies on a couple of files to run. These files need to be in the same directory as where you're running the tool. The files are:
 
 1. ``config.ini``: This file contains phone numbers that will be used in the final manifests.
-2. ``.env``: This file contains your Circuit API key.
+2. ``.env``: This file contains your Spoke API key.
 
-You should only need to update these files if the support numbers change or your key expires, preventing the tool from interfacing with Circuit.
+You should only need to update these files if the support numbers change or your key expires, preventing the tool from interfacing with Spoke.
 
 You'll probably want to put these files in a special folder where you will always run the tool. You can create a folder for this purpose. For example, you could create a folder called ``bfb_delivery`` in your home directory:
 
@@ -125,9 +125,9 @@ To check that the file was created correctly, run the following command:
 .env file setup
 ###############
 
-You need a Circuit API key to run the tools that interact with Circuit, and it needs to be in a ``.env`` file adjacent to the ``config.ini`` file above.
+You need a Spoke API key to run the tools that interact with Spoke, and it needs to be in a ``.env`` file adjacent to the ``config.ini`` file above.
 
-To get a key, log in to Circuit, click on "Settings" in the sidebar, under "Workspace" in that sidebar click on "Integrations," and under "API" click "Generate New Key." Copy that key and keep it safe, and never share it. The best way to keep it safe is by putting it in a protected file, like a ``.env`` file, which is what you need to do to use the ``bfb_delivery`` tool anyway.
+To get a key, log in to Spoke, click on "Settings" in the sidebar, under "Workspace" in that sidebar click on "Integrations," and under "API" click "Generate New Key." Copy that key and keep it safe, and never share it. The best way to keep it safe is by putting it in a protected file, like a ``.env`` file, which is what you need to do to use the ``bfb_delivery`` tool anyway.
 
 Make sure you don't already have a ``.env`` file:
 
@@ -153,13 +153,13 @@ Open the ``.env`` file in a text editor and add the following line:
 
 .. code:: bash
 
-    CIRCUIT_API_KEY=your_api_key_here
+    SPOKE_API_KEY=your_api_key_here
 
 Or, instead of opening the file in a text editor, you can use the following command to add the key:
 
 .. code:: bash
 
-    echo "CIRCUIT_API_KEY=your_api_key_here" >> .env
+    echo "SPOKE_API_KEY=your_api_key_here" >> .env
 
 To check that the key was added correctly, run the following command:
 
@@ -235,14 +235,14 @@ Nothing is stopping you from importing from :code:`lib` directly, but you should
 
 .. code:: python
 
-    from bfb_delivery.lib.dispatch.write_to_circuit import build_routes_from_chunked
+    from bfb_delivery.lib.dispatch.write_to_spoke import build_routes_from_chunked
 
     build_routes_from_chunked(input_path="path/to/input.xlsx")
 
 Your workflow
 -------------
 
-Once you're set up, and you have a master list of chunked routes you want to split optimize in Circuit, you can begin using this tool. See :doc:`workflow` for how you can use the tools in this package to streamline your delivery route manifest creation process.
+Once you're set up, and you have a master list of chunked routes you want to split optimize in Spoke, you can begin using this tool. See :doc:`workflow` for how you can use the tools in this package to streamline your delivery route manifest creation process.
 
 
 See Also

@@ -4,7 +4,7 @@
 Create Printable Manifests from Downloaded Optimized Routes
 ===========================================================
 
-After you have optimized each driver's route in Circuit, you will need to combine the optimized routes back into a single workbook of driver manifest sheets ready to print. You can do this with the :code:`create_manifests` tool.
+After you have optimized each driver's route in Spoke, you will need to combine the optimized routes back into a single workbook of driver manifest sheets ready to print. You can do this with the :code:`create_manifests` tool.
 
 This tool replaces the manual task of copying each driver's optimized route into a single workbook, running an Excel macro, and finishing up with some manual steps. It will combine all the optimized routes into a single workbook, with each driver's route on a separate sheet, and format the sheets into manifests ready to print.
 
@@ -29,11 +29,11 @@ You pass the directory containing the optimized route tables to :code:`create_ma
 
 .. note::
 
-    The route CSVs from Circuit should be in a single directory, with no other CSVs in it.
+    The route CSVs from Spoke should be in a single directory, with no other CSVs in it.
 
 .. note::
 
-    This will change the "Product Type" column name, per Circuit API, back to "Box Type" per food bank staff preferences.
+    This will change the "Product Type" column name, per Spoke API, back to "Box Type" per food bank staff preferences.
 
 You must at least pass :code:`input_dir` to :code:`create_manifests`.
 
@@ -129,6 +129,10 @@ With CLI:
 .. code:: bash
 
     create_manifests --input_dir path/to/combined_workbook.xlsx --extra_notes_file path/to/extra_notes.csv
+
+.. note::
+
+    Extra notes are placed in merged cells with automatic row height calculation. The height calculation is approximate and may not be perfect for all text lengths and formatting. Manual review of the cell heights is recommended to ensure notes are fully visible.
 
 
 See Also

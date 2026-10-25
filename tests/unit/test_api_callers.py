@@ -9,12 +9,13 @@ import pytest
 import requests
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import CIRCUIT_URL, CircuitColumns, RateLimits
+from bfb_delivery.lib.constants import RateLimits, SpokeColumns, SpokeURLs
 from bfb_delivery.lib.dispatch.api_callers import (
     BaseBFBDeleteCaller,
     BaseBFBGetCaller,
     BaseBFBPostCaller,
     BaseCaller,
+    CustomStopPropertiesGetter,
     OptimizationChecker,
     OptimizationLauncher,
     PlanDeleter,
@@ -32,9 +33,9 @@ _MOCK_STOP_ARRAY: Final[list[dict[str, dict[str, str] | list[str] | int | str]]]
 ]
 
 _CALLER_DICT: Final[dict[str, type[BaseCaller]]] = {
-    "get": BaseBFBGetCaller,
-    "post": BaseBFBPostCaller,
-    "delete": BaseBFBDeleteCaller,
+    "get": BaseBFBGetCaller,  # type: ignore[type-abstract]
+    "post": BaseBFBPostCaller,  # type: ignore[type-abstract]
+    "delete": BaseBFBDeleteCaller,  # type: ignore[type-abstract]
     "opt_launcher": OptimizationLauncher,
     "opt_checker": OptimizationChecker,
     "stop_uploader": StopUploader,
@@ -62,31 +63,31 @@ _CALLER_KWARGS_DICT: Final[dict[str, dict[str, Any]]] = {
 }
 
 _OPT_JSON_200_DONE: Final[dict[str, Any]] = {
-    CircuitColumns.METADATA: {CircuitColumns.CANCELED: False},
-    CircuitColumns.RESULT: {},
-    CircuitColumns.ID: _MOCK_OPERATION_ID,
-    CircuitColumns.DONE: True,
+    SpokeColumns.METADATA: {SpokeColumns.CANCELED: False},
+    SpokeColumns.RESULT: {},
+    SpokeColumns.ID: _MOCK_OPERATION_ID,
+    SpokeColumns.DONE: True,
 }
 _OPT_JSON_200_UNFINISHED: Final[dict[str, Any]] = {
-    CircuitColumns.METADATA: {CircuitColumns.CANCELED: False},
-    CircuitColumns.RESULT: {},
-    CircuitColumns.ID: _MOCK_OPERATION_ID,
-    CircuitColumns.DONE: False,
+    SpokeColumns.METADATA: {SpokeColumns.CANCELED: False},
+    SpokeColumns.RESULT: {},
+    SpokeColumns.ID: _MOCK_OPERATION_ID,
+    SpokeColumns.DONE: False,
 }
 _OPT_JSON_CANCELED: dict[str, Any] = _OPT_JSON_200_DONE.copy()
-_OPT_JSON_CANCELED.update({CircuitColumns.METADATA: {CircuitColumns.CANCELED: True}})
+_OPT_JSON_CANCELED.update({SpokeColumns.METADATA: {SpokeColumns.CANCELED: True}})
 _OPT_JSON_SKIPPED: dict[str, Any] = _OPT_JSON_200_DONE.copy()
-_OPT_JSON_SKIPPED[CircuitColumns.RESULT] = {CircuitColumns.SKIPPED_STOPS: [1, 2, 3]}
+_OPT_JSON_SKIPPED[SpokeColumns.RESULT] = {SpokeColumns.SKIPPED_STOPS: [1, 2, 3]}
 _OPT_JSON_ERROR_CODE: dict[str, Any] = _OPT_JSON_200_DONE.copy()
-_OPT_JSON_ERROR_CODE[CircuitColumns.RESULT] = {CircuitColumns.CODE: "MOCK_ERROR_CODE"}
+_OPT_JSON_ERROR_CODE[SpokeColumns.RESULT] = {SpokeColumns.CODE: "MOCK_ERROR_CODE"}
 
 
 @pytest.mark.parametrize("request_type", ["get", "post", "delete"])
 @typechecked
 def test_key_call(request_type: str) -> None:
-    """Test `call_api` calls `get_circuit_key`."""
+    """Test `call_api` calls `get_spoke_key`."""
 
-    class MockCaller(_CALLER_DICT[request_type]):
+    class MockCaller(_CALLER_DICT[request_type]):  # type: ignore[misc, valid-type]
         """Minimal concrete subclass of BaseCaller for testing."""
 
         def _set_url(self) -> None:
@@ -98,12 +99,12 @@ def test_key_call(request_type: str) -> None:
     ]
 
     with patch(f"requests.{request_type}") as mock_request, patch(
-        "bfb_delivery.lib.dispatch.api_callers.get_circuit_key"
-    ) as spy_handle_get_circuit_key:
+        "bfb_delivery.lib.dispatch.api_callers.get_spoke_key"
+    ) as spy_handle_get_spoke_key:
         mock_request.side_effect = [Mock(**resp) for resp in response_sequence]
         mock_caller = MockCaller()
         mock_caller.call_api()
-        spy_handle_get_circuit_key.assert_called_once()
+        spy_handle_get_spoke_key.assert_called_once()
 
 
 @pytest.mark.parametrize(
@@ -232,7 +233,7 @@ def test_base_caller_wait_time_adjusting(
 ) -> None:
     """Test request wait time adjustments on rate-limiting."""
 
-    class MockCaller(_CALLER_DICT[request_type]):
+    class MockCaller(_CALLER_DICT[request_type]):  # type: ignore[misc, valid-type]
         """Minimal concrete subclass of BaseCaller for testing."""
 
         def _set_url(self) -> None:
@@ -364,7 +365,7 @@ def test_base_caller_timeout_adjusting(
 ) -> None:
     """Test timeout adjustment on timeout retry."""
 
-    class MockCaller(_CALLER_DICT[request_type]):
+    class MockCaller(_CALLER_DICT[request_type]):  # type: ignore[misc, valid-type]
         """Minimal concrete subclass of BaseCaller for testing."""
 
         def _set_url(self) -> None:
@@ -498,12 +499,57 @@ def test_optimization_callers(
             caller.call_api()
             assert (
                 mock_request.call_args_list[0][1]["url"]
-                == f"{CIRCUIT_URL}/{kwargs['plan_id']}:optimize"
+                == SpokeURLs.OPTIMIZE.format(plan_id=kwargs["plan_id"])
                 if request_type == "opt_launcher"
-                else f"{CIRCUIT_URL}{kwargs['operation_id']}"
+                else SpokeURLs.OPTIMIZATION_CHECK.format(operation_id=kwargs["operation_id"])
             )
             assert caller.operation_id == _MOCK_OPERATION_ID
             assert caller.finished == expected_done_status
+
+
+@pytest.mark.parametrize(
+    "property_name, expected_id, error_context",
+    [
+        ("protein", "aJyl6WxtFXXPXPt-7pGa2", nullcontext()),
+        ("test property", "test id", nullcontext()),
+        (
+            "invalid_property",
+            None,
+            pytest.raises(
+                ValueError, match="Custom stop property invalid_property not found"
+            ),
+        ),
+    ],
+)
+@typechecked
+def test_custom_stop_properties_getter(
+    property_name: str,
+    expected_id: str | None,
+    error_context: AbstractContextManager,
+    mock_custom_stop_properties_request_call: Mock,
+) -> None:
+    """Test CustomStopPropertiesGetter."""
+    mock_custom_stop_properties_request_call.return_value.json.return_value = {
+        "customStopProperties": [
+            {
+                "id": "aJyl6WxtFXXPXPt-7pGa2",
+                "name": "protein",
+                "visibleToDrivers": True,
+                "visibleToRecipients": True,
+            },
+            {
+                "id": "test id",
+                "name": "test property",
+            },
+        ]
+    }
+
+    caller = CustomStopPropertiesGetter()
+    caller.call_api()
+
+    with error_context:
+        prop_id = caller.get_property_ID(property_name=property_name)
+        assert prop_id == expected_id
 
 
 @pytest.mark.parametrize(
@@ -514,8 +560,8 @@ def test_optimization_callers(
                 {
                     "status_code": 200,
                     "json.return_value": {
-                        CircuitColumns.ID: _MOCK_PLAN_ID,
-                        CircuitColumns.WRITABLE: True,
+                        SpokeColumns.ID: _MOCK_PLAN_ID,
+                        SpokeColumns.WRITABLE: True,
                     },
                 }
             ]
@@ -525,8 +571,8 @@ def test_optimization_callers(
                 {
                     "status_code": 200,
                     "json.return_value": {
-                        CircuitColumns.ID: _MOCK_PLAN_ID,
-                        CircuitColumns.WRITABLE: False,
+                        SpokeColumns.ID: _MOCK_PLAN_ID,
+                        SpokeColumns.WRITABLE: False,
                     },
                 }
             ]
@@ -543,12 +589,12 @@ def test_plan_initializer(response_sequence: list[dict[str, Any]]) -> None:
         caller = PlanInitializer(plan_data=plan_data)
         caller.call_api()
 
-        assert mock_request.call_args_list[0][1]["url"] == f"{CIRCUIT_URL}/plans"
+        assert mock_request.call_args_list[0][1]["url"] == SpokeURLs.PLANS
         assert mock_request.call_args_list[0][1]["json"] == plan_data
         assert caller.plan_id == _MOCK_PLAN_ID
         assert (
             caller.writable
-            == response_sequence[0]["json.return_value"][CircuitColumns.WRITABLE]
+            == response_sequence[0]["json.return_value"][SpokeColumns.WRITABLE]
         )
 
 
@@ -560,7 +606,7 @@ def test_plan_initializer(response_sequence: list[dict[str, Any]]) -> None:
                 {
                     "status_code": 200,
                     "json.return_value": {
-                        CircuitColumns.ID: _MOCK_PLAN_ID,
+                        SpokeColumns.ID: _MOCK_PLAN_ID,
                         "success": [1, 2],
                         "failed": [],
                     },
@@ -573,7 +619,7 @@ def test_plan_initializer(response_sequence: list[dict[str, Any]]) -> None:
                 {
                     "status_code": 200,
                     "json.return_value": {
-                        CircuitColumns.ID: _MOCK_PLAN_ID,
+                        SpokeColumns.ID: _MOCK_PLAN_ID,
                         "success": [1],
                         "failed": [{"error": "mock error"}],
                     },
@@ -591,7 +637,7 @@ def test_plan_initializer(response_sequence: list[dict[str, Any]]) -> None:
                 {
                     "status_code": 200,
                     "json.return_value": {
-                        CircuitColumns.ID: _MOCK_PLAN_ID,
+                        SpokeColumns.ID: _MOCK_PLAN_ID,
                         "success": [1],
                         "failed": [],
                     },
@@ -622,9 +668,8 @@ def test_stop_uploader(
         with error_context:
             caller.call_api()
 
-            assert (
-                mock_request.call_args_list[0][1]["url"]
-                == f"{CIRCUIT_URL}/{_MOCK_PLAN_ID}/stops:import"
+            assert mock_request.call_args_list[0][1]["url"] == SpokeURLs.STOPS_IMPORT.format(
+                plan_id=_MOCK_PLAN_ID
             )
             assert caller.stop_ids == response_sequence[0]["json.return_value"]["success"]
 
@@ -633,11 +678,11 @@ def test_stop_uploader(
     "response_sequence, error_context",
     [
         (
-            [{"status_code": 200, "json.return_value": {CircuitColumns.DISTRIBUTED: True}}],
+            [{"status_code": 200, "json.return_value": {SpokeColumns.DISTRIBUTED: True}}],
             nullcontext(),
         ),
         (
-            [{"status_code": 200, "json.return_value": {CircuitColumns.DISTRIBUTED: False}}],
+            [{"status_code": 200, "json.return_value": {SpokeColumns.DISTRIBUTED: False}}],
             pytest.raises(
                 RuntimeError,
                 match=re.escape(
@@ -660,13 +705,12 @@ def test_plan_distributor(
         with error_context:
             caller.call_api()
 
-            assert (
-                mock_request.call_args_list[0][1]["url"]
-                == f"{CIRCUIT_URL}/{_MOCK_PLAN_ID}:distribute"
-            )
+            assert mock_request.call_args_list[0][1][
+                "url"
+            ] == SpokeURLs.DISTRIBUTE_PLAN.format(_plan_id=_MOCK_PLAN_ID)
             assert (
                 caller.distributed
-                == response_sequence[0]["json.return_value"][CircuitColumns.DISTRIBUTED]
+                == response_sequence[0]["json.return_value"][SpokeColumns.DISTRIBUTED]
             )
 
 
@@ -689,5 +733,7 @@ def test_plan_deleter(
         caller = PlanDeleter(plan_id=_MOCK_PLAN_ID)
         caller.call_api()
 
-        assert mock_request.call_args_list[0][1]["url"] == f"{CIRCUIT_URL}/{_MOCK_PLAN_ID}"
+        assert mock_request.call_args_list[0][1]["url"] == SpokeURLs.DELETE_PLAN.format(
+            plan_id=_MOCK_PLAN_ID
+        )
         assert caller.deletion == expected_deletion_status

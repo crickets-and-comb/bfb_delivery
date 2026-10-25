@@ -1,4 +1,4 @@
-"""Tests for read_circuit module."""
+"""Tests for read_spoke module."""
 
 import copy
 import json
@@ -13,7 +13,7 @@ from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
-import pandera as pa
+import pandera.pandas as pa
 import pytest
 from click.testing import CliRunner
 from openpyxl import Workbook, load_workbook
@@ -22,10 +22,8 @@ from pandera.typing import Series
 from pydantic_core import ValidationError
 from typeguard import typechecked
 
-from bfb_delivery import create_manifests_from_circuit
-from bfb_delivery.cli import (
-    create_manifests_from_circuit as create_manifests_from_circuit_cli,
-)
+from bfb_delivery import create_manifests_from_spoke
+from bfb_delivery.cli import create_manifests_from_spoke as create_manifests_from_spoke_cli
 from bfb_delivery.lib.constants import (
     ALL_HHS_DRIVER,
     BOX_TYPE_COLOR_MAP,
@@ -35,11 +33,12 @@ from bfb_delivery.lib.constants import (
     NOTES_COLUMN_WIDTH,
     BoxType,
     CellColors,
-    CircuitColumns,
     Columns,
     IntermediateColumns,
+    ProteinOptInValues,
+    SpokeColumns,
 )
-from bfb_delivery.lib.dispatch.read_circuit import (
+from bfb_delivery.lib.dispatch.read_spoke import (
     _get_raw_plans,
     _get_raw_stops,
     _make_plans_df,
@@ -54,7 +53,7 @@ from bfb_delivery.lib.formatting.data_cleaning import (
 )
 from bfb_delivery.lib.formatting.sheet_shaping import _aggregate_route_data
 from bfb_delivery.lib.formatting.utils import get_extra_notes
-from bfb_delivery.lib.schema import CircuitRoutesTransformInFromDict
+from bfb_delivery.lib.schema import SpokeRoutesTransformInFromDict
 from bfb_delivery.lib.schema.checks import at_least_one_in_group, one_to_one
 
 TEST_START_DATE: Final[str] = "2025-01-17"
@@ -78,7 +77,7 @@ def mock_get_plan_responses(
 ) -> Iterator[None]:
     """Mock _get_plan_responses."""
     with patch(
-        "bfb_delivery.lib.dispatch.read_circuit._get_plan_responses",
+        "bfb_delivery.lib.dispatch.read_spoke._get_plan_responses",
         return_value=mock_plan_responses,
     ):
         yield
@@ -87,15 +86,15 @@ def mock_get_plan_responses(
 @pytest.fixture(scope="class")
 @typechecked
 def mock_getcwd(tmp_path_factory: pytest.TempPathFactory) -> Iterator[str]:
-    """Mock os.getcwd within the read_circuit module."""
+    """Mock os.getcwd within the read_spoke module."""
     return_value = str(tmp_path_factory.mktemp("cwd"))
-    with patch("bfb_delivery.lib.dispatch.read_circuit._getcwd", return_value=return_value):
+    with patch("bfb_delivery.lib.dispatch.read_spoke._getcwd", return_value=return_value):
         yield return_value
 
 
 @pytest.mark.usefixtures("mock_get_plan_responses", "mock_getcwd")
-class TestCreateManifestsFromCircuit:
-    """Test create_manifests_from_circuit function."""
+class TestCreateManifestsFromSpoke:
+    """Test create_manifests_from_spoke function."""
 
     @pytest.fixture(scope="class")
     @typechecked
@@ -111,9 +110,9 @@ class TestCreateManifestsFromCircuit:
         driver_sheet_names = []
         for page_dict in mock_plan_responses:
             for plan_dict in page_dict["plans"]:
-                if (
-                    isinstance(plan_dict, dict)  # To satisisfy pytype.
-                    and isinstance(plan_dict["title"], str)  # To satisisfy pytype.
+                if (  # TODO: https://github.com/crickets-and-comb/shared/issues/147
+                    isinstance(plan_dict, dict)  # To satisfy pytype.
+                    and isinstance(plan_dict["title"], str)  # To satisfy pytype.
                     and ALL_HHS_DRIVER not in plan_dict["title"]
                 ):
                     driver_sheet_names.append(plan_dict["title"])
@@ -134,7 +133,7 @@ class TestCreateManifestsFromCircuit:
         driver_sheet_names = []
         for page_dict in mock_plan_responses:
             for plan_dict in page_dict["plans"]:
-                if (
+                if (  # TODO: https://github.com/crickets-and-comb/shared/issues/147
                     isinstance(plan_dict, dict)  # To satisfy pytype.
                     and isinstance(plan_dict["title"], str)  # To satisfy pytype.
                     and ALL_HHS_DRIVER in plan_dict["title"]
@@ -220,14 +219,14 @@ class TestCreateManifestsFromCircuit:
         """Create a basic manifest scoped to class for reuse."""
         output_dir = str(tmp_path_factory.mktemp("tmp_output", numbered=True))
         with patch(
-            "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
+            "bfb_delivery.lib.dispatch.read_spoke._get_raw_stops_list",
             return_value=mock_stops_responses_all_hhs_false,
         ):
-            manifest_path, circuit_sheets_dir = create_manifests_from_circuit(
+            manifest_path, spoke_sheets_dir = create_manifests_from_spoke(
                 start_date=TEST_START_DATE, output_dir=output_dir
             )
 
-        return manifest_path, circuit_sheets_dir
+        return manifest_path, spoke_sheets_dir
 
     @pytest.fixture(scope="class")
     @typechecked
@@ -239,7 +238,7 @@ class TestCreateManifestsFromCircuit:
     @pytest.fixture(scope="class")
     @typechecked
     def manifest_ExcelFile(self, outputs: tuple[Path, Path]) -> Iterator[pd.ExcelFile]:
-        """Create a basic manifest workbook scoped to class for reuse."""
+        """Create a basic manifest Excel file scoped to class for reuse."""
         with pd.ExcelFile(outputs[0]) as xls:
             yield xls
 
@@ -255,7 +254,11 @@ class TestCreateManifestsFromCircuit:
     @typechecked
     def plans_df(self, plans_list: list[dict[str, Any]]) -> pd.DataFrame:
         """_make_plans_df."""
-        return _make_plans_df(plans_list=plans_list, all_hhs=False)
+        # Pandera transforms the list of dicts into a DataFrame.
+        return _make_plans_df(
+            plans_list=plans_list,  # type: ignore[arg-type]
+            all_hhs=False,  # Long comment so formatter doesn't put it on one line.
+        )
 
     @pytest.fixture(scope="class")
     @typechecked
@@ -264,12 +267,10 @@ class TestCreateManifestsFromCircuit:
     ) -> list[dict[str, Any]]:
         """_get_raw_stops."""
         with patch(
-            "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
+            "bfb_delivery.lib.dispatch.read_spoke._get_raw_stops_list",
             return_value=mock_stops_responses_all_hhs_false,
         ):
-            return _get_raw_stops(
-                plan_ids=plans_df[CircuitColumns.ID].tolist(), verbose=False
-            )
+            return _get_raw_stops(plan_ids=plans_df[SpokeColumns.ID].tolist(), verbose=False)
 
     @pytest.fixture(scope="class")
     @typechecked
@@ -279,7 +280,7 @@ class TestCreateManifestsFromCircuit:
         """_transform_routes_df."""
         return _transform_routes_df(plan_stops_list=plan_stops_list, plans_df=plans_df)
 
-    @pytest.mark.parametrize("circuit_output_dir", ["dummy_circuit_output", ""])
+    @pytest.mark.parametrize("spoke_output_dir", ["dummy_spoke_output", ""])
     @pytest.mark.parametrize(
         "all_hhs, mock_stops_responses_fixture",
         [
@@ -292,7 +293,7 @@ class TestCreateManifestsFromCircuit:
     @typechecked
     def test_set_output_dir(
         self,
-        circuit_output_dir: str,
+        spoke_output_dir: str,
         all_hhs: bool,
         mock_stops_responses_fixture: str,
         verbose: bool,
@@ -310,22 +311,24 @@ class TestCreateManifestsFromCircuit:
         )
         expected_output_path = Path(output_dir) / expected_output_filename
 
-        circuit_output_dir = (
-            str(tmp_path / circuit_output_dir) if circuit_output_dir else circuit_output_dir
+        spoke_output_dir = (
+            str(tmp_path / spoke_output_dir) if spoke_output_dir else spoke_output_dir
         )
-        circuit_sub_dir = "routes_" + TEST_START_DATE
-        expected_circuit_output_dir = (
-            Path(circuit_output_dir) / circuit_sub_dir
-            if circuit_output_dir
-            else Path(mock_getcwd) / circuit_sub_dir
+        spoke_sub_dir = "routes_" + TEST_START_DATE
+        expected_spoke_output_dir = (
+            Path(spoke_output_dir) / spoke_sub_dir
+            if spoke_output_dir
+            else Path(mock_getcwd) / spoke_sub_dir
         )
 
-        Path(expected_circuit_output_dir).mkdir(parents=True, exist_ok=True)
-        with open(expected_circuit_output_dir / "dummy_file.txt", "w") as f:
+        Path(expected_spoke_output_dir).mkdir(parents=True, exist_ok=True)
+        with open(expected_spoke_output_dir / "dummy_file.txt", "w") as f:
             f.write("Dummy file. The function should remove this file.")
 
+        output_path: str | Path
+        new_spoke_output_dir: str | Path
         with patch(
-            "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
+            "bfb_delivery.lib.dispatch.read_spoke._get_raw_stops_list",
             return_value=stops_response_data,
         ):
             if test_cli:
@@ -335,31 +338,31 @@ class TestCreateManifestsFromCircuit:
                     TEST_START_DATE,
                     "--output_dir",
                     output_dir,
-                    "--circuit_output_dir",
-                    circuit_output_dir,
+                    "--spoke_output_dir",
+                    spoke_output_dir,
                 ]
                 if all_hhs:
                     arg_list.append("--all_hhs")
                 if verbose:
                     arg_list.append("--verbose")
-                result = cli_runner.invoke(create_manifests_from_circuit_cli.main, arg_list)
+                result = cli_runner.invoke(create_manifests_from_spoke_cli.main, arg_list)
                 assert result.exit_code == 0
 
                 split_char = "\r\n" if os.name == "nt" else "\n"
-                output_path, new_circuit_output_dir = (
+                output_path, new_spoke_output_dir = (
                     result.stdout_bytes.decode("utf-8").strip().split(split_char)
                 )
 
             else:
-                output_path, new_circuit_output_dir = create_manifests_from_circuit(
+                output_path, new_spoke_output_dir = create_manifests_from_spoke(
                     start_date=TEST_START_DATE,
                     output_dir=output_dir,
-                    circuit_output_dir=circuit_output_dir,
+                    spoke_output_dir=spoke_output_dir,
                     all_hhs=all_hhs,
                     verbose=verbose,
                 )
 
-        assert str(new_circuit_output_dir) == str(expected_circuit_output_dir)
+        assert str(new_spoke_output_dir) == str(expected_spoke_output_dir)
         assert str(output_path) == str(expected_output_path)
         assert expected_output_path.exists()
 
@@ -391,15 +394,15 @@ class TestCreateManifestsFromCircuit:
         stops_response_data = request.getfixturevalue(mock_stops_responses_fixture)
         driver_sheet_names = request.getfixturevalue(mock_driver_sheet_names_fixture)
         with patch(
-            "bfb_delivery.lib.dispatch.read_circuit._get_raw_stops_list",
+            "bfb_delivery.lib.dispatch.read_spoke._get_raw_stops_list",
             return_value=stops_response_data,
         ):
-            output_path, circuit_output_dir = create_manifests_from_circuit(
+            output_path, spoke_output_dir = create_manifests_from_spoke(
                 start_date=TEST_START_DATE, output_dir=str(tmp_path), all_hhs=all_hhs
             )
         workbook = pd.ExcelFile(output_path)
         assert sorted(list(workbook.sheet_names)) == sorted(driver_sheet_names)
-        assert sorted([path.name for path in list(circuit_output_dir.glob("*"))]) == sorted(
+        assert sorted([path.name for path in list(spoke_output_dir.glob("*"))]) == sorted(
             [f"{sheet_name}.csv" for sheet_name in driver_sheet_names]
         )
 
@@ -449,7 +452,8 @@ class TestCreateManifestsFromCircuit:
             ("C1", None),
             ("D1", "RECIPIENT SUPPORT: 555-555-5555 x5"),
             ("E1", None),
-            ("F1", "PLEASE SHRED MANIFEST AFTER COMPLETING ROUTE."),
+            ("F1", None),
+            ("G1", "PLEASE SHRED MANIFEST AFTER COMPLETING ROUTE."),
         ],
     )
     @typechecked
@@ -463,15 +467,15 @@ class TestCreateManifestsFromCircuit:
 
     @typechecked
     def test_header_row_end(self, manifest_workbook: Workbook) -> None:
-        """Test that the header row ends at F1."""
+        """Test that the header row ends at G1."""
         for sheet_name in manifest_workbook.sheetnames:
             ws = manifest_workbook[sheet_name]
             last_non_empty_col = max(
                 (cell.column for cell in ws[1] if cell.value), default=None
             )
-            assert last_non_empty_col == 6
+            assert last_non_empty_col == 7
 
-    @pytest.mark.parametrize("cell", ["A1", "B1", "C1", "D1", "E1", "F1"])
+    @pytest.mark.parametrize("cell", ["A1", "B1", "C1", "D1", "E1", "F1", "G1"])
     @typechecked
     def test_header_row_color(self, cell: str, manifest_workbook: Workbook) -> None:
         """Test the header row fill color."""
@@ -512,18 +516,18 @@ class TestCreateManifestsFromCircuit:
 
             neighborhoods = ", ".join(agg_dict["neighborhoods"])
             assert ws["A7"].value == f"Neighborhoods: {neighborhoods.upper()}"
-            assert ws["E3"].value == BoxType.BASIC
-            assert ws["F3"].value == agg_dict["box_counts"][BoxType.BASIC]
-            assert ws["E4"].value == BoxType.LA
-            assert ws["F4"].value == agg_dict["box_counts"][BoxType.LA]
-            assert ws["E5"].value == BoxType.GF
-            assert ws["F5"].value == agg_dict["box_counts"][BoxType.GF]
-            assert ws["E6"].value == BoxType.VEGAN
-            assert ws["F6"].value == agg_dict["box_counts"][BoxType.VEGAN]
-            assert ws["E7"].value == "TOTAL BOX COUNT="
-            assert ws["F7"].value == agg_dict["total_box_count"]
-            assert ws["E8"].value == "PROTEIN COUNT="
-            assert ws["F8"].value == agg_dict["protein_box_count"]
+            assert ws["F3"].value == BoxType.BASIC
+            assert ws["G3"].value == agg_dict["box_counts"][BoxType.BASIC]
+            assert ws["F4"].value == BoxType.LA
+            assert ws["G4"].value == agg_dict["box_counts"][BoxType.LA]
+            assert ws["F5"].value == BoxType.GF
+            assert ws["G5"].value == agg_dict["box_counts"][BoxType.GF]
+            assert ws["F6"].value == BoxType.VEGAN
+            assert ws["G6"].value == agg_dict["box_counts"][BoxType.VEGAN]
+            assert ws["F7"].value == "TOTAL BOX COUNT="
+            assert ws["G7"].value == agg_dict["total_box_count"]
+            assert ws["F8"].value == "PROTEIN COUNT="
+            assert ws["G8"].value == agg_dict["protein_box_count"]
 
     @typechecked
     def test_box_type_cell_colors(self, manifest_workbook: Workbook) -> None:
@@ -533,7 +537,7 @@ class TestCreateManifestsFromCircuit:
             for cell in ws["F"]:
                 if cell.row > 9:
                     assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
-            for cell in ws["E"]:
+            for cell in ws["F"]:
                 if cell.row > 2 and cell.row < 7:
                     assert cell.fill.start_color.rgb == f"{BOX_TYPE_COLOR_MAP[cell.value]}"
 
@@ -555,22 +559,24 @@ class TestCreateManifestsFromCircuit:
             "D1",
             "E1",
             "F1",
+            "G1",
             # Aggregated data.
             "A3",
             "A5",
             "A7",
-            "E3",
-            "E4",
-            "E5",
-            "E6",
-            "E7",
-            "E8",
             "F3",
             "F4",
             "F5",
             "F6",
             "F7",
             "F8",
+            "G3",
+            "G4",
+            "G5",
+            "G6",
+            "G7",
+            "G8",
+            "G9",
             # Data header.
             "A9",
             "B9",
@@ -578,6 +584,7 @@ class TestCreateManifestsFromCircuit:
             "D9",
             "E9",
             "F9",
+            "G9",
         ],
     )
     @typechecked
@@ -592,8 +599,8 @@ class TestCreateManifestsFromCircuit:
         """Test right-aligned cells."""
         for sheet_name in manifest_workbook.sheetnames:
             ws = manifest_workbook[sheet_name]
-            right_aligned_cells = [ws["D1"], ws["F1"]] + [
-                cell for row in ws["E3:F8"] for cell in row
+            right_aligned_cells = [ws["D1"], ws["G1"]] + [
+                cell for row in ws["F3:G8"] for cell in row
             ]
             for cell in right_aligned_cells:
                 assert cell.alignment.horizontal == "right"
@@ -604,7 +611,7 @@ class TestCreateManifestsFromCircuit:
         for sheet_name in manifest_workbook.sheetnames:
             ws = manifest_workbook[sheet_name]
             left_aligned_cells = [cell for row in ws["A1:A8"] for cell in row] + [
-                cell for row in ws["A9:F9"] for cell in row
+                cell for row in ws["A9:G9"] for cell in row
             ]
             for cell in left_aligned_cells:
                 assert cell.alignment.horizontal == "left"
@@ -641,6 +648,51 @@ class TestCreateManifestsFromCircuit:
                 pytest.raises(ValueError, match=re.escape("equal_to(1)")),
             ),
             (Columns.BOX_TYPE, None, pytest.raises(ValueError, match="contains null values")),
+            (
+                Columns.PROTEIN_OPT_IN,
+                None,
+                pytest.raises(ValueError, match="contains null values"),
+            ),
+            # TODO: Change match messages.
+            (
+                Columns.PROTEIN_OPT_IN,
+                1,
+                pytest.raises(
+                    TypeError,
+                    match=re.escape(
+                        (
+                            "Cannot setitem on a Categorical with a new category (1), "
+                            "set the categories first"
+                        )
+                    ),
+                ),
+            ),
+            (
+                Columns.PROTEIN_OPT_IN,
+                "yes",
+                pytest.raises(
+                    TypeError,
+                    match=re.escape(
+                        (
+                            "Cannot setitem on a Categorical with a new category (yes), "
+                            "set the categories first"
+                        )
+                    ),
+                ),
+            ),
+            (
+                Columns.PROTEIN_OPT_IN,
+                True,
+                pytest.raises(
+                    TypeError,
+                    match=re.escape(
+                        (
+                            "Cannot setitem on a Categorical with a new category (True), "
+                            "set the categories first"
+                        )
+                    ),
+                ),
+            ),
         ],
     )
     @typechecked
@@ -654,8 +706,8 @@ class TestCreateManifestsFromCircuit:
     ) -> None:
         """Raises for field violations."""
         bad_df = copy.deepcopy(transformed_routes_df)
-        bad_df.loc[0, field] = bad_value
         with expected_error:
+            bad_df.loc[0, field] = bad_value
             _write_routes_dfs(routes_df=bad_df, output_dir=tmp_path)
 
     @pytest.mark.parametrize(
@@ -696,7 +748,7 @@ class TestCreateManifestsFromCircuit:
     # and will always raise when you try to test another test.
 
     @pytest.mark.parametrize(
-        "column", [CircuitColumns.ROUTE, IntermediateColumns.DRIVER_SHEET_NAME]
+        "column", [SpokeColumns.ROUTE, IntermediateColumns.DRIVER_SHEET_NAME]
     )
     @typechecked
     def test_write_routes_dfs_one_to_one(
@@ -708,7 +760,7 @@ class TestCreateManifestsFromCircuit:
         assert (
             one_to_one(
                 df=bad_df,
-                col_a=CircuitColumns.ROUTE,
+                col_a=SpokeColumns.ROUTE,
                 col_b=IntermediateColumns.DRIVER_SHEET_NAME,
             )
             is np.False_
@@ -717,8 +769,8 @@ class TestCreateManifestsFromCircuit:
     @pytest.mark.parametrize(
         "group_col, at_least_one_col",
         [
-            (CircuitColumns.ROUTE, IntermediateColumns.DRIVER_SHEET_NAME),
-            (IntermediateColumns.DRIVER_SHEET_NAME, CircuitColumns.ROUTE),
+            (SpokeColumns.ROUTE, IntermediateColumns.DRIVER_SHEET_NAME),
+            (IntermediateColumns.DRIVER_SHEET_NAME, SpokeColumns.ROUTE),
             (IntermediateColumns.DRIVER_SHEET_NAME, Columns.STOP_NO),
         ],
     )
@@ -793,19 +845,19 @@ class TestCreateManifestsFromCircuit:
     ) -> None:
         """Raises if driver_sheet_name:stop_id not m:1."""
         bad_df = copy.deepcopy(transformed_routes_df)
-        bad_df.loc[0, CircuitColumns.ID] = bad_df.loc[len(bad_df) - 1, CircuitColumns.ID]
+        bad_df.loc[0, SpokeColumns.ID] = bad_df.loc[len(bad_df) - 1, SpokeColumns.ID]
         with pytest.raises(ValidationError, match="many_to_one"):
             _write_routes_dfs(routes_df=bad_df, output_dir=tmp_path)
 
     @pytest.mark.parametrize(
         "field, item, check_name",
         [
-            (CircuitColumns.ADDRESS, CircuitColumns.ADDRESS_LINE_1, "address1_in_address"),
-            (CircuitColumns.ADDRESS, CircuitColumns.ADDRESS_LINE_2, "address2_in_address"),
-            (CircuitColumns.ADDRESS, CircuitColumns.PLACE_ID, "item_in_field_dict"),
-            (CircuitColumns.ROUTE, CircuitColumns.ID, "item_in_field_dict"),
-            (CircuitColumns.RECIPIENT, CircuitColumns.NAME, "item_in_field_dict"),
-            (CircuitColumns.ORDER_INFO, CircuitColumns.PRODUCTS, "item_in_field_dict"),
+            (SpokeColumns.ADDRESS, SpokeColumns.ADDRESS_LINE_1, "address1_in_address"),
+            (SpokeColumns.ADDRESS, SpokeColumns.ADDRESS_LINE_2, "address2_in_address"),
+            (SpokeColumns.ADDRESS, SpokeColumns.PLACE_ID, "item_in_field_dict"),
+            (SpokeColumns.ROUTE, SpokeColumns.ID, "item_in_field_dict"),
+            (SpokeColumns.RECIPIENT, SpokeColumns.NAME, "item_in_field_dict"),
+            (SpokeColumns.ORDER_INFO, SpokeColumns.PRODUCTS, "item_in_field_dict"),
         ],
     )
     @typechecked
@@ -834,7 +886,7 @@ class TestCreateManifestsFromCircuit:
         updated_plan_stops_list = copy.deepcopy(plan_stops_list)
         missing_neighborhood_id = updated_plan_stops_list[0]["id"]
         imputed_neighborhood = (
-            updated_plan_stops_list[0][CircuitColumns.ADDRESS][CircuitColumns.ADDRESS]
+            updated_plan_stops_list[0][SpokeColumns.ADDRESS][SpokeColumns.ADDRESS]
             .split(",")[1]
             .strip()
         )
@@ -845,18 +897,18 @@ class TestCreateManifestsFromCircuit:
         for stop in updated_plan_stops_list:
             expected_neighborhoods.append(
                 (
-                    stop[CircuitColumns.RECIPIENT][CircuitColumns.NAME],
-                    stop[CircuitColumns.RECIPIENT][CircuitColumns.EXTERNAL_ID],
+                    stop[SpokeColumns.RECIPIENT][SpokeColumns.NAME],
+                    stop[SpokeColumns.RECIPIENT][SpokeColumns.EXTERNAL_ID],
                     stop["id"],
-                    stop[CircuitColumns.ADDRESS][CircuitColumns.PLACE_ID],
+                    stop[SpokeColumns.ADDRESS][SpokeColumns.PLACE_ID],
                 )
             )
         expected_neighborhoods = pd.DataFrame(
-            expected_neighborhoods, columns=sort_cols + ["id", CircuitColumns.PLACE_ID]
+            expected_neighborhoods, columns=sort_cols + ["id", SpokeColumns.PLACE_ID]
         )
         expected_neighborhoods = (
             expected_neighborhoods[
-                expected_neighborhoods[CircuitColumns.PLACE_ID] != DEPOT_PLACE_ID
+                expected_neighborhoods[SpokeColumns.PLACE_ID] != DEPOT_PLACE_ID
             ]
             .sort_values(by=sort_cols)
             .reset_index(drop=True)
@@ -878,42 +930,42 @@ class TestCreateManifestsFromCircuit:
         "field, bad_value, expected_error",
         [
             (
-                CircuitColumns.PLAN,
+                SpokeColumns.PLAN,
                 None,
                 pytest.raises(SchemaError, match="contains null values"),
             ),
             (
-                CircuitColumns.ROUTE,
+                SpokeColumns.ROUTE,
                 None,
                 pytest.raises(SchemaError, match="contains null values"),
             ),
             (
-                CircuitColumns.ID,
+                SpokeColumns.ID,
                 None,
                 pytest.raises(SchemaError, match="contains null values"),
             ),
             (
-                CircuitColumns.STOP_POSITION,
+                SpokeColumns.STOP_POSITION,
                 None,
                 pytest.raises(SchemaError, match="Could not coerce"),
             ),
             (
-                CircuitColumns.STOP_POSITION,
+                SpokeColumns.STOP_POSITION,
                 -1,
                 pytest.raises(SchemaError, match=re.escape("greater_than_or_equal_to(0)")),
             ),
             (
-                CircuitColumns.RECIPIENT,
+                SpokeColumns.RECIPIENT,
                 None,
                 pytest.raises(SchemaError, match="contains null values"),
             ),
             (
-                CircuitColumns.ADDRESS,
+                SpokeColumns.ADDRESS,
                 None,
                 pytest.raises(SchemaError, match="contains null values"),
             ),
             (
-                CircuitColumns.PACKAGE_COUNT,
+                SpokeColumns.PACKAGE_COUNT,
                 0,
                 pytest.raises(SchemaError, match=re.escape("equal_to(1)")),
             ),
@@ -931,7 +983,7 @@ class TestCreateManifestsFromCircuit:
         bad_df = pd.DataFrame(plan_stops_list)
         bad_df.loc[0, field] = bad_value
         with expected_error:
-            _ = CircuitRoutesTransformInFromDict.validate(bad_df)
+            _ = SpokeRoutesTransformInFromDict.validate(bad_df)
 
     @typechecked
     def test_transform_routes_df_stop_id_unique(
@@ -939,9 +991,9 @@ class TestCreateManifestsFromCircuit:
     ) -> None:
         """Raises if id not unique."""
         bad_df = pd.DataFrame(plan_stops_list)
-        bad_df.loc[0, CircuitColumns.ID] = bad_df.loc[1, CircuitColumns.ID]
+        bad_df.loc[0, SpokeColumns.ID] = bad_df.loc[1, SpokeColumns.ID]
         with pytest.raises(SchemaError, match="contains duplicate value"):
-            _ = CircuitRoutesTransformInFromDict.validate(bad_df)
+            _ = SpokeRoutesTransformInFromDict.validate(bad_df)
 
     @pytest.mark.parametrize(
         "id, error_match",
@@ -953,9 +1005,9 @@ class TestCreateManifestsFromCircuit:
     ) -> None:
         """Raises if id doesn't fit pattern."""
         bad_df = pd.DataFrame(plan_stops_list)
-        bad_df.loc[0, CircuitColumns.ID] = id
+        bad_df.loc[0, SpokeColumns.ID] = id
         with pytest.raises(SchemaError, match=error_match):
-            _ = CircuitRoutesTransformInFromDict.validate(bad_df)
+            _ = SpokeRoutesTransformInFromDict.validate(bad_df)
 
 
 @typechecked
@@ -964,35 +1016,41 @@ def test_set_routes_df_values_sets_neighborhoods() -> None:
     routes_df = pd.DataFrame(
         [
             {
-                CircuitColumns.RECIPIENT: {
-                    CircuitColumns.EXTERNAL_ID: "neighborhood1",
-                    CircuitColumns.NAME: "Recipient 1",
+                SpokeColumns.RECIPIENT: {
+                    SpokeColumns.EXTERNAL_ID: "neighborhood1",
+                    SpokeColumns.NAME: "Recipient 1",
                 },
                 Columns.ORDER_COUNT: 1,
                 Columns.ADDRESS: {
-                    CircuitColumns.ADDRESS: "Has neighborhood, shouldn't be used, Anytown",
-                    CircuitColumns.ADDRESS_LINE_1: "123 Main St",
-                    CircuitColumns.ADDRESS_LINE_2: "Anytown",
+                    SpokeColumns.ADDRESS: "Has neighborhood, shouldn't be used, Anytown",
+                    SpokeColumns.ADDRESS_LINE_1: "123 Main St",
+                    SpokeColumns.ADDRESS_LINE_2: "Anytown",
                 },
-                CircuitColumns.ROUTE: {CircuitColumns.TITLE: "01.01 Driver A"},
-                CircuitColumns.ORDER_INFO: {},
+                SpokeColumns.ROUTE: {SpokeColumns.TITLE: "01.01 Driver A"},
+                SpokeColumns.ORDER_INFO: {},
                 IntermediateColumns.DRIVER_SHEET_NAME: "Driver A",
                 IntermediateColumns.ROUTE_TITLE: "01.01 Driver A",
+                SpokeColumns.CUSTOM_PROPERTIES: {
+                    SpokeColumns.PROTEIN_OPT_IN: ProteinOptInValues.YES
+                },
             },
             {
-                CircuitColumns.RECIPIENT: {
-                    CircuitColumns.EXTERNAL_ID: None,
-                    CircuitColumns.NAME: "Recipient 2",
+                SpokeColumns.RECIPIENT: {
+                    SpokeColumns.EXTERNAL_ID: None,
+                    SpokeColumns.NAME: "Recipient 2",
                 },
                 Columns.ADDRESS: {
-                    CircuitColumns.ADDRESS: "123 Main St, YORK, Anytown",
-                    CircuitColumns.ADDRESS_LINE_1: "123 Main St",
-                    CircuitColumns.ADDRESS_LINE_2: "Anytown",
+                    SpokeColumns.ADDRESS: "123 Main St, YORK, Anytown",
+                    SpokeColumns.ADDRESS_LINE_1: "123 Main St",
+                    SpokeColumns.ADDRESS_LINE_2: "Anytown",
                 },
                 Columns.ORDER_COUNT: 1,
-                CircuitColumns.ROUTE: {CircuitColumns.TITLE: "01.01 Driver A"},
-                CircuitColumns.ORDER_INFO: {},
+                SpokeColumns.ROUTE: {SpokeColumns.TITLE: "01.01 Driver A"},
+                SpokeColumns.ORDER_INFO: {},
                 IntermediateColumns.DRIVER_SHEET_NAME: "01.01 Driver A",
+                SpokeColumns.CUSTOM_PROPERTIES: {
+                    SpokeColumns.PROTEIN_OPT_IN: ProteinOptInValues.YES
+                },
             },
         ]
     )

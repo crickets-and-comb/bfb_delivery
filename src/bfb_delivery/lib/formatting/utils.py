@@ -2,13 +2,17 @@
 
 import configparser
 import logging
+import math
 import os
 from pathlib import Path
 
 import pandas as pd
+from openpyxl.cell.cell import Cell
+from openpyxl.utils import get_column_letter
+from openpyxl.worksheet.worksheet import Worksheet
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import BookOneDrivers, Columns, ExtraNotes
+from bfb_delivery.lib.constants import LINE_HEIGHT, BookOneDrivers, Columns, ExtraNotes
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -114,3 +118,64 @@ def map_columns(df: pd.DataFrame, column_name_map: dict[str, str], invert_map: b
         column_name_map = {v: k for k, v in column_name_map.items()}
 
     df.rename(columns=column_name_map, inplace=True)
+
+
+@typechecked
+def set_row_height_of_wrapped_cell(cell: Cell) -> None:
+    """Set appropriate row height for a cell with wrapped text.
+
+    Inspects cell properties (value, font, column width) and calculates the
+    appropriate row height for wrapped text display. Works with both merged
+    and non-merged cells.
+
+    Args:
+        cell: The cell object containing wrapped text.
+
+    Note:
+        This calculation is approximate. The actual row height needed depends on
+        font, size, and formatting. Manual review may be needed for precise results.
+        Modifies the row height in place.
+    """
+    if cell.value is not None:
+        ws: Worksheet = cell.parent
+        row_num: int = cell.row
+
+        char_width: float = (
+            1.2 if (cell.font is not None and getattr(cell.font, "bold", False)) else 1.0
+        )
+
+        cell_width: float = _get_cell_width(cell=cell)
+
+        text_length: float = len(str(cell.value)) * char_width
+        lines: float = text_length / cell_width
+        height: float = max(LINE_HEIGHT, math.ceil(lines) * LINE_HEIGHT)
+
+        ws.row_dimensions[row_num].height = height
+
+    return
+
+
+@typechecked
+def _get_cell_width(cell: Cell) -> float:
+    """Get the total width available for a cell, accounting for merges.
+
+    Args:
+        cell: The cell to measure.
+
+    Returns:
+        The total width available (single column or sum of merged columns).
+    """
+    ws: Worksheet = cell.parent
+    merged_range = next(
+        (merged for merged in ws.merged_cells.ranges if cell.coordinate in merged), None
+    )
+
+    if merged_range is not None:
+        total_width = sum(
+            ws.column_dimensions[get_column_letter(col)].width
+            for col in range(merged_range.min_col, merged_range.max_col + 1)
+        )
+    else:
+        total_width = ws.column_dimensions[cell.column_letter].width
+
+    return total_width

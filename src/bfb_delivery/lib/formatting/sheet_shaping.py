@@ -1,11 +1,10 @@
 """Functions for shaping and formatting spreadsheets."""
 
 import logging
-import math
 import warnings
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pandas as pd
 from openpyxl import Workbook
@@ -23,12 +22,12 @@ from bfb_delivery.lib.constants import (
     FORMATTED_ROUTES_COLUMNS,
     MANIFEST_DATE_FORMAT,
     NOTES_COLUMN_WIDTH,
-    PROTEIN_BOX_TYPES,
     SPLIT_ROUTE_COLUMNS,
     BoxType,
     CellColors,
     Columns,
     DocStrings,
+    ProteinOptInValues,
 )
 from bfb_delivery.lib.formatting.data_cleaning import (
     format_and_validate_data,
@@ -39,6 +38,7 @@ from bfb_delivery.lib.formatting.utils import (
     get_extra_notes,
     get_phone_number,
     map_columns,
+    set_row_height_of_wrapped_cell,
 )
 from bfb_delivery.lib.utils import get_friday
 
@@ -352,7 +352,9 @@ def _aggregate_route_data(df: pd.DataFrame, extra_notes_df: pd.DataFrame) -> dic
         "box_counts": df.groupby(Columns.BOX_TYPE)[Columns.ORDER_COUNT].sum().to_dict(),
         "total_box_count": df[Columns.ORDER_COUNT].sum(),
         "protein_box_count": (
-            df[df[Columns.BOX_TYPE].isin(PROTEIN_BOX_TYPES)][Columns.ORDER_COUNT].sum()
+            df[df[Columns.PROTEIN_OPT_IN] == ProteinOptInValues.YES][
+                Columns.ORDER_COUNT
+            ].sum()
         ),
         "neighborhoods": df[Columns.NEIGHBORHOOD].unique().tolist(),
         "extra_notes": extra_notes_list,
@@ -414,6 +416,7 @@ def _add_header_row(ws: Worksheet) -> None:
             "fill": fill,
         },
         {"value": "", "font": font, "alignment": None, "fill": fill},
+        {"value": "", "font": font, "alignment": None, "fill": fill},
         {
             "value": "PLEASE SHRED MANIFEST AFTER COMPLETING ROUTE.",
             "font": font,
@@ -465,15 +468,15 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, sheet_name: str) -> int:
         zip(left_block, right_block, strict=True), start=start_row
     ):
         for col_idx, cell_definition in enumerate(left_row, start=1):
-            cell = ws.cell(row=i, column=col_idx, value=cell_definition["value"])
+            # Casting for mypy. Sees cell_definition as an object, not indexable.
+            cell_def = cast(dict, cell_definition)
+            cell = ws.cell(row=i, column=col_idx, value=cell_def["value"])
             cell.font = bold_font
             cell.alignment = alignment_left
-            if cell_definition["value"] and cell_definition["value"].startswith(
-                "Neighborhoods"
-            ):
+            if cell_def["value"] and cell_def["value"].startswith("Neighborhoods"):
                 neighborhoods_row_number = i
 
-        for col_idx, cell_definition in enumerate(right_row, start=5):
+        for col_idx, cell_definition in enumerate(right_row, start=6):
             cell = ws.cell(row=i, column=col_idx, value=cell_definition["value"])
             cell.font = bold_font
             cell.alignment = alignment_right
@@ -488,7 +491,7 @@ def _add_aggregate_block(ws: Worksheet, agg_dict: dict, sheet_name: str) -> int:
 def _get_left_block(
     date: str, driver_name: str, agg_dict: dict
 ) -> list[list[dict[str, None]] | list[dict[str, str]]]:
-    left_block = [
+    left_block: list[list[dict[str, None]] | list[dict[str, str]]] = [
         [{"value": None}],
         [{"value": f"Date: {date}"}],
         [{"value": None}],
@@ -681,29 +684,25 @@ def _merge_and_wrap_neighborhoods(ws: Worksheet, neighborhoods_row_number: int) 
     cell = ws.cell(row=neighborhoods_row_number, column=start_col)
     cell.alignment = Alignment(wrap_text=True, horizontal="left", vertical="top")
 
-    # Merged cells don't adjust height automatically, so we need to estimate it.
-    if cell.value:
-        merged_width = sum(
-            ws.column_dimensions[col[0].column_letter].width
-            for col in ws.iter_cols(min_col=start_col, max_col=end_col)
-        )
-        char_width = 1.2
-        lines = 0
-        for line in str(cell.value).split():
-            line_length = len(line) * char_width
-            lines += line_length / merged_width
-
-        ws.row_dimensions[neighborhoods_row_number].height = max(15, math.ceil(lines) * 15)
+    set_row_height_of_wrapped_cell(cell=cell)
 
     return
 
 
 @typechecked
 def _append_extra_notes(ws: Worksheet, extra_notes: list[str]) -> None:
-    """Append extra notes to the worksheet."""
+    """Append extra notes to the worksheet in the leftmost column.
+
+    Places notes in column A and merges across all columns (A-G) with text wrapping.
+    """
     start_row = ws.max_row + 2
+    start_col = 1
+    end_col = 7
     for i, note in enumerate(extra_notes, start=start_row):
-        cell = ws.cell(row=i, column=5, value=note)
-        cell.alignment = Alignment(wrap_text=True, horizontal="left")
+        cell = ws.cell(row=i, column=start_col, value=note)
+        cell.alignment = Alignment(wrap_text=True, horizontal="left", vertical="top")
+        ws.merge_cells(start_row=i, start_column=start_col, end_row=i, end_column=end_col)
+
+        set_row_height_of_wrapped_cell(cell=cell)
 
     return

@@ -4,14 +4,18 @@ import logging
 import re
 from collections.abc import Callable
 from contextlib import AbstractContextManager, nullcontext
-from typing import Final
+from typing import Final, cast
 
 import pandas as pd
 import phonenumbers
 import pytest
 from typeguard import typechecked
 
-from bfb_delivery.lib.constants import MAX_ORDER_COUNT, Columns
+from bfb_delivery.lib.constants import (
+    MAX_ORDER_COUNT,
+    Columns,
+    ProteinOptInValues,
+)
 from bfb_delivery.lib.formatting.data_cleaning import (
     _validate_stop_no,
     format_and_validate_data,
@@ -19,7 +23,12 @@ from bfb_delivery.lib.formatting.data_cleaning import (
 )
 
 INVALID_NUMBERS: Final[list[str]] = [
-    "+1" + str(phonenumbers.invalid_example_number(region_code="US").national_number),
+    "+1"
+    + str(
+        cast(
+            phonenumbers.PhoneNumber, phonenumbers.invalid_example_number(region_code="US")
+        ).national_number
+    ),
     "+15555555555",
 ]
 
@@ -32,7 +41,7 @@ class TestFormatColumnNames:
         """Test formatting column names."""
         # TODO: Int column names? Is that possible?
         # https://github.com/crickets-and-comb/bfb_delivery/issues/89
-        columns = ["  Name  ", Columns.ADDRESS, "  Phone  "]
+        columns = [f"  {Columns.NAME}  ", Columns.ADDRESS, f"  {Columns.PHONE}  "]
         expected = [Columns.NAME, Columns.ADDRESS, Columns.PHONE]
         # TODO: Rewrite to adjust df.
         # https://github.com/crickets-and-comb/bfb_delivery/issues/90
@@ -139,6 +148,20 @@ class TestFormatAndValidateData:
                 Columns.NEIGHBORHOOD,
                 ["YORK", "YORK", "YORK", "YORK", "YORK", "YORK", "YORK", "YORK", "YORK"],
             ),
+            (
+                Columns.PROTEIN_OPT_IN,
+                [
+                    ProteinOptInValues.YES,
+                    ProteinOptInValues.YES,
+                    ProteinOptInValues.YES,
+                    ProteinOptInValues.YES,
+                    ProteinOptInValues.YES,
+                    ProteinOptInValues.YES,
+                    ProteinOptInValues.YES,
+                    ProteinOptInValues.YES,
+                    ProteinOptInValues.YES,
+                ],
+            ),
         ],
     )
     @typechecked
@@ -155,6 +178,7 @@ class TestFormatAndValidateData:
             Columns.ORDER_COUNT,
             Columns.BOX_TYPE,
             Columns.NEIGHBORHOOD,
+            Columns.PROTEIN_OPT_IN,
         ]
         df = pd.DataFrame(
             columns=columns,
@@ -170,6 +194,7 @@ class TestFormatAndValidateData:
                     1,
                     "Basic",
                     "York",
+                    ProteinOptInValues.YES,
                 ),
                 (
                     " Driver",  # Test stripping whitespace.
@@ -182,6 +207,7 @@ class TestFormatAndValidateData:
                     "1 ",  # Test stripping whitespace.
                     " Basic ",  # Test stripping whitespace.
                     " York",  # Test stripping whitespace.
+                    ProteinOptInValues.YES,
                 ),
                 (
                     "Boaty McBoatface",  # Test real name.
@@ -197,6 +223,7 @@ class TestFormatAndValidateData:
                     1.0,  # Test cast float.
                     "Basic",
                     "York",
+                    ProteinOptInValues.YES,
                 ),
                 (
                     "Tim #2",  # Test special character and numbers.
@@ -209,6 +236,7 @@ class TestFormatAndValidateData:
                     "1.0",  # Test cast str float.
                     "Basic",
                     "York",
+                    ProteinOptInValues.YES,
                 ),
                 (
                     "Driver",
@@ -221,6 +249,7 @@ class TestFormatAndValidateData:
                     MAX_ORDER_COUNT,  # Test max order count.
                     "Basic",
                     "York",
+                    ProteinOptInValues.YES,
                 ),
                 (
                     "Driver",
@@ -233,6 +262,7 @@ class TestFormatAndValidateData:
                     1,
                     "Basic",
                     "York",
+                    ProteinOptInValues.YES,
                 ),
                 (
                     "Driver",
@@ -245,6 +275,7 @@ class TestFormatAndValidateData:
                     1,
                     "Basic",
                     "York",
+                    ProteinOptInValues.YES,
                 ),
                 (
                     "Driver",
@@ -257,6 +288,7 @@ class TestFormatAndValidateData:
                     1,
                     "Basic",
                     "York",
+                    ProteinOptInValues.YES,
                 ),
                 (
                     "Driver",
@@ -269,6 +301,7 @@ class TestFormatAndValidateData:
                     1,
                     "Basic",
                     "York",
+                    ProteinOptInValues.YES,
                 ),
             ],
         )
@@ -327,12 +360,12 @@ class TestFormatAndValidateData:
         [
             (
                 pd.DataFrame({Columns.ORDER_COUNT: [None]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(ValueError, match="could not convert string to float: ''"),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.ORDER_COUNT: [""]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(ValueError, match="could not convert string to float: ''"),
                 format_and_validate_data,
             ),
             (
@@ -355,12 +388,12 @@ class TestFormatAndValidateData:
             ),
             (
                 pd.DataFrame({Columns.STOP_NO: [None]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(ValueError, match="could not convert string to float: ''"),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.STOP_NO: [""]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(ValueError, match="could not convert string to float: ''"),
                 format_and_validate_data,
             ),
             (
@@ -409,53 +442,113 @@ class TestFormatAndValidateData:
             (pd.DataFrame({Columns.EMAIL: [""]}), nullcontext(), format_and_validate_data),
             (pd.DataFrame({Columns.PHONE: [""]}), nullcontext(), format_and_validate_data),
             (
+                pd.DataFrame({Columns.PROTEIN_OPT_IN: ["Yes", "No", "no", "yes"]}),
+                nullcontext(),
+                format_and_validate_data,
+            ),
+            (
                 pd.DataFrame({Columns.ADDRESS: [None]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(f"Empty values found in {Columns.ADDRESS} column: "),
+                ),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.ADDRESS: [""]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(f"Empty values found in {Columns.ADDRESS} column: "),
+                ),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.BOX_TYPE: [None]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(f"Empty values found in {Columns.BOX_TYPE} column: "),
+                ),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.BOX_TYPE: [""]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(f"Empty values found in {Columns.BOX_TYPE} column: "),
+                ),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.DRIVER: [None]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(f"Empty values found in {Columns.DRIVER} column: "),
+                ),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.DRIVER: [""]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(f"Empty values found in {Columns.DRIVER} column: "),
+                ),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.NAME: [None]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(f"Empty values found in {Columns.NAME} column: "),
+                ),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.NAME: [""]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(f"Empty values found in {Columns.NAME} column: "),
+                ),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.NEIGHBORHOOD: [None]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(f"Empty values found in {Columns.NEIGHBORHOOD} column: "),
+                ),
                 format_and_validate_data,
             ),
             (
                 pd.DataFrame({Columns.NEIGHBORHOOD: [""]}),
-                pytest.raises(ValueError),  # Actually, throws error when casting to string.
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(f"Empty values found in {Columns.NEIGHBORHOOD} column: "),
+                ),
+                format_and_validate_data,
+            ),
+            (
+                pd.DataFrame({Columns.PROTEIN_OPT_IN: [""]}),
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(
+                        f"Empty values found in {Columns.PROTEIN_OPT_IN} column: "
+                    ),
+                ),
+                format_and_validate_data,
+            ),
+            (
+                pd.DataFrame({Columns.PROTEIN_OPT_IN: [True]}),
+                pytest.raises(
+                    ValueError,
+                    match=re.escape("Invalid protein opt-in values found: {'True'}"),
+                ),
+                format_and_validate_data,
+            ),
+            (
+                pd.DataFrame({Columns.PROTEIN_OPT_IN: [1]}),
+                pytest.raises(
+                    ValueError, match=re.escape("Invalid protein opt-in values found: {'1'}")
+                ),
                 format_and_validate_data,
             ),
         ],
@@ -485,8 +578,9 @@ class TestFormatAndValidateData:
                             + [
                                 "+1"
                                 + str(
-                                    phonenumbers.example_number(
-                                        region_code="US"
+                                    cast(
+                                        phonenumbers.PhoneNumber,
+                                        phonenumbers.example_number(region_code="US"),
                                     ).national_number
                                 )
                             ]

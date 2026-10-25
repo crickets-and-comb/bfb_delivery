@@ -11,7 +11,7 @@ import click
 from typeguard import typechecked
 
 from bfb_delivery import create_manifests
-from bfb_delivery.lib.constants import Defaults, DocStrings
+from bfb_delivery.lib.constants import DocStrings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -25,21 +25,21 @@ logger = logging.getLogger(__name__)
     "--output_dir",
     type=str,
     required=False,
-    default=Defaults.CREATE_MANIFESTS["output_dir"],
+    default=DocStrings.CREATE_MANIFESTS.defaults["output_dir"],
     help=DocStrings.CREATE_MANIFESTS.args["output_dir"],
 )
 @click.option(
     "--output_filename",
     type=str,
     required=False,
-    default=Defaults.CREATE_MANIFESTS["output_filename"],
+    default=DocStrings.CREATE_MANIFESTS.defaults["output_filename"],
     help=DocStrings.CREATE_MANIFESTS.args["output_filename"],
 )
 @click.option(
     "--extra_notes_file",
     type=str,
     required=False,
-    default=Defaults.CREATE_MANIFESTS["extra_notes_file"],
+    default=DocStrings.CREATE_MANIFESTS.defaults["extra_notes_file"],
     help=DocStrings.CREATE_MANIFESTS.args["extra_notes_file"],
 )
 @typechecked

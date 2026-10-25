@@ -10,8 +10,8 @@ from pathlib import Path
 from typeguard import typechecked
 
 from bfb_delivery.lib.constants import DocStrings
-from bfb_delivery.lib.dispatch import write_to_circuit
-from bfb_delivery.lib.dispatch.read_circuit import get_route_files
+from bfb_delivery.lib.dispatch import write_to_spoke
+from bfb_delivery.lib.dispatch.read_spoke import get_route_files
 from bfb_delivery.lib.formatting import sheet_shaping
 
 
@@ -23,7 +23,7 @@ def build_routes_from_chunked(  # noqa: D103
     verbose: bool,
     extra_notes_file: str,
 ) -> Path:
-    return write_to_circuit.build_routes_from_chunked(
+    return write_to_spoke.build_routes_from_chunked(
         input_path=input_path,
         output_dir=output_dir,
         start_date=start_date,
@@ -59,36 +59,36 @@ split_chunked_route.__doc__ = DocStrings.SPLIT_CHUNKED_ROUTE.api_docstring
 
 
 @typechecked
-def create_manifests_from_circuit(  # noqa: D103
+def create_manifests_from_spoke(  # noqa: D103
     start_date: str,
     end_date: str,
     plan_ids: list[str],
     output_dir: str,
     output_filename: str,
-    circuit_output_dir: str,
+    spoke_output_dir: str,
     all_hhs: bool,
     verbose: bool,
     extra_notes_file: str,
 ) -> tuple[Path, Path]:
-    circuit_output_dir = get_route_files(
+    spoke_output_dir = get_route_files(
         start_date=start_date,
         end_date=end_date,
         plan_ids=plan_ids,
-        output_dir=circuit_output_dir,
+        output_dir=spoke_output_dir,
         all_hhs=all_hhs,
         verbose=verbose,
     )
     formatted_manifest_path = sheet_shaping.create_manifests(
-        input_dir=circuit_output_dir,
+        input_dir=spoke_output_dir,
         output_dir=output_dir,
         output_filename=output_filename,
         extra_notes_file=extra_notes_file,
     )
 
-    return formatted_manifest_path, Path(circuit_output_dir)
+    return formatted_manifest_path, Path(spoke_output_dir)
 
 
-create_manifests_from_circuit.__doc__ = DocStrings.CREATE_MANIFESTS_FROM_CIRCUIT.api_docstring
+create_manifests_from_spoke.__doc__ = DocStrings.CREATE_MANIFESTS_FROM_SPOKE.api_docstring
 
 
 @typechecked

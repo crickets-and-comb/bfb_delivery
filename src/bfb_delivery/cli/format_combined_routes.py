@@ -10,7 +10,7 @@ import click
 from typeguard import typechecked
 
 from bfb_delivery import format_combined_routes
-from bfb_delivery.lib.constants import Defaults, DocStrings
+from bfb_delivery.lib.constants import DocStrings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -22,21 +22,21 @@ logger = logging.getLogger(__name__)
     "--output_dir",
     type=str,
     required=False,
-    default=Defaults.FORMAT_COMBINED_ROUTES["output_dir"],
+    default=DocStrings.FORMAT_COMBINED_ROUTES.defaults["output_dir"],
     help=DocStrings.FORMAT_COMBINED_ROUTES.args["output_dir"],
 )
 @click.option(
     "--output_filename",
     type=str,
     required=False,
-    default=Defaults.FORMAT_COMBINED_ROUTES["output_filename"],
+    default=DocStrings.FORMAT_COMBINED_ROUTES.defaults["output_filename"],
     help=DocStrings.FORMAT_COMBINED_ROUTES.args["output_filename"],
 )
 @click.option(
     "--extra_notes_file",
     type=str,
     required=False,
-    default=Defaults.FORMAT_COMBINED_ROUTES["extra_notes_file"],
+    default=DocStrings.FORMAT_COMBINED_ROUTES.defaults["extra_notes_file"],
     help=DocStrings.FORMAT_COMBINED_ROUTES.args["extra_notes_file"],
 )
 @typechecked

@@ -13,7 +13,7 @@ on:
       PYTHON_BUILD_VERSION:
         description: 'Python version to build with. Does not set matrix for QC and testing; just sets version for build jobs.'
         type: string
-        default: "3.12"
+        default: "3.13"
       TEST_OR_PROD:
         description: 'Publish to test or prod? Default ("dev") skips publishing except on push to main, which publishes to test.'
         type: string
@@ -40,7 +40,7 @@ defaults:
 env:
   CONDA_VERSION: latest
   PACKAGE_TEST_WAIT_TIME: 120
-  PYTHON_BUILD_VERSION_DEFAULT: "3.12"
+  PYTHON_BUILD_VERSION_DEFAULT: "3.13"
 
 jobs:
   validate-and-set-inputs:
