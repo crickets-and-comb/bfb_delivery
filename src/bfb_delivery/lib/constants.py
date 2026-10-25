@@ -1,11 +1,13 @@
 """Constants used in the project."""
 
 from enum import StrEnum
-from typing import Final
+from typing import Final, Set
 
 import pandas as pd
 
 from comb_utils import DocString, ErrorDocString
+
+ACRONYMS: Final[Set[str]] = {"YMCA"}
 
 ADDRESS_COLUMN_WIDTH: Final[float] = 40
 

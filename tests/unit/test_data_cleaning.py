@@ -64,8 +64,8 @@ class TestFormatAndValidateData:
                     "Driver",
                     "Boaty Mcboatface",
                     "Tim #2",
-                    "Driver",
-                    "Driver",
+                    "YMCA",
+                    "YMCA",
                     "Driver",
                     "Driver",
                     "Driver",
@@ -239,7 +239,7 @@ class TestFormatAndValidateData:
                     ProteinOptInValues.YES,
                 ),
                 (
-                    "Driver",
+                    "YMCA",  # This acronym should be preserved in uppercase.
                     5,
                     "Eve",
                     "1213 Cedar St",
@@ -252,7 +252,7 @@ class TestFormatAndValidateData:
                     ProteinOptInValues.YES,
                 ),
                 (
-                    "Driver",
+                    "Ymca",
                     6,
                     "Frank",
                     "1315 Birch St",
