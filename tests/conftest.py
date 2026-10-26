@@ -2,7 +2,7 @@
 
 from collections.abc import Iterator
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, PropertyMock, patch
 
 import pytest
 from typeguard import typechecked
@@ -43,9 +43,6 @@ def mock_custom_stop_properties_request_call() -> Iterator[Mock]:
 
     mock_request_call = Mock(return_value=response)
 
-    def mock_set_request_call(self: CustomStopPropertiesGetter) -> None:
-        self._request_call = mock_request_call
-
     from bfb_delivery.lib.utils import get_custom_stop_properties_getter
 
     get_custom_stop_properties_getter.cache_clear()
@@ -53,9 +50,10 @@ def mock_custom_stop_properties_request_call() -> Iterator[Mock]:
     try:
         with patch.object(
             CustomStopPropertiesGetter,
-            "_set_request_call",
-            mock_set_request_call,
-        ):
+            "_request_call",
+            new_callable=PropertyMock,
+        ) as mock_property:
+            mock_property.return_value = mock_request_call
             yield mock_request_call
     finally:
         get_custom_stop_properties_getter.cache_clear()
