@@ -70,7 +70,7 @@ class BaseOptimizationCaller(BaseKeyRetriever, BaseCaller):
     _plan_title: str
 
     @typechecked
-    def __init__(self, url: str, plan_id: str, plan_title: str) -> None:  # noqa: ANN401
+    def __init__(self, url: str, plan_id: str, plan_title: str) -> None:
         """Initialize the BaseOptimizationCaller object.
 
         Args:
