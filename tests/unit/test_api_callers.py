@@ -24,6 +24,7 @@ from bfb_delivery.lib.dispatch.api_callers import (
     StopUploader,
 )
 
+_MOCK_URL: Final[str] = "https://example.com/api/test"
 _MOCK_OPERATION_ID: Final[str] = "sdfhsth"
 _MOCK_PLAN_ID: Final[str] = "shrsrtb"
 _MOCK_PLAN_TITLE: Final[str] = "Mock plan title"
@@ -49,6 +50,9 @@ _REQUEST_METHOD_DICT: Final[dict[str, str]] = {
     "stop_uploader": "post",
 }
 _CALLER_KWARGS_DICT: Final[dict[str, dict[str, Any]]] = {
+    "get": {"url": _MOCK_URL},
+    "post": {"url": _MOCK_URL},
+    "delete": {"url": _MOCK_URL},
     "opt_launcher": {"plan_id": _MOCK_PLAN_ID, "plan_title": _MOCK_PLAN_TITLE},
     "opt_checker": {
         "plan_id": _MOCK_PLAN_ID,
@@ -90,10 +94,6 @@ def test_key_call(request_type: str) -> None:
     class MockCaller(_CALLER_DICT[request_type]):  # type: ignore[misc, valid-type]
         """Minimal concrete subclass of BaseCaller for testing."""
 
-        def _set_url(self) -> None:
-            """Set a dummy test URL."""
-            self._url = "https://example.com/api/test"
-
     response_sequence: list[dict[str, Any]] = [
         {"json.return_value": {"data": [1, 2, 3]}, "status_code": 200}
     ]
@@ -102,7 +102,8 @@ def test_key_call(request_type: str) -> None:
         "bfb_delivery.lib.dispatch.api_callers.get_spoke_key"
     ) as spy_handle_get_spoke_key:
         mock_request.side_effect = [Mock(**resp) for resp in response_sequence]
-        mock_caller = MockCaller()
+        mock_caller = MockCaller(**_CALLER_KWARGS_DICT.get(request_type, {}))
+        mock_caller._url = _MOCK_URL
         mock_caller.call_api()
         spy_handle_get_spoke_key.assert_called_once()
 
@@ -236,14 +237,11 @@ def test_base_caller_wait_time_adjusting(
     class MockCaller(_CALLER_DICT[request_type]):  # type: ignore[misc, valid-type]
         """Minimal concrete subclass of BaseCaller for testing."""
 
-        def _set_url(self) -> None:
-            """Set a dummy test URL."""
-            self._url = "https://example.com/api/test"
-
     with patch(f"requests.{_REQUEST_METHOD_DICT[request_type]}") as mock_request:
         mock_request.side_effect = [Mock(**resp) for resp in response_sequence]
 
         mock_caller = MockCaller(**_CALLER_KWARGS_DICT.get(request_type, {}))
+        mock_caller._url = _MOCK_URL
         mock_caller.call_api()
 
         assert MockCaller._wait_seconds == expected_wait_time
@@ -368,14 +366,11 @@ def test_base_caller_timeout_adjusting(
     class MockCaller(_CALLER_DICT[request_type]):  # type: ignore[misc, valid-type]
         """Minimal concrete subclass of BaseCaller for testing."""
 
-        def _set_url(self) -> None:
-            """Set a dummy test URL."""
-            self._url = "https://example.com/api/test"
-
     with patch(f"requests.{_REQUEST_METHOD_DICT[request_type]}") as mock_request:
         mock_request.side_effect = [Mock(**resp) for resp in response_sequence]
 
         mock_caller = MockCaller(**_CALLER_KWARGS_DICT.get(request_type, {}))
+        mock_caller._url = _MOCK_URL
         mock_caller.call_api()
 
         assert MockCaller._timeout == expected_timeout

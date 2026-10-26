@@ -6,10 +6,10 @@ from typeguard import typechecked
 
 from comb_utils import (
     BaseCaller,
-    BaseDeleteCaller,
-    BaseGetCaller,
-    BasePagedResponseGetter,
-    BasePostCaller,
+    DeleteCaller,
+    GetCaller,
+    PagedResponseGetter,
+    PostCaller,
 )
 
 from bfb_delivery.lib.constants import (
@@ -22,11 +22,6 @@ from bfb_delivery.lib.dispatch.utils import get_spoke_key
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
-
-
-# TODO: https://github.com/crickets-and-comb/bfb_delivery/issues/138:
-# Why are we using _set_url instead of the url property?
-# Why are we using _set_request_call instead of the _request_call property?
 
 
 class BaseKeyRetriever:
@@ -45,15 +40,15 @@ class BaseKeyRetriever:
         return get_spoke_key()
 
 
-class BaseBFBGetCaller(BaseKeyRetriever, BaseGetCaller):
+class BaseBFBGetCaller(BaseKeyRetriever, GetCaller):
     """A base class for making GET API calls with BFB Spoke key."""
 
 
-class BaseBFBPostCaller(BaseKeyRetriever, BasePostCaller):
+class BaseBFBPostCaller(BaseKeyRetriever, PostCaller):
     """A base class for making POST API calls with BFB Spoke key."""
 
 
-class BaseBFBDeleteCaller(BaseKeyRetriever, BaseDeleteCaller):
+class BaseBFBDeleteCaller(BaseKeyRetriever, DeleteCaller):
     """A base class for making DELETE API calls with BFB Spoke key."""
 
 
@@ -75,16 +70,17 @@ class BaseOptimizationCaller(BaseKeyRetriever, BaseCaller):
     _plan_title: str
 
     @typechecked
-    def __init__(self, plan_id: str, plan_title: str) -> None:  # noqa: ANN401
+    def __init__(self, url: str, plan_id: str, plan_title: str) -> None:  # noqa: ANN401
         """Initialize the BaseOptimizationCaller object.
 
         Args:
+            url: The URL for the API call.
             plan_id: The ID of the plan. (e.g. plans/asfoghaev)
             plan_title: The title of the plan.
         """
         self._plan_id = plan_id
         self._plan_title = plan_title
-        super().__init__()
+        super().__init__(url=url)
 
     @typechecked
     def _handle_200(self) -> None:
@@ -127,10 +123,9 @@ class CustomStopPropertiesGetter(BaseBFBGetCaller):
         DEFAULT_CUSTOM_STOP_PROPERTIES
     )
 
-    @typechecked
-    def _set_url(self) -> None:
-        """Set the URL for the API call."""
-        self._url = SpokeURLs.CUSTOM_STOP_PROPERTIES
+    def __init__(self) -> None:
+        """Initialize the CustomStopPropertiesGetter object."""
+        super().__init__(url=SpokeURLs.CUSTOM_STOP_PROPERTIES)
 
     @typechecked
     def _handle_200(self) -> None:
@@ -178,7 +173,7 @@ class CustomStopPropertiesGetter(BaseBFBGetCaller):
         return str(property_ID)
 
 
-class PagedResponseGetterBFB(BaseKeyRetriever, BasePagedResponseGetter):
+class PagedResponseGetterBFB(BaseKeyRetriever, PagedResponseGetter):
     """Class for getting paged responses."""
 
 
@@ -203,12 +198,7 @@ class PlanInitializer(BaseBFBPostCaller):
         """
         self._plan_data = plan_data
         self._call_kwargs = {"json": plan_data}
-        super().__init__()
-
-    @typechecked
-    def _set_url(self) -> None:
-        """Set the URL for the API call."""
-        self._url = SpokeURLs.PLANS
+        super().__init__(url=SpokeURLs.PLANS)
 
     @typechecked
     def _handle_200(self) -> None:
@@ -251,12 +241,7 @@ class StopUploader(BaseBFBPostCaller):
         self._plan_title = plan_title
         self._stop_array = stop_array
         self._call_kwargs = {"json": stop_array}
-        super().__init__()
-
-    @typechecked
-    def _set_url(self) -> None:
-        """Set the URL for the API call with `plan_id`."""
-        self._url = f"{SpokeURLs.STOPS_IMPORT.format(plan_id=self._plan_id)}"
+        super().__init__(url=f"{SpokeURLs.STOPS_IMPORT.format(plan_id=self._plan_id)}")
 
     @typechecked
     def _handle_200(self) -> None:
@@ -292,9 +277,18 @@ class OptimizationLauncher(BaseOptimizationCaller, BaseBFBPostCaller):
     """
 
     @typechecked
-    def _set_url(self) -> None:
-        """Set the URL for the API call with the `plan_id`."""
-        self._url = SpokeURLs.OPTIMIZE.format(plan_id=self._plan_id)
+    def __init__(self, plan_id: str, plan_title: str) -> None:
+        """Initialize the OptimizationLauncher object.
+
+        Args:
+            plan_id: The ID of the plan. (e.g. plans/asfoghaev)
+            plan_title: The title of the plan.
+        """
+        super().__init__(
+            url=SpokeURLs.OPTIMIZE.format(plan_id=plan_id),
+            plan_id=plan_id,
+            plan_title=plan_title,
+        )
 
 
 class OptimizationChecker(BaseOptimizationCaller, BaseBFBGetCaller):
@@ -314,12 +308,11 @@ class OptimizationChecker(BaseOptimizationCaller, BaseBFBGetCaller):
             operation_id: The ID of the operation.
         """
         self.operation_id = operation_id
-        super().__init__(plan_id=plan_id, plan_title=plan_title)
-
-    @typechecked
-    def _set_url(self) -> None:
-        """Set the URL for the API call."""
-        self._url = SpokeURLs.OPTIMIZATION_CHECK.format(operation_id=self.operation_id)
+        super().__init__(
+            url=SpokeURLs.OPTIMIZATION_CHECK.format(operation_id=self.operation_id),
+            plan_id=plan_id,
+            plan_title=plan_title,
+        )
 
 
 class PlanDistributor(BaseBFBPostCaller):
@@ -342,12 +335,7 @@ class PlanDistributor(BaseBFBPostCaller):
         """
         self._plan_id = plan_id
         self._plan_title = plan_title
-        super().__init__()
-
-    @typechecked
-    def _set_url(self) -> None:
-        """Set the URL for the API call with the `plan_id`."""
-        self._url = SpokeURLs.DISTRIBUTE_PLAN.format(_plan_id=self._plan_id)
+        super().__init__(url=SpokeURLs.DISTRIBUTE_PLAN.format(_plan_id=self._plan_id))
 
     @typechecked
     def _handle_200(self) -> None:
@@ -379,12 +367,7 @@ class PlanDeleter(BaseBFBDeleteCaller):
             plan_id: The ID of the plan.
         """
         self._plan_id = plan_id
-        super().__init__()
-
-    @typechecked
-    def _set_url(self) -> None:
-        """Set the URL for the API call with the `plan_id`."""
-        self._url = SpokeURLs.DELETE_PLAN.format(plan_id=self._plan_id)
+        super().__init__(url=SpokeURLs.DELETE_PLAN.format(plan_id=self._plan_id))
 
     @typechecked
     def _handle_204(self) -> None:
