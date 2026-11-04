@@ -9,21 +9,21 @@ bfb\_delivery.api.internal module
 
 .. automodule:: bfb_delivery.api.internal
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 bfb\_delivery.api.public module
 -------------------------------
 
 .. automodule:: bfb_delivery.api.public
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: bfb_delivery.api
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

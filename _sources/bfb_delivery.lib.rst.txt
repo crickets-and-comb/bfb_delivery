@@ -19,29 +19,29 @@ bfb\_delivery.lib.constants module
 
 .. automodule:: bfb_delivery.lib.constants
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 bfb\_delivery.lib.errors module
 -------------------------------
 
 .. automodule:: bfb_delivery.lib.errors
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 bfb\_delivery.lib.utils module
 ------------------------------
 
 .. automodule:: bfb_delivery.lib.utils
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: bfb_delivery.lib
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

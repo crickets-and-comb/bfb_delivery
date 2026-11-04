@@ -9,53 +9,53 @@ bfb\_delivery.cli.build\_routes\_from\_chunked module
 
 .. automodule:: bfb_delivery.cli.build_routes_from_chunked
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 bfb\_delivery.cli.combine\_route\_tables module
 -----------------------------------------------
 
 .. automodule:: bfb_delivery.cli.combine_route_tables
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 bfb\_delivery.cli.create\_manifests module
 ------------------------------------------
 
 .. automodule:: bfb_delivery.cli.create_manifests
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 bfb\_delivery.cli.create\_manifests\_from\_spoke module
 -------------------------------------------------------
 
 .. automodule:: bfb_delivery.cli.create_manifests_from_spoke
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 bfb\_delivery.cli.format\_combined\_routes module
 -------------------------------------------------
 
 .. automodule:: bfb_delivery.cli.format_combined_routes
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 bfb\_delivery.cli.split\_chunked\_route module
 ----------------------------------------------
 
 .. automodule:: bfb_delivery.cli.split_chunked_route
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: bfb_delivery.cli
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

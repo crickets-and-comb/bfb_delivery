@@ -9,21 +9,21 @@ bfb\_delivery.lib.schema.checks.dataframe\_checks module
 
 .. automodule:: bfb_delivery.lib.schema.checks.dataframe_checks
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 bfb\_delivery.lib.schema.checks.field\_checks module
 ----------------------------------------------------
 
 .. automodule:: bfb_delivery.lib.schema.checks.field_checks
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: bfb_delivery.lib.schema.checks
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

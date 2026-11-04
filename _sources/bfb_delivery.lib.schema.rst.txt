@@ -17,21 +17,21 @@ bfb\_delivery.lib.schema.schema module
 
 .. automodule:: bfb_delivery.lib.schema.schema
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 bfb\_delivery.lib.schema.utils module
 -------------------------------------
 
 .. automodule:: bfb_delivery.lib.schema.utils
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: bfb_delivery.lib.schema
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
