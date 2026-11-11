@@ -51,7 +51,12 @@ STOP_ID_FIELD = partial(
     _UNIQUE_FIELD, str_startswith="plans/", str_contains="/stops/", alias=SpokeColumns.ID
 )
 STOP_NO_FIELD = partial(_COERCE_FIELD, ge=1, alias=Columns.STOP_NO)
+# Upload titles must follow the "date driver" naming convention, e.g. "1.17 Andy W".
 TITLE_FIELD = partial(_COERCE_FIELD, at_least_two_words=True)
+# Download titles aren't held to the naming convention, since anyone can create a plan in
+# Spoke (e.g., a driver exploring the app), and we don't want that to break the pipeline.
+# https://github.com/crickets-and-comb/bfb_delivery/issues/143
+DOWNLOAD_TITLE_FIELD = _COERCE_FIELD
 
 # TODO: Unsmurf.
 # https://github.com/crickets-and-comb/bfb_delivery/issues/83
@@ -67,7 +72,7 @@ class SpokePlansOut(pa.DataFrameModel):
     # plan id e.g. "plans/0IWNayD8NEkvD5fQe2SQ":
     id: Series[str] = PLAN_ID_FIELD(unique=True, alias=SpokeColumns.ID)
     # e.g. "1.17 Andy W":
-    title: Series[str] = TITLE_FIELD(alias=SpokeColumns.TITLE)
+    title: Series[str] = DOWNLOAD_TITLE_FIELD(alias=SpokeColumns.TITLE)
 
     class Config:
         """The configuration for the schema."""
@@ -165,7 +170,9 @@ class SpokeRoutesTransformOut(pa.DataFrameModel):
     # Main output columns for downstream processing.
     # route id e.g. "routes/lITTnQsxYffqJQDxIpzr".
     route: Series[str] = ROUTE_FIELD(str_startswith="routes/")
-    driver_sheet_name: Series[str] = TITLE_FIELD(alias=IntermediateColumns.DRIVER_SHEET_NAME)
+    driver_sheet_name: Series[str] = DOWNLOAD_TITLE_FIELD(
+        alias=IntermediateColumns.DRIVER_SHEET_NAME
+    )
     stop_no: Series[int] = STOP_NO_FIELD()
     name: Series[str] = NAME_FIELD()
     address: Series[str] = ADDRESS_FIELD()
@@ -181,7 +188,7 @@ class SpokeRoutesTransformOut(pa.DataFrameModel):
     plan: Series[str] = PLAN_ID_FIELD(alias=SpokeColumns.PLAN)
     id: Series[str] = STOP_ID_FIELD()
     orderInfo: Series[dict[str, Any]] = ORDER_INFO_FIELD(one_product=True)
-    route_title: Series[str] = TITLE_FIELD(alias=IntermediateColumns.ROUTE_TITLE)
+    route_title: Series[str] = DOWNLOAD_TITLE_FIELD(alias=IntermediateColumns.ROUTE_TITLE)
     placeId: Series[str] = _COERCE_FIELD(ne=DEPOT_PLACE_ID, alias=SpokeColumns.PLACE_ID)
 
     class Config:
@@ -228,7 +235,9 @@ class SpokeRoutesWriteIn(pa.DataFrameModel):
     bfb_delivery.lib.dispatch.read_spoke._write_routes_df input.
     """
 
-    driver_sheet_name: Series[str] = TITLE_FIELD(alias=IntermediateColumns.DRIVER_SHEET_NAME)
+    driver_sheet_name: Series[str] = DOWNLOAD_TITLE_FIELD(
+        alias=IntermediateColumns.DRIVER_SHEET_NAME
+    )
     stop_no: Series[int] = STOP_NO_FIELD()
     name: Series[str] = NAME_FIELD()
     address: Series[str] = ADDRESS_FIELD()

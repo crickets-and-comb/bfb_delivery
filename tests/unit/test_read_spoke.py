@@ -406,6 +406,74 @@ class TestCreateManifestsFromSpoke:
             [f"{sheet_name}.csv" for sheet_name in driver_sheet_names]
         )
 
+    @pytest.mark.parametrize("rename_existing_plan", [False, True])
+    @typechecked
+    def test_one_word_plan_title(
+        self,
+        rename_existing_plan: bool,
+        mock_plan_responses: list[dict[str, Any]],
+        mock_stops_responses_all_hhs_false: list,
+        mock_driver_sheet_names_all_hhs_false: list[str],
+        tmp_path: Path,
+    ) -> None:
+        """Downloading doesn't break on plans that don't follow the title convention.
+
+        https://github.com/crickets-and-comb/bfb_delivery/issues/143
+        """
+        one_word_title = "Friday"
+        plan_responses = copy.deepcopy(mock_plan_responses)
+        expected_sheet_names = copy.deepcopy(mock_driver_sheet_names_all_hhs_false)
+        if rename_existing_plan:
+            # A routed plan with stops gets a one-word title.
+            renamed_plan = plan_responses[0]["plans"][0]
+            expected_sheet_names.remove(renamed_plan["title"])
+            expected_sheet_names.append(one_word_title)
+            renamed_plan["title"] = one_word_title
+        else:
+            # An extra plan with a one-word title but no stops (e.g., deleted/abandoned).
+            plan_responses[0]["plans"].append(
+                {
+                    "id": "plans/fake-plan",
+                    "title": one_word_title,
+                    "starts": {"day": 17, "month": 1, "year": 2025},
+                    "depot": "depots/fake-depot",
+                    "distributed": True,
+                    "writable": False,
+                    "optimization": "optimized",
+                    "drivers": [
+                        {
+                            "id": "drivers/fake-driver",
+                            "name": "Little John",
+                            "email": "lj@me.com",
+                            "phone": None,
+                            "displayName": "",
+                            "active": True,
+                        }
+                    ],
+                    "routes": ["routes/fake-route"],
+                }
+            )
+
+        with (
+            patch(
+                "bfb_delivery.lib.dispatch.read_spoke._get_plan_responses",
+                return_value=plan_responses,
+            ),
+            patch(
+                "bfb_delivery.lib.dispatch.read_spoke._get_raw_stops_list",
+                return_value=mock_stops_responses_all_hhs_false,
+            ),
+        ):
+            output_path, spoke_output_dir = create_manifests_from_spoke(
+                start_date=TEST_START_DATE, output_dir=str(tmp_path)
+            )
+
+        workbook = pd.ExcelFile(output_path)
+        assert sorted(workbook.sheet_names) == sorted(expected_sheet_names)
+        assert sorted(path.name for path in spoke_output_dir.glob("*")) == sorted(
+            f"{sheet_name}.csv" for sheet_name in expected_sheet_names
+        )
+
     @typechecked
     def test_date_field_matches_sheet_date(self, manifest_workbook: Workbook) -> None:
         """Test that the date field matches the sheet date."""
@@ -623,11 +691,6 @@ class TestCreateManifestsFromSpoke:
                 IntermediateColumns.DRIVER_SHEET_NAME,
                 None,
                 pytest.raises(ValueError, match="contains null values"),
-            ),
-            (
-                IntermediateColumns.DRIVER_SHEET_NAME,
-                "OneWord",
-                pytest.raises(ValueError, match="at_least_two_words"),
             ),
             (Columns.STOP_NO, np.nan, pytest.raises(ValueError, match="Could not coerce")),
             (
