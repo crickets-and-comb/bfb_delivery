@@ -474,6 +474,31 @@ class TestCreateManifestsFromSpoke:
             f"{sheet_name}.csv" for sheet_name in expected_sheet_names
         )
 
+    @pytest.mark.parametrize("blank_title", ["", " ", "  \t"])
+    @typechecked
+    def test_blank_plan_title_raises(
+        self,
+        blank_title: str,
+        mock_plan_responses: list[dict[str, Any]],
+        mock_stops_responses_all_hhs_false: list,
+        tmp_path: Path,
+    ) -> None:
+        """Blank plan titles raise rather than silently writing a nameless sheet/CSV."""
+        plan_responses = copy.deepcopy(mock_plan_responses)
+        plan_responses[0]["plans"][0]["title"] = blank_title
+        with (
+            patch(
+                "bfb_delivery.lib.dispatch.read_spoke._get_plan_responses",
+                return_value=plan_responses,
+            ),
+            patch(
+                "bfb_delivery.lib.dispatch.read_spoke._get_raw_stops_list",
+                return_value=mock_stops_responses_all_hhs_false,
+            ),
+            pytest.raises(ValueError, match="str_matches"),
+        ):
+            create_manifests_from_spoke(start_date=TEST_START_DATE, output_dir=str(tmp_path))
+
     @typechecked
     def test_date_field_matches_sheet_date(self, manifest_workbook: Workbook) -> None:
         """Test that the date field matches the sheet date."""

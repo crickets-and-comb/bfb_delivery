@@ -53,4 +53,7 @@ def test_download_titles_allow_one_word(model: type[pa.DataFrameModel], column: 
 
     https://github.com/crickets-and-comb/bfb_delivery/issues/143
     """
-    assert _TWO_WORDS_CHECK not in _check_names(model=model, column=column)
+    check_names = _check_names(model=model, column=column)
+    assert _TWO_WORDS_CHECK not in check_names
+    # Still must be non-blank, since titles become sheet and file names.
+    assert "str_matches" in check_names

@@ -55,8 +55,9 @@ STOP_NO_FIELD = partial(_COERCE_FIELD, ge=1, alias=Columns.STOP_NO)
 TITLE_FIELD = partial(_COERCE_FIELD, at_least_two_words=True)
 # Download titles aren't held to the naming convention, since anyone can create a plan in
 # Spoke (e.g., a driver exploring the app), and we don't want that to break the pipeline.
+# They must still be non-blank, though, since they become sheet and file names.
 # https://github.com/crickets-and-comb/bfb_delivery/issues/143
-DOWNLOAD_TITLE_FIELD = _COERCE_FIELD
+DOWNLOAD_TITLE_FIELD = partial(_COERCE_FIELD, str_matches=r"\s*\S")
 
 # TODO: Unsmurf.
 # https://github.com/crickets-and-comb/bfb_delivery/issues/83
